@@ -2,28 +2,12 @@ import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite } from 'pixi.js';
 import { loadManifest, place, placeNight, hasArt } from './sprites';
 
-const N = 64, TW = 64, TH = 32;
+const TW = 64, TH = 32;
 const hud = document.getElementById('hud')!;
 
-// --- simple seeded value noise for original procedural terrain ---
-function rng(seed: number) { return () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296); }
-const r = rng(1234);
-const G = 9, grid: number[][] = [];
-for (let y = 0; y < G; y++) { grid.push([]); for (let x = 0; x < G; x++) grid[y].push(r()); }
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const sm = (t: number) => t * t * (3 - 2 * t);
-function noise(i: number, j: number) {
-  const fx = (i / (N - 1)) * (G - 1), fy = (j / (N - 1)) * (G - 1);
-  const x0 = Math.min(G - 2, Math.floor(fx)), y0 = Math.min(G - 2, Math.floor(fy));
-  const tx = sm(fx - x0), ty = sm(fy - y0);
-  return lerp(lerp(grid[y0][x0], grid[y0][x0 + 1], tx), lerp(grid[y0 + 1][x0], grid[y0 + 1][x0 + 1], tx), ty);
-}
-type T = 'water' | 'sand' | 'grass' | 'forest';
-const terrain: T[][] = [];
-for (let i = 0; i < N; i++) { terrain.push([]); for (let j = 0; j < N; j++) {
-  const h = noise(i, j) + (r() - 0.5) * 0.04;
-  terrain[i].push(h < 0.32 ? 'water' : h < 0.36 ? 'sand' : h > 0.72 ? 'forest' : 'grass');
-}}
+import { chooseCity, type CityCfg } from './newcity';
+import { type T } from './terrain';
+let N = 128; let terrain: T[][] = []; let city: CityCfg = { name: '', size: 128, seed: 0 };
 const colors: Record<T, number[]> = {
   water: [0x2f6fb3, 0x3478bd], sand: [0xd9c58b, 0xe0cd95],
   grass: [0x5aa346, 0x62ad4d, 0x55993f], forest: [0x3c7a33, 0x417f37],
@@ -40,6 +24,8 @@ function diamond(g: Graphics, i: number, j: number) {
 }
 
 (async () => {
+  const boot = await chooseCity(); city = boot.cfg; N = city.size; terrain = boot.terrain;
+  document.title = city.name + ' — City Builder';
   const app = new Application();
   await app.init({ resizeTo: window, background: 0x1b2430, antialias: true });
   document.body.appendChild(app.canvas);
@@ -298,18 +284,19 @@ function diamond(g: Graphics, i: number, j: number) {
     drag = null; preview.clear(); redraw(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, consT, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, consT, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
-  let zoom = Math.min(window.innerWidth / (N * TW), window.innerHeight / (N * TH)) * 1.6;
+  let zoom = 0.6;
   let camX = center.x, camY = center.y;
   const keys = new Set<string>();
   const apply = () => {
     world.scale.set(zoom);
     world.position.set(app.screen.width / 2 - camX * zoom, app.screen.height / 2 - camY * zoom);
   };
-  const clampZoom = (z: number) => Math.max(0.2, Math.min(4, z));
+  const minZoom = Math.min(0.2, Math.min(window.innerWidth / (N * TW), window.innerHeight / (N * TH)) * 0.9);
+  const clampZoom = (z: number) => Math.max(minZoom, Math.min(4, z));
   const zoomAt = (sx: number, sy: number, nz: number) => {
     const wx = (sx - world.position.x) / zoom, wy = (sy - world.position.y) / zoom;
     zoom = clampZoom(nz);
@@ -422,7 +409,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
   const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
   const updateStats = () => {
-    stats.querySelector('#nums')!.innerHTML = `<span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it${util.pWant > util.pCap ? ' neg' : ''}" title="Power: used / capacity (demand ${util.pWant})">⚡ <b>${util.pUse}/${util.pCap}</b></span><span class="it${util.wWant > util.wCap ? ' neg' : ''}" title="Water: used / capacity (demand ${util.wWant})">💧 <b>${util.wUse}/${util.wCap}</b></span><span class="it${sim.funds < 0 ? ' neg' : ''}" title="Funds${sim.loan ? ' (loan $' + sim.loan.toLocaleString() + ')' : ''}">${sim.funds < 0 ? '⚠ ' : ''}Funds <b>$${Math.floor(sim.funds).toLocaleString()}</b></span>`;
+    stats.querySelector('#nums')!.innerHTML = `<span class="it cityName" title="${city.size}×${city.size} · seed ${city.seed}">🏙 <b>${city.name.replace(/</g, '&lt;')}</b></span><span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it${util.pWant > util.pCap ? ' neg' : ''}" title="Power: used / capacity (demand ${util.pWant})">⚡ <b>${util.pUse}/${util.pCap}</b></span><span class="it${util.wWant > util.wCap ? ' neg' : ''}" title="Water: used / capacity (demand ${util.wWant})">💧 <b>${util.wUse}/${util.wCap}</b></span><span class="it${sim.funds < 0 ? ' neg' : ''}" title="Funds${sim.loan ? ' (loan $' + sim.loan.toLocaleString() + ')' : ''}">${sim.funds < 0 ? '⚠ ' : ''}Funds <b>$${Math.floor(sim.funds).toLocaleString()}</b></span>`;
     if (document.getElementById('budget')!.style.display === 'block') renderBudget();
     stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
   };
@@ -498,6 +485,7 @@ function diamond(g: Graphics, i: number, j: number) {
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'u') setUnderground(!underground); });
   setUnderground(false);
   toolHook = t => { if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); };
+  document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) location.href = location.pathname; };
   // ---- Budget panel (button + B) ----
   Object.assign((window as any).__city, { tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
   const budgetEl = document.getElementById('budget')!;
@@ -572,7 +560,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const dot = (() => { const g = new Graphics().circle(16, 16, 16).fill(0xffffff); const t = app.renderer.generateTexture(g); g.destroy(); return t; })();
   const cloudTex = (() => { const g = new Graphics(); for (let k = 10; k >= 1; k--) g.ellipse(160, 80, 16 * k, 8 * k).fill({ color: 0x000000, alpha: 0.03 }); const t = app.renderer.generateTexture(g); g.destroy(); return t; })();
   const W0 = toScreen(0, N - 1).x - TW, W1 = toScreen(N - 1, 0).x + TW, H1 = toScreen(N - 1, N - 1).y + TH;
-  const clouds = [...Array(7)].map((_, k) => { const s = new Sprite(cloudTex); s.anchor.set(0.5); s.scale.set(1.5 + (k % 3) * 0.8, 1.2 + (k % 2) * 0.6); s.position.set(W0 + (W1 - W0) * k / 7, H1 * ((k * 37) % 100) / 100); cloudL.addChild(s); return s; });
+  const NC = Math.max(7, Math.round(7 * N / 64)); const clouds = [...Array(NC)].map((_, k) => { const s = new Sprite(cloudTex); s.anchor.set(0.5); s.scale.set(1.5 + (k % 3) * 0.8, 1.2 + (k % 2) * 0.6); s.position.set(W0 + (W1 - W0) * k / NC, H1 * ((k * 37) % 100) / 100); cloudL.addChild(s); return s; });
   type P = { s: Sprite; vx: number; vy: number; life: number; max: number };
   const smoke: P[] = []; let smokeAcc = 0;
   const CAR_COLORS = [0xd94040, 0xf0f0f0, 0x3a6fd8, 0xf2c230, 0x333333, 0x40a060];

@@ -1,4 +1,4 @@
-import { RESIDENTS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, fmtPower, fmtWater } from './realism';
+import { RESIDENTS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, fmtPower, fmtWater, ROAD_TIERS, roadUpgradeCost, type RoadTier } from './realism';
 import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { loadManifest, place, placeNight, hasArt, artTex } from './sprites';
@@ -62,6 +62,13 @@ function diamond(g: Graphics, i: number, j: number) {
   type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number };
   const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
+  // road tiers & construction: rtier 1 dirt/2 asphalt/3 concrete; rstage 0 = finished, 1 surveyed, 2 graded, 3 gravel, 4 surfacing;
+  // rday = days spent in the current stage; rfrom = tier being upgraded from (old road stays drivable), 0 = new road
+  const rtier: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  const rstage: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  const rday: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  const rfrom: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  let roadTier: RoadTier = 2;
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
   const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
   const consT: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // construction target level (0 = none)
@@ -194,6 +201,13 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
+  const drivable = (i: number, j: number) => inb(i, j) && road[i][j] && (rstage[i][j] === 0 || rfrom[i][j] > 0);
+  const roadWorks: number[] = []; // tiles under construction (i*N+j)
+  const startRoad = (i: number, j: number, t: RoadTier) => { const up = road[i][j] && rtier[i][j] > 0 && rstage[i][j] === 0; rfrom[i][j] = up ? rtier[i][j] : 0; rtier[i][j] = t; rstage[i][j] = up ? 3 : 1; rday[i][j] = 0; road[i][j] = true; roadWorks.push(i * N + j); };
+  const tickRoads = () => { for (let k = roadWorks.length - 1; k >= 0; k--) { const i = (roadWorks[k] / N) | 0, j = roadWorks[k] - i * N;
+      if (!road[i][j] || rstage[i][j] === 0) { roadWorks.splice(k, 1); continue; }
+      const days = ROAD_TIERS[rtier[i][j] as RoadTier].days;
+      if (++rday[i][j] >= days[rstage[i][j] - 1]) { rday[i][j] = 0; rstage[i][j]++; if (rstage[i][j] > days.length) { rstage[i][j] = 0; rfrom[i][j] = 0; roadWorks.splice(k, 1); } markDirty(i, j, i, j); } } };
   // ---- chunked rendering: 16x16-tile chunks per layer, built lazily when visible, rebuilt only when dirty ----
   const CH = 16, NCH = Math.ceil(N / CH);
   type Bld = { x: number; y: number; z: string; L: number; seed: number };
@@ -210,7 +224,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const LCYCLE = 15, lightState = (axis: number, ph: number) => { const t = (clock + ph) % LCYCLE, u = axis ? (t + 7.5) % LCYCLE : t; return u < 6 ? 'green' : u < 7.5 ? 'yellow' : 'red'; };
   const axisOf = (dir: string) => dir === 'SE' || dir === 'NW' ? 0 : 1;
   type Chunk = { ci: number; cj: number; g: Container; gr: Container; rd: Container; zn: Container; ob: Container; pp: Container; ic: Container;
-    ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; winds: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][]; tls: TL[];
+    ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; winds: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][]; tls: TL[]; trucks: any[];
     tint: number; la: number; x0: number; x1: number; y0: number; y1: number };
   const chunks: Chunk[] = [];
   objL.sortableChildren = true;
@@ -219,7 +233,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const ob = mk(objL); ob.sortableChildren = true; ob.zIndex = ci + cj; // chunks drawn back to front; inside a chunk sprites sort by screen y
     const i0 = ci * CH, j0 = cj * CH, i1 = Math.min(N, i0 + CH) - 1, j1 = Math.min(N, j0 + CH) - 1;
     chunks.push({ ci, cj, g: mk(groundL), gr: mk(gridL), rd: mk(roadL), zn: mk(zoneL), ob, pp: mk(pipeL), ic: mk(iconL), ground: false, built: false, dirty: true, iconDirty: true, vis: false, seen: 0,
-      lights: [], winds: [], trees: [], blds: [], roads: [], tls: [], tint: -1, la: -1, x0: (i0 - j1) * 32 - 96, x1: (i1 - j0) * 32 + 96, y0: (i0 + j0) * 16 - 240, y1: (i1 + j1) * 16 + 48 });
+      lights: [], winds: [], trees: [], blds: [], roads: [], tls: [], trucks: [], tint: -1, la: -1, x0: (i0 - j1) * 32 - 96, x1: (i1 - j0) * 32 + 96, y0: (i0 + j0) * 16 - 240, y1: (i1 + j1) * 16 + 48 });
   }
   const chunkOf = (i: number, j: number) => chunks[Math.min(NCH - 1, Math.max(0, Math.floor(i / CH))) * NCH + Math.min(NCH - 1, Math.max(0, Math.floor(j / CH)))];
   let ovDirty = true;
@@ -244,9 +258,30 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = i0; i <= i1; i++) { const a = pt(i, j0), b = pt(i, j1); g.moveTo(a.x, a.y).lineTo(b.x, b.y); }
     for (let j = j0; j <= j1; j++) { const a = pt(i0, j), b = pt(i1, j); g.moveTo(a.x, a.y).lineTo(b.x, b.y); }
     g.stroke({ width: 1, color: 0xffffff, alpha: 0.16 }); ch.gr.addChild(g); ch.ground = true; };
+  // road tile: tier art if City Art Studio has drawn it (road_<tier>_<mask>), else the asphalt art recoloured, plus procedural construction overlays
+  const TIERN = ['', 'dirt', 'asphalt', 'concrete'];
+  const drawRoadTile = (ch: Chunk, i: number, j: number, x: number, y: number, m: number, seed: number) => {
+    const st = rstage[i][j], shownTier = st === 0 ? rtier[i][j] : rfrom[i][j], base = 'road_' + (m || (hasArt('road_0') ? 0 : 1));
+    if (shownTier) { const tk = `road_${TIERN[shownTier]}_${m}`;
+      if (hasArt(tk)) place(tk, x, y, ch.rd, seed);
+      else { const o = place(base, x, y, ch.rd, seed) as any; if (shownTier === 1) o.tint = 0xc49a64;
+        if (shownTier === 3) { const g = new Graphics().poly([x, y - 15, x + 31, y, x, y + 15, x - 31, y]).fill({ color: 0xd8d4c8, alpha: 0.45 }); g.moveTo(x - 15, y - 7.5).lineTo(x + 15, y + 7.5).stroke({ width: 0.6, color: 0x8a867c, alpha: 0.6 }); ch.rd.addChild(g); } } }
+    if (st === 0) return;
+    const key = `road_stage_${['', 'surveyed', 'graded', 'gravel', 'surfacing'][st]}_${m}`;
+    if (hasArt(key)) { place(key, x, y, ch.rd, seed); }
+    else { const g = new Graphics(), dia = [x, y - 15, x + 31, y, x, y + 15, x - 31, y];
+      if (st === 1) { g.moveTo(x - 20, y - 10).lineTo(x + 20, y + 10).stroke({ width: 1, color: 0xff8a00, alpha: 0.9 }); // survey paint line + stakes
+        for (const [a, b] of [[-14, -2], [14, 2], [-2, 9], [2, -9]]) g.rect(x + a - 0.6, y + b - 5, 1.2, 5).fill(0xe8d3a0).rect(x + a - 0.8, y + b - 5, 1.6, 1.4).fill(0xff3d00); }
+      else if (rfrom[i][j]) { g.poly(dia).fill({ color: st === 3 ? 0x8f8676 : 0x3d3d40, alpha: 0.35 }); for (const [a, b] of [[-16, 6], [16, -6]]) g.poly([x + a, y + b - 4, x + a + 2, y + b, x + a - 2, y + b]).fill(0xff7a00); }
+      else g.poly(dia).fill(st === 2 ? 0x8b6a45 : st === 3 ? 0x9a9284 : (rtier[i][j] === 3 ? 0xbdb9ae : 0x3f4045));
+      if (st === 3 && !rfrom[i][j]) for (let k = 0; k < 14; k++) { const h = (seed * (k + 3) * 2654435761) >>> 0; g.rect(x - 14 + (h % 28), y - 6 + ((h >> 8) % 12), 1, 1).fill(0x6c665c); }
+      ch.rd.addChild(g);
+      if (st === 2 || st === 4 || (st === 3 && seed % 2 === 0)) { // a little work truck shuttling across the tile
+        const t = hasArt('work_truck_grader_NE') ? place(st === 2 ? 'work_truck_grader_NE' : 'work_truck_dump_NE', x, y, ch.ob, seed) : new Graphics().rect(-4, -2.5, 8, 5).fill(st === 4 ? 0x555555 : 0xf2b705).rect(1.5, -2.5, 2.5, 5).fill(0x333333);
+        if (!(t.parent)) ch.ob.addChild(t); (t as any).__truck = { x, y, ph: (seed % 100) / 16 }; t.zIndex = y + 0.4; ch.trucks.push(t); } } };
   const drawChunk = (ch: Chunk) => {
     for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); }
-    clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.winds = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tls = []; ch.tint = -1; ch.la = -1;
+    clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.winds = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tls = []; ch.trucks = []; ch.tint = -1; ch.la = -1;
     const P = (key: string, x: number, y: number, seed: number, z: number) => { const o = place(key, x, y, ch.ob, seed); o.zIndex = z; return o; };
     const PN = (key: string, x: number, y: number, seed: number, z: number) => { const l = placeNight(key, x, y, ch.ob, seed); if (l) { l.zIndex = z; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } };
     chunkTiles(ch, (i, j) => {
@@ -263,7 +298,7 @@ function diamond(g: Graphics, i: number, j: number) {
         P('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, seed, y);
       } else if (road[i][j]) {
         const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
-        place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, ch.rd, seed); ch.roads.push([i, j]);
+        drawRoadTile(ch, i, j, x, y, m, seed); if (drivable(i, j)) ch.roads.push([i, j]);
         const cc = classify(i, j); if (cc) ctrl.set(i * N + j, cc); else ctrl.delete(i * N + j);
         if (cc) for (const [, , dir] of APPR.filter(([a, b]) => isRoad(i + a, j + b))) { const [ox, oy] = CORNER[dir], px = x + ox, py = y + oy, z = y + 0.5 + (py - y) * 0.001; // with the intersection tile, after the road
           if (cc.k === 'S') { if (cc.stops.includes(dir)) { P('prop_stop_sign_' + dir, px, py, seed, z); PN('prop_stop_sign_' + dir, px, py, seed, z); } }
@@ -354,6 +389,14 @@ function diamond(g: Graphics, i: number, j: number) {
   const bar = document.getElementById('toolbar')!;
   const setTool = (t: Tool) => { tool = t; syncZones(); toolHook?.(t); if (t.startsWith('svc:')) setCovView(SERV[t.slice(4)].kind); document.querySelectorAll<HTMLElement>('#toolbar button, #services button[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
   tools.forEach(([t, label], k) => { const b = document.createElement('button'); b.dataset.t = t; b.innerHTML = `<b>${k+1}</b> ${t === 'pline' ? '<img src="./assets/ui/icons/icon_power_line@2x.png" alt="">' : t === 'pipe' ? '<img src="./assets/ui/icons/icon_pipe@2x.png" alt="">' : ''}${label}`; b.onclick = () => setTool(t); bar.appendChild(b); });
+  // road tier picker: shown above the toolbar while the Road tool is active
+  const tierBar = document.createElement('div'); tierBar.id = 'roadTiers'; tierBar.style.cssText = 'position:fixed;bottom:62px;left:0;right:0;margin:0 auto;width:max-content;display:none;gap:5px;background:rgba(0,0,0,.7);padding:5px 8px;border-radius:10px;color:#ddd;font-size:12px;z-index:3';
+  tierBar.addEventListener('pointerdown', e => e.stopPropagation());
+  tierBar.innerHTML = '<span style="align-self:center">Road type</span>' + ([1, 2, 3] as RoadTier[]).map(t => { const r = ROAD_TIERS[t]; return `<button data-tier="${t}" title="${r.name}: build $${r.build}/tile, upkeep $${r.upkeep}/tile/month, speed ×${r.speed}. Paint over an existing road to upgrade it (you pay the difference)." style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer">${r.name} <small style="color:#9cf">$${r.build}/tile · $${r.upkeep}/mo</small></button>`; }).join('');
+  document.body.appendChild(tierBar);
+  const setRoadTier = (t: RoadTier) => { roadTier = t; tierBar.querySelectorAll<HTMLElement>('button').forEach(b => b.style.background = +b.dataset.tier! === t ? '#3d6fd1' : '#2b3442'); };
+  tierBar.querySelectorAll<HTMLElement>('button').forEach(b => b.onclick = () => setRoadTier(+b.dataset.tier! as RoadTier)); setRoadTier(2);
+  { const prev = toolHook; toolHook = t => { prev?.(t); tierBar.style.display = t === 'road' ? 'flex' : 'none'; document.getElementById('services')!.style.visibility = t === 'road' ? 'hidden' : ''; }; }
   // Services toolbar group
   const svcBar = document.getElementById('services')!;
   const ICON: Record<string, string> = { school: 'school_elem', highschool: 'school_high', police: 'police', fire: 'fire_station', clinic: 'clinic', hospital: 'hospital' };
@@ -392,7 +435,7 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const removeCiv = (c: Civ) => { markDirty(c.i, c.j, c.i + c.s, c.j + c.s); civs.splice(civs.indexOf(c), 1); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = null; };
   const valid = (i: number, j: number) => {
-    if (tool === 'road') return terrain[i][j] !== 'water' && !civAt[i][j] && !pline[i][j];
+    if (tool === 'road') return terrain[i][j] !== 'water' && !civAt[i][j] && (!pline[i][j] || road[i][j]);
     if (tool === 'pline') return !civAt[i][j] && !zone[i][j] && !pline[i][j]; // lines can span water and cross roads
     if (tool === 'pipe') return !pipe[i][j] && terrain[i][j] !== 'water';
     if (tool === 'bulldoze' && underground) return pipe[i][j];
@@ -403,7 +446,7 @@ function diamond(g: Graphics, i: number, j: number) {
     preview.clear();
     if (tool.startsWith('svc:')) { if (drag) { const t = tool.slice(4), ok = canPlop(t, drag.ci, drag.cj); for (const [i, j] of svcFoot(t, drag.ci, drag.cj).tiles) if (inb(i, j)) { diamond(preview, i, j); preview.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.5 }); } } return; }
     const col = tool === 'pline' ? 0xffd23f : tool === 'pipe' ? 0x4fa3ff : tool === 'road' ? 0x9aa0a6 : tool === 'bulldoze' ? 0xff8800 : ({R:0x3ecf4a,C:0x3b8cff,I:0xf2c230} as any)[tool];
-    let c = 0; for (const [i, j] of dragTiles()) if (valid(i, j)) c += tool === 'pline' ? COST.pline : tool === 'pipe' ? COST.pipe : tool === 'road' ? (road[i][j] ? 0 : COST.road) : tool === 'bulldoze' ? COST.bulldoze : (zone[i][j] !== tool ? COST.zone : 0);
+    let c = 0; for (const [i, j] of dragTiles()) if (valid(i, j)) c += tool === 'pline' ? COST.pline : tool === 'pipe' ? COST.pipe : tool === 'road' ? roadCost(i, j) : tool === 'bulldoze' ? COST.bulldoze : 0;
     hud.textContent = `Cost: $${c.toLocaleString()}` + (c > sim.funds ? ' (not enough funds)' : '');
     for (const [i, j] of dragTiles()) { diamond(preview, i, j); preview.fill({ color: valid(i, j) ? col : 0xff2020, alpha: 0.55 }); }
   };
@@ -412,12 +455,11 @@ function diamond(g: Graphics, i: number, j: number) {
     const tiles = dragTiles().filter(([i, j]) => valid(i, j)), seen = new Set<Civ>();
     let cost = 0;
     for (const [i, j] of tiles) {
-      if (tool === 'road') { if (!road[i][j]) cost += COST.road; }
+      if (tool === 'road') cost += roadCost(i, j);
       else if (tool === 'pline') cost += COST.pline;
       else if (tool === 'pipe') cost += COST.pipe;
       else if (tool === 'bulldoze' && underground) cost += COST.bulldoze;
       else if (tool === 'bulldoze') { const c = civAt[i][j]; if (c) { if (!seen.has(c)) { seen.add(c); cost += COST.bulldozeCivic; } } else cost += COST.bulldoze; }
-      else if (zone[i][j] !== tool) cost += COST.zone;
     }
     if (!spend(cost)) { drag = null; preview.clear(); return; }
     for (const [i, j] of tiles) {
@@ -426,15 +468,15 @@ function diamond(g: Graphics, i: number, j: number) {
       if (tool === 'pline') { pline[i][j] = true; continue; }
       if (tool === 'pipe') { pipe[i][j] = true; continue; }
       if (tool === 'bulldoze' && underground) { pipe[i][j] = false; continue; }
-      if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
-      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
+      if (tool === 'road') { if (roadCost(i, j) > 0) startRoad(i, j, roadTier); zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
+      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; rtier[i][j] = 0; rstage[i][j] = 0; rfrom[i][j] = 0; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
       else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; } zone[i][j] = tool; } }
     if (tiles.length) { let a = N, b = N, c2 = 0, d = 0; for (const [i, j] of tiles) { a = Math.min(a, i); b = Math.min(b, j); c2 = Math.max(c2, i); d = Math.max(d, j); } markDirty(a, b, c2, d); }
     if (tool === 'road' || tool === 'bulldoze') computeNear(); if (tool !== 'pline' && tool !== 'pipe') rebuildZ();
     drag = null; preview.clear(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, consT, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -462,7 +504,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (tool.startsWith('svc:') && !drag) { const t = tool.slice(4), ok = canPlop(t, i, j); for (const [a, b] of svcFoot(t, i, j).tiles) if (inb(a, b)) { diamond(hl, a, b); hl.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.35 }); } }
     else { diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 }); }
     if (civAt[i][j]) { hud.textContent = `Tile: ${i}, ${j}  (${SERV[civAt[i][j]!.type].name})`; return; }
-    hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? 'road' : zone[i][j] ? ZNAME[zone[i][j]] + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : ' zone') : terrain[i][j]})`;
+    hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? ROAD_TIERS[rtier[i][j] as RoadTier]?.name.toLowerCase() + ' road' + (rstage[i][j] ? ' · ' + ['', 'surveyed', 'graded', 'gravel base', 'surfacing'][rstage[i][j]] + (rfrom[i][j] ? ' (upgrade, still open)' : ' (closed)') : '') : zone[i][j] ? ZNAME[zone[i][j]] + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : ' zone') : terrain[i][j]})`;
   };
 
   // ---- simulation ----
@@ -472,7 +514,10 @@ function diamond(g: Graphics, i: number, j: number) {
   const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0 };
   // ---- budget ----
   const tax: Record<string, number> = { R: 9, C: 9, I: 9 };
-  const COST = { road: 10, zone: 5, bulldoze: 2, bulldozeCivic: 50, pline: 5, pipe: 6 };
+  /** what painting the current tier on (i,j) costs: full price on bare ground, the difference when upgrading, 0 if already that tier or better / under works */
+  const roadCost = (i: number, j: number) => !road[i][j] ? ROAD_TIERS[roadTier].build : rstage[i][j] || rtier[i][j] >= roadTier ? 0 : roadUpgradeCost(rtier[i][j] as RoadTier, roadTier);
+  const COST = { zone: 0, // zoning and de-zoning are free (you pay for roads/services, not paperwork)
+    bulldoze: 2, bulldozeCivic: 50, pline: 5, pipe: 6 };
   const LOAN = 10000, LOAN_RATE = 0.01; // 1% per month
   type Report = { income: Record<string, number>; expense: Record<string, number>; net: number };
   let lastMonth: Report | null = null;
@@ -484,12 +529,12 @@ function diamond(g: Graphics, i: number, j: number) {
     sim.funds -= cost; sim.spent += cost; return true;
   };
   const projection = (): Report => {
-    let roads = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) roads++;
+    let roads = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) { const t = rstage[i][j] ? rfrom[i][j] : rtier[i][j]; if (t) roads += ROAD_TIERS[t as RoadTier].upkeep; }
     const income: Record<string, number> = {
       'Residential tax': Math.round(tax.R / 100 * sim.pop * 5),
       'Commercial tax': Math.round(tax.C / 100 * sim.jobsC * 6),
       'Industrial tax': Math.round(tax.I / 100 * sim.jobsI * 6) };
-    const expense: Record<string, number> = { 'Road upkeep': roads * 1 };
+    const expense: Record<string, number> = { 'Road upkeep': Math.round(roads) };
     for (const c of civs) { const k = SERV[c.type].name; expense[k] = (expense[k] ?? 0) + Math.round(UPKEEP[c.type] * funding[c.type]); }
     extraExpenses(expense);
     if (sim.loan) expense['Loan interest'] = Math.round(sim.loan * LOAN_RATE);
@@ -536,7 +581,7 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const tick = () => {
     const t0 = performance.now();
-    lastTick = t0; sim.day++; if (sim.day % 30 === 0) monthly();
+    lastTick = t0; sim.day++; tickRoads(); if (sim.day % 30 === 0) monthly();
     const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
     for (const k of zlist) { const i = (k / N) | 0, j = k - i * N;
       const z = zone[i][j]; if (!z) continue;
@@ -643,7 +688,7 @@ function diamond(g: Graphics, i: number, j: number) {
   ugBtn.onclick = e => { e.stopPropagation(); setUnderground(!underground); };
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'u') setUnderground(!underground); });
   setUnderground(false);
-  toolHook = t => { if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); };
+  { const prevHook = toolHook; toolHook = t => { prevHook?.(t); if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); }; }
   document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) location.href = location.pathname; };
   // ---- Budget panel (button + B) ----
   Object.assign((window as any).__city, { tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
@@ -674,16 +719,17 @@ function diamond(g: Graphics, i: number, j: number) {
   // ---- save / load (milestone 6) ----
   const ZZ = ['', 'R', 'C', 'I'];
   const serialize = () => {
-    const n = N * N, fl = new Uint8Array(n), zn = new Uint8Array(n), bl = new Uint8Array(n), ct = new Uint8Array(n), cd = new Uint8Array(n), tr = new Uint8Array(n);
+    const n = N * N, fl = new Uint8Array(n), zn = new Uint8Array(n), bl = new Uint8Array(n), ct = new Uint8Array(n), cd = new Uint8Array(n), tr = new Uint8Array(n), rt = new Uint8Array(n), rs = new Uint8Array(n), rd = new Uint8Array(n), rf = new Uint8Array(n);
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
-      fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); }
+      fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); rt[k] = rtier[i][j]; rs[k] = rstage[i][j]; rd[k] = Math.min(255, rday[i][j]); rf[k] = rfrom[i][j]; }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd) } };
+      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf) } };
   };
   const applySave = (o: any) => {
-    const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD');
+    const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0; roadWorks.length = 0;
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
-      road[i][j] = !!(fl[k] & 1); pline[i][j] = !!(fl[k] & 2); pipe[i][j] = !!(fl[k] & 4); zone[i][j] = ZZ[zn[k]] ?? ''; bld[i][j] = bl[k]; consT[i][j] = ct[k]; consD[i][j] = cd[k]; civAt[i][j] = null; }
+      road[i][j] = !!(fl[k] & 1); pline[i][j] = !!(fl[k] & 2); pipe[i][j] = !!(fl[k] & 4); zone[i][j] = ZZ[zn[k]] ?? ''; bld[i][j] = bl[k]; consT[i][j] = ct[k]; consD[i][j] = cd[k]; civAt[i][j] = null;
+      rtier[i][j] = road[i][j] ? (rt ? rt[k] || 2 : 2) : 0; rstage[i][j] = road[i][j] ? rs[k] : 0; rday[i][j] = rd[k]; rfrom[i][j] = rf[k]; if (rstage[i][j]) roadWorks.push(k); }
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
     for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l });
     Object.assign(sim, o.sim); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
@@ -788,9 +834,9 @@ function diamond(g: Graphics, i: number, j: number) {
     const vs = VEH[t]; return `veh_${t}_${vs[Math.floor(Math.random() * vs.length)]}`;
   };
   const dropCar = (k: number) => { const c = cars[k]; c.s.destroy(); c.n?.destroy(); cars.splice(k, 1); };
-  const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => isRoad(a, b));
+  const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => drivable(a, b));
   const activity = (i: number, j: number) => { let v = 0; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (inb(i + a, j + b) && bld[i + a][j + b]) v += CAP[zone[i + a][j + b]][bld[i + a][j + b]]; return v; };
-  const roadList = () => { const r: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) r.push([i, j]); return r; };
+  const roadList = () => { const r: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (drivable(i, j)) r.push([i, j]); return r; };
   const water: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (terrain[i][j] === 'water' && shoreMask(i, j) === 0) water.push([i, j]);
   const flocks = [...Array(Math.min(4, water.length))].map((_, k) => {
     const [i, j] = water[Math.floor(water.length * (k + 0.5) / 4)]; const c = toScreen(i, j);
@@ -863,6 +909,7 @@ function diamond(g: Graphics, i: number, j: number) {
               cars.push(c); } } }
       } else if (cars.length > target + 5) { dropCar(cars.length - 1); }
     }
+    for (const ch of chunks) if (ch.vis) for (const t of ch.trucks) { const w = t.__truck, f = Math.sin(clock * 1.3 + w.ph); t.x = w.x + f * 12; t.y = w.y + f * 6; }
     const lane = new Map<number, number[]>(), segK = (pi: number, pj: number, i: number, j: number) => ((pi * N + pj) * 8 + (i - pi + 1) * 2 + (j - pj + 1 >> 1)) | 0;
     for (const c of cars) { const k = segK(c.pi, c.pj, c.i, c.j); const l = lane.get(k); if (l) l.push(c.t); else lane.set(k, [c.t]); }
     for (const ch of chunks) if (ch.vis) for (const tl of ch.tls) { const st = lightState(tl.axis, tl.ph); { tl.st = st;
@@ -875,7 +922,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const GAP = 0.55; // simple spacing: keep about half a tile behind the car ahead in the same lane
     const blocked = (k: number, t: number, self: boolean) => { const l = lane.get(k); if (!l) return false; for (const u of l) if (u > t + (self ? 1e-6 : -1) && u - t < GAP && !(self && u === t)) return true; return false; };
     for (let k = cars.length - 1; k >= 0; k--) { const c = cars[k];
-      if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj) || !fx.cars || !chunkOf(c.i, c.j).vis) { dropCar(k); continue; }
+      if (!drivable(c.i, c.j) || !drivable(c.pi, c.pj) || !fx.cars || !chunkOf(c.i, c.j).vis) { dropCar(k); continue; }
       const ck = segK(c.pi, c.pj, c.i, c.j);
       if (c.res != null && c.res !== c.i * N + c.j && c.res !== c.pi * N + c.pj) c.res = undefined; // left the junction
       if (c.res != null && c.res === c.pi * N + c.pj && c.t > 0.5) c.res = undefined;
@@ -917,7 +964,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const genDense = (seed = 7) => { // test helper: a dense, fully built city on every land tile
     let h = seed >>> 0; const rnd = () => ((h = (h * 1664525 + 1013904223) >>> 0) / 4294967296);
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { if (terrain[i][j] === 'water' || civAt[i][j]) continue;
-      if (i % 8 === 0 || j % 8 === 0) { road[i][j] = true; pline[i][j] = true; pipe[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; continue; }
+      if (i % 8 === 0 || j % 8 === 0) { road[i][j] = true; rtier[i][j] = 2; rstage[i][j] = 0; pline[i][j] = true; pipe[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; continue; }
       const bi = (i / 8) | 0, bj = (j / 8) | 0;
       if ((bi * 7 + bj * 3) % 5 === 0 && i % 8 === 2 && j % 8 === 2) { let ok = true; for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) if (!inb(i + a, j + b) || terrain[i + a][j + b] === 'water' || (i + a) % 8 === 0 || (j + b) % 8 === 0) ok = false;
         if (ok) { const c: Civ = { type: 'coal', i, j, s: 3 }; civs.push(c); for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) civAt[i + a][j + b] = c; const t: Civ = { type: 'tower', i: i + 4, j, s: 1 }; if (!civAt[i + 4][j] && (i + 4) % 8) { civs.push(t); civAt[i + 4][j] = t; } continue; } }

@@ -11,3 +11,14 @@
 ## Art v2-polish
 - Updated to art set v2-polish (450 assets). Roads now have sidewalks, there are more grass variants (rare ones show up less often), and there are four forest styles.
 - Forests now use edge pieces chosen by which neighbouring tiles are also forest. Trees thin out to bushes toward open ground, and a single forest tile becomes a small copse, so forests no longer look like blocks.
+
+## Balance and feature checks
+- Taxes brought in too much money. A small town with almost no services went from $20k to about $100k in 5 game years (roughly 30 minutes of play) and $205k in 8. Tax income per resident or job is now halved, which gives about $46k after 5 years and $86k after 8, with the same steady growth. Logs are in screenshots/balance-*.txt.
+- Added tests/features.cjs. It checks:
+  - Refused placements: on water, on a road, a pump away from water, and building with no money.
+  - Pump and coal plant on a shoreline.
+  - Power lines crossing a road.
+  - Suburban lots growing and upgrading to square buildings.
+  - Lots surviving save and load, and Ctrl+S.
+  - Bulldozing lots and services.
+  - All pass.

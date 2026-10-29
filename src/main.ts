@@ -461,9 +461,9 @@ function diamond(g: Graphics, i: number, j: number) {
   const projection = (): Report => {
     let roads = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) roads++;
     const income: Record<string, number> = {
-      'Residential tax': Math.round(tax.R / 100 * sim.pop * 10),
-      'Commercial tax': Math.round(tax.C / 100 * sim.jobsC * 12),
-      'Industrial tax': Math.round(tax.I / 100 * sim.jobsI * 12) };
+      'Residential tax': Math.round(tax.R / 100 * sim.pop * 5),
+      'Commercial tax': Math.round(tax.C / 100 * sim.jobsC * 6),
+      'Industrial tax': Math.round(tax.I / 100 * sim.jobsI * 6) };
     const expense: Record<string, number> = { 'Road upkeep': roads * 1 };
     for (const c of civs) { const k = SERV[c.type].name; expense[k] = (expense[k] ?? 0) + Math.round(UPKEEP[c.type] * funding[c.type]); }
     extraExpenses(expense);

@@ -81,6 +81,21 @@ export function place(key: string, x: number, y: number, layer: Container, seed 
     if (arms.length !== 2 || arms[0][0] !== -arms[1][0] || arms[0][1] !== -arms[1][1]) g.ellipse(x, y, 10, 5).fill(0x3d3f44);
     for (const [dx, dy] of arms) g.moveTo(x, y).lineTo(x + dx * 2, y + dy * 2).stroke({ width: 14, color: 0x3d3f44 });
     for (const [dx, dy] of arms) g.moveTo(x + dx * 0.3, y + dy * 0.3).lineTo(x + dx * 1.9, y + dy * 1.9).stroke({ width: 1.5, color: 0xf5d547 });
+  } else if (key.startsWith('power_line_')) {
+    const mask = +key.slice(11), H = 16, arms = EDGE.filter((_, b) => mask & (1 << b));
+    g.moveTo(x, y + 2).lineTo(x, y - H).stroke({ width: 2, color: 0x6b4a2b }); g.moveTo(x - 4, y - H + 2).lineTo(x + 4, y - H + 2).stroke({ width: 1.5, color: 0x6b4a2b });
+    for (const [dx, dy] of arms) g.moveTo(x, y - H + 2).quadraticCurveTo(x + dx, y + dy - H + 6, x + dx * 2, y + dy * 2 - H + 2).stroke({ width: 0.8, color: 0x222222 });
+  } else if (key.startsWith('pipe_')) {
+    const mask = +key.slice(5), arms = EDGE.filter((_, b) => mask & (1 << b));
+    g.circle(x, y, 4).fill(0x3d8fe0);
+    for (const [dx, dy] of arms) g.moveTo(x, y).lineTo(x + dx * 2, y + dy * 2).stroke({ width: 6, color: 0x3d8fe0 });
+    for (const [dx, dy] of arms) g.moveTo(x, y).lineTo(x + dx * 2, y + dy * 2).stroke({ width: 2, color: 0x9fd0ff });
+  } else if (key.startsWith('util_')) {
+    const t = key.slice(5);
+    if (t === 'wind') { g.moveTo(x, y + 2).lineTo(x, y - 44).stroke({ width: 3, color: 0xf2f2f2 }); for (let k = 0; k < 3; k++) { const a = -Math.PI / 2 + k * 2 * Math.PI / 3 + 0.3; g.moveTo(x, y - 44).lineTo(x + Math.cos(a) * 16, y - 44 + Math.sin(a) * 16).stroke({ width: 2.5, color: 0xffffff }); } g.circle(x, y - 44, 2.5).fill(0xcccccc); }
+    else if (t === 'tower') { for (const d of [-7, 7]) g.moveTo(x + d, y + 3).lineTo(x + d * 0.5, y - 22).stroke({ width: 2, color: 0x777777 }); g.ellipse(x, y - 30, 12, 6).fill(0x5fa8e8); g.rect(x - 12, y - 30, 24, 10).fill(0x4a90d9); g.ellipse(x, y - 20, 12, 6).fill(0x3d7fc4); g.ellipse(x, y - 30, 12, 6).fill(0x8cc4f2); }
+    else if (t === 'pump') { box(g, x, y, TW * 0.8, TH * 0.8, 16, 0x8fa8b8, 0x4a6f8a); g.circle(x + 12, y - 20, 6).fill(0x3d8fe0); g.rect(x - 20, y - 24, 6, 10).fill(0x5f7f95); }
+    else if (t === 'coal') { box(g, x, y, TW * 1.2, TH * 1.2, 26, 0x8a7f78, 0x4e4844); for (const [cx, h] of [[-14, 40], [4, 48]]) { g.rect(x + cx, y - 26 - h, 8, h).fill(0x6e6560); g.rect(x + cx, y - 26 - h, 8, 4).fill(0xc0392b); } g.ellipse(x + 26, y - 4, 10, 5).fill(0x2a2522); }
   } else if (key === 'civic_lot') {
     dia().fill(0xa7a59c).stroke({ width: 1, color: 0x000000, alpha: 0.1 });
   } else if (key.startsWith('civic_') && !key.endsWith('_night')) {

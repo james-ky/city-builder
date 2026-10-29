@@ -1,4 +1,5 @@
 /**
+ * FALLBACK ONLY (used if the music files fail to load).
  * Procedural "light jazz" generated live with WebAudio. Entirely original: chords, bass, drums
  * and melody are synthesized and composed by the code below at runtime. No samples or recordings.
  */
@@ -20,23 +21,19 @@ export class Jazz {
   ctx: AudioContext | null = null; master!: GainNode; wet!: GainNode;
   private timer = 0; private nextBeat = 0; private beat = 0; private rand = 1;
   private noise!: AudioBuffer;
-  volume = 0.5; private ambOn = true; private amb?: GainNode; private nextWhoosh = 0;
-  /** quiet city ambience under the music (shares the music toggle) */
-  setAmbient(on: boolean) { this.ambOn = on; if (this.amb && this.ctx) this.amb.gain.setTargetAtTime(on && this.timer ? 0.05 : 0, this.ctx.currentTime, 0.5); }
+  volume = 0.5;
   private r() { this.rand = (this.rand * 16807) % 2147483647; return this.rand / 2147483647; }
 
   start() {
     if (!this.ctx) this.init();
     const ctx = this.ctx!; ctx.resume();
     this.master.gain.setTargetAtTime(this.volume, ctx.currentTime, 0.3);
-    if (!this.amb) this.startAmbient();
-    this.amb!.gain.setTargetAtTime(this.ambOn ? 0.05 : 0, ctx.currentTime, 0.5);
     if (!this.timer) { this.nextBeat = ctx.currentTime + 0.1; this.timer = window.setInterval(() => this.schedule(), 50); }
   }
   stop() {
     if (!this.ctx) return;
     this.master.gain.setTargetAtTime(0, this.ctx.currentTime, 0.2);
-    clearInterval(this.timer); this.timer = 0; this.amb?.gain.setTargetAtTime(0, this.ctx.currentTime, 0.2);
+    clearInterval(this.timer); this.timer = 0;
   }
   setVolume(v: number) { this.volume = v; if (this.ctx && this.timer) this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.05); }
 
@@ -54,22 +51,8 @@ export class Jazz {
   }
   private out(node: AudioNode, wet = 0.3) { node.connect(this.master); const g = this.ctx!.createGain(); g.gain.value = wet; node.connect(g).connect(this.wet); }
 
-  private startAmbient() {
-    const ctx = this.ctx!, len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
-    let last = 0; for (let k = 0; k < len; k++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[k] = last * 3.5; } // brown-noise city hum
-    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
-    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 350;
-    this.amb = ctx.createGain(); this.amb.gain.value = 0; src.connect(lp).connect(this.amb).connect(this.master); src.start();
-  }
-  private whoosh(t: number) { // distant passing car
-    const ctx = this.ctx!, s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
-    s.buffer = this.noise; f.type = 'bandpass'; f.Q.value = 2; f.frequency.setValueAtTime(400, t); f.frequency.linearRampToValueAtTime(900, t + 1.2); f.frequency.linearRampToValueAtTime(500, t + 2.4);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.03, t + 1.2); g.gain.linearRampToValueAtTime(0, t + 2.4);
-    s.connect(f).connect(g).connect(this.master); s.start(t); s.stop(t + 2.5);
-  }
   private schedule() {
     const ctx = this.ctx!;
-    if (this.ambOn && ctx.currentTime > this.nextWhoosh) { this.whoosh(ctx.currentTime + 0.1); this.nextWhoosh = ctx.currentTime + 4 + Math.random() * 6; }
     while (this.nextBeat < ctx.currentTime + 0.2) { this.playBeat(this.beat, this.nextBeat); this.nextBeat += BEAT; this.beat++; }
   }
   private playBeat(b: number, t: number) {
@@ -81,7 +64,7 @@ export class Jazz {
     if (beat === 0 && this.r() < 0.85) this.chord(ch.voicing, t, BEAT * 1.6);
     if (beat === 1 && this.r() < 0.4) this.chord(ch.voicing, t + BEAT * SWING, BEAT * 0.9);
     // brush drums: swish every beat, ride-ish taps on the swung pattern
-    this.brush(t, beat % 2 === 1 ? 0.16 : 0.1, BEAT * 0.9);
+    // (noise brush swishes removed: they were the 'swooshing' sound)
     this.tap(t, 0.05); if (beat % 2 === 1) this.tap(t + BEAT * SWING, 0.035);
     if (beat === 0 && bar % 2 === 0) this.kick(t);
     // light melody: sparse, chord tones, phrased in 2-bar sentences

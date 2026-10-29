@@ -1,6 +1,6 @@
-import { Jazz } from './music';
+import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite } from 'pixi.js';
-import { loadManifest, place, hasArt } from './sprites';
+import { loadManifest, place, placeNight, hasArt } from './sprites';
 
 const N = 64, TW = 64, TH = 32;
 const hud = document.getElementById('hud')!;
@@ -48,8 +48,8 @@ function diamond(g: Graphics, i: number, j: number) {
 
   await loadManifest();
   const groundL = new Container(), roadL = new Container(), zoneL = new Container(), gridL = new Container(), objL = new Container();
-  const pollL = new Container(), carL = new Container(), cloudL = new Container(), nightG = new Graphics(), lightsG = new Graphics(), skyL = new Container();
-  world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, objL, cloudL, nightG, lightsG, skyL);
+  const pollL = new Container(), carL = new Container(), cloudL = new Container(), nightG = new Graphics(), lightsL = new Container(), skyL = new Container(), smokeL = new Container();
+  world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, objL, smokeL, cloudL, nightG, lightsL, skyL);
   const trees: { s: { skew: { x: number } }; ph: number }[] = [];
   const blds: { x: number; y: number; z: string; L: number; seed: number }[] = [];
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
@@ -102,7 +102,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
   const redraw = () => {
-    clear(roadL); clear(zoneL); clear(objL); trees.length = 0; blds.length = 0;
+    clear(roadL); clear(zoneL); clear(objL); clear(lightsL); trees.length = 0; blds.length = 0;
     computeNear();
     for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
       const { x, y } = toScreen(i, j), seed = seedOf(i, j);
@@ -112,7 +112,7 @@ function diamond(g: Graphics, i: number, j: number) {
       } else if (zone[i][j]) {
         if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
         if (consT[i][j]) place(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, objL, seed);
-        else if (bld[i][j]) { place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
+        else if (bld[i][j]) { place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); placeNight(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, lightsL, seed); blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
       } else if (terrain[i][j] === 'forest') trees.push({ s: place('forest', x, y, objL, seed), ph: (seed % 628) / 100 });
     }
   };
@@ -257,9 +257,9 @@ function diamond(g: Graphics, i: number, j: number) {
   stats.querySelectorAll('#speed button').forEach(b => (b as HTMLElement).onclick = () => setSpeed(+(b as HTMLElement).dataset.s!));
   window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); if (sim.speed) { lastSpeed = sim.speed; setSpeed(0); } else setSpeed(lastSpeed); } });
   // ---- "alive" effects (all code-drawn; toggled in the gear menu) ----
-  const FX = ['clouds', 'smoke', 'pollution', 'cars', 'daynight', 'nature', 'ambient'] as const;
-  const FXNAME: Record<string, string> = { clouds: 'Cloud shadows', smoke: 'Factory smoke', pollution: 'Pollution overlay', cars: 'Traffic', daynight: 'Day / night', nature: 'Birds & swaying trees', ambient: 'City ambience (with music)' };
-  const fx: Record<string, boolean> = { clouds: true, smoke: true, pollution: false, cars: true, daynight: true, nature: true, ambient: true, ...JSON.parse(localStorage.getItem('fx') ?? '{}') };
+  const FX = ['clouds', 'smoke', 'pollution', 'cars', 'daynight', 'nature'] as const;
+  const FXNAME: Record<string, string> = { clouds: 'Cloud shadows', smoke: 'Factory smoke', pollution: 'Pollution overlay', cars: 'Traffic', daynight: 'Day / night', nature: 'Birds & swaying trees' };
+  const fx: Record<string, boolean> = { clouds: true, smoke: true, pollution: false, cars: true, daynight: true, nature: true, ...JSON.parse(localStorage.getItem('fx') ?? '{}') };
   let lastTick = performance.now();
   const drawPollution = () => {
     clear(pollL); if (!fx.pollution) return;
@@ -267,18 +267,29 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (poll[i][j] > 0.3) { diamond(g, i, j); g.fill({ color: 0x6b4a1e, alpha: Math.min(0.55, poll[i][j] * 0.07) }); }
   };
   census(); updateStats(); setSpeed(1);
-  // ---- music (procedural, original) ----
-  const jazz = new Jazz();
+  // ---- music (real CC0 / CC-BY tracks, see CREDITS.md) + separate ambience ----
+  const jazz = new Playlist(), amb = new Ambience();
   const musicBtn = document.getElementById('musicBtn')!, vol = document.getElementById('vol') as HTMLInputElement;
-  let musicOn = localStorage.getItem('music') !== 'off', started = false;
+  const ambBtn = document.getElementById('ambBtn')!, ambVol = document.getElementById('ambVol') as HTMLInputElement;
+  const credit = document.getElementById('credit')!;
+  let musicOn = localStorage.getItem('music') !== 'off', ambOn = localStorage.getItem('ambience') === 'on', started = false;
   jazz.volume = vol.valueAsNumber = +(localStorage.getItem('volume') ?? 0.5);
-  const syncMusic = () => { musicBtn.classList.toggle('on', musicOn); musicBtn.textContent = musicOn ? '♪ Music' : '♪ Off'; if (started) musicOn ? jazz.start() : jazz.stop(); };
+  amb.volume = ambVol.valueAsNumber = +(localStorage.getItem('ambVolume') ?? 0.15);
+  jazz.onTrack = t => { credit.innerHTML = t ? `♪ “${t.title}” — ${t.artist} · <a href="${t.url}" target="_blank" rel="noopener">${t.license}</a>` : '♪ procedural jazz (fallback)'; };
+  const syncMusic = () => {
+    musicBtn.classList.toggle('on', musicOn); musicBtn.textContent = musicOn ? '♪ Music' : '♪ Off';
+    ambBtn.classList.toggle('on', ambOn); ambBtn.textContent = ambOn ? '🏙 Ambience' : '🏙 Off';
+    credit.style.display = musicOn && started ? 'block' : 'none';
+    if (started) { musicOn ? jazz.start() : jazz.stop(); ambOn ? amb.start() : amb.stop(); }
+  };
   musicBtn.onclick = e => { e.stopPropagation(); musicOn = !musicOn; localStorage.setItem('music', musicOn ? 'on' : 'off'); started = true; syncMusic(); };
+  ambBtn.onclick = e => { e.stopPropagation(); ambOn = !ambOn; localStorage.setItem('ambience', ambOn ? 'on' : 'off'); started = true; syncMusic(); };
   vol.oninput = () => { jazz.setVolume(vol.valueAsNumber); localStorage.setItem('volume', String(vol.valueAsNumber)); };
+  ambVol.oninput = () => { amb.setVolume(ambVol.valueAsNumber); localStorage.setItem('ambVolume', String(ambVol.valueAsNumber)); };
   const firstGesture = () => { if (!started) { started = true; syncMusic(); } };
   window.addEventListener('pointerdown', firstGesture); window.addEventListener('keydown', firstGesture);
   syncMusic();
-  (window as any).__jazz = jazz;
+  (window as any).__jazz = jazz; (window as any).__amb = amb;
   // info panel
   const info = document.getElementById('info')!;
   const inspect = ({ i, j }: { i: number; j: number }) => {
@@ -338,24 +349,13 @@ function diamond(g: Graphics, i: number, j: number) {
     const birds = [...Array(4)].map(() => { const g = new Graphics().moveTo(-4, -1).lineTo(0, 1).lineTo(4, -1).stroke({ width: 1.2, color: 0x222222 }); skyL.addChild(g); return g; });
     return { cx: c.x, cy: c.y - 40, r: 40 + k * 15, ph: k * 1.7, birds };
   });
-  const setFxVisibility = () => { cloudL.visible = fx.clouds; carL.visible = fx.cars; skyL.visible = fx.nature || fx.smoke; if (!fx.daynight) { nightG.clear(); lightsG.alpha = 0; app.renderer.background.color = 0x1b2430; } drawPollution(); jazz.setAmbient(fx.ambient); };
+  const setFxVisibility = () => { cloudL.visible = fx.clouds; carL.visible = fx.cars; skyL.visible = fx.nature; smokeL.visible = fx.smoke; if (!fx.daynight) { nightG.clear(); lightsL.alpha = 0; app.renderer.background.color = 0x1b2430; } drawPollution(); };
   const menu = document.getElementById('fxMenu')!;
   menu.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
   menu.querySelectorAll('input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
   document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
   setFxVisibility();
-  let clock = 0, lastLights = '';
-  const drawLights = () => {
-    lightsG.clear();
-    for (const b of blds) {
-      const H = b.L === 3 ? (b.z === 'I' ? 26 : 70) : b.L === 2 ? 34 : 18;
-      const n = 2 + b.L * 3;
-      for (let k = 0; k < n; k++) { const r1 = ((b.seed >>> (k * 3)) & 1023) / 1023, r2 = ((b.seed >>> (k * 2 + 5)) & 1023) / 1023;
-        if (r2 < 0.3) continue;
-        const side = k % 2 ? 1 : -1, ox = side * (4 + r1 * 14), oy = -6 - r2 * (H - 8);
-        lightsG.rect(b.x + ox, b.y + oy, 2.5, 3).fill(0xffe28a); }
-    }
-  };
+  let clock = 0;
   let night = 0;
   app.ticker.add(t => {
     const dt = t.deltaMS / 1000; clock += dt;
@@ -366,8 +366,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const tod = document.getElementById('tod'); if (tod) tod.textContent = (night > 0.5 ? '🌙 ' : '☀️ ') + String(Math.floor(hour)).padStart(2, '0') + ':00';
     if (fx.daynight) {
       nightG.clear().rect(W0 - 2000, -2000, W1 - W0 + 4000, H1 + 4000).fill({ color: 0x0a1030, alpha: night * 0.5 });
-      const sig = blds.length + ':' + sim.pop; if (sig !== lastLights) { drawLights(); lastLights = sig; }
-      lightsG.alpha = night;
+      lightsL.alpha = night; // per-building night overlays (art), additive
       app.renderer.background.color = night > 0.5 ? 0x0d1220 : 0x1b2430;
     }
     if (fx.clouds) for (const c of clouds) { c.x += 12 * dt; c.y += 3 * dt; if (c.x > W1 + 300) { c.x = W0 - 300; c.y = Math.random() * H1; } }
@@ -381,7 +380,7 @@ function diamond(g: Graphics, i: number, j: number) {
       if (smokeAcc > 0.12) { smokeAcc = 0;
         for (const b of blds) if (b.z === 'I' && smoke.length < 260 && Math.random() < 0.12 * b.L) {
           const s = new Sprite(dot); s.anchor.set(0.5); s.tint = 0xcfcac2; s.alpha = 0.5; s.scale.set(0.12);
-          s.position.set(b.x + 10 + (b.seed % 7) - 3, b.y - 22 - b.L * 6); skyL.addChild(s);
+          s.position.set(b.x + 10 + (b.seed % 7) - 3, b.y - 22 - b.L * 6); smokeL.addChild(s);
           smoke.push({ s, vx: 4 + Math.random() * 4, vy: -10 - Math.random() * 6, life: 0, max: 3 + Math.random() * 2 });
         } }
     }

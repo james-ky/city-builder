@@ -53,7 +53,9 @@ function diamond(g: Graphics, i: number, j: number) {
   // overlay can sit right after it in the same depth-sorted container (correct occlusion).
   const pipeL = new Container(), iconL = new Container();
   world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, objL, smokeL, cloudL, skyL, iconL);
-  const lights: Sprite[] = []; let lastNightTint = -1;
+  const lights: Sprite[] = []; let lastNightTint = -1, curTint = 0xffffff;
+  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string };
+  const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
   const trees: { s: { skew: { x: number } }; ph: number }[] = [];
   const blds: { x: number; y: number; z: string; L: number; seed: number }[] = [];
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
@@ -180,11 +182,13 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
+  let curZ = 0; objL.sortableChildren = true; // buildings take their tile's screen y; vehicles use theirs, so they sort together
+  objL.on('childAdded', (c: any) => { if (!c.__veh) c.zIndex = curZ; });
   const redraw = () => {
-    computeCoverage(); clear(roadL); clear(zoneL); clear(objL); clear(pipeL); clear(iconL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
+    computeCoverage(); clear(roadL); clear(zoneL); objL.removeChildren().forEach(o => { if (!(o as any).__veh) o.destroy(); }); for (const c of cars) { objL.addChild(c.s); if (c.n) objL.addChild(c.n); } clear(pipeL); clear(iconL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
     computeNear();
     for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
-      const { x, y } = toScreen(i, j), seed = seedOf(i, j);
+      const { x, y } = toScreen(i, j), seed = seedOf(i, j); curZ = y;
       const cv = civAt[i][j];
       if (cv) {
         place('civic_lot', x, y, zoneL, seed);
@@ -571,9 +575,17 @@ function diamond(g: Graphics, i: number, j: number) {
   const clouds = [...Array(7)].map((_, k) => { const s = new Sprite(cloudTex); s.anchor.set(0.5); s.scale.set(1.5 + (k % 3) * 0.8, 1.2 + (k % 2) * 0.6); s.position.set(W0 + (W1 - W0) * k / 7, H1 * ((k * 37) % 100) / 100); cloudL.addChild(s); return s; });
   type P = { s: Sprite; vx: number; vy: number; life: number; max: number };
   const smoke: P[] = []; let smokeAcc = 0;
-  type Car = { s: Graphics; i: number; j: number; pi: number; pj: number; t: number; sp: number };
-  const cars: Car[] = [];
   const CAR_COLORS = [0xd94040, 0xf0f0f0, 0x3a6fd8, 0xf2c230, 0x333333, 0x40a060];
+  const LANE: Record<string, [number, number]> = { NE: [4.8, 2.4], SE: [-4.8, 2.4], SW: [-4.8, -2.4], NW: [4.8, -2.4] }; // right-hand lanes
+  const VEH: Record<string, string[]> = { sedan: ['a', 'b', 'c'], hatchback: ['a', 'b', 'c'], pickup: ['a', 'b', 'c'], van: ['a', 'b', 'c'], taxi: ['a'], bus: ['a'], delivery_truck: ['a', 'b'], semi: ['a', 'b'] };
+  const pickVehicle = (i: number, j: number) => { // weight by what is around: trucks near industry/commerce, taxis downtown, buses now and then
+    let nI = 0, nC = 0, nR = 0; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (inb(i + a, j + b) && bld[i + a][j + b]) { const z = zone[i + a][j + b]; if (z === 'I') nI++; else if (z === 'C') nC++; else nR++; }
+    const tot = nI + nC + nR || 1, fI = nI / tot, fC = nC / tot;
+    const w: [string, number][] = [['sedan', 30], ['hatchback', 22], ['pickup', 12 + 10 * fI], ['van', 8 + 6 * fC], ['taxi', 2 + 12 * fC], ['bus', 3], ['delivery_truck', 2 + 14 * fC + 8 * fI], ['semi', 1 + 30 * fI]];
+    let r = Math.random() * w.reduce((t, x) => t + x[1], 0), t = w[0][0]; for (const [k, v] of w) { if ((r -= v) < 0) { t = k; break; } }
+    const vs = VEH[t]; return `veh_${t}_${vs[Math.floor(Math.random() * vs.length)]}`;
+  };
+  const dropCar = (k: number) => { const c = cars[k]; c.s.destroy(); c.n?.destroy(); cars.splice(k, 1); };
   const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => isRoad(a, b));
   const activity = (i: number, j: number) => { let v = 0; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (inb(i + a, j + b) && bld[i + a][j + b]) v += CAP[zone[i + a][j + b]][bld[i + a][j + b]]; return v; };
   const roadList = () => { const r: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) r.push([i, j]); return r; };
@@ -583,7 +595,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const birds = [...Array(4)].map(() => { const g = new Graphics().moveTo(-4, -1).lineTo(0, 1).lineTo(4, -1).stroke({ width: 1.2, color: 0x222222 }); skyL.addChild(g); return g; });
     return { cx: c.x, cy: c.y - 40, r: 40 + k * 15, ph: k * 1.7, birds };
   });
-  const setFxVisibility = () => { cloudL.visible = fx.clouds; carL.visible = fx.cars; skyL.visible = fx.nature; smokeL.visible = fx.smoke; if (!fx.daynight) { nightG.clear(); applyNight(0); app.renderer.background.color = 0x1b2430; } drawPollution(); };
+  const setFxVisibility = () => { cloudL.visible = fx.clouds; skyL.visible = fx.nature; smokeL.visible = fx.smoke; if (!fx.daynight) { nightG.clear(); applyNight(0); app.renderer.background.color = 0x1b2430; } drawPollution(); };
   const menu = document.getElementById('fxMenu')!;
   menu.addEventListener('pointerdown', e => e.stopPropagation());
   document.getElementById('fxList')!.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
@@ -595,7 +607,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const applyNight = (n: number) => { // tint objects to match the shading; lights fade in additively
     if (Math.abs(n - lastNightTint) < 0.01) return; lastNightTint = n;
     const r = Math.round(255 * (1 - 0.48 * n)), g = Math.round(255 * (1 - 0.46 * n)), b = Math.round(255 * (1 - 0.36 * n)), tint = (r << 16) | (g << 8) | b;
-    const isLight = new Set<unknown>(lights);
+    const isLight = new Set<unknown>(lights); curTint = tint; for (const c of cars) if (c.n) isLight.add(c.n);
     for (const c of objL.children) if (!isLight.has(c)) (c as Sprite).tint = tint;
     for (const l of lights) l.alpha = n;
     smokeL.alpha = 1 - 0.5 * n;
@@ -631,23 +643,36 @@ function diamond(g: Graphics, i: number, j: number) {
       if (p.life > p.max || !fx.smoke) { p.s.destroy(); smoke.splice(k, 1); continue; }
       p.s.x += p.vx * dt; p.s.y += p.vy * dt; p.s.scale.set(0.12 + p.life * 0.12); p.s.alpha = 0.5 * (1 - p.life / p.max); }
     if (fx.cars) {
-      const target = Math.min(90, Math.floor((sim.pop + sim.jobsC + sim.jobsI) / 18));
+      const roadCount = road.flat().filter(Boolean).length;
+      const target = Math.min(70, Math.floor((sim.pop + sim.jobsC + sim.jobsI) / 30), Math.floor(roadCount * 0.45));
       if (cars.length < target && Math.random() < 0.3) {
         const rl = roadList();
         if (rl.length > 1) { const [i, j] = rl[Math.floor(Math.random() * rl.length)];
           if (Math.random() < Math.min(1, activity(i, j) / 150 + 0.05)) { const nb = roadNbrs(i, j);
-            if (nb.length) { const s = new Graphics().roundRect(-3.5, -2, 7, 4, 1.2).fill(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]); carL.addChild(s);
-              cars.push({ s, pi: i, pj: j, i: nb[0][0], j: nb[0][1], t: Math.random(), sp: 1.2 + Math.random() * 0.6 }); } } }
-      } else if (cars.length > target + 5) { cars.pop()!.s.destroy(); }
+            if (nb.length) { const key = pickVehicle(i, j), big = /semi|bus|truck/.test(key);
+              const c: Car = { s: new Graphics(), key, pi: i, pj: j, i: nb[0][0], j: nb[0][1], t: Math.random(), sp: (big ? 0.9 : 1.2) + Math.random() * 0.6, dir: '' };
+              if (!hasArt(key + '_NE')) { const g = new Graphics().roundRect(-3.5, -2, 7, 4, 1.2).fill(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]); (g as any).__veh = true; objL.addChild(g); c.s = g; }
+              cars.push(c); } } }
+      } else if (cars.length > target + 5) { dropCar(cars.length - 1); }
     }
     for (let k = cars.length - 1; k >= 0; k--) { const c = cars[k];
-      if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj)) { c.s.destroy(); cars.splice(k, 1); continue; }
+      if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj) || !fx.cars) { dropCar(k); continue; }
       if (sim.speed) c.t += dt * c.sp;
       if (c.t >= 1) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); const nx = nb.length ? nb[Math.floor(Math.random() * nb.length)] : [c.pi, c.pj];
         c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; }
       const a = toScreen(c.pi, c.pj), b = toScreen(c.i, c.j), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
-      const ox = -dy / L * 5, oy = dx / L * 5; // keep right
-      c.s.position.set(a.x + dx * c.t + ox, a.y + dy * c.t + oy); c.s.rotation = Math.atan2(dy, dx);
+      const di = c.i - c.pi, dir = di > 0 ? 'SE' : di < 0 ? 'NW' : c.j < c.pj ? 'NE' : 'SW';
+      if (c.s instanceof Graphics && !hasArt(c.key + '_NE')) { const ox = -dy / L * 5, oy = dx / L * 5; c.s.position.set(a.x + dx * c.t + ox, a.y + dy * c.t + oy); c.s.rotation = Math.atan2(dy, dx); }
+      else {
+        if (dir !== c.dir) { // swap to the sprite facing the new direction
+          c.dir = dir; c.s.destroy(); c.n?.destroy();
+          c.s = place(c.key + '_' + dir, 0, 0, objL); (c.s as any).__veh = true; (c.s as Sprite).tint = curTint;
+          c.n = placeNight(c.key + '_' + dir, 0, 0, objL); if (c.n) (c.n as any).__veh = true;
+        }
+        const [lx, ly] = LANE[dir], x = a.x + dx * c.t + lx, y = a.y + dy * c.t + ly;
+        c.s.position.set(x, y); c.s.zIndex = y + 1; // depth: same key as buildings (screen y)
+        if (c.n) { c.n.position.set(x, y); c.n.zIndex = y + 1.01; c.n.alpha = night; }
+      }
     }
   });
   (window as any).__fx = { fx, cars, smoke, setDay: (d: number) => { sim.day = d; lastTick = performance.now(); } };

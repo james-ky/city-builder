@@ -1,6 +1,6 @@
 {
  "version": 1,
- "artRevision": "v3-soft3d-j",
+ "artRevision": "v3-soft3d-k",
  "displayScale": 0.5,
  "baseTile": [
   64,
@@ -31875,12 +31875,540 @@
    "tall": true,
    "facing": "NW",
    "facingOf": "construction_1x1_tall_stage3"
+  },
+  {
+   "name": "civic_bus_depot",
+   "file": "buildings/civic/civic_bus_depot@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "object",
+   "facing": "SE",
+   "note": "identical to civic_bus_depot_SE"
+  },
+  {
+   "name": "civic_bus_depot_night",
+   "file": "buildings/civic/civic_bus_depot_night@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "night",
+   "facing": "SE",
+   "note": "identical to civic_bus_depot_SE",
+   "nightOf": "civic_bus_depot",
+   "blend": "add"
+  },
+  {
+   "name": "civic_bus_depot_NE",
+   "file": "buildings/civic/civic_bus_depot_NE@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "object",
+   "facing": "NE",
+   "facingOf": "civic_bus_depot"
+  },
+  {
+   "name": "civic_bus_depot_NE_night",
+   "file": "buildings/civic/civic_bus_depot_NE_night@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "night",
+   "facing": "NE",
+   "facingOf": "civic_bus_depot",
+   "nightOf": "civic_bus_depot_NE",
+   "blend": "add"
+  },
+  {
+   "name": "civic_bus_depot_SE",
+   "file": "buildings/civic/civic_bus_depot_SE@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "object",
+   "facing": "SE",
+   "facingOf": "civic_bus_depot"
+  },
+  {
+   "name": "civic_bus_depot_SE_night",
+   "file": "buildings/civic/civic_bus_depot_SE_night@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "night",
+   "facing": "SE",
+   "facingOf": "civic_bus_depot",
+   "nightOf": "civic_bus_depot_SE",
+   "blend": "add"
+  },
+  {
+   "name": "civic_bus_depot_SW",
+   "file": "buildings/civic/civic_bus_depot_SW@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "object",
+   "facing": "SW",
+   "facingOf": "civic_bus_depot"
+  },
+  {
+   "name": "civic_bus_depot_SW_night",
+   "file": "buildings/civic/civic_bus_depot_SW_night@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "night",
+   "facing": "SW",
+   "facingOf": "civic_bus_depot",
+   "nightOf": "civic_bus_depot_SW",
+   "blend": "add"
+  },
+  {
+   "name": "civic_bus_depot_NW",
+   "file": "buildings/civic/civic_bus_depot_NW@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "object",
+   "facing": "NW",
+   "facingOf": "civic_bus_depot"
+  },
+  {
+   "name": "civic_bus_depot_NW_night",
+   "file": "buildings/civic/civic_bus_depot_NW_night@2x.png",
+   "size": [
+    256,
+    208
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    2,
+    2
+   ],
+   "scale": 0.5,
+   "style": "soft3d",
+   "category": "transit",
+   "type": "bus_depot",
+   "public": true,
+   "buses": {
+    "model": "veh_bus_a",
+    "scale": "traffic (20 m per tile)",
+    "count": 5
+   },
+   "layer": "night",
+   "facing": "NW",
+   "facingOf": "civic_bus_depot",
+   "nightOf": "civic_bus_depot_NW",
+   "blend": "add"
+  },
+  {
+   "name": "prop_bus_stop_SW",
+   "file": "props/prop_bus_stop_SW@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "object",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "SW",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "placement": {
+    "tile": "a straight road tile running along the travel direction",
+    "anchor": "base of the bus-stop sign post (shelter sits upstream of it, open side to the road)",
+    "busTravelDir": "SW",
+    "rule": "right-hand traffic: on the right-hand sidewalk of buses travelling SW, 0.35 tile from the tile centre",
+    "offsetTiles": {
+     "di": -0.35,
+     "dj": 0
+    },
+    "screenOffsetGamePx": [
+     -11.2,
+     -5.6
+    ],
+    "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road"
+   }
+  },
+  {
+   "name": "prop_bus_stop_SW_night",
+   "file": "props/prop_bus_stop_SW_night@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "SW",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "nightOf": "prop_bus_stop_SW",
+   "blend": "add"
+  },
+  {
+   "name": "prop_bus_stop_SE",
+   "file": "props/prop_bus_stop_SE@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "object",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "SE",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "placement": {
+    "tile": "a straight road tile running along the travel direction",
+    "anchor": "base of the bus-stop sign post (shelter sits upstream of it, open side to the road)",
+    "busTravelDir": "SE",
+    "rule": "right-hand traffic: on the right-hand sidewalk of buses travelling SE, 0.35 tile from the tile centre",
+    "offsetTiles": {
+     "di": 0,
+     "dj": 0.35
+    },
+    "screenOffsetGamePx": [
+     -11.2,
+     5.6
+    ],
+    "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road"
+   }
+  },
+  {
+   "name": "prop_bus_stop_SE_night",
+   "file": "props/prop_bus_stop_SE_night@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "SE",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "nightOf": "prop_bus_stop_SE",
+   "blend": "add"
+  },
+  {
+   "name": "prop_bus_stop_NE",
+   "file": "props/prop_bus_stop_NE@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "object",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "NE",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "placement": {
+    "tile": "a straight road tile running along the travel direction",
+    "anchor": "base of the bus-stop sign post (shelter sits upstream of it, open side to the road)",
+    "busTravelDir": "NE",
+    "rule": "right-hand traffic: on the right-hand sidewalk of buses travelling NE, 0.35 tile from the tile centre",
+    "offsetTiles": {
+     "di": 0.35,
+     "dj": 0
+    },
+    "screenOffsetGamePx": [
+     11.2,
+     5.6
+    ],
+    "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road"
+   }
+  },
+  {
+   "name": "prop_bus_stop_NE_night",
+   "file": "props/prop_bus_stop_NE_night@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "NE",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "nightOf": "prop_bus_stop_NE",
+   "blend": "add"
+  },
+  {
+   "name": "prop_bus_stop_NW",
+   "file": "props/prop_bus_stop_NW@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "object",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "NW",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "placement": {
+    "tile": "a straight road tile running along the travel direction",
+    "anchor": "base of the bus-stop sign post (shelter sits upstream of it, open side to the road)",
+    "busTravelDir": "NW",
+    "rule": "right-hand traffic: on the right-hand sidewalk of buses travelling NW, 0.35 tile from the tile centre",
+    "offsetTiles": {
+     "di": 0,
+     "dj": -0.35
+    },
+    "screenOffsetGamePx": [
+     11.2,
+     -5.6
+    ],
+    "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road"
+   }
+  },
+  {
+   "name": "prop_bus_stop_NW_night",
+   "file": "props/prop_bus_stop_NW_night@2x.png",
+   "size": [
+    64,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.9166666666666666
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "prop",
+   "type": "bus_stop",
+   "dir": "NW",
+   "style": "soft3d",
+   "metresPerTile": 20,
+   "nightOf": "prop_bus_stop_NW",
+   "blend": "add"
   }
  ],
- "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 \u2014 see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix \u2014 builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged.",
+ "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 \u2014 see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix \u2014 builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas.",
  "parts": {
   "manifest": "parts/manifest.json",
   "count": 88
  },
- "revision": "v3-soft3d-j"
+ "revision": "v3-soft3d-k"
 }

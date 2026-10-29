@@ -60,7 +60,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const pipeL = new Container(), iconL = new Container();
   world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, objL, smokeL, cloudL, skyL, iconL);
   let lastNightTint = -1, curTint = 0xffffff;
-  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean };
+  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean; dwell?: number; dwellAt?: number };
   const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const pk: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // private parking that grew on a C tile: 1 surface lot, 2 garage
@@ -107,7 +107,7 @@ function diamond(g: Graphics, i: number, j: number) {
     pump: { name: 'Water Pump', size: 2, cost: 800, radius: 0, kind: 'water', util: true, out: CIVIC.pump.outGpd, needsWater: true, key: 'util_pump' },
     garage: { name: PARKING.garage.name, size: 1, cost: PARKING.garage.cost, radius: 0, kind: 'parking' },
     garage2: { name: PARKING.garage2.name, size: 2, cost: PARKING.garage2.cost, radius: 0, kind: 'parking' },
-    busdepot: { name: 'Bus Depot', size: 2, cost: TRANSIT.depotCost, radius: 0, kind: 'transit' },
+    busdepot: { name: 'Bus Depot', size: 2, cost: TRANSIT.depotCost, radius: 0, kind: 'transit', key: 'civic_bus_depot' },
     tower: { name: 'Water Tower', size: 1, cost: 500, radius: 0, kind: 'water', util: true, out: CIVIC.tower.outGpd, key: 'util_tower' },
   };
   for (const [k, P] of Object.entries(PARKS)) SERV['park_' + k] = { name: P.name, size: P.size, cost: P.cost, radius: PARK_EFFECT.radius[P.size], kind: 'park', str: PARK_EFFECT.strength[P.size] };
@@ -224,6 +224,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isRoad(a, b)) continue; const v = (volRef ? volRef[a * N + b] : 0) + 1e-4 * front(i, j, f); if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
   const faceFor = (i: number, j: number, want: number) => want ? (isRoad(i + FACE[want][1], j + FACE[want][2]) ? want : 0) : autoFace(i, j);
   const facingOf = (i: number, j: number) => faceFor(i, j, zface[i][j]);
+  /** a civic building faces the side of its footprint with the most road (SE on ties/none) */
+  const civFace = (c: { i: number; j: number; s: number }) => { let best = 2, bn = 0; for (const d of [2, 1, 3, 4]) { let n = 0; for (let t = 0; t < c.s; t++) { const [a, b] = d === 1 ? [c.i + t, c.j - 1] : d === 2 ? [c.i + c.s, c.j + t] : d === 3 ? [c.i + t, c.j + c.s] : [c.i - 1, c.j + t]; if (isRoad(a, b)) n++; } if (n > bn) { bn = n; best = d; } } return best; };
   /** every building needs its own road: a lot counts if its front edge touches a road on its facing side */
   const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isRoad(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
   /** road tile in front of the building's entrance (-1 none) */
@@ -256,6 +258,7 @@ function diamond(g: Graphics, i: number, j: number) {
   /** player choice per junction tile: mode auto|light|allstop|twostop|yield|none; axis = road that stops (0 SE/NW, 1 NE/SW); split auto|even */
   type IxSet = { mode: string; axis: number; cyc: number; split: string };
   const ixSet = new Map<number, IxSet>();
+  const stopDir = new Map<number, string>(); // stop tile -> bus travel direction there (from the bus loop)
   const stops: number[] = []; // bus stops (road tile keys), in the order buses visit them
   const autoCtl = new Map<number, Ctl>(); // last auto decision, only refreshed when no road around the junction is being built or upgraded
   const APPR: [number, number, string][] = [[0, 1, 'NE'], [-1, 0, 'SE'], [0, -1, 'SW'], [1, 0, 'NW']]; // neighbour offset -> dir of traffic coming from it
@@ -384,6 +387,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let l = 0; l < lv; l++) { const yy = -l * 6 - 3.5; g.poly([x - hw + 4, y + yy - 1, x - 2, y + hh + yy - 2, x - 2, y + hh + yy, x - hw + 4, y + yy + 1]).fill(0x3a3c40).poly([x + 2, y + hh + yy - 2, x + hw - 4, y + yy - 1, x + hw - 4, y + yy + 1, x + 2, y + hh + yy]).fill(0x2f3134); }
     if (kind === 3) g.circle(x, y - H - 1, 4.5).fill(0x1e5bd8).stroke({ width: 1, color: 0xffffff }); // blue P sign for city garages
     g.zIndex = y; ch.ob.addChild(g); };
+  const STOP_OFF: Record<string, [number, number]> = { SW: [-11.2, -5.6], SE: [-11.2, 5.6], NE: [11.2, 5.6], NW: [11.2, -5.6] }; // manifest placement.screenOffsetGamePx
   const drawChunk = (ch: Chunk) => {
     for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); }
     clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.winds = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tls = []; ch.trucks = []; ch.tint = -1; ch.la = -1;
@@ -391,6 +395,9 @@ function diamond(g: Graphics, i: number, j: number) {
     const PN = (key: string, x: number, y: number, seed: number, z: number) => { const l = placeNight(key, x, y, ch.ob, seed); if (l) { l.zIndex = z; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } return l; };
     chunkTiles(ch, (i, j) => {
       const { x, y } = toScreen(i, j), seed = seedOf(i, j);
+      if (road[i][j] && stops.length && stops.includes(i * N + j) && hasArt('prop_bus_stop_SW')) { // shelter on the right-hand sidewalk of the bus's travel direction, 0.35 tile from the centre
+        const d = stopDir.get(i * N + j) ?? (isRoad(i, j - 1) || isRoad(i, j + 1) ? 'SW' : 'SE'), off = STOP_OFF[d], key = 'prop_bus_stop_' + d;
+        P(key, x + off[0], y + off[1], seed, y + 0.6); PN(key, x + off[0], y + off[1], seed, y + 0.6); }
       const cv = civAt[i][j];
       if (cv) {
         place('civic_lot', x, y, ch.zn, seed);
@@ -402,7 +409,7 @@ function diamond(g: Graphics, i: number, j: number) {
             for (let d = 0; d < 3; d++) g.rect(c.x - hw * 0.5 + d * hw * 0.22, c.y - 14 + d * 3, hw * 0.15, 9).fill(0x2d3540);
             g.poly([c.x - hw * 0.6, c.y - 18, c.x, c.y - hh * 0.6 - 18, c.x + hw * 0.6, c.y - 18, c.x, c.y + hh * 0.6 - 18]).fill(0xe0e4e8); g.circle(c.x, c.y - 26, 6).fill(0x2f6fd1); g.zIndex = y; ch.ob.addChild(g); return; }
           if (SERV[cv.type].kind === 'parking' && !hasArt(key)) { drawParking(ch, i, j, c.x, c.y, seed, 3, cv.s); return; }
-          const o = P(key, c.x, c.y, seed, y); PN(key, c.x, c.y, seed, y); if (cv.type === 'wind' && o instanceof Sprite) { (o as any).__ph = seed % 4; ch.winds.push(o); }
+          const dk = cv.type === 'busdepot' ? facingName(key, seed, FACE[civFace(cv)][0]) : key, o = P(dk, c.x, c.y, seed, y); PN(dk, c.x, c.y, seed, y); if (cv.type === 'wind' && o instanceof Sprite) { (o as any).__ph = seed % 4; ch.winds.push(o); }
         }
       } else if (pline[i][j] && !road[i][j]) {
         const pl = (a: number, b: number) => inb(a, b) && (pline[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'power'));
@@ -509,9 +516,9 @@ function diamond(g: Graphics, i: number, j: number) {
   const preview = new Graphics(), hl = new Graphics();
   world.addChild(preview, hl);
   const stopG = new Graphics(); world.addChild(stopG);
-  const drawStops = () => { stopG.clear(); for (const k of stops) { const p = toScreen((k / N) | 0, k % N); stopG.rect(p.x + 7, p.y - 14, 1.5, 12).fill(0x444444); stopG.roundRect(p.x + 4, p.y - 20, 8, 7, 1.5).fill(0x2f6fd1).stroke({ width: 0.8, color: 0xffffff }); } };
+  const drawStops = (extra = -1) => { stopG.clear(); for (const k of extra >= 0 ? [...stops, extra] : stops) { const a = (k / N) | 0, b = k % N; markDirty(a, b, a, b); } if (hasArt('prop_bus_stop_SW')) return; for (const k of stops) { const p = toScreen((k / N) | 0, k % N); stopG.rect(p.x + 7, p.y - 14, 1.5, 12).fill(0x444444); stopG.roundRect(p.x + 4, p.y - 20, 8, 7, 1.5).fill(0x2f6fd1).stroke({ width: 0.8, color: 0xffffff }); } };
   const toggleStop = (i: number, j: number) => { if (!inb(i, j) || !road[i][j]) { toast('Bus stops go on a road tile'); return false; } const k = i * N + j, x = stops.indexOf(k);
-    if (x >= 0) stops.splice(x, 1); else { if (!spend(TRANSIT.stopCost)) return false; stops.push(k); } busKey = ''; tripsDirty = true; drawStops(); return true; };
+    if (x >= 0) stops.splice(x, 1); else { if (!spend(TRANSIT.stopCost)) return false; stops.push(k); } busKey = ''; tripsDirty = true; drawStops(k); return true; };
 
   // ---- tools ----
   type Tool = string; // select | road | R | C | I | bulldoze | svc:<type>
@@ -667,7 +674,7 @@ function diamond(g: Graphics, i: number, j: number) {
     syncLots(); drag = null; preview.clear(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { stops: () => stops, toggleStop: (i: number, j: number) => toggleStop(i, j), busLoop: () => getBusLoop(), buses: () => cars.filter(c => c.bus).length, pickVehicle: (i: number, j: number) => pickVehicle(i, j), serialize: () => serialize(), applySave: (o: any) => applySave(o), N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), rerollPark: (c: Civ) => rerollPark(c), poll: () => poll, computeAll: () => { computeCoverage(); computePollution(); }, parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, zden, zface, facingOf: (i: number, j: number) => FACE[facingOf(i, j)][0], hasAccess: (i: number, j: number) => hasAccess(i, j), entranceOf: (i: number, j: number) => entranceOf(i, j), lotAt: (i: number, j: number) => lot[i][j], setZoneDensity: (d: number) => setZoneDen(d), setZoneFacing: (f: number) => setZoneFace(f), paint: (t: string, i0: number, j0: number, i1: number, j1: number) => { setTool(t); drag = { i: i0, j: j0, ci: i1, cj: j1 }; commit(); }, setConfirm: (f: (n: number) => boolean) => { confirmDown = f; }, refresh: () => { computeNear(); rebuildZ(); markAll(); }, ctrlAt: (i: number, j: number) => classify(i, j), failed: () => failed, carClock: () => clock, jamPenalty: () => jamPenalty, setCarsOnly: (v: boolean) => { carsOnly = v; }, spawnCar: (route: number[], key0?: string) => { const [pi, pj] = tileOf(route[0]), [i, j] = tileOf(route[1]), key = key0 ?? pickVehicle(pi, pj); const c: Car = { s: new Graphics(), key, pi, pj, i, j, t: 0, sp: 1.2 + Math.random() * 0.6, dir: '', ln: Math.random() < 0.5 ? 0 : 1, route, ri: 1 }; cars.push(c); return true; }, setIx: (i: number, j: number, o: any) => setIx(i, j, o), ixSet, decide: (cc: any, din: string, w: number, cb: boolean) => decide(cc, din, w, cb), lightState: (a: number, ph: number, cyc: number, g0: number) => lightState(a, ph, cyc, g0), openIx: (i: number, j: number) => { const p = toScreen(i, j); openIx(i, j, p.x * zoom + world.position.x, p.y * zoom + world.position.y); }, ctrlMap: ctrl, spriteFor: (i: number, j: number) => { const sd = seedOf(i, j), d = FACE[drawFace(i, j)][0], lt = lot[i][j]; return lt && lotReady(lt) ? lotKey(lt) : consT[i][j] ? facingName(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, sd, d) : bld[i][j] ? facingName(`bld_${zone[i][j]}_${bld[i][j]}`, sd, d) : ''; }, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { stops: () => stops, toggleStop: (i: number, j: number) => toggleStop(i, j), busLoop: () => getBusLoop(), buses: () => cars.filter(c => c.bus).length, busCars: () => cars.filter(c => c.bus).map(c => ({ ri: c.ri, t: c.t, dwell: c.dwell ?? 0, at: c.i * N + c.j, sprite: c.s instanceof Sprite, tex: (c.s as any).texture?.label ?? '' })), civFace: (c: any) => civFace(c), stopDir: () => [...stopDir], pickVehicle: (i: number, j: number) => pickVehicle(i, j), serialize: () => serialize(), applySave: (o: any) => applySave(o), N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), rerollPark: (c: Civ) => rerollPark(c), poll: () => poll, computeAll: () => { computeCoverage(); computePollution(); }, parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, zden, zface, facingOf: (i: number, j: number) => FACE[facingOf(i, j)][0], hasAccess: (i: number, j: number) => hasAccess(i, j), entranceOf: (i: number, j: number) => entranceOf(i, j), lotAt: (i: number, j: number) => lot[i][j], setZoneDensity: (d: number) => setZoneDen(d), setZoneFacing: (f: number) => setZoneFace(f), paint: (t: string, i0: number, j0: number, i1: number, j1: number) => { setTool(t); drag = { i: i0, j: j0, ci: i1, cj: j1 }; commit(); }, setConfirm: (f: (n: number) => boolean) => { confirmDown = f; }, refresh: () => { computeNear(); rebuildZ(); markAll(); }, ctrlAt: (i: number, j: number) => classify(i, j), failed: () => failed, carClock: () => clock, jamPenalty: () => jamPenalty, setCarsOnly: (v: boolean) => { carsOnly = v; }, spawnCar: (route: number[], key0?: string) => { const [pi, pj] = tileOf(route[0]), [i, j] = tileOf(route[1]), key = key0 ?? pickVehicle(pi, pj); const c: Car = { s: new Graphics(), key, pi, pj, i, j, t: 0, sp: 1.2 + Math.random() * 0.6, dir: '', ln: Math.random() < 0.5 ? 0 : 1, route, ri: 1 }; cars.push(c); return true; }, setIx: (i: number, j: number, o: any) => setIx(i, j, o), ixSet, decide: (cc: any, din: string, w: number, cb: boolean) => decide(cc, din, w, cb), lightState: (a: number, ph: number, cyc: number, g0: number) => lightState(a, ph, cyc, g0), openIx: (i: number, j: number) => { const p = toScreen(i, j); openIx(i, j, p.x * zoom + world.position.x, p.y * zoom + world.position.y); }, ctrlMap: ctrl, spriteFor: (i: number, j: number) => { const sd = seedOf(i, j), d = FACE[drawFace(i, j)][0], lt = lot[i][j]; return lt && lotReady(lt) ? lotKey(lt) : consT[i][j] ? facingName(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, sd, d) : bld[i][j] ? facingName(`bld_${zone[i][j]}_${bld[i][j]}`, sd, d) : ''; }, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -959,7 +966,7 @@ function diamond(g: Graphics, i: number, j: number) {
   let busKey = '', busLoop: number[] | null = null;
   /** the bus loop: stop 1 → 2 → … → last → 1 along the road network (null if fewer than 2 stops or a leg has no route) */
   const getBusLoop = () => { const key = stops.join(',') + '|' + trips.version; if (key === busKey) return busLoop; busKey = key; busLoop = null; if (stops.length < 2) return null;
-    const out: number[] = [stops[0]]; for (let x = 0; x < stops.length; x++) { const r = trips.route(stops[x], stops[(x + 1) % stops.length]); if (!r) return null; for (let y = 1; y < r.length; y++) out.push(r[y]); } return (busLoop = out); };
+    const out: number[] = [stops[0]]; for (let x = 0; x < stops.length; x++) { const r = trips.route(stops[x], stops[(x + 1) % stops.length]); if (!r) return null; for (let y = 1; y < r.length; y++) out.push(r[y]); } busLoop = out; stopDir.clear(); for (let x = 0; x < out.length - 1; x++) if (stops.includes(out[x]) && !stopDir.has(out[x])) { const di = ((out[x + 1] / N) | 0) - ((out[x] / N) | 0), dj = out[x + 1] % N - out[x] % N; stopDir.set(out[x], di > 0 ? 'SE' : di < 0 ? 'NW' : dj > 0 ? 'SW' : 'NE'); } drawStops(); return out; };
   const busesWanted = () => hasDepot() && getBusLoop() ? Math.min(TRANSIT.maxBuses, Math.ceil(stops.length / TRANSIT.stopsPerBus)) : 0;
   const runBuses = () => { const want = busesWanted(), mine = cars.filter(c => c.bus); for (let x = mine.length - 1; x >= want; x--) dropCar(cars.indexOf(mine[x]));
     const loop = busLoop; if (!loop || mine.length >= want || !fx.cars) return; const at = Math.floor(loop.length * mine.length / want) % (loop.length - 1), [pi, pj] = tileOf(loop[at]), [i, j] = tileOf(loop[at + 1]);
@@ -1199,7 +1206,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const resv = new Map<number, Car[]>(); for (const c of cars) if (c.res != null) { const l = resv.get(c.res); if (l) l.push(c); else resv.set(c.res, [c]); }
     const compatible = (a: Car, b: { din: string; dout: string }) => { const opp: Record<string, string> = { NE: 'SW', SW: 'NE', SE: 'NW', NW: 'SE' };
       return a.din === b.din && a.dout === b.dout ? true : opp[a.din!] === b.din && a.din === a.dout && b.din === b.dout; }; // same movement (spacing handles it) or straight through from opposite sides
-    const STOPLINE = 0.3, GIVEUP = 20; // a car that hasn't moved for GIVEUP seconds of traffic animation abandons its trip
+    const STOPLINE = 0.3, GIVEUP = 20, BUS_DWELL = 10; // BUS_DWELL: seconds of traffic animation a bus waits at a stop // a car that hasn't moved for GIVEUP seconds of traffic animation abandons its trip
     const dinOf = (o: Car) => o.i - o.pi > 0 ? 'SE' : o.i - o.pi < 0 ? 'NW' : o.j < o.pj ? 'NE' : 'SW';
     const GAP = 0.55; // simple spacing: keep about half a tile behind the car ahead in the same lane
     const blocked = (k: number, t: number, self: boolean) => { const l = lane.get(k); if (!l) return false; for (const u of l) if (u > t + (self ? 1e-6 : -1) && u - t < GAP && !(self && u === t)) return true; return false; };
@@ -1221,6 +1228,7 @@ function diamond(g: Graphics, i: number, j: number) {
         if (go) { c.res = jk; c.din = din; c.dout = dout; c.wait = 0; const l = resv.get(jk); if (l) l.push(c); else resv.set(jk, [c]); } else { hold = true; c.t = Math.max(c.t, Math.min(c.t, STOPLINE)); }
       }
       if (!c.nx && c.t > 0.4) c.nx = routeNext(c);
+      if (c.bus && (sim.speed || carsOnly)) { if (c.dwell && c.dwell > 0) { c.dwell -= dt; hold = true; c.stuck = 0; } else if (c.t >= 0.5 && c.dwellAt !== c.ri && stops.includes(jk)) { c.dwellAt = c.ri; c.dwell = BUS_DWELL; hold = true; } } // buses pause at stops
       if (!hold && c.nx && c.t > 1 - GAP) { const nl2 = lane.get(segK(c.i, c.j, c.nx[0], c.nx[1], c.ln)); if (nl2 && nl2.some(u => u < c.t + GAP - 1)) hold = true; } // car just ahead on the next stretch
       const run = sim.speed || carsOnly;
       if (run && !hold && !blocked(ck, c.t, true)) { const l = lane.get(ck)!, ix = l.indexOf(c.t); c.t = Math.min(1, c.t + dt * c.sp * (ROAD_TIERS[(rtier[c.i][c.j] || 2) as RoadTier].speed)); if (ix >= 0) l[ix] = c.t; }

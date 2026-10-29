@@ -25,3 +25,16 @@
 
 ## Beaches
 - Added the new sand art (511 assets). Water next to a beach now uses sandy shoreline pieces, so the green strip between the water and the sand is gone. Sand tiles pick edge pieces based on their neighbours and fade softly into grass, so beaches are no longer hard-edged blocks.
+
+## Traffic signals
+- Vehicles are drawn at 72% of their old size so a sedan fits inside one lane. Lane offsets are unchanged.
+- Junction controls:
+  - At T-junctions the side road gets a stop sign.
+  - Quiet 4-way crossings are all-way stops.
+  - Busy 4-ways, where both roads run at least 6 tiles and there is enough nearby activity, get traffic lights on a 15-second green/yellow/red cycle. The lights glow at night.
+- Signs and lights use the new prop art and sort with their junction tile.
+- How cars behave at junctions:
+  - Cars stop at a stop line, wait about a second at stop signs and stop on red.
+  - Before entering a junction a car reserves it. Another car can only share it if it makes the same move, or goes straight through from the opposite side.
+  - Cars also keep their spacing across tile edges. Together these removed the remaining clipping (0 overlapping pairs in the test drive).
+- The beach PR (#27) accidentally deleted public/assets/README.md when the art folder was re-copied. It's restored here with a new Traffic props section.

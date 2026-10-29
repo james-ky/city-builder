@@ -8,7 +8,7 @@ const variants = new Map<string, string[]>(); // grass -> [grass_a, grass_b, ...
 const aliasOf = new Map<string, string>();   // bld_R_1 -> bld_R_1_a
 const nights = new Map<string, string>();     // building asset -> its night-lights overlay (bld_R_1_a -> bld_R_1_a_night)
 /** Game keys that map onto differently-named art. Add entries here as new art arrives. */
-const ALIAS: Record<string, string> = { grid: 'grid_overlay' };
+const ALIAS: Record<string, string> = { grid: 'grid_overlay', civic_school: 'school_elem', civic_highschool: 'school_high', civic_police: 'police', civic_fire: 'fire_station', civic_clinic: 'clinic', civic_hospital: 'hospital' };
 
 /** Loads assets/manifest.json (art set format: version/assets[]/autotile). Missing art falls back to code drawing. */
 export async function loadManifest() {
@@ -81,6 +81,18 @@ export function place(key: string, x: number, y: number, layer: Container, seed 
     if (arms.length !== 2 || arms[0][0] !== -arms[1][0] || arms[0][1] !== -arms[1][1]) g.ellipse(x, y, 10, 5).fill(0x3d3f44);
     for (const [dx, dy] of arms) g.moveTo(x, y).lineTo(x + dx * 2, y + dy * 2).stroke({ width: 14, color: 0x3d3f44 });
     for (const [dx, dy] of arms) g.moveTo(x + dx * 0.3, y + dy * 0.3).lineTo(x + dx * 1.9, y + dy * 1.9).stroke({ width: 1.5, color: 0xf5d547 });
+  } else if (key === 'civic_lot') {
+    dia().fill(0xa7a59c).stroke({ width: 1, color: 0x000000, alpha: 0.1 });
+  } else if (key.startsWith('civic_') && !key.endsWith('_night')) {
+    const t = key.slice(6), c = CIVIC[t]; if (!c) return g;
+    const k = 0.8 * c.size, a = TW / 2 * k, b = TH / 2 * k;
+    box(g, x, y, a, b, c.h, c.wall, c.roof);
+    const ry = y - c.h; // roof centre
+    if (t === 'hospital' || t === 'clinic') { g.rect(x - 7, ry - 2.5, 14, 5).fill(0xffffff); g.rect(x - 2.5, ry - 7, 5, 14).fill(0xffffff); g.rect(x - 5, ry - 1.5, 10, 3).fill(0xd62828); g.rect(x - 1.5, ry - 5, 3, 10).fill(0xd62828); }
+    else if (t === 'police') { g.circle(x, ry, 7).fill(0xf2c230); g.circle(x, ry, 4).fill(0x1d3f8f); }
+    else if (t === 'fire') { g.poly([x - 6, ry + 4, x, ry - 8, x + 6, ry + 4]).fill(0xffd23f); g.poly([x - 3, ry + 4, x, ry - 3, x + 3, ry + 4]).fill(0xff5a36); }
+    else { g.moveTo(x, ry).lineTo(x, ry - 18).stroke({ width: 1.5, color: 0x333333 }); g.rect(x, ry - 18, 9, 6).fill(0x2f7de1); }
+    if (t === 'fire') for (let d = 0; d < 2; d++) { const dx = -a * (0.25 + d * 0.4), dy = b * (0.25 + d * 0.4); g.poly([x + dx - 5, y + dy - 2, x + dx + 3, y + dy + 2, x + dx + 3, y + dy - 10, x + dx - 5, y + dy - 14]).fill(0x7a1d12); }
   } else if (key.startsWith('construction_')) {
     const st = +key.slice(-1), tall = key.includes('tall'), k = 0.7, H = (tall ? 60 : 24) * st / 3;
     dia(k).fill(0x8b7355);
@@ -98,6 +110,11 @@ export function place(key: string, x: number, y: number, layer: Container, seed 
   }
   return g;
 }
+const CIVIC: Record<string, { size: number; h: number; wall: number; roof: number }> = {
+  school: { size: 2, h: 22, wall: 0xd9a066, roof: 0x8f4f2f }, highschool: { size: 3, h: 30, wall: 0xc98b5a, roof: 0x7a3f24 },
+  police: { size: 2, h: 24, wall: 0x9fb4d6, roof: 0x34507f }, fire: { size: 2, h: 24, wall: 0xd65a46, roof: 0x8f2a1e },
+  clinic: { size: 1, h: 16, wall: 0xf0f0ec, roof: 0x9ad3c6 }, hospital: { size: 3, h: 46, wall: 0xf2f2ee, roof: 0x7fc8b8 },
+};
 const shade = (c: number, f: number) => { const ch = (s: number) => Math.min(255, Math.round(((c >> s) & 255) * f)); return (ch(16) << 16) | (ch(8) << 8) | ch(0); };
 function box(g: Graphics, x: number, y: number, a: number, b: number, h: number, wall: number, roof: number) {
   g.poly([x - a, y, x, y + b, x, y + b - h, x - a, y - h]).fill(shade(wall, 0.85));

@@ -3397,6 +3397,456 @@
       "blend": "add"
     },
     {
+      "name": "school_elem",
+      "file": "buildings/civic/school_elem@2x.png",
+      "size": [
+        256,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.6923
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "civic",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      }
+    },
+    {
+      "name": "school_elem_night",
+      "file": "buildings/civic/school_elem_night@2x.png",
+      "size": [
+        256,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.6923
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "school_elem",
+      "category": "civic",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      }
+    },
+    {
+      "name": "icon_school_elem",
+      "file": "ui/icons/icon_school_elem@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "civic",
+      "iconFor": "school_elem"
+    },
+    {
+      "name": "school_high",
+      "file": "buildings/civic/school_high@2x.png",
+      "size": [
+        384,
+        280
+      ],
+      "anchor": [
+        0.5,
+        0.6571
+      ],
+      "footprint": [
+        3,
+        3
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "civic",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          32
+        ],
+        "equivalent": "toScreen(i0+1.0, j0+1.0)",
+        "depthKey": "i0+j0+2"
+      }
+    },
+    {
+      "name": "school_high_night",
+      "file": "buildings/civic/school_high_night@2x.png",
+      "size": [
+        384,
+        280
+      ],
+      "anchor": [
+        0.5,
+        0.6571
+      ],
+      "footprint": [
+        3,
+        3
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "school_high",
+      "category": "civic",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          32
+        ],
+        "equivalent": "toScreen(i0+1.0, j0+1.0)",
+        "depthKey": "i0+j0+2"
+      }
+    },
+    {
+      "name": "icon_school_high",
+      "file": "ui/icons/icon_school_high@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "civic",
+      "iconFor": "school_high"
+    },
+    {
+      "name": "police",
+      "file": "buildings/civic/police@2x.png",
+      "size": [
+        256,
+        200
+      ],
+      "anchor": [
+        0.5,
+        0.68
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "civic",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      }
+    },
+    {
+      "name": "police_night",
+      "file": "buildings/civic/police_night@2x.png",
+      "size": [
+        256,
+        200
+      ],
+      "anchor": [
+        0.5,
+        0.68
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "police",
+      "category": "civic",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      }
+    },
+    {
+      "name": "icon_police",
+      "file": "ui/icons/icon_police@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "civic",
+      "iconFor": "police"
+    },
+    {
+      "name": "fire_station",
+      "file": "buildings/civic/fire_station@2x.png",
+      "size": [
+        256,
+        216
+      ],
+      "anchor": [
+        0.5,
+        0.7037
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "civic",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      }
+    },
+    {
+      "name": "fire_station_night",
+      "file": "buildings/civic/fire_station_night@2x.png",
+      "size": [
+        256,
+        216
+      ],
+      "anchor": [
+        0.5,
+        0.7037
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "fire_station",
+      "category": "civic",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      }
+    },
+    {
+      "name": "icon_fire_station",
+      "file": "ui/icons/icon_fire_station@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "civic",
+      "iconFor": "fire_station"
+    },
+    {
+      "name": "clinic",
+      "file": "buildings/civic/clinic@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "civic",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      }
+    },
+    {
+      "name": "clinic_night",
+      "file": "buildings/civic/clinic_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "clinic",
+      "category": "civic",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      }
+    },
+    {
+      "name": "icon_clinic",
+      "file": "ui/icons/icon_clinic@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "civic",
+      "iconFor": "clinic"
+    },
+    {
+      "name": "hospital",
+      "file": "buildings/civic/hospital@2x.png",
+      "size": [
+        384,
+        324
+      ],
+      "anchor": [
+        0.5,
+        0.7037
+      ],
+      "footprint": [
+        3,
+        3
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "civic",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          32
+        ],
+        "equivalent": "toScreen(i0+1.0, j0+1.0)",
+        "depthKey": "i0+j0+2"
+      }
+    },
+    {
+      "name": "hospital_night",
+      "file": "buildings/civic/hospital_night@2x.png",
+      "size": [
+        384,
+        324
+      ],
+      "anchor": [
+        0.5,
+        0.7037
+      ],
+      "footprint": [
+        3,
+        3
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "hospital",
+      "category": "civic",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          32
+        ],
+        "equivalent": "toScreen(i0+1.0, j0+1.0)",
+        "depthKey": "i0+j0+2"
+      }
+    },
+    {
+      "name": "icon_hospital",
+      "file": "ui/icons/icon_hospital@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "civic",
+      "iconFor": "hospital"
+    },
+    {
       "name": "construction_1x1_stage1",
       "file": "buildings/construction_1x1_stage1@2x.png",
       "size": [

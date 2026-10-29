@@ -224,7 +224,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const ICON: Record<string, string> = { school: 'school_elem', highschool: 'school_high', police: 'police', fire: 'fire_station', clinic: 'clinic', hospital: 'hospital' };
   svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}"><img src="./assets/ui/icons/icon_${ICON[k]}@2x.png" alt="">${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
     + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.out}${v.needsWater ? ', must touch water' : ''}">${{ coal: '🏭', wind: '🌬', pump: '⛲', tower: '🗼' }[k]} ${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
-    + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option></select>';
+    + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option><option value="power">Powered</option><option value="water">Water served</option></select>';
   svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => setTool((b as HTMLElement).dataset.t!));
   setTool('select');
   window.addEventListener('keydown', e => { const k = +e.key; if (k >= 1 && k <= 8) setTool(tools[k-1][0]); if (e.key === 'Escape') { drag = null; preview.clear(); } });
@@ -257,7 +257,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const removeCiv = (c: Civ) => { civs.splice(civs.indexOf(c), 1); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = null; };
   const valid = (i: number, j: number) => {
     if (tool === 'road') return terrain[i][j] !== 'water' && !civAt[i][j] && !pline[i][j];
-    if (tool === 'pline') return !civAt[i][j] && !zone[i][j] && !road[i][j] && !pline[i][j]; // lines can span water
+    if (tool === 'pline') return !civAt[i][j] && !zone[i][j] && !pline[i][j]; // lines can span water and cross roads
     if (tool === 'pipe') return !pipe[i][j] && terrain[i][j] !== 'water';
     if (tool === 'bulldoze' && underground) return pipe[i][j];
     if (tool === 'bulldoze') return pline[i][j] || road[i][j] || !!zone[i][j] || bld[i][j] > 0 || consT[i][j] > 0 || !!civAt[i][j];
@@ -438,11 +438,11 @@ function diamond(g: Graphics, i: number, j: number) {
   let lastTick = performance.now();
   const covL = new Container(); world.addChildAt(covL, world.getChildIndex(gridL));
   let covView = '';
-  const COVCOL: Record<string, number> = { edu: 0xffd23f, police: 0x3b6cff, fire: 0xff5a36, health: 0x3fe0c5, crime: 0xb000ff, fireRisk: 0xff8800 };
+  const COVCOL: Record<string, number> = { edu: 0xffd23f, police: 0x3b6cff, fire: 0xff5a36, health: 0x3fe0c5, crime: 0xb000ff, fireRisk: 0xff8800, power: 0xffd23f, water: 0x3d8fe0 };
   const drawCoverage = () => {
     clear(covL); if (!covView) return;
     const g = new Graphics(); covL.addChild(g);
-    const src = covView === 'crime' ? crime : covView === 'fireRisk' ? fireRisk : cov[covView as Kind], scale = covView === 'crime' ? 0.25 : covView === 'fireRisk' ? 0.25 : 1;
+    const src: any = covView === 'power' ? powered.map(r => r.map(Number)) : covView === 'water' ? watered.map(r => r.map(Number)) : covView === 'crime' ? crime : covView === 'fireRisk' ? fireRisk : cov[covView as Kind], scale = covView === 'crime' ? 0.25 : covView === 'fireRisk' ? 0.25 : 1;
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const v = Math.min(1, src[i][j] * scale); if (v > 0.02) { diamond(g, i, j); g.fill({ color: COVCOL[covView], alpha: 0.12 + 0.45 * v }); } }
   };
   const setCovView = (v: string) => { covView = v; (document.getElementById('covSel') as HTMLSelectElement).value = v; drawCoverage(); };

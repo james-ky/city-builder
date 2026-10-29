@@ -125,7 +125,11 @@ export const roadUpkeep = (t: RoadTier, w: number) => ROAD_TIERS[t].upkeep * ROA
 export const TRIPS = {
   workersPerResident: 0.48,
   kidsPerResident: 0.18,
-  carShare: { work: 0.85, school: 0.45, errand: 0.85, leisure: 0.7 } as Record<string, number>,
+  carShare: { work: 0.85, school: 0.45, errand: 0.85, leisure: 0.7, freight: 1 } as Record<string, number>,
+  // freight: ≈ 0.1–0.2 truck trips per industrial job per day (FHWA Quick Response Freight Manual: ~0.1 per employee
+  // for manufacturing, more for warehousing). Half go to local shops, half leave the map via edge roads.
+  truckTripsPerIndJob: 0.15,
+  freightToShops: 0.5,
   peoplePerCar: 1.1,
   errandsPerPersonPerDay: 1.0,
   walkTiles: 4,                     // trips this short (≈ 400 m) are walked
@@ -134,9 +138,19 @@ export const TRIPS = {
   tileMeters: 20,
   schoolSeats: { school: 500, highschool: 1500 } as Record<string, number>,
   // share of each trip type leaving in each hour (0–23); return trips mirror these
-  out: { work: { 6: 0.25, 7: 0.45, 8: 0.25, 9: 0.05 }, school: { 7: 0.7, 8: 0.3 }, errand: { 10: 0.12, 11: 0.12, 12: 0.18, 13: 0.12, 14: 0.08, 15: 0.08, 17: 0.1, 18: 0.1, 19: 0.06, 21: 0.03, 22: 0.01 }, leisure: { 9: 0.1, 10: 0.15, 15: 0.15, 16: 0.2, 17: 0.25, 18: 0.15 } } as Record<string, Record<number, number>>,
-  back: { work: { 16: 0.2, 17: 0.45, 18: 0.3, 19: 0.05 }, school: { 15: 0.8, 16: 0.2 }, errand: { 11: 0.1, 12: 0.12, 13: 0.18, 14: 0.12, 15: 0.1, 16: 0.08, 18: 0.1, 19: 0.1, 20: 0.06, 22: 0.03, 23: 0.01 }, leisure: { 11: 0.1, 12: 0.15, 17: 0.15, 18: 0.2, 19: 0.25, 20: 0.15 } } as Record<string, Record<number, number>>,
+  out: { work: { 6: 0.25, 7: 0.45, 8: 0.25, 9: 0.05 }, school: { 7: 0.7, 8: 0.3 }, errand: { 10: 0.12, 11: 0.12, 12: 0.18, 13: 0.12, 14: 0.08, 15: 0.08, 17: 0.1, 18: 0.1, 19: 0.06, 21: 0.03, 22: 0.01 }, leisure: { 9: 0.1, 10: 0.15, 15: 0.15, 16: 0.2, 17: 0.25, 18: 0.15 }, freight: { 5: 0.08, 6: 0.1, 7: 0.1, 8: 0.1, 9: 0.12, 10: 0.12, 11: 0.1, 12: 0.08, 13: 0.08, 14: 0.07, 15: 0.05 } } as Record<string, Record<number, number>>,
+  back: { work: { 16: 0.2, 17: 0.45, 18: 0.3, 19: 0.05 }, school: { 15: 0.8, 16: 0.2 }, errand: { 11: 0.1, 12: 0.12, 13: 0.18, 14: 0.12, 15: 0.1, 16: 0.08, 18: 0.1, 19: 0.1, 20: 0.06, 22: 0.03, 23: 0.01 }, leisure: { 11: 0.1, 12: 0.15, 17: 0.15, 18: 0.2, 19: 0.25, 20: 0.15 }, freight: { 7: 0.08, 8: 0.1, 9: 0.1, 10: 0.1, 11: 0.12, 12: 0.12, 13: 0.1, 14: 0.08, 15: 0.08, 16: 0.07, 17: 0.05 } } as Record<string, Record<number, number>>,
 };
+
+// =====================================================================================
+// TRANSIT — basic local bus.
+//   - Walk access: people walk ≈ 400 m (¼ mile) to a bus stop (TCRP Report 165) → 20 tiles at 20 m/tile.
+//   - US small/mid-city bus mode share for trips that are served at both ends ≈ 5–15 %; we use 12 % for
+//     work/school and 6 % for errands, fading with walk distance.
+//   - A depot (garage + maintenance) costs ≈ $1M (scaled $1000); a sheltered stop ≈ $15–30k ($20); a bus in service
+//     costs ≈ $500k/yr to operate (~$40/month scaled per bus).
+// =====================================================================================
+export const TRANSIT = { walkTiles: 20, share: { work: 0.12, school: 0.12, errand: 0.06, leisure: 0.04 } as Record<string, number>, stopCost: 20, stopUpkeep: 2, depotCost: 1000, depotUpkeep: 100, busUpkeep: 40, stopsPerBus: 4, maxBuses: 6 };
 
 // =====================================================================================
 // PARKING — one tile ≈ 400 m²; a parking space incl. aisles takes ≈ 30 m² → ≈ 13 spaces per level per tile.

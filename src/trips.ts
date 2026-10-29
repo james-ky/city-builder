@@ -2,9 +2,9 @@
 // (workers / kids / others); each group has real destinations (a job tile, a school, shops) reachable on
 // the road network. Routes are A* over drivable road tiles weighted by speed and congestion and cached per
 // origin/destination road tile. Visible cars are sampled from these trips by the renderer.
-import { TRIPS, PARKING } from './realism';
+import { TRIPS, PARKING, PARK_EFFECT } from './realism';
 
-export type Kind = 'work' | 'school' | 'errand';
+export type Kind = 'work' | 'school' | 'errand' | 'leisure';
 export type Flow = { home: number; dest: number; kind: Kind; people: number; park?: number; walk?: number; extraMin?: number }; // park: tile where the car ends (walk tiles from there) // people making this trip each day (one way)
 export type World = {
   N: number;
@@ -19,6 +19,7 @@ export type World = {
   parkSpaces: (i: number, j: number) => number;   // spaces at this tile (garages, lots, kerb)
   needsParking: (i: number, j: number) => boolean; // destination with no own parking (dense commercial, big civic)
   seed: number;
+  leisure?: () => { k: number; draw: number }[]; // sports parks & playgrounds people drive to
   entrance?: (i: number, j: number) => number; // road tile on the building's front side (-1 none)
 };
 const D4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
@@ -58,6 +59,7 @@ export class TripSim {
     for (let k = 0; k < n; k++) { const i = (k / N) | 0, j = k - i * N, a = acc[k]; if (w.residents(i, j) > 0) homes.push(k); if (a < 0) continue; const c = comp[a];
       const jb = w.jobs(i, j); if (jb > 0) { jobTiles[c].push(k); jobsLeft.set(k, jb); } if (w.shop(i, j)) shopTiles[c].push(k); }
     for (const s of w.schools()) { const a = acc[s.k]; if (a >= 0) schools.push({ k: s.k, left: s.seats, c: comp[a] }); }
+    const fun: { k: number; c: number; draw: number }[] = []; for (const l of w.leisure?.() ?? []) { const a = acc[l.k]; if (a >= 0) fun.push({ k: l.k, c: comp[a], draw: l.draw }); }
     const st = this.stats; st.residents = st.workers = st.employed = st.noJobReachable = st.jobless = st.kids = st.schooled = st.noSchoolReachable = 0;
     const md = (x: number, y: number) => Math.abs(((x / N) | 0) - ((y / N) | 0)) + Math.abs((x % N) - (y % N));
     // shuffle homes so nobody gets first pick every month
@@ -78,6 +80,9 @@ export class TripSim {
         if (best) { const take = Math.min(kids, best.left); best.left -= take; st.schooled += take; fl.push({ home: hk, dest: best.k, kind: 'school', people: take }); } else st.noSchoolReachable += kids; }
       // errands: a nearby shop (best of 4 samples)
       const sh = shopTiles[c]; if (sh.length) { let best = -1, bd = 1e9; for (let s = 0; s < 4; s++) { const d = sh[(R() * sh.length) | 0], dd = md(hk, d); if (dd < bd) { bd = dd; best = d; } } fl.push({ home: hk, dest: best, kind: 'errand', people: res * TRIPS.errandsPerPersonPerDay * (others / res + 0.3) }); }
+      // leisure: a few residents drive to the most attractive sports park / playground nearby (draw / distance)
+      if (fun.length) { let best = -1, bs = 0; for (const l of fun) { if (l.c !== c) continue; const d = md(hk, l.k); if (d > PARK_EFFECT.leisureMaxTiles) continue; const sc = l.draw / (4 + d); if (sc > bs) { bs = sc; best = l.k; } }
+        if (best >= 0) fl.push({ home: hk, dest: best, kind: 'leisure', people: res * PARK_EFFECT.leisurePerPersonPerDay }); }
       for (const f of fl) this.flows.push(f); if (fl.length) this.homeFlows.set(hk, fl); }
     this.parkAll(); st.assignMs = performance.now() - t0;
   }
@@ -128,12 +133,12 @@ export class TripSim {
   md(x: number, y: number) { const N = this.N; return Math.abs(((x / N) | 0) - ((y / N) | 0)) + Math.abs((x % N) - (y % N)); }
 
   private byKind: Record<string, { idx: number[]; cum: number[]; tot: number }> | null = null;
-  private buildKinds() { const bk: Record<string, { idx: number[]; cum: number[]; tot: number }> = { work: { idx: [], cum: [], tot: 0 }, school: { idx: [], cum: [], tot: 0 }, errand: { idx: [], cum: [], tot: 0 } };
+  private buildKinds() { const bk: Record<string, { idx: number[]; cum: number[]; tot: number }> = { work: { idx: [], cum: [], tot: 0 }, school: { idx: [], cum: [], tot: 0 }, errand: { idx: [], cum: [], tot: 0 }, leisure: { idx: [], cum: [], tot: 0 } };
     this.flows.forEach((f, x) => { if (this.md(f.home, f.dest) <= TRIPS.walkTiles) return; const k = bk[f.kind]; k.tot += f.people * TRIPS.carShare[f.kind] / TRIPS.peoplePerCar; k.idx.push(x); k.cum.push(k.tot); }); return (this.byKind = bk); }
   /** cars leaving in this hour, sampled: returns up to `max` trips, each standing for `scale` real cars (O(log n) per pick) */
   departures(hour: number, max: number, R: () => number) {
     const bk = this.byKind ?? this.buildKinds(), parts: { k: string; w: number; o: number; b: number }[] = []; let tot = 0;
-    for (const k of ['work', 'school', 'errand']) { const o = TRIPS.out[k][hour] ?? 0, b = TRIPS.back[k][hour] ?? 0, w = bk[k].tot * (o + b); if (w > 0) { parts.push({ k, w, o, b }); tot += w; } }
+    for (const k of ['work', 'school', 'errand', 'leisure']) { const o = TRIPS.out[k][hour] ?? 0, b = TRIPS.back[k][hour] ?? 0, w = bk[k].tot * (o + b); if (w > 0) { parts.push({ k, w, o, b }); tot += w; } }
     const picks: { f: Flow; back: boolean }[] = []; if (tot <= 0) return { trips: picks, total: 0, scale: 1 }; const n = Math.min(max, Math.ceil(tot));
     for (let s = 0; s < n; s++) { let x = R() * tot, pt = parts[0]; for (const q of parts) { if (x < q.w) { pt = q; break; } x -= q.w; }
       const K = bk[pt.k], y = R() * K.tot; let lo = 0, hi = K.cum.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (K.cum[m] < y) lo = m + 1; else hi = m; }

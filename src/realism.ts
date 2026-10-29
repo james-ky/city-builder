@@ -125,7 +125,7 @@ export const roadUpkeep = (t: RoadTier, w: number) => ROAD_TIERS[t].upkeep * ROA
 export const TRIPS = {
   workersPerResident: 0.48,
   kidsPerResident: 0.18,
-  carShare: { work: 0.85, school: 0.45, errand: 0.85 } as Record<string, number>,
+  carShare: { work: 0.85, school: 0.45, errand: 0.85, leisure: 0.7 } as Record<string, number>,
   peoplePerCar: 1.1,
   errandsPerPersonPerDay: 1.0,
   walkTiles: 4,                     // trips this short (≈ 400 m) are walked
@@ -134,8 +134,8 @@ export const TRIPS = {
   tileMeters: 20,
   schoolSeats: { school: 500, highschool: 1500 } as Record<string, number>,
   // share of each trip type leaving in each hour (0–23); return trips mirror these
-  out: { work: { 6: 0.25, 7: 0.45, 8: 0.25, 9: 0.05 }, school: { 7: 0.7, 8: 0.3 }, errand: { 10: 0.12, 11: 0.12, 12: 0.18, 13: 0.12, 14: 0.08, 15: 0.08, 17: 0.1, 18: 0.1, 19: 0.06, 21: 0.03, 22: 0.01 } } as Record<string, Record<number, number>>,
-  back: { work: { 16: 0.2, 17: 0.45, 18: 0.3, 19: 0.05 }, school: { 15: 0.8, 16: 0.2 }, errand: { 11: 0.1, 12: 0.12, 13: 0.18, 14: 0.12, 15: 0.1, 16: 0.08, 18: 0.1, 19: 0.1, 20: 0.06, 22: 0.03, 23: 0.01 } } as Record<string, Record<number, number>>,
+  out: { work: { 6: 0.25, 7: 0.45, 8: 0.25, 9: 0.05 }, school: { 7: 0.7, 8: 0.3 }, errand: { 10: 0.12, 11: 0.12, 12: 0.18, 13: 0.12, 14: 0.08, 15: 0.08, 17: 0.1, 18: 0.1, 19: 0.06, 21: 0.03, 22: 0.01 }, leisure: { 9: 0.1, 10: 0.15, 15: 0.15, 16: 0.2, 17: 0.25, 18: 0.15 } } as Record<string, Record<number, number>>,
+  back: { work: { 16: 0.2, 17: 0.45, 18: 0.3, 19: 0.05 }, school: { 15: 0.8, 16: 0.2 }, errand: { 11: 0.1, 12: 0.12, 13: 0.18, 14: 0.12, 15: 0.1, 16: 0.08, 18: 0.1, 19: 0.1, 20: 0.06, 22: 0.03, 23: 0.01 }, leisure: { 11: 0.1, 12: 0.15, 17: 0.15, 18: 0.2, 19: 0.25, 20: 0.15 } } as Record<string, Record<number, number>>,
 };
 
 // =====================================================================================
@@ -161,3 +161,35 @@ export const PARKING = {
   walkTiles: 4, maxWalkTiles: 8,
   circleMinutes: 8,                    // extra driving when the driver has to hunt for a space
 };
+
+// =====================================================================================
+// PARKS — player-placed only (zones never grow them). Game money ≈ 1/1,000 of real dollars.
+//   - Real build costs (US, 2020s): pocket park / garden ≈ $80–300k, playground ≈ $250k installed,
+//     dog park ≈ $150k, 0.4-acre neighbourhood park ≈ $600k, lit sports field ≈ $1–1.5M,
+//     botanical garden section ≈ $1.5M, 1-ha regional park with lake / sports complex ≈ $2.5–6M.
+//   - Upkeep ≈ $10–15k per acre per year (NRPA medians) → a 2x2 (0.4 acre) ≈ $6k/yr ≈ $0.5/month here;
+//     staffed / irrigated parks (botanical, sports complex) cost several times more. Rounded up to whole $.
+//   - Home values rise ≈ 5–15% within ~150–500 m of a park, fading with distance and bigger for larger parks
+//     (Crompton 2005): radius and strength below scale with footprint.
+//   - Trees and lawns absorb a little local pollution; sports parks and playgrounds draw a few car trips.
+// =====================================================================================
+export const PARKS: Record<string, { name: string; size: number; cost: number; upkeep: number; leisure?: number }> = {
+  pocket: { name: 'Pocket Park', size: 1, cost: 150, upkeep: 1 },
+  community_garden: { name: 'Community Garden', size: 1, cost: 80, upkeep: 1 },
+  flower_garden: { name: 'Flower Garden', size: 1, cost: 120, upkeep: 2 },
+  playground: { name: 'Playground', size: 1, cost: 250, upkeep: 2, leisure: 60 },
+  dog: { name: 'Dog Park', size: 1, cost: 150, upkeep: 1 },
+  plaza: { name: 'Plaza', size: 1, cost: 300, upkeep: 2 },
+  basketball: { name: 'Basketball Court', size: 1, cost: 120, upkeep: 1, leisure: 40 },
+  neighborhood: { name: 'Neighborhood Park', size: 2, cost: 600, upkeep: 3 },
+  botanical: { name: 'Botanical Garden', size: 2, cost: 1500, upkeep: 12 },
+  sports_field: { name: 'Sports Field', size: 2, cost: 1200, upkeep: 8, leisure: 200 },
+  tennis: { name: 'Tennis Courts', size: 2, cost: 500, upkeep: 3, leisure: 80 },
+  skate: { name: 'Skate Park', size: 2, cost: 700, upkeep: 3, leisure: 100 },
+  pond: { name: 'Pond Park', size: 2, cost: 900, upkeep: 5 },
+  city_lake: { name: 'City Lake Park', size: 3, cost: 3500, upkeep: 15 },
+  sports_complex: { name: 'Sports Complex', size: 3, cost: 6000, upkeep: 35, leisure: 600 },
+  memorial: { name: 'Memorial Park', size: 3, cost: 2500, upkeep: 8 },
+};
+/** boost reach in tiles and strength (0..1) by footprint; pollution soaked up per park tile */
+export const PARK_EFFECT = { radius: [0, 4, 7, 10], strength: [0, 0.35, 0.6, 0.85], desirability: 0.3, pollutionPerTile: 0.6, leisurePerPersonPerDay: 0.05, leisureMaxTiles: 30 };

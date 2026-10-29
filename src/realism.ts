@@ -207,3 +207,22 @@ export const PARKS: Record<string, { name: string; size: number; cost: number; u
 };
 /** boost reach in tiles and strength (0..1) by footprint; pollution soaked up per park tile */
 export const PARK_EFFECT = { radius: [0, 4, 7, 10], strength: [0, 0.35, 0.6, 0.85], desirability: 0.3, pollutionPerTile: 0.6, leisurePerPersonPerDay: 0.05, leisureMaxTiles: 30 };
+
+// =====================================================================================
+// DEMOGRAPHICS — age brackets and education (city-level shares, applied to the simulated population).
+//   - US Census 2020: under 18 ≈ 22 %, 18–64 ≈ 61 %, 65+ ≈ 17 % (school-age 5–17 ≈ 18 %, TRIPS.kidsPerResident).
+//   - Average household size ≈ 2.5 (Census 2020).
+//   - Adults 25+ educational attainment (ACS 2022): no high-school diploma ≈ 10 %, high school ≈ 27 %,
+//     some college / associate ≈ 28 %, bachelor's or higher ≈ 35 %.
+//   - A town without schools drifts toward a low-attainment profile (newcomers' kids grow up without local
+//     schooling); good school coverage pulls toward the national profile. Shares move ≈ 2 % of the gap per month
+//     (attainment changes over years, not weeks).
+// =====================================================================================
+export const DEMOG = {
+  age: { child: 0.22, adult: 0.61, senior: 0.17 },
+  householdSize: 2.5,
+  eduUS: [0.10, 0.27, 0.28, 0.35],        // none, high school, some college, bachelor's+
+  eduNoSchools: [0.30, 0.40, 0.20, 0.10],
+  eduDriftPerMonth: 0.02,
+  eduNames: ['No diploma', 'High school', 'Some college', "Bachelor's+"],
+};

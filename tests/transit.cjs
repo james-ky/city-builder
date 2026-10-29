@@ -37,7 +37,7 @@ const fewer=await p.evaluate(()=>{const T=__city.trips();const w=T.flows.filter(
 const html=await p.evaluate(([ci,cj])=>{const q=__city.tileToScreen(ci,cj);document.getElementById('info').style.display='none';__city.inspectAt(q.x,q.y);return document.getElementById('info').innerText},c);
 ok('stop info shows ridership',/Ridership/.test(html)&&/bus/.test(html),html.replace(/\n/g,' | ').slice(0,160));
 // 6. budget line and save v10
-const bud=await p.evaluate(()=>{const o=__city.serialize();return{v:o.version,stops:o.stops}});ok('saves are v10 and keep stops',bud.v===10&&bud.stops.length===3,JSON.stringify(bud));
+const bud=await p.evaluate(()=>{const o=__city.serialize();return{v:o.version,stops:o.stops}});ok('saves are v10+ and keep stops',bud.v>=10&&bud.stops.length===3,JSON.stringify(bud));
 const rl=await p.evaluate(()=>{const C=__city,o=C.serialize();C.toggleStop((o.stops[0]/C.N())|0,o.stops[0]%C.N());const n1=C.stops().length;C.applySave(JSON.parse(JSON.stringify(o)));return[n1,C.stops().length]});ok('loading restores stops',rl[0]===2&&rl[1]===3,String(rl));
 if(shots){await p.evaluate(([ci,cj])=>{__city.centerOn(ci,cj-4);__city.setZoom(2.2);const q=__city.tileToScreen(ci,cj);__city.inspectAt(q.x,q.y)},c);await p.waitForTimeout(1500);await p.screenshot({path:'screenshots/transit.png'})}
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs);process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

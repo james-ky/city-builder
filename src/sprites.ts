@@ -50,6 +50,7 @@ export function placeNight(key: string, x: number, y: number, layer: Container, 
   const s = new Sprite(a.tex); s.anchor.set(a.anchor[0], a.anchor[1]); s.scale.set(a.scale); s.position.set(x, y); s.blendMode = 'add'; layer.addChild(s); return s;
 }
 export const hasArt = (key: string) => !!resolve(key, 0);
+export const artTex = (name: string) => art.get(name)?.tex;
 
 export const ZONE_COLORS: Record<string, number> = { R: 0x3ecf4a, C: 0x3b8cff, I: 0xf2c230 };
 const GROUND: Record<string, number[]> = { water: [0x2f6fb3, 0x3478bd], sand: [0xd9c58b, 0xe0cd95], grass: [0x5aa346, 0x62ad4d, 0x55993f] };

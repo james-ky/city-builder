@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "artRevision": "v2-polish",
+  "artRevision": "v2-polish-cars",
   "displayScale": 0.5,
   "baseTile": [
     64,
@@ -15329,5 +15329,6 @@
       "layer": "overlay",
       "toggle": true
     }
-  ]
+  ],
+  "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes."
 }

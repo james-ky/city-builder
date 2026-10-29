@@ -1,0 +1,72 @@
+// =====================================================================================
+// REALISM CONFIG — every per-building number the simulation uses lives here.
+// Goal: start from real-world figures, then tune for fun later (change numbers here only).
+//
+// Scale assumption: one map tile ≈ 20 m × 20 m ≈ 400 m² ≈ 4,300 sq ft (about 0.1 acre).
+// Building floor area per tile (density levels 1/2/3):
+//   Residential: 1 house · 4 apartments (3-storey walk-up) · ~60 apartments (15-storey tower)
+//   Commercial:  ~3,000 sq ft shop · ~12,000 sq ft (4 floors) offices · ~70,000 sq ft (20 floors) tower
+//   Industrial:  ~3,000 sq ft workshop/warehouse · ~8,000 sq ft factory · ~12,000 sq ft heavy plant
+// Index 0 of each array = empty lot.
+//
+// Sources / rules of thumb (rounded):
+//   - US Census: ~2.5 people per household (smaller in apartments, ~1.8 in towers).
+//   - US EIA: avg home uses ~10,500 kWh/yr ≈ 30 kWh/day ≈ 1.25 kW average; apartments ~0.8–0.9 kW.
+//   - EIA CBECS: commercial buildings ~14–20 kWh per sq ft per year; warehouses ~7; manufacturing far higher.
+//   - US EPA WaterSense: ~300 gal/day per household (apartments ~150–200);
+//     offices/retail ~0.1 gal per sq ft per day; light/heavy industry ~0.05–1 gal/sq ft/day.
+//   - Employment density (ITE / planning guides): office ~1 job / 250 sq ft, retail ~1 / 500 sq ft,
+//     industrial/warehouse ~1 / 500–1,000 sq ft.
+//   - US BLS: ~160 M jobs for ~335 M people → ~2.1 residents per job; ~80 % of jobs are services/commerce.
+//   - Plants: small municipal coal units are 25–100 MW; a modern onshore wind turbine is ~3 MW nameplate
+//     at ~35 % capacity factor ≈ 1 MW average; small surface-water treatment plants ≈ 1–5 million gal/day;
+//     a municipal well ≈ 350–700 gal/min ≈ 0.5–1 million gal/day.
+// Units used in the sim: power in kW (average demand), water in gallons per day.
+// =====================================================================================
+
+/** Residents per tile at density 1/2/3 (households × people per household). */
+export const RESIDENTS = { R: [0, 2.5, 4 * 2.2, 60 * 1.8] };   // 2.5 · 8.8 · 108
+
+/** Jobs per tile at density 1/2/3 (floor area ÷ sq ft per job). */
+export const JOBS: Record<'C' | 'I', number[]> = {
+  C: [0, 3000 / 500, 12000 / 250, 70000 / 250],                  // 6 · 48 · 280 (retail → offices)
+  I: [0, 3000 / 1000, 8000 / 700, 12000 / 500],                  // 3 · ~11 · 24
+};
+
+/** Average electricity demand per tile, kW. */
+export const POWER_KW: Record<'R' | 'C' | 'I', number[]> = {
+  R: [0, 1.25, 4 * 0.9, 60 * 0.8 * 1.2],                         // 1.25 · 3.6 · ~58 (towers add 20 % for lifts/common areas)
+  C: [0, 3000 * 15 / 8760, 12000 * 15 / 8760, 70000 * 20 / 8760],// ~5 · ~21 · ~160
+  I: [0, 3000 * 7 / 8760, 8000 * 50 / 8760, 12000 * 95 / 8760],  // ~2.4 · ~46 · ~130
+};
+
+/** Water demand per tile, gallons/day. */
+export const WATER_GPD: Record<'R' | 'C' | 'I', number[]> = {
+  R: [0, 300, 4 * 175, 60 * 150],                                // 300 · 700 · 9,000
+  C: [0, 3000 * 0.1, 12000 * 0.1, 70000 * 0.1],                  // 300 · 1,200 · 7,000
+  I: [0, 3000 * 0.05, 8000 * 0.5, 12000 * 1.0],                  // 150 · 4,000 · 12,000
+};
+
+/** Civic buildings: what they draw (consumers) or produce (plants). */
+export const CIVIC: Record<string, { kw?: number; gpd?: number; outKw?: number; outGpd?: number }> = {
+  school:     { kw: 70,   gpd: 3000 },    // ~500 pupils, ~60k sq ft
+  highschool: { kw: 200,  gpd: 10000 },   // ~1,500 pupils
+  police:     { kw: 30,   gpd: 500 },
+  fire:       { kw: 15,   gpd: 1000 },
+  clinic:     { kw: 20,   gpd: 500 },
+  hospital:   { kw: 1000, gpd: 50000 },   // ~300 beds × ~150 gal/bed/day; ~30 kWh/sq ft/yr
+  coal:       { outKw: 50000 },           // 50 MW small municipal coal plant
+  wind:       { outKw: 1000 },            // 3 MW turbine × 35 % capacity factor
+  pump:       { outGpd: 2_000_000 },      // 2 million gal/day surface-water intake + treatment
+  tower:      { outGpd: 500_000 },        // groundwater well + elevated storage tank
+};
+
+/** Labour market (drives zone demand). */
+export const ECON = {
+  residentsPerJob: 2.1,          // people the city attracts per job offered
+  commercialJobsPerResident: 0.38, // shops, offices, services that local residents support
+  industrialJobsPerResident: 0.07, // local manufacturing/warehousing
+};
+
+export const fmtPower = (kw: number) => kw >= 1000 ? (kw / 1000).toFixed(kw >= 100000 ? 0 : 1) + ' MW' : Math.round(kw) + ' kW';
+export const fmtWater = (g: number) => g >= 1e6 ? (g / 1e6).toFixed(2) + ' Mgal/d' : g >= 1000 ? (g / 1000).toFixed(g >= 100000 ? 0 : 1) + 'k gal/d' : Math.round(g) + ' gal/d';

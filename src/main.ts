@@ -6,7 +6,14 @@ const TW = 64, TH = 32;
 const hud = document.getElementById('hud')!;
 
 import { chooseCity, type CityCfg } from './newcity';
-import { type T } from './terrain';
+import { type T, TERRAIN_VERSION } from './terrain';
+import { SAVE_FORMAT, SAVE_VERSION, listSaves, getSave, putSave, deleteSave, compress, decompress, b64, unb64, metaFrom, download, type SaveMeta } from './save';
+const TT: T[] = ['water', 'sand', 'grass', 'forest'];
+const decodeTerrain = (o: any): T[][] => { const n = o.city.size, u = unb64(o.grids.terrain), t: T[][] = []; for (let i = 0; i < n; i++) { t.push([]); for (let j = 0; j < n; j++) t[i].push(TT[u[i * n + j]]); } return t; };
+const readFile = (f: File) => decompress(f);
+const ago = (ts: number) => { const m = Math.round((Date.now() - ts) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : new Date(ts).toLocaleDateString(); };
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const gameDate = (d: number) => `${MON[Math.floor(d / 30) % 12]} Y${Math.floor(d / 360) + 1}`;
 let N = 128; let terrain: T[][] = []; let city: CityCfg = { name: '', size: 128, seed: 0 };
 const colors: Record<T, number[]> = {
   water: [0x2f6fb3, 0x3478bd], sand: [0xd9c58b, 0xe0cd95],
@@ -24,7 +31,18 @@ function diamond(g: Graphics, i: number, j: number) {
 }
 
 (async () => {
-  const boot = await chooseCity(); city = boot.cfg; N = city.size; terrain = boot.terrain;
+  let loaded: any = null; const pend = sessionStorage.getItem('loadId'); sessionStorage.removeItem('loadId');
+  if (pend) { try { const r = await getSave(pend); if (r) loaded = await decompress(r.data); } catch (e) { alert('Could not load that save: ' + (e as Error).message); } }
+  const boot = loaded ? { cfg: loaded.city, terrain: decodeTerrain(loaded) } : await chooseCity((el, done) => { // New City screen: load / import too
+    el.innerHTML = '<button id="ncLoad">📂 Load city…</button> <label class="imp">⬆ Import .city<input type="file" id="ncImp" accept=".city,application/octet-stream" hidden></label><div id="ncList"></div>';
+    const list = el.querySelector('#ncList') as HTMLElement;
+    (el.querySelector('#ncLoad') as HTMLElement).onclick = async () => { const ss = await listSaves();
+      list.innerHTML = ss.length ? ss.map(m => `<button data-id="${m.id}">${m.slot === 'Autosave' ? '⟳ ' : ''}<b>${m.city.replace(/</g, '&lt;')}</b> · ${m.slot.replace(/</g, '&lt;')} · ${m.size}² · ${gameDate(m.day)} · pop ${m.pop.toLocaleString()} · ${ago(m.ts)}</button>`).join('') : '<i>No saved cities yet</i>';
+      list.querySelectorAll<HTMLElement>('button[data-id]').forEach(b => b.onclick = async () => { const r = await getSave(b.dataset.id!); if (!r) return; const o = await decompress(r.data); done({ cfg: o.city, terrain: decodeTerrain(o), save: o }); }); };
+    (el.querySelector('#ncImp') as HTMLInputElement).onchange = async e => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; try { const o = await readFile(f); done({ cfg: o.city, terrain: decodeTerrain(o), save: o }); } catch (err) { alert('Could not import: ' + (err as Error).message); } };
+  });
+  if (boot.save) loaded = boot.save;
+  city = boot.cfg; N = city.size; terrain = boot.terrain;
   document.title = city.name + ' — City Builder';
   const app = new Application();
   await app.init({ resizeTo: window, background: 0x1b2430, antialias: false });
@@ -421,10 +439,11 @@ function diamond(g: Graphics, i: number, j: number) {
     return { income, expense, net };
   };
   let extraExpenses = (_e: Record<string, number>) => {}; // utilities hook in here
+  let onMonth = () => {};
   const monthly = () => {
     lastMonth = projection(); sim.funds += lastMonth.net;
     if (sim.funds < 0) toast(`⚠ The city is in debt ($${Math.floor(sim.funds).toLocaleString()}). Raise taxes, cut funding, or take a loan.`);
-    renderBudget();
+    renderBudget(); onMonth();
   };
   let downAt: { x: number; y: number } | null = null;
   const clamp = (v: number) => Math.max(-1, Math.min(1, v));
@@ -582,6 +601,58 @@ function diamond(g: Graphics, i: number, j: number) {
   const toggleBudget = () => { budgetEl.style.display = budgetEl.style.display === 'block' ? 'none' : 'block'; if (budgetEl.style.display === 'block') renderBudget(); };
   document.getElementById('budgetBtn')!.onclick = e => { e.stopPropagation(); toggleBudget(); };
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'b' && !(e.target instanceof HTMLInputElement)) toggleBudget(); });
+  // ---- save / load (milestone 6) ----
+  const ZZ = ['', 'R', 'C', 'I'];
+  const serialize = () => {
+    const n = N * N, fl = new Uint8Array(n), zn = new Uint8Array(n), bl = new Uint8Array(n), ct = new Uint8Array(n), cd = new Uint8Array(n), tr = new Uint8Array(n);
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
+      fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); }
+    return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
+      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd) } };
+  };
+  const applySave = (o: any) => {
+    const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD');
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
+      road[i][j] = !!(fl[k] & 1); pline[i][j] = !!(fl[k] & 2); pipe[i][j] = !!(fl[k] & 4); zone[i][j] = ZZ[zn[k]] ?? ''; bld[i][j] = bl[k]; consT[i][j] = ct[k]; consD[i][j] = cd[k]; civAt[i][j] = null; }
+    civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
+    Object.assign(sim, o.sim); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
+    if (o.cam) { camX = o.cam.x; camY = o.cam.y; zoom = clampZoom(o.cam.zoom); }
+    computeNear(); rebuildZ(); markAll(); census(); updateStats(); setSpeed(o.sim.speed ?? 1);
+  };
+  const saveTo = async (slot: string, id: string) => { const o = serialize(), data = await compress(o); await putSave(metaFrom(o, slot, id, data)); return data; };
+  const slug = (t: string) => t.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'city';
+  const autoId = () => `auto:${city.name}:${city.size}:${city.seed}`;
+  let autosaveOn = localStorage.getItem('autosave') !== 'off';
+  onMonth = () => { if (autosaveOn && Math.floor(sim.day / 30) % 3 === 0) saveTo('Autosave', autoId()).then(() => toastOk('Autosaved')).catch(() => {}); };
+  const toastOk = (m: string) => { toast(m); toastEl.style.background = 'rgba(30,110,60,.92)'; setTimeout(() => toastEl.style.background = '', 2700); };
+  const saveEl = document.getElementById('saveMenu')!;
+  saveEl.addEventListener('pointerdown', e => e.stopPropagation());
+  const esc = (t: string) => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as any)[c]);
+  const renderSaves = async () => {
+    const ss: SaveMeta[] = await listSaves();
+    saveEl.innerHTML = `<div class="bh"><b>💾 Save / Load</b><button id="sClose">✕</button></div>
+      <div class="sv"><input id="sName" maxlength="40" value="${esc(city.name)}" title="Slot name"><button id="sSave">Save</button></div>
+      <label class="chk"><input type="checkbox" id="sAuto" ${autosaveOn ? 'checked' : ''}> Autosave every 3 game-months</label>
+      <h4>Saved cities</h4><div id="sList">${ss.length ? ss.map(m => `<div class="slot" data-id="${esc(m.id)}"><div><b>${esc(m.city)}</b> · ${esc(m.slot)}<br><small>${m.size}×${m.size} · ${gameDate(m.day)} · pop ${m.pop.toLocaleString()} · $${Math.floor(m.funds).toLocaleString()} · ${ago(m.ts)} · ${Math.ceil(m.bytes / 1024)} KB</small></div><span><button data-a="load">Load</button><button data-a="exp" title="Download .city file">⬇</button><button data-a="del" title="Delete">🗑</button></span></div>`).join('') : '<i>Nothing saved yet</i>'}</div>
+      <h4>Move or back up</h4><div class="sv"><button id="sExp">⬇ Export this city (.city)</button><label class="imp">⬆ Import .city<input type="file" id="sImp" accept=".city,application/octet-stream" hidden></label></div>
+      <small class="hint">Saves live in this browser. Export a .city file to back up or open the city on another device (e.g. iPad: AirDrop or Files, then Import).</small>`;
+    saveEl.querySelector('#sClose')!.addEventListener('click', () => saveEl.style.display = 'none');
+    (saveEl.querySelector('#sAuto') as HTMLInputElement).onchange = e => { autosaveOn = (e.target as HTMLInputElement).checked; localStorage.setItem('autosave', autosaveOn ? 'on' : 'off'); };
+    saveEl.querySelector('#sSave')!.addEventListener('click', async () => { const slot = (saveEl.querySelector('#sName') as HTMLInputElement).value.trim() || city.name; await saveTo(slot, 'slot:' + slot); toastOk(`Saved “${slot}”`); renderSaves(); });
+    saveEl.querySelector('#sExp')!.addEventListener('click', async () => { download(await compress(serialize()), slug(city.name) + '.city'); });
+    (saveEl.querySelector('#sImp') as HTMLInputElement).onchange = async e => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return;
+      try { const o = await readFile(f), data = await compress(o), id = 'import:' + Date.now(); await putSave(metaFrom(o, 'Imported ' + new Date().toLocaleDateString(), id, data)); toastOk(`Imported “${o.city.name}”`); renderSaves(); }
+      catch (err) { toast('Could not import: ' + (err as Error).message); } };
+    saveEl.querySelectorAll<HTMLElement>('.slot').forEach(row => row.querySelectorAll<HTMLElement>('button[data-a]').forEach(b => b.onclick = async () => { const id = row.dataset.id!, a = b.dataset.a;
+      if (a === 'load') { if (!confirm('Load this city? Unsaved progress here will be lost.')) return; sessionStorage.setItem('loadId', id); location.href = location.pathname; }
+      else if (a === 'exp') { const r = await getSave(id); if (r) download(r.data, slug(r.city) + '.city'); }
+      else if (a === 'del') { if (confirm('Delete this save?')) { await deleteSave(id); renderSaves(); } } }));
+  };
+  const toggleSave = () => { saveEl.style.display = saveEl.style.display === 'block' ? 'none' : 'block'; if (saveEl.style.display === 'block') renderSaves(); };
+  document.getElementById('saveBtn')!.onclick = e => { e.stopPropagation(); toggleSave(); };
+  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveTo(city.name, 'slot:' + city.name).then(() => toastOk(`Saved “${city.name}”`)); } });
+  if (loaded) applySave(loaded);
+  Object.assign((window as any).__city, { serialize, applySave, saveTo, listSaves });
   // info panel
   const info = document.getElementById('info')!;
   const inspect = ({ i, j }: { i: number; j: number }) => {

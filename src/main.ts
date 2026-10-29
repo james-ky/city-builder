@@ -58,7 +58,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const pipeL = new Container(), iconL = new Container();
   world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, objL, smokeL, cloudL, skyL, iconL);
   let lastNightTint = -1, curTint = 0xffffff;
-  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string };
+  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number };
   const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
@@ -196,8 +196,20 @@ function diamond(g: Graphics, i: number, j: number) {
   // ---- chunked rendering: 16x16-tile chunks per layer, built lazily when visible, rebuilt only when dirty ----
   const CH = 16, NCH = Math.ceil(N / CH);
   type Bld = { x: number; y: number; z: string; L: number; seed: number };
+  // intersections: 'L' = traffic lights, 'S' = stop signs on the listed approaches (dir = the way approaching traffic travels)
+  type TL = { axis: number; sp: Record<string, Sprite>; nt: Record<string, Sprite | undefined>; st: string; ph: number };
+  const ctrl = new Map<number, { k: 'L' | 'S'; stops: string[]; ph: number }>();
+  const APPR: [number, number, string][] = [[0, 1, 'NE'], [-1, 0, 'SE'], [0, -1, 'SW'], [1, 0, 'NW']]; // neighbour offset -> dir of traffic coming from it
+  const CORNER: Record<string, [number, number]> = { NE: [0, 11.2], SE: [-22.4, 0], SW: [0, -11.2], NW: [22.4, 0] };
+  const straightLen = (i: number, j: number, a: number, b: number) => { let n = 0; for (let k = 1; k <= 8 && isRoad(i + a * k, j + b * k); k++) n++; return n; };
+  const classify = (i: number, j: number) => { const ap = APPR.filter(([a, b]) => isRoad(i + a, j + b)); if (ap.length < 3) return null;
+    if (ap.length === 4) { const act = activity(i, j), busy = straightLen(i, j, 1, 0) + straightLen(i, j, -1, 0) >= 6 && straightLen(i, j, 0, 1) + straightLen(i, j, 0, -1) >= 6;
+      return busy && act >= 40 ? { k: 'L' as const, stops: [], ph: (i * 7 + j * 13) % 15 } : { k: 'S' as const, stops: ap.map(x => x[2]), ph: 0 }; }
+    const stem = ap.find(([a, b]) => !isRoad(i - a, j - b))!; return { k: 'S' as const, stops: [stem[2]], ph: 0 }; }; // T: only the side road stops
+  const LCYCLE = 15, lightState = (axis: number, ph: number) => { const t = (clock + ph) % LCYCLE, u = axis ? (t + 7.5) % LCYCLE : t; return u < 6 ? 'green' : u < 7.5 ? 'yellow' : 'red'; };
+  const axisOf = (dir: string) => dir === 'SE' || dir === 'NW' ? 0 : 1;
   type Chunk = { ci: number; cj: number; g: Container; gr: Container; rd: Container; zn: Container; ob: Container; pp: Container; ic: Container;
-    ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; winds: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][];
+    ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; winds: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][]; tls: TL[];
     tint: number; la: number; x0: number; x1: number; y0: number; y1: number };
   const chunks: Chunk[] = [];
   objL.sortableChildren = true;
@@ -206,7 +218,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const ob = mk(objL); ob.sortableChildren = true; ob.zIndex = ci + cj; // chunks drawn back to front; inside a chunk sprites sort by screen y
     const i0 = ci * CH, j0 = cj * CH, i1 = Math.min(N, i0 + CH) - 1, j1 = Math.min(N, j0 + CH) - 1;
     chunks.push({ ci, cj, g: mk(groundL), gr: mk(gridL), rd: mk(roadL), zn: mk(zoneL), ob, pp: mk(pipeL), ic: mk(iconL), ground: false, built: false, dirty: true, iconDirty: true, vis: false, seen: 0,
-      lights: [], winds: [], trees: [], blds: [], roads: [], tint: -1, la: -1, x0: (i0 - j1) * 32 - 96, x1: (i1 - j0) * 32 + 96, y0: (i0 + j0) * 16 - 240, y1: (i1 + j1) * 16 + 48 });
+      lights: [], winds: [], trees: [], blds: [], roads: [], tls: [], tint: -1, la: -1, x0: (i0 - j1) * 32 - 96, x1: (i1 - j0) * 32 + 96, y0: (i0 + j0) * 16 - 240, y1: (i1 + j1) * 16 + 48 });
   }
   const chunkOf = (i: number, j: number) => chunks[Math.min(NCH - 1, Math.max(0, Math.floor(i / CH))) * NCH + Math.min(NCH - 1, Math.max(0, Math.floor(j / CH)))];
   let ovDirty = true;
@@ -233,7 +245,7 @@ function diamond(g: Graphics, i: number, j: number) {
     g.stroke({ width: 1, color: 0xffffff, alpha: 0.16 }); ch.gr.addChild(g); ch.ground = true; };
   const drawChunk = (ch: Chunk) => {
     for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); }
-    clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.winds = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tint = -1; ch.la = -1;
+    clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.winds = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tls = []; ch.tint = -1; ch.la = -1;
     const P = (key: string, x: number, y: number, seed: number, z: number) => { const o = place(key, x, y, ch.ob, seed); o.zIndex = z; return o; };
     const PN = (key: string, x: number, y: number, seed: number, z: number) => { const l = placeNight(key, x, y, ch.ob, seed); if (l) { l.zIndex = z; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } };
     chunkTiles(ch, (i, j) => {
@@ -251,6 +263,13 @@ function diamond(g: Graphics, i: number, j: number) {
       } else if (road[i][j]) {
         const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
         place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, ch.rd, seed); ch.roads.push([i, j]);
+        const cc = classify(i, j); if (cc) ctrl.set(i * N + j, cc); else ctrl.delete(i * N + j);
+        if (cc) for (const [, , dir] of APPR.filter(([a, b]) => isRoad(i + a, j + b))) { const [ox, oy] = CORNER[dir], px = x + ox, py = y + oy, z = y + 0.5 + (py - y) * 0.001; // with the intersection tile, after the road
+          if (cc.k === 'S') { if (cc.stops.includes(dir)) { P('prop_stop_sign_' + dir, px, py, seed, z); PN('prop_stop_sign_' + dir, px, py, seed, z); } }
+          else { const tl: TL = { axis: axisOf(dir), sp: {}, nt: {}, st: '', ph: cc.ph };
+            for (const c of ['red', 'yellow', 'green']) { const o = P(`prop_traffic_light_${c}_${dir}`, px, py, seed, z) as Sprite; o.visible = false; tl.sp[c] = o;
+              const n = placeNight(`prop_traffic_light_${c}_${dir}`, px, py, ch.ob, seed); if (n) { n.zIndex = z + 0.0001; n.visible = false; } tl.nt[c] = n; }
+            ch.tls.push(tl); } }
       } else if (zone[i][j]) {
         if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, ch.zn, seed);
         if (consT[i][j]) P(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, seed, y);
@@ -303,7 +322,7 @@ function diamond(g: Graphics, i: number, j: number) {
         if (performance.now() - t0 < 8 || !ch.ground) { if (!ch.ground) buildGround(ch); if (ch.dirty) drawChunk(ch); if (ch.iconDirty) drawChunkIcons(ch); }
         for (const r of ch.roads) visRoads.push(r);
       } else if (ch.ground && now - ch.seen > 20000) { clear(ch.g); clear(ch.gr); ch.ground = false; // free far-away chunks
-        for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); } clear(ch.rd); clear(ch.zn); clear(ch.pp); clear(ch.ic); ch.lights = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.dirty = true; ch.iconDirty = true; }
+        for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); } clear(ch.rd); clear(ch.zn); clear(ch.pp); clear(ch.ic); ch.lights = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tls = []; ch.dirty = true; ch.iconDirty = true; }
       ch.vis = v; ch.g.visible = ch.rd.visible = ch.zn.visible = ch.ob.visible = ch.pp.visible = ch.ic.visible = v; ch.gr.visible = v && showGrid;
     }
   };
@@ -756,6 +775,7 @@ function diamond(g: Graphics, i: number, j: number) {
   type P = { s: Sprite; vx: number; vy: number; life: number; max: number };
   const smoke: P[] = []; let smokeAcc = 0;
   const CAR_COLORS = [0xd94040, 0xf0f0f0, 0x3a6fd8, 0xf2c230, 0x333333, 0x40a060];
+  const VSCALE = 0.72; // vehicles at 72% of manifest size so a sedan sits inside one lane
   const LANE: Record<string, [number, number]> = { NE: [4.8, 2.4], SE: [-4.8, 2.4], SW: [-4.8, -2.4], NW: [4.8, -2.4] }; // right-hand lanes
   const VEH: Record<string, string[]> = { sedan: ['a', 'b', 'c'], hatchback: ['a', 'b', 'c'], pickup: ['a', 'b', 'c'], van: ['a', 'b', 'c'], taxi: ['a'], bus: ['a'], delivery_truck: ['a', 'b'], semi: ['a', 'b'] };
   const pickVehicle = (i: number, j: number) => { // weight by what is around: trucks near industry/commerce, taxis downtown, buses now and then
@@ -843,24 +863,46 @@ function diamond(g: Graphics, i: number, j: number) {
     }
     const lane = new Map<number, number[]>(), segK = (pi: number, pj: number, i: number, j: number) => ((pi * N + pj) * 8 + (i - pi + 1) * 2 + (j - pj + 1 >> 1)) | 0;
     for (const c of cars) { const k = segK(c.pi, c.pj, c.i, c.j); const l = lane.get(k); if (l) l.push(c.t); else lane.set(k, [c.t]); }
+    for (const ch of chunks) if (ch.vis) for (const tl of ch.tls) { const st = lightState(tl.axis, tl.ph); { tl.st = st;
+      for (const c of ['red', 'yellow', 'green']) { tl.sp[c].visible = c === st; tl.sp[c].tint = curTint; const n = tl.nt[c]; if (n) { n.visible = c === st && night > 0.02; n.alpha = night; } } } }
+    // intersection reservation: a car holds the junction tile from its stop line until it is half way out the other side
+    const resv = new Map<number, Car[]>(); for (const c of cars) if (c.res != null) { const l = resv.get(c.res); if (l) l.push(c); else resv.set(c.res, [c]); }
+    const compatible = (a: Car, b: { din: string; dout: string }) => { const opp: Record<string, string> = { NE: 'SW', SW: 'NE', SE: 'NW', NW: 'SE' };
+      return a.din === b.din && a.dout === b.dout ? true : opp[a.din!] === b.din && a.din === a.dout && b.din === b.dout; }; // same movement (spacing handles it) or straight through from opposite sides
+    const STOPLINE = 0.3;
     const GAP = 0.55; // simple spacing: keep about half a tile behind the car ahead in the same lane
     const blocked = (k: number, t: number, self: boolean) => { const l = lane.get(k); if (!l) return false; for (const u of l) if (u > t + (self ? 1e-6 : -1) && u - t < GAP && !(self && u === t)) return true; return false; };
     for (let k = cars.length - 1; k >= 0; k--) { const c = cars[k];
       if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj) || !fx.cars || !chunkOf(c.i, c.j).vis) { dropCar(k); continue; }
       const ck = segK(c.pi, c.pj, c.i, c.j);
-      if (sim.speed && !blocked(ck, c.t, true)) { const l = lane.get(ck)!, ix = l.indexOf(c.t); c.t = Math.min(1, c.t + dt * c.sp); if (ix >= 0) l[ix] = c.t; }
-      if (c.t >= 1) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); const nx = nb.length ? nb[Math.floor(Math.random() * nb.length)] : [c.pi, c.pj];
-        const nk = segK(c.i, c.j, nx[0], nx[1]), nl = lane.get(nk); if (nl && nl.some(u => u < GAP - 0.45)) { c.t = 1; } else {
+      if (c.res != null && c.res !== c.i * N + c.j && c.res !== c.pi * N + c.pj) c.res = undefined; // left the junction
+      if (c.res != null && c.res === c.pi * N + c.pj && c.t > 0.5) c.res = undefined;
+      let hold = false; const jk = c.i * N + c.j, cc = ctrl.get(jk);
+      if (cc && c.res !== jk && c.t <= STOPLINE + 0.001 && sim.speed && c.t + dt * c.sp >= STOPLINE) { // approaching a controlled junction
+        const din = c.i - c.pi > 0 ? 'SE' : c.i - c.pi < 0 ? 'NW' : c.j < c.pj ? 'NE' : 'SW';
+        if (!c.nx) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); c.nx = nb.length ? nb[Math.floor(Math.random() * nb.length)] as [number, number] : [c.pi, c.pj]; }
+        const dout = c.nx[0] - c.i > 0 ? 'SE' : c.nx[0] - c.i < 0 ? 'NW' : c.nx[1] < c.j ? 'NE' : 'SW';
+        let go = true;
+        if (cc.k === 'L') go = lightState(axisOf(din), cc.ph) === 'green';
+        else if (cc.stops.includes(din)) { c.wait = (c.wait ?? 0) + dt; go = c.wait > 0.8; }
+        const occ = resv.get(jk) ?? []; if (go && occ.some(o => o !== c && !compatible(o, { din, dout }))) go = false;
+        if (go) { c.res = jk; c.din = din; c.dout = dout; c.wait = 0; const l = resv.get(jk); if (l) l.push(c); else resv.set(jk, [c]); } else { hold = true; c.t = Math.max(c.t, Math.min(c.t, STOPLINE)); }
+      }
+      if (!c.nx && c.t > 0.4) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); c.nx = nb.length ? nb[Math.floor(Math.random() * nb.length)] as [number, number] : [c.pi, c.pj]; }
+      if (!hold && c.nx && c.t > 1 - GAP) { const nl2 = lane.get(segK(c.i, c.j, c.nx[0], c.nx[1])); if (nl2 && nl2.some(u => u < c.t + GAP - 1)) hold = true; } // car just ahead on the next stretch
+      if (sim.speed && !hold && !blocked(ck, c.t, true)) { const l = lane.get(ck)!, ix = l.indexOf(c.t); c.t = Math.min(1, c.t + dt * c.sp); if (ix >= 0) l[ix] = c.t; }
+      if (c.t >= 1) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); const nx = c.nx ?? (nb.length ? nb[Math.floor(Math.random() * nb.length)] : [c.pi, c.pj]);
+        const nk = segK(c.i, c.j, nx[0], nx[1]), nl = lane.get(nk); if (nl && nl.some(u => u < GAP)) { c.t = 1; } else {
         const ol = lane.get(ck); if (ol) { const ix = ol.indexOf(c.t); if (ix >= 0) ol.splice(ix, 1); } if (nl) nl.push(0); else lane.set(nk, [0]);
-        c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; const ob = chunkOf(c.i, c.j).ob; if (c.s.parent !== ob) { ob.addChild(c.s); if (c.n) ob.addChild(c.n); } } }
+        c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; c.nx = undefined; const ob = chunkOf(c.i, c.j).ob; if (c.s.parent !== ob) { ob.addChild(c.s); if (c.n) ob.addChild(c.n); } } }
       const a = toScreen(c.pi, c.pj), b = toScreen(c.i, c.j), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
       const di = c.i - c.pi, dir = di > 0 ? 'SE' : di < 0 ? 'NW' : c.j < c.pj ? 'NE' : 'SW';
       if (c.s instanceof Graphics && !hasArt(c.key + '_NE')) { const ox = -dy / L * 5, oy = dx / L * 5; c.s.position.set(a.x + dx * c.t + ox, a.y + dy * c.t + oy); c.s.rotation = Math.atan2(dy, dx); }
       else {
         if (dir !== c.dir) { // swap to the sprite facing the new direction
           c.dir = dir; c.s.destroy(); c.n?.destroy();
-          const ob = chunkOf(c.i, c.j).ob; c.s = place(c.key + '_' + dir, 0, 0, ob); (c.s as any).__veh = true; (c.s as Sprite).tint = curTint;
-          c.n = placeNight(c.key + '_' + dir, 0, 0, ob); if (c.n) { (c.n as any).__veh = true; (c.n as any).__light = true; }
+          const ob = chunkOf(c.i, c.j).ob; c.s = place(c.key + '_' + dir, 0, 0, ob); (c.s as any).__veh = true; (c.s as Sprite).tint = curTint; c.s.scale.set(c.s.scale.x * VSCALE, c.s.scale.y * VSCALE);
+          c.n = placeNight(c.key + '_' + dir, 0, 0, ob); if (c.n) { (c.n as any).__veh = true; (c.n as any).__light = true; c.n.scale.set(c.n.scale.x * VSCALE, c.n.scale.y * VSCALE); }
         }
         const [lx, ly] = LANE[dir], x = a.x + dx * c.t + lx, y = a.y + dy * c.t + ly;
         c.s.position.set(x, y); c.s.zIndex = y + 1; // depth: same key as buildings (screen y)

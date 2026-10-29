@@ -14239,6 +14239,1078 @@
       "tall": true
     },
     {
+      "name": "prop_stop_sign_NE",
+      "file": "props/prop_stop_sign_NE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "stop_sign",
+      "dir": "NE",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_stop_sign_NE_night",
+      "file": "props/prop_stop_sign_NE_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "stop_sign",
+      "dir": "NE",
+      "nightOf": "prop_stop_sign_NE",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_NE",
+      "file": "props/prop_traffic_light_red_NE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NE",
+      "state": "red",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_NE_night",
+      "file": "props/prop_traffic_light_red_NE_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NE",
+      "state": "red",
+      "nightOf": "prop_traffic_light_red_NE",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_NE",
+      "file": "props/prop_traffic_light_yellow_NE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NE",
+      "state": "yellow",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_NE_night",
+      "file": "props/prop_traffic_light_yellow_NE_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NE",
+      "state": "yellow",
+      "nightOf": "prop_traffic_light_yellow_NE",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_NE",
+      "file": "props/prop_traffic_light_green_NE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NE",
+      "state": "green",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_NE_night",
+      "file": "props/prop_traffic_light_green_NE_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NE",
+      "state": "green",
+      "nightOf": "prop_traffic_light_green_NE",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          11.2
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_stop_sign_SE",
+      "file": "props/prop_stop_sign_SE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "stop_sign",
+      "dir": "SE",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          -22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_SE",
+      "file": "props/prop_traffic_light_red_SE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SE",
+      "state": "red",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          -22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_SE_night",
+      "file": "props/prop_traffic_light_red_SE_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SE",
+      "state": "red",
+      "nightOf": "prop_traffic_light_red_SE",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          -22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_SE",
+      "file": "props/prop_traffic_light_yellow_SE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SE",
+      "state": "yellow",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          -22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_SE_night",
+      "file": "props/prop_traffic_light_yellow_SE_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SE",
+      "state": "yellow",
+      "nightOf": "prop_traffic_light_yellow_SE",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          -22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_SE",
+      "file": "props/prop_traffic_light_green_SE@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SE",
+      "state": "green",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          -22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_SE_night",
+      "file": "props/prop_traffic_light_green_SE_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SE",
+      "state": "green",
+      "nightOf": "prop_traffic_light_green_SE",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SE",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          -22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_stop_sign_SW",
+      "file": "props/prop_stop_sign_SW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "stop_sign",
+      "dir": "SW",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          -11.2
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_SW",
+      "file": "props/prop_traffic_light_red_SW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SW",
+      "state": "red",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          -11.2
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_SW_night",
+      "file": "props/prop_traffic_light_red_SW_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SW",
+      "state": "red",
+      "nightOf": "prop_traffic_light_red_SW",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          -11.2
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_SW",
+      "file": "props/prop_traffic_light_yellow_SW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SW",
+      "state": "yellow",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          -11.2
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_SW_night",
+      "file": "props/prop_traffic_light_yellow_SW_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SW",
+      "state": "yellow",
+      "nightOf": "prop_traffic_light_yellow_SW",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          -11.2
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_SW",
+      "file": "props/prop_traffic_light_green_SW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SW",
+      "state": "green",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          -11.2
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_SW_night",
+      "file": "props/prop_traffic_light_green_SW_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "SW",
+      "state": "green",
+      "nightOf": "prop_traffic_light_green_SW",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "SW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          0.0,
+          -11.2
+        ],
+        "uvFromTileCentre": [
+          -0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": false
+      }
+    },
+    {
+      "name": "prop_stop_sign_NW",
+      "file": "props/prop_stop_sign_NW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "stop_sign",
+      "dir": "NW",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_stop_sign_NW_night",
+      "file": "props/prop_stop_sign_NW_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "stop_sign",
+      "dir": "NW",
+      "nightOf": "prop_stop_sign_NW",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_NW",
+      "file": "props/prop_traffic_light_red_NW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NW",
+      "state": "red",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_red_NW_night",
+      "file": "props/prop_traffic_light_red_NW_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NW",
+      "state": "red",
+      "nightOf": "prop_traffic_light_red_NW",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_NW",
+      "file": "props/prop_traffic_light_yellow_NW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NW",
+      "state": "yellow",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_yellow_NW_night",
+      "file": "props/prop_traffic_light_yellow_NW_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NW",
+      "state": "yellow",
+      "nightOf": "prop_traffic_light_yellow_NW",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_NW",
+      "file": "props/prop_traffic_light_green_NW@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "object",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NW",
+      "state": "green",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
+      "name": "prop_traffic_light_green_NW_night",
+      "file": "props/prop_traffic_light_green_NW_night@2x.png",
+      "size": [
+        32,
+        48
+      ],
+      "anchor": [
+        0.3125,
+        0.9166666666666666
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "category": "prop",
+      "type": "traffic_light",
+      "dir": "NW",
+      "state": "green",
+      "nightOf": "prop_traffic_light_green_NW",
+      "blend": "add",
+      "placement": {
+        "tile": "the intersection tile (T or cross road piece)",
+        "anchor": "base of the post",
+        "approachTravelDir": "NW",
+        "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
+        "screenOffsetGamePx": [
+          22.4,
+          0.0
+        ],
+        "uvFromTileCentre": [
+          0.35,
+          -0.35
+        ],
+        "draw": "position = toScreen(tile centre) + screenOffsetGamePx; depth key = tile i+j, after the road, sort by screen y within the tile",
+        "faceVisible": true
+      }
+    },
+    {
       "name": "grid_overlay",
       "file": "overlays/grid_overlay@2x.png",
       "size": [

@@ -1,0 +1,19 @@
+{
+ "tiles": 90,
+ "missing_inside_diamond_max": 0,
+ "patch_gap_px_max": 0,
+ "fail": [],
+ "overlay_px_outside_diamond_max": 208,
+ "mixed_grass_edge_vs_inside_step": [
+  0.69,
+  2.21
+ ],
+ "grass_road_straight_edge_vs_inside": [
+  2.9,
+  3.28
+ ],
+ "water_edge_vs_inside": [
+  0.48,
+  0.58
+ ]
+}

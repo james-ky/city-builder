@@ -1,5 +1,11 @@
 # Changelog
 
+## Realism pass
+- All per-building residents, jobs, power (kW) and water (gal/day) figures and plant outputs now come from src/realism.ts, based on real-world averages (sources in the file).
+- Top bar shows power in kW/MW and water in gal/day.
+- New City Art Studio parked-car art on police, fire station, hospital and suburban lots.
+- tests/sim-years.cjs: headless multi-year balance run.
+
 ## Alignment fix
 - The blurry low-detail "overview" map was always drawn under the real tiles. Its chunky pixels showed through as a dark sawtooth along roads and as blocky squares under forests. It now only shows when you're zoomed far out, or if detailed drawing fails.
 - The coverage and pollution overlays were painted as stretched, pixelated textures, so they looked like jagged staircases that were offset from the tiles. They're now drawn as crisp tile-shaped diamonds on the same grid as everything else.

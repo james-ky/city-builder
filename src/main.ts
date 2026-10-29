@@ -1,3 +1,4 @@
+import { RESIDENTS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, fmtPower, fmtWater } from './realism';
 import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { loadManifest, place, placeNight, hasArt, artTex } from './sprites';
@@ -84,10 +85,10 @@ function diamond(g: Graphics, i: number, j: number) {
     fire: { name: 'Fire Station', size: 2, cost: 500, radius: 12, kind: 'fire' },
     clinic: { name: 'Clinic', size: 1, cost: 250, radius: 7, kind: 'health' },
     hospital: { name: 'Hospital', size: 3, cost: 1200, radius: 16, kind: 'health' },
-    coal: { name: 'Coal Power Plant', size: 3, cost: 3000, radius: 0, kind: 'power', util: true, out: 600, key: 'util_coal' },
-    wind: { name: 'Wind Turbine', size: 1, cost: 400, radius: 0, kind: 'power', util: true, out: 40, key: 'util_wind' },
-    pump: { name: 'Water Pump', size: 2, cost: 800, radius: 0, kind: 'water', util: true, out: 500, needsWater: true, key: 'util_pump' },
-    tower: { name: 'Water Tower', size: 1, cost: 500, radius: 0, kind: 'water', util: true, out: 150, key: 'util_tower' },
+    coal: { name: 'Coal Power Plant', size: 3, cost: 3000, radius: 0, kind: 'power', util: true, out: CIVIC.coal.outKw, key: 'util_coal' },
+    wind: { name: 'Wind Turbine', size: 1, cost: 400, radius: 0, kind: 'power', util: true, out: CIVIC.wind.outKw, key: 'util_wind' },
+    pump: { name: 'Water Pump', size: 2, cost: 800, radius: 0, kind: 'water', util: true, out: CIVIC.pump.outGpd, needsWater: true, key: 'util_pump' },
+    tower: { name: 'Water Tower', size: 1, cost: 500, radius: 0, kind: 'water', util: true, out: CIVIC.tower.outGpd, key: 'util_tower' },
   };
   type Civ = { type: string; i: number; j: number; s: number };
   const UPKEEP: Record<string, number> = { school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180, coal: 150, wind: 15, pump: 40, tower: 30 }; // $/month at 100% funding
@@ -98,9 +99,9 @@ function diamond(g: Graphics, i: number, j: number) {
   // ---- power & water ----
   const pline: boolean[][] = [...Array(N)].map(() => Array(N).fill(false)), pipe: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const powered: boolean[][] = [...Array(N)].map(() => Array(N).fill(false)), watered: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
-  const PDEM: Record<string, number[]> = { R: [0, 2, 6, 15], C: [0, 3, 8, 18], I: [0, 5, 12, 25] }, WDEM: Record<string, number[]> = { R: [0, 2, 6, 15], C: [0, 2, 5, 12], I: [0, 4, 10, 20] };
+  const PDEM: Record<string, number[]> = POWER_KW, WDEM: Record<string, number[]> = WATER_GPD; // see src/realism.ts
   const util = { pCap: 0, pUse: 0, pWant: 0, wCap: 0, wUse: 0, wWant: 0 };
-  const consumerDemand = (i: number, j: number, D: Record<string, number[]>) => { const c = civAt[i][j]; if (c) return SERV[c.type].util ? 0 : (i === c.i && j === c.j ? 10 : 0); return bld[i][j] && zone[i][j] ? D[zone[i][j]][bld[i][j]] : 0; };
+  const consumerDemand = (i: number, j: number, D: Record<string, number[]>) => { const c = civAt[i][j]; if (c) return SERV[c.type].util ? 0 : (i === c.i && j === c.j ? ((D === PDEM ? CIVIC[c.type]?.kw : CIVIC[c.type]?.gpd) ?? 0) : 0); return bld[i][j] && zone[i][j] ? D[zone[i][j]][bld[i][j]] : 0; };
   const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   const seenA = new Uint8Array(N * N), wseenA = new Uint8Array(N * N), asgA = new Uint8Array(N * N), dstamp = new Int32Array(N * N), dval = new Uint8Array(N * N);
   const qA = new Int32Array(N * N), q2 = new Int32Array(N * N), prevPW = new Uint8Array(N * N); let stamp = 0;
@@ -154,7 +155,7 @@ function diamond(g: Graphics, i: number, j: number) {
       fireRisk[i][j] = bld[i][j] ? (zone[i][j] === 'I' ? 2 : 1) * bld[i][j] * (1 - 0.85 * cov.fire[i][j]) : 0;
     }
   };
-  const resCap = (i: number, j: number) => Math.round(CAP.R[bld[i][j]] * (1 + 0.15 * cov.health[i][j])); // health care raises population
+  const resCap = (i: number, j: number) => CAP.R[bld[i][j]] * (1 + 0.15 * cov.health[i][j]); // health care raises population
   const seedOf = (i: number, j: number) => ((i * 73856093) ^ (j * 19349663)) >>> 0;
   // manifest directions: NE=(0,-1) SE=(1,0) SW=(0,1) NW=(-1,0); corners N=(-1,-1) E=(1,-1) S=(1,1) W=(-1,1)
   const isLand = (i: number, j: number) => inb(i, j) && terrain[i][j] !== 'water';
@@ -357,7 +358,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const svcBar = document.getElementById('services')!;
   const ICON: Record<string, string> = { school: 'school_elem', highschool: 'school_high', police: 'police', fire: 'fire_station', clinic: 'clinic', hospital: 'hospital' };
   svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}"><img src="./assets/ui/icons/icon_${ICON[k]}@2x.png" alt="">${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
-    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.out}${v.needsWater ? ', its south-east side must be on water' : ''}"><img src="./assets/ui/icons/icon_${k}@2x.png" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
+    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.kind === 'power' ? fmtPower(v.out!) : fmtWater(v.out!)}${v.needsWater ? ', its south-east side must be on water' : ''}"><img src="./assets/ui/icons/icon_${k}@2x.png" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
     + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option><option value="power">Powered</option><option value="water">Water served</option></select>';
   svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => setTool((b as HTMLElement).dataset.t!));
   setTool('select');
@@ -467,7 +468,7 @@ function diamond(g: Graphics, i: number, j: number) {
   // ---- simulation ----
   const ZNAME: Record<string, string> = { R: 'Residential', C: 'Commercial', I: 'Industrial' };
   const DNAME = ['', 'Low density', 'Medium density', 'High density'];
-  const CAP: Record<string, number[]> = { R: [0, 12, 45, 140], C: [0, 6, 22, 70], I: [0, 10, 32, 90] };
+  const CAP: Record<string, number[]> = { R: RESIDENTS.R, C: JOBS.C, I: JOBS.I }; // see src/realism.ts
   const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0 };
   // ---- budget ----
   const tax: Record<string, number> = { R: 9, C: 9, I: 9 };
@@ -524,10 +525,11 @@ function diamond(g: Graphics, i: number, j: number) {
       const v = zone[i][j] === 'R' ? resCap(i, j) : CAP[zone[i][j]][bld[i][j]];
       if (zone[i][j] === 'R') sim.pop += v; else if (zone[i][j] === 'C') sim.jobsC += v; else sim.jobsI += v;
     }
-    const jobs = sim.jobsC + sim.jobsI, workers = sim.pop * 0.6;
-    sim.dR = clamp((jobs * 1.6 + 60 - sim.pop) / Math.max(60, sim.pop * 0.4));      // people come for jobs
-    sim.dC = clamp((sim.pop * 0.35 + 10 - sim.jobsC) / Math.max(15, sim.pop * 0.12));  // shops follow residents
-    sim.dI = clamp((60 + sim.day * 0.4 + workers * 0.6 - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); // outside demand + workforce
+    sim.pop = Math.round(sim.pop); sim.jobsC = Math.round(sim.jobsC); sim.jobsI = Math.round(sim.jobsI);
+    const jobs = sim.jobsC + sim.jobsI;
+    sim.dR = clamp((jobs * ECON.residentsPerJob + 60 - sim.pop) / Math.max(60, sim.pop * 0.4));      // people come for jobs
+    sim.dC = clamp((sim.pop * ECON.commercialJobsPerResident + 10 - sim.jobsC) / Math.max(15, sim.pop * 0.12));  // shops & offices follow residents
+    sim.dI = clamp((60 + sim.day * 0.4 + sim.pop * ECON.industrialJobsPerResident - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); // outside (export) demand + local need
     // taxes: each point below the 9% default boosts that zone's demand, each point above lowers it
     sim.dR = clamp(sim.dR + (9 - tax.R) * 0.05); sim.dC = clamp(sim.dC + (9 - tax.C) * 0.05); sim.dI = clamp(sim.dI + (9 - tax.I) * 0.05);
     perf.census = performance.now() - t0;
@@ -568,7 +570,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
   const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
   const updateStats = () => {
-    stats.querySelector('#nums')!.innerHTML = `<span class="it cityName" title="${city.size}×${city.size} · seed ${city.seed}">🏙 <b>${city.name.replace(/</g, '&lt;')}</b></span><span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it${util.pWant > util.pCap ? ' neg' : ''}" title="Power: used / capacity (demand ${util.pWant})">⚡ <b>${util.pUse}/${util.pCap}</b></span><span class="it${util.wWant > util.wCap ? ' neg' : ''}" title="Water: used / capacity (demand ${util.wWant})">💧 <b>${util.wUse}/${util.wCap}</b></span><span class="it${sim.funds < 0 ? ' neg' : ''}" title="Funds${sim.loan ? ' (loan $' + sim.loan.toLocaleString() + ')' : ''}">${sim.funds < 0 ? '⚠ ' : ''}Funds <b>$${Math.floor(sim.funds).toLocaleString()}</b></span>`;
+    stats.querySelector('#nums')!.innerHTML = `<span class="it cityName" title="${city.size}×${city.size} · seed ${city.seed}">🏙 <b>${city.name.replace(/</g, '&lt;')}</b></span><span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it${util.pWant > util.pCap ? ' neg' : ''}" title="Power: used / capacity (demand ${fmtPower(util.pWant)})">⚡ <b>${fmtPower(util.pUse)} / ${fmtPower(util.pCap)}</b></span><span class="it${util.wWant > util.wCap ? ' neg' : ''}" title="Water: used / capacity (demand ${fmtWater(util.wWant)})">💧 <b>${fmtWater(util.wUse)} / ${fmtWater(util.wCap)}</b></span><span class="it${sim.funds < 0 ? ' neg' : ''}" title="Funds${sim.loan ? ' (loan $' + sim.loan.toLocaleString() + ')' : ''}">${sim.funds < 0 ? '⚠ ' : ''}Funds <b>$${Math.floor(sim.funds).toLocaleString()}</b></span>`;
     if (document.getElementById('budget')!.style.display === 'block') renderBudget();
     stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
   };
@@ -729,11 +731,11 @@ function diamond(g: Graphics, i: number, j: number) {
     const pct = (v: number) => Math.round(v * 100) + '%';
     if (inb(i, j) && civAt[i][j]) { const c = civAt[i][j]!, S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2;
       let served = 0; for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) if (zone[a][b] === 'R' && bld[a][b] && Math.hypot(a - ci, b - cj) <= S.radius) served += resCap(a, b);
-      info.innerHTML = S.util ? `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost} · Upkeep $${UPKEEP[c.type]}/month<br>Output: <b>${S.out}</b> ${S.kind === 'power' ? '⚡' : '💧'}<br>City ${S.kind === 'power' ? `power: ${util.pUse}/${util.pCap} (demand ${util.pWant})` : `water: ${util.wUse}/${util.wCap} (demand ${util.wWant})`}<br>` : `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost}<br>Coverage radius: ${S.radius} tiles<br>Residents covered: <b>${served}</b><br>Power ${powered[i][j] ? '✔' : '✘'} · Water ${watered[i][j] ? '✔' : '✘'}<br><small>Tile ${c.i}, ${c.j}</small>`; info.style.display = 'block'; return; }
+      info.innerHTML = S.util ? `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost} · Upkeep $${UPKEEP[c.type]}/month<br>Output: <b>${S.kind === 'power' ? fmtPower(S.out!) : fmtWater(S.out!)}</b> ${S.kind === 'power' ? '⚡' : '💧'}<br>City ${S.kind === 'power' ? `power: ${fmtPower(util.pUse)} / ${fmtPower(util.pCap)} (demand ${fmtPower(util.pWant)})` : `water: ${fmtWater(util.wUse)} / ${fmtWater(util.wCap)} (demand ${fmtWater(util.wWant)})`}<br>` : `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost}<br>Coverage radius: ${S.radius} tiles<br>Residents covered: <b>${Math.round(served)}</b><br>Power ${powered[i][j] ? '✔' : '✘'} · Water ${watered[i][j] ? '✔' : '✘'}<br><small>Tile ${c.i}, ${c.j}</small>`; info.style.display = 'block'; return; }
     if (!inb(i, j) || !bld[i][j]) { info.style.display = 'none'; return; }
     const z = zone[i][j], v = z === 'R' ? resCap(i, j) : CAP[z][bld[i][j]];
     const lt = lot[i][j];
-    info.innerHTML = `<b>${lt ? 'Suburban house' : ZNAME[z] + ' building'}</b><br>${lt ? `Lot 1×${Math.max(lt.wi, lt.dj)}, facing ${lt.dir} road` : `${DNAME[bld[i][j]]} (level ${bld[i][j]})`}<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Power ${powered[i][j] ? '✔' : '✘ none'} · Water ${watered[i][j] ? '✔' : '✘ none'}${powered[i][j] && watered[i][j] ? '' : ' (stays low density)'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
+    info.innerHTML = `<b>${lt ? 'Suburban house' : ZNAME[z] + ' building'}</b><br>${lt ? `Lot 1×${Math.max(lt.wi, lt.dj)}, facing ${lt.dir} road` : `${DNAME[bld[i][j]]} (level ${bld[i][j]})`}<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${Math.round(v * 10) / 10}</b> · Power ${fmtPower(PDEM[z][bld[i][j]])} · Water ${fmtWater(WDEM[z][bld[i][j]])}<br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Power ${powered[i][j] ? '✔' : '✘ none'} · Water ${watered[i][j] ? '✔' : '✘ none'}${powered[i][j] && watered[i][j] ? '' : ' (stays low density)'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
     info.style.display = 'block';
   };
 

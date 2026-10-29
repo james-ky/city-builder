@@ -19,6 +19,7 @@ export type World = {
   parkSpaces: (i: number, j: number) => number;   // spaces at this tile (garages, lots, kerb)
   needsParking: (i: number, j: number) => boolean; // destination with no own parking (dense commercial, big civic)
   seed: number;
+  entrance?: (i: number, j: number) => number; // road tile on the building's front side (-1 none)
 };
 const D4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 const rng = (s: number) => () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -50,6 +51,7 @@ export class TripSim {
     const acc = this.access.fill(-1), dist = new Uint8Array(n).fill(255); let h = 0, t = 0;
     for (let k = 0; k < n; k++) if (comp[k] >= 0) { acc[k] = k; dist[k] = 0; q[t++] = k; }
     while (h < t) { const k = q[h++], i = (k / N) | 0, j = k - i * N; if (dist[k] >= 3) continue; for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (ni < 0 || nj < 0 || ni >= N || nj >= N) continue; const nk = ni * N + nj; if (dist[nk] === 255) { dist[nk] = dist[k] + 1; acc[nk] = acc[k]; q[t++] = nk; } } }
+    if (w.entrance) for (let k = 0; k < n; k++) { const e = w.entrance((k / N) | 0, k % N); if (e >= 0 && comp[e] >= 0) acc[k] = e; } // trips use the front door
     // destinations per component
     const jobsLeft = new Map<number, number>(), jobTiles: number[][] = [...Array(nc)].map(() => []), shopTiles: number[][] = [...Array(nc)].map(() => []), homes: number[] = [];
     const schools: { k: number; left: number; c: number }[] = [];

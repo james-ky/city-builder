@@ -5,6 +5,7 @@ type Art = { tex: Texture; anchor: [number, number]; scale: number };
 const art = new Map<string, Art>();          // asset name -> texture
 const keyed = new Map<string, string>();     // lookup key (road_3, shore_16) -> asset name
 const variants = new Map<string, string[]>(); // grass -> [grass_a, grass_b, ...]
+const aliasOf = new Map<string, string>();   // bld_R_1 -> bld_R_1_a
 const nights = new Map<string, string>();     // building asset -> its night-lights overlay (bld_R_1_a -> bld_R_1_a_night)
 /** Game keys that map onto differently-named art. Add entries here as new art arrives. */
 const ALIAS: Record<string, string> = { grid: 'grid_overlay' };
@@ -21,6 +22,7 @@ export async function loadManifest() {
       const want = (a.size?.[0] ?? tex.source.pixelWidth) * (a.scale ?? defScale);
       art.set(a.name, { tex, anchor: a.anchor ?? [0.5, 0.5], scale: want / tex.width });
     } catch { console.warn('missing art', a.file); return; }
+    if (a.aliasOf) aliasOf.set(a.name, a.aliasOf);
     if (a.nightOf || a.name.endsWith('_night')) { nights.set(a.nightOf ?? a.name.slice(0, -6), a.name); return; }
     // explicit variantOf, or implicit <base>_<letter> naming for buildings
     const base = a.variantOf ?? (/^(bld_.+)_[a-z]$/.exec(a.name)?.[1]);
@@ -43,7 +45,7 @@ function resolveName(key: string, seed: number): string | undefined {
 const resolve = (key: string, seed: number) => { const n = resolveName(key, seed); return n ? art.get(n) : undefined; };
 /** Night-lights overlay for the same variant `place` would pick; additive blend. Nothing if no art exists. */
 export function placeNight(key: string, x: number, y: number, layer: Container, seed = 0) {
-  const n = resolveName(key, seed), night = n && (nights.get(n) ?? (ALIAS[key] && nights.get(ALIAS[key])));
+  const n = resolveName(key, seed), night = n && (nights.get(n) ?? nights.get(aliasOf.get(n) ?? ''));
   const a = night ? art.get(night) : undefined; if (!a) return;
   const s = new Sprite(a.tex); s.anchor.set(a.anchor[0], a.anchor[1]); s.scale.set(a.scale); s.position.set(x, y); s.blendMode = 'add'; layer.addChild(s);
 }

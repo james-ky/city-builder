@@ -2749,6 +2749,654 @@
       "variantOf": "bld_I_3"
     },
     {
+      "name": "bld_R_1_a_night",
+      "file": "buildings/bld_R_1_a_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_1_a",
+      "zone": "R",
+      "density": 1,
+      "variant": "a",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_1_b_night",
+      "file": "buildings/bld_R_1_b_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_1_b",
+      "zone": "R",
+      "density": 1,
+      "variant": "b",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_1_c_night",
+      "file": "buildings/bld_R_1_c_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_1_c",
+      "zone": "R",
+      "density": 1,
+      "variant": "c",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_2_a_night",
+      "file": "buildings/bld_R_2_a_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_2_a",
+      "zone": "R",
+      "density": 2,
+      "variant": "a",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_2_b_night",
+      "file": "buildings/bld_R_2_b_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_2_b",
+      "zone": "R",
+      "density": 2,
+      "variant": "b",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_2_c_night",
+      "file": "buildings/bld_R_2_c_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_2_c",
+      "zone": "R",
+      "density": 2,
+      "variant": "c",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_3_a_night",
+      "file": "buildings/bld_R_3_a_night@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_3_a",
+      "zone": "R",
+      "density": 3,
+      "variant": "a",
+      "tall": true,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_3_b_night",
+      "file": "buildings/bld_R_3_b_night@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_3_b",
+      "zone": "R",
+      "density": 3,
+      "variant": "b",
+      "tall": true,
+      "blend": "add"
+    },
+    {
+      "name": "bld_R_3_c_night",
+      "file": "buildings/bld_R_3_c_night@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_R_3_c",
+      "zone": "R",
+      "density": 3,
+      "variant": "c",
+      "tall": true,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_1_a_night",
+      "file": "buildings/bld_C_1_a_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_1_a",
+      "zone": "C",
+      "density": 1,
+      "variant": "a",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_1_b_night",
+      "file": "buildings/bld_C_1_b_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_1_b",
+      "zone": "C",
+      "density": 1,
+      "variant": "b",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_1_c_night",
+      "file": "buildings/bld_C_1_c_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_1_c",
+      "zone": "C",
+      "density": 1,
+      "variant": "c",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_2_a_night",
+      "file": "buildings/bld_C_2_a_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_2_a",
+      "zone": "C",
+      "density": 2,
+      "variant": "a",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_2_b_night",
+      "file": "buildings/bld_C_2_b_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_2_b",
+      "zone": "C",
+      "density": 2,
+      "variant": "b",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_2_c_night",
+      "file": "buildings/bld_C_2_c_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_2_c",
+      "zone": "C",
+      "density": 2,
+      "variant": "c",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_3_a_night",
+      "file": "buildings/bld_C_3_a_night@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_3_a",
+      "zone": "C",
+      "density": 3,
+      "variant": "a",
+      "tall": true,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_3_b_night",
+      "file": "buildings/bld_C_3_b_night@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_3_b",
+      "zone": "C",
+      "density": 3,
+      "variant": "b",
+      "tall": true,
+      "blend": "add"
+    },
+    {
+      "name": "bld_C_3_c_night",
+      "file": "buildings/bld_C_3_c_night@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_C_3_c",
+      "zone": "C",
+      "density": 3,
+      "variant": "c",
+      "tall": true,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_1_a_night",
+      "file": "buildings/bld_I_1_a_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_1_a",
+      "zone": "I",
+      "density": 1,
+      "variant": "a",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_1_b_night",
+      "file": "buildings/bld_I_1_b_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_1_b",
+      "zone": "I",
+      "density": 1,
+      "variant": "b",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_1_c_night",
+      "file": "buildings/bld_I_1_c_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_1_c",
+      "zone": "I",
+      "density": 1,
+      "variant": "c",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_2_a_night",
+      "file": "buildings/bld_I_2_a_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_2_a",
+      "zone": "I",
+      "density": 2,
+      "variant": "a",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_2_b_night",
+      "file": "buildings/bld_I_2_b_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_2_b",
+      "zone": "I",
+      "density": 2,
+      "variant": "b",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_2_c_night",
+      "file": "buildings/bld_I_2_c_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_2_c",
+      "zone": "I",
+      "density": 2,
+      "variant": "c",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_3_a_night",
+      "file": "buildings/bld_I_3_a_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_3_a",
+      "zone": "I",
+      "density": 3,
+      "variant": "a",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_3_b_night",
+      "file": "buildings/bld_I_3_b_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_3_b",
+      "zone": "I",
+      "density": 3,
+      "variant": "b",
+      "tall": false,
+      "blend": "add"
+    },
+    {
+      "name": "bld_I_3_c_night",
+      "file": "buildings/bld_I_3_c_night@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "bld_I_3_c",
+      "zone": "I",
+      "density": 3,
+      "variant": "c",
+      "tall": false,
+      "blend": "add"
+    },
+    {
       "name": "construction_1x1_stage1",
       "file": "buildings/construction_1x1_stage1@2x.png",
       "size": [

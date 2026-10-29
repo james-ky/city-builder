@@ -213,6 +213,9 @@ function diamond(g: Graphics, i: number, j: number) {
   const markAll = () => { ovDirty = true; for (const c of chunks) { c.dirty = true; c.iconDirty = true; } };
   const chunkTiles = (ch: Chunk, f: (i: number, j: number) => void) => { const i0 = ch.ci * CH, j0 = ch.cj * CH, i1 = Math.min(N, i0 + CH) - 1, j1 = Math.min(N, j0 + CH) - 1;
     for (let s = i0 + j0; s <= i1 + j1; s++) for (let i = Math.max(i0, s - j1); i <= Math.min(i1, s - j0); i++) f(i, s - i); };
+  const isWood = (i: number, j: number) => inb(i, j) && terrain[i][j] === 'forest' && !zone[i][j] && !road[i][j] && !civAt[i][j] && !pline[i][j];
+  const forestKey = (i: number, j: number) => { const m = (isWood(i, j - 1) ? 1 : 0) | (isWood(i + 1, j) ? 2 : 0) | (isWood(i, j + 1) ? 4 : 0) | (isWood(i - 1, j) ? 8 : 0); // NE SE SW NW
+    return m === 15 || !hasArt('forest_edge_' + m) ? 'forest' : 'forest_edge_' + m; };
   const buildGround = (ch: Chunk) => { chunkTiles(ch, (i, j) => {
     const { x, y } = toScreen(i, j), t = terrain[i][j];
     let key: string = t === 'sand' ? sandKey : t === 'forest' ? 'grass' : t;
@@ -253,7 +256,7 @@ function diamond(g: Graphics, i: number, j: number) {
       }
       if (road[i][j] && pline[i][j]) { const pl = (a: number, b: number) => inb(a, b) && pline[a][b]; P('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, seed, y); }
       if (pipe[i][j]) { const pp = (a: number, b: number) => inb(a, b) && (pipe[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'water')); place('pipe_' + ((pp(i, j - 1) ? 1 : 0) | (pp(i + 1, j) ? 2 : 0) | (pp(i, j + 1) ? 4 : 0) | (pp(i - 1, j) ? 8 : 0)), x, y, ch.pp, seed); }
-      if (!zone[i][j] && !road[i][j] && !civAt[i][j] && !pline[i][j] && terrain[i][j] === 'forest') ch.trees.push({ s: P('forest', x, y, seed, y), ph: (seed % 628) / 100 });
+      if (!zone[i][j] && !road[i][j] && !civAt[i][j] && !pline[i][j] && terrain[i][j] === 'forest') ch.trees.push({ s: P(forestKey(i, j), x, y, seed, y), ph: (seed % 628) / 100 });
     });
     ch.dirty = false; ch.built = true; ch.iconDirty = true;
   };

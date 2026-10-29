@@ -4,6 +4,7 @@ export const TW = 64, TH = 32;
 type Art = { tex: Texture; anchor: [number, number]; scale: number };
 const art = new Map<string, Art>();          // asset name -> texture
 const keyed = new Map<string, string>();     // lookup key (road_3, shore_16) -> asset name
+const weights = new Map<string, number>(); // variant name -> pick weight (default 1)
 const variants = new Map<string, string[]>(); // grass -> [grass_a, grass_b, ...]
 const aliasOf = new Map<string, string>();   // bld_R_1 -> bld_R_1_a
 const nights = new Map<string, string>();     // building asset -> its night-lights overlay (bld_R_1_a -> bld_R_1_a_night)
@@ -26,7 +27,9 @@ export async function loadManifest() {
     if (a.nightOf || a.name.endsWith('_night')) { nights.set(a.nightOf ?? a.name.slice(0, -6), a.name); return; }
     // explicit variantOf, or implicit <base>_<letter> naming for buildings
     const base = a.variantOf ?? (/^(bld_.+)_[a-z]$/.exec(a.name)?.[1]);
-    if (base) variants.set(base, [...(variants.get(base) ?? []), a.name].sort());
+    if (a.weight != null) weights.set(a.name, +a.weight);
+    const edge = a.autotile?.set === 'forest_edge' && a.autotile.mask !== 15; // edge pieces are picked by mask, not as random variants
+    if (base && !edge) variants.set(base, [...(variants.get(base) ?? []), a.name].sort());
     if (a.autotile && !(a.autotile.set === 'shore' && a.autotile.mask === 0)) keyed.set(`${a.autotile.set}_${a.autotile.mask}`, a.name);
   }));
   // legacy {sprites:{key:file}} support
@@ -38,7 +41,8 @@ export async function loadManifest() {
 function resolveName(key: string, seed: number): string | undefined {
   // variants first (e.g. bld_R_1 -> bld_R_1_a/_b/_c, stable per tile via seed), then the base name
   const v = variants.get(key);
-  if (v?.length) return v[(seed >>> 0) % v.length];
+  if (v?.length) { let tot = 0; for (const n of v) tot += weights.get(n) ?? 1; // weighted, stable per tile
+    let r = ((Math.imul(seed >>> 0, 2654435761) >>> 0) / 4294967296) * tot; for (const n of v) { r -= weights.get(n) ?? 1; if (r < 0) return n; } return v[v.length - 1]; }
   const name = ALIAS[key] ?? keyed.get(key) ?? key;
   if (art.has(name)) return name;
 }

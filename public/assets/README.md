@@ -17,3 +17,7 @@ Game keys the code asks for (missing ones are drawn in code):
 ## Night lights
 Optional per-building overlays: `bld_<Z>_<T>_<v>_night` (or any asset with `"nightOf": "<building asset name>"`), same size/anchor as the building.
 Drawn above the night shading with additive blending and faded in with darkness. If a building has no night overlay, it shows no lights.
+
+## Civic services
+Game keys `civic_school|highschool|police|fire|clinic|hospital` map (ALIAS in src/sprites.ts) to `school_elem`, `school_high`, `police`, `fire_station`, `clinic`, `hospital` (+ `_night`).
+Placed at the footprint centre toScreen(i0+(N-1)/2, j0+(N-1)/2), depth key i0+j0+N-1. Toolbar icons: `ui/icons/icon_<name>@2x.png`.

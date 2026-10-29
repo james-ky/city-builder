@@ -63,6 +63,36 @@ function diamond(g: Graphics, i: number, j: number) {
   const CONS_DAYS = 2; // days per construction stage (3 stages)
   const isTall = (z: string, L: number) => L === 3 && (z === 'R' || z === 'C');
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
+  // ---- civic services (plopped buildings) ----
+  type Kind = 'edu' | 'police' | 'fire' | 'health';
+  const SERV: Record<string, { name: string; size: number; cost: number; radius: number; kind: Kind }> = {
+    school: { name: 'Elementary School', size: 2, cost: 400, radius: 10, kind: 'edu' },
+    highschool: { name: 'High School', size: 3, cost: 900, radius: 16, kind: 'edu' },
+    police: { name: 'Police Station', size: 2, cost: 500, radius: 12, kind: 'police' },
+    fire: { name: 'Fire Station', size: 2, cost: 500, radius: 12, kind: 'fire' },
+    clinic: { name: 'Clinic', size: 1, cost: 250, radius: 7, kind: 'health' },
+    hospital: { name: 'Hospital', size: 3, cost: 1200, radius: 16, kind: 'health' },
+  };
+  type Civ = { type: string; i: number; j: number; s: number };
+  const civs: Civ[] = [];
+  const civAt: (Civ | null)[][] = [...Array(N)].map(() => Array(N).fill(null));
+  const KINDS: Kind[] = ['edu', 'police', 'fire', 'health'];
+  const cov: Record<Kind, number[][]> = Object.fromEntries(KINDS.map(k => [k, [...Array(N)].map(() => Array(N).fill(0))])) as any;
+  const computeCoverage = () => { // 1 at the building, fading to 0 at its radius; best provider wins
+    for (const k of KINDS) for (const row of cov[k]) row.fill(0);
+    for (const c of civs) { const S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2, r = S.radius;
+      for (let i = Math.max(0, Math.floor(ci - r)); i <= Math.min(N - 1, Math.ceil(ci + r)); i++) for (let j = Math.max(0, Math.floor(cj - r)); j <= Math.min(N - 1, Math.ceil(cj + r)); j++) {
+        const v = 1 - Math.hypot(i - ci, j - cj) / r; if (v > cov[S.kind][i][j]) cov[S.kind][i][j] = v; } }
+  };
+  const crime: number[][] = [...Array(N)].map(() => Array(N).fill(0)), fireRisk: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  const computeRisks = () => { // crime grows with density nearby, police coverage suppresses it; fire risk likewise (used by disasters later)
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      let dens = 0; for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (inb(i + a, j + b)) dens += bld[i + a][j + b] ** 2;
+      crime[i][j] = dens * 0.08 * (1 - 0.85 * cov.police[i][j]);
+      fireRisk[i][j] = bld[i][j] ? (zone[i][j] === 'I' ? 2 : 1) * bld[i][j] * (1 - 0.85 * cov.fire[i][j]) : 0;
+    }
+  };
+  const resCap = (i: number, j: number) => Math.round(CAP.R[bld[i][j]] * (1 + 0.15 * cov.health[i][j])); // health care raises population
   const seedOf = (i: number, j: number) => ((i * 73856093) ^ (j * 19349663)) >>> 0;
   // manifest directions: NE=(0,-1) SE=(1,0) SW=(0,1) NW=(-1,0); corners N=(-1,-1) E=(1,-1) S=(1,1) W=(-1,1)
   const isLand = (i: number, j: number) => inb(i, j) && terrain[i][j] !== 'water';
@@ -105,11 +135,18 @@ function diamond(g: Graphics, i: number, j: number) {
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
   const redraw = () => {
-    clear(roadL); clear(zoneL); clear(objL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
+    computeCoverage(); clear(roadL); clear(zoneL); clear(objL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
     computeNear();
     for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
       const { x, y } = toScreen(i, j), seed = seedOf(i, j);
-      if (road[i][j]) {
+      const cv = civAt[i][j];
+      if (cv) {
+        place('civic_lot', x, y, zoneL, seed);
+        if (i === cv.i + cv.s - 1 && j === cv.j) { // depth key i0+j0+size-1 (manifest placement); anchor = footprint centre
+          const c = toScreen(cv.i + (cv.s - 1) / 2, cv.j + (cv.s - 1) / 2), key = 'civic_' + cv.type;
+          place(key, c.x, c.y, objL, seed); const l = placeNight(key, c.x, c.y, objL, seed); if (l) { l.alpha = 0; lights.push(l); }
+        }
+      } else if (road[i][j]) {
         const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
         place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, roadL, seed);
       } else if (zone[i][j]) {
@@ -124,11 +161,17 @@ function diamond(g: Graphics, i: number, j: number) {
   world.addChild(preview, hl);
 
   // ---- tools ----
-  type Tool = 'select' | 'road' | 'R' | 'C' | 'I' | 'bulldoze';
+  type Tool = string; // select | road | R | C | I | bulldoze | svc:<type>
   const tools: [Tool, string][] = [['select','Select / Pan'],['road','Road'],['R','Residential'],['C','Commercial'],['I','Industrial'],['bulldoze','Bulldoze']];
   const bar = document.getElementById('toolbar')!;
-  const setTool = (t: Tool) => { tool = t; syncZones(); bar.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
+  const setTool = (t: Tool) => { tool = t; syncZones(); if (t.startsWith('svc:')) setCovView(SERV[t.slice(4)].kind); document.querySelectorAll<HTMLElement>('#toolbar button, #services button[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
   tools.forEach(([t, label], k) => { const b = document.createElement('button'); b.dataset.t = t; b.innerHTML = `<b>${k+1}</b> ${label}`; b.onclick = () => setTool(t); bar.appendChild(b); });
+  // Services toolbar group
+  const svcBar = document.getElementById('services')!;
+  const ICON: Record<string, string> = { school: 'school_elem', highschool: 'school_high', police: 'police', fire: 'fire_station', clinic: 'clinic', hospital: 'hospital' };
+  svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}"><img src="./assets/ui/icons/icon_${ICON[k]}@2x.png" alt="">${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
+    + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option></select>';
+  svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => setTool((b as HTMLElement).dataset.t!));
   setTool('select');
   window.addEventListener('keydown', e => { const k = +e.key; if (k >= 1 && k <= 6) setTool(tools[k-1][0]); if (e.key === 'Escape') { drag = null; preview.clear(); } });
 
@@ -146,25 +189,37 @@ function diamond(g: Graphics, i: number, j: number) {
     }
     return out.filter(([i, j]) => inb(i, j));
   };
+  const svcFoot = (t: string, hi: number, hj: number) => { const S = SERV[t], o = Math.floor((S.size - 1) / 2), i0 = hi - o, j0 = hj - o, out: [number, number][] = [];
+    for (let a = 0; a < S.size; a++) for (let b = 0; b < S.size; b++) out.push([i0 + a, j0 + b]); return { i0, j0, s: S.size, tiles: out }; };
+  const tileFree = (i: number, j: number) => inb(i, j) && terrain[i][j] !== 'water' && !road[i][j] && !zone[i][j] && !civAt[i][j];
+  const touchesRoad = (i0: number, j0: number, s: number) => { for (let k = 0; k < s; k++) if (isRoad(i0 - 1, j0 + k) || isRoad(i0 + s, j0 + k) || isRoad(i0 + k, j0 - 1) || isRoad(i0 + k, j0 + s)) return true; return false; };
+  const canPlop = (t: string, hi: number, hj: number) => { const f = svcFoot(t, hi, hj); return f.tiles.every(([i, j]) => tileFree(i, j)) && touchesRoad(f.i0, f.j0, f.s); };
+  const plop = (t: string, hi: number, hj: number) => {
+    if (!canPlop(t, hi, hj)) return false; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s };
+    civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; sim.spent += SERV[t].cost; redraw(); census(); updateStats(); return true;
+  };
+  const removeCiv = (c: Civ) => { civs.splice(civs.indexOf(c), 1); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = null; };
   const valid = (i: number, j: number) => {
-    if (tool === 'road') return terrain[i][j] !== 'water';
-    if (tool === 'bulldoze') return road[i][j] || !!zone[i][j] || bld[i][j] > 0 || consT[i][j] > 0;
-    return terrain[i][j] !== 'water' && !road[i][j] && near[i][j] <= 3;
+    if (tool === 'road') return terrain[i][j] !== 'water' && !civAt[i][j];
+    if (tool === 'bulldoze') return road[i][j] || !!zone[i][j] || bld[i][j] > 0 || consT[i][j] > 0 || !!civAt[i][j];
+    return terrain[i][j] !== 'water' && !road[i][j] && !civAt[i][j] && near[i][j] <= 3;
   };
   const showPreview = () => {
     preview.clear();
+    if (tool.startsWith('svc:')) { if (drag) { const t = tool.slice(4), ok = canPlop(t, drag.ci, drag.cj); for (const [i, j] of svcFoot(t, drag.ci, drag.cj).tiles) if (inb(i, j)) { diamond(preview, i, j); preview.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.5 }); } } return; }
     const col = tool === 'road' ? 0x9aa0a6 : tool === 'bulldoze' ? 0xff8800 : ({R:0x3ecf4a,C:0x3b8cff,I:0xf2c230} as any)[tool];
     for (const [i, j] of dragTiles()) { diamond(preview, i, j); preview.fill({ color: valid(i, j) ? col : 0xff2020, alpha: 0.55 }); }
   };
   const commit = () => {
+    if (tool.startsWith('svc:')) { if (drag) plop(tool.slice(4), drag.ci, drag.cj); drag = null; preview.clear(); return; }
     for (const [i, j] of dragTiles()) { if (!valid(i, j)) continue;
       if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
-      else if (tool === 'bulldoze') { road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
+      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
       else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; } zone[i][j] = tool; } }
-    drag = null; preview.clear(); redraw();
+    drag = null; preview.clear(); redraw(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, consT, terrain, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, consT, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -188,7 +243,9 @@ function diamond(g: Graphics, i: number, j: number) {
     if (!mouse) { hud.textContent = 'Tile: —'; return; }
     const { i, j } = toTile((mouse.x - world.position.x) / zoom, (mouse.y - world.position.y) / zoom);
     if (i < 0 || j < 0 || i >= N || j >= N) { hud.textContent = 'Tile: —'; return; }
-    diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 });
+    if (tool.startsWith('svc:') && !drag) { const t = tool.slice(4), ok = canPlop(t, i, j); for (const [a, b] of svcFoot(t, i, j).tiles) if (inb(a, b)) { diamond(hl, a, b); hl.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.35 }); } }
+    else { diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 }); }
+    if (civAt[i][j]) { hud.textContent = `Tile: ${i}, ${j}  (${SERV[civAt[i][j]!.type].name})`; return; }
     hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? 'road' : zone[i][j] ? ZNAME[zone[i][j]] + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : ' zone') : terrain[i][j]})`;
   };
 
@@ -196,7 +253,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const ZNAME: Record<string, string> = { R: 'Residential', C: 'Commercial', I: 'Industrial' };
   const DNAME = ['', 'Low density', 'Medium density', 'High density'];
   const CAP: Record<string, number[]> = { R: [0, 12, 45, 140], C: [0, 6, 22, 70], I: [0, 10, 32, 90] };
-  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0 };
+  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0 };
   let downAt: { x: number; y: number } | null = null;
   const clamp = (v: number) => Math.max(-1, Math.min(1, v));
   const poll: number[][] = [...Array(N)].map(() => Array(N).fill(0));
@@ -208,10 +265,10 @@ function diamond(g: Graphics, i: number, j: number) {
     }
   };
   const census = () => {
-    computePollution(); drawPollution();
+    computePollution(); drawPollution(); computeRisks(); drawCoverage();
     sim.pop = sim.jobsC = sim.jobsI = 0;
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (bld[i][j]) {
-      const v = CAP[zone[i][j]][bld[i][j]];
+      const v = zone[i][j] === 'R' ? resCap(i, j) : CAP[zone[i][j]][bld[i][j]];
       if (zone[i][j] === 'R') sim.pop += v; else if (zone[i][j] === 'C') sim.jobsC += v; else sim.jobsI += v;
     }
     const jobs = sim.jobsC + sim.jobsI, workers = sim.pop * 0.6;
@@ -230,12 +287,15 @@ function diamond(g: Graphics, i: number, j: number) {
         else if (consD[i][j] % CONS_DAYS === 0) changed = true;
         continue;
       }
-      const dem = d[z] - (z === 'R' ? Math.min(0.4, poll[i][j] * 0.04) : 0), L = bld[i][j]; // pollution slightly discourages housing
+      const L = bld[i][j];
+      const dem = d[z] - Math.min(0.3, crime[i][j] * 0.05) // crime lowers desirability everywhere
+        + (z === 'R' ? -Math.min(0.4, poll[i][j] * 0.04) + 0.15 * cov.edu[i][j] + 0.15 * cov.health[i][j] : 0); // pollution vs schools & health care
       if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; changed = true; } continue; } // lost road access
       const before = bld[i][j];
       if (dem > 0 && L < 3) {
         const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
-        if (dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) { consT[i][j] = L + 1; consD[i][j] = 0; changed = true; }
+        const eduOk = !(z === 'R' && L + 1 === 3 && cov.edu[i][j] <= 0); // high-density housing needs a school nearby
+        if (eduOk && dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) { consT[i][j] = L + 1; consD[i][j] = 0; changed = true; }
       } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) bld[i][j]--;
       if (bld[i][j] !== before) changed = true;
     }
@@ -247,7 +307,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
   const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
   const updateStats = () => {
-    stats.querySelector('#nums')!.innerHTML = `<b>${dateStr()}</b> <span id="tod"></span> · Population <b>${sim.pop.toLocaleString()}</b> · Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b> <small>(C ${sim.jobsC} / I ${sim.jobsI})</small>`;
+    stats.querySelector('#nums')!.innerHTML = `<b>${dateStr()}</b> <span id="tod"></span> · Population <b>${sim.pop.toLocaleString()}</b> · Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b> <small>(C ${sim.jobsC} / I ${sim.jobsI})</small> · Spent <b>$${sim.spent.toLocaleString()}</b>`;
     stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
   };
   let timer = 0;
@@ -264,6 +324,17 @@ function diamond(g: Graphics, i: number, j: number) {
   const FXNAME: Record<string, string> = { clouds: 'Cloud shadows', smoke: 'Factory smoke', pollution: 'Pollution overlay', cars: 'Traffic', daynight: 'Day / night', nature: 'Birds & swaying trees' };
   const fx: Record<string, boolean> = { clouds: true, smoke: true, pollution: false, cars: true, daynight: true, nature: true, ...JSON.parse(localStorage.getItem('fx') ?? '{}') };
   let lastTick = performance.now();
+  const covL = new Container(); world.addChildAt(covL, world.getChildIndex(gridL));
+  let covView = '';
+  const COVCOL: Record<string, number> = { edu: 0xffd23f, police: 0x3b6cff, fire: 0xff5a36, health: 0x3fe0c5, crime: 0xb000ff, fireRisk: 0xff8800 };
+  const drawCoverage = () => {
+    clear(covL); if (!covView) return;
+    const g = new Graphics(); covL.addChild(g);
+    const src = covView === 'crime' ? crime : covView === 'fireRisk' ? fireRisk : cov[covView as Kind], scale = covView === 'crime' ? 0.25 : covView === 'fireRisk' ? 0.25 : 1;
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const v = Math.min(1, src[i][j] * scale); if (v > 0.02) { diamond(g, i, j); g.fill({ color: COVCOL[covView], alpha: 0.12 + 0.45 * v }); } }
+  };
+  const setCovView = (v: string) => { covView = v; (document.getElementById('covSel') as HTMLSelectElement).value = v; drawCoverage(); };
+  document.getElementById('covSel')!.onchange = e => setCovView((e.target as HTMLSelectElement).value);
   const drawPollution = () => {
     clear(pollL); if (!fx.pollution) return;
     const g = new Graphics(); pollL.addChild(g);
@@ -297,9 +368,13 @@ function diamond(g: Graphics, i: number, j: number) {
   const info = document.getElementById('info')!;
   const inspect = ({ i, j }: { i: number; j: number }) => {
     if (inb(i, j) && consT[i][j]) { info.innerHTML = `<b>${ZNAME[zone[i][j]]} — under construction</b><br>Building: ${DNAME[consT[i][j]]}<br>Stage ${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))} of 3<br><small>Tile ${i}, ${j}</small>`; info.style.display = 'block'; return; }
+    const pct = (v: number) => Math.round(v * 100) + '%';
+    if (inb(i, j) && civAt[i][j]) { const c = civAt[i][j]!, S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2;
+      let served = 0; for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) if (zone[a][b] === 'R' && bld[a][b] && Math.hypot(a - ci, b - cj) <= S.radius) served += resCap(a, b);
+      info.innerHTML = `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost}<br>Coverage radius: ${S.radius} tiles<br>Residents covered: <b>${served}</b><br><small>Tile ${c.i}, ${c.j}</small>`; info.style.display = 'block'; return; }
     if (!inb(i, j) || !bld[i][j]) { info.style.display = 'none'; return; }
-    const z = zone[i][j], v = CAP[z][bld[i][j]];
-    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
+    const z = zone[i][j], v = z === 'R' ? resCap(i, j) : CAP[z][bld[i][j]];
+    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
     info.style.display = 'block';
   };
 

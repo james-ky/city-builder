@@ -40,3 +40,6 @@ UI icons (same size as the other ui/icons):
 - `icon_power_line`, `icon_pipe`: toolbar tools.
 - `status_no_power`, `status_no_water`: small badges that float above a building with no power or water (currently a red disc with a bolt or a drop).
 - `icon_underground`: underground-view toggle (currently ⛏).
+
+## Vehicles
+`vehicles/veh_<type>_<variant>_<NE|SE|SW|NW>` with matching `_night` overlays (additive). Size and anchor come from the manifest. Vehicles drive in right-hand lanes (offsets in game px: NE +4.8,+2.4 · SE −4.8,+2.4 · SW −4.8,−2.4 · NW +4.8,−2.4) and depth-sort with buildings by screen y. Types are weighted by the area: semis and delivery trucks near industry and commerce, taxis downtown, and an occasional bus.

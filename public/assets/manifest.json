@@ -3847,6 +3847,3174 @@
       "iconFor": "hospital"
     },
     {
+      "name": "veh_sedan_a_NE",
+      "file": "vehicles/veh_sedan_a_NE@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_a_NE_night",
+      "file": "vehicles/veh_sedan_a_NE_night@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_a_SE",
+      "file": "vehicles/veh_sedan_a_SE@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_a_SE_night",
+      "file": "vehicles/veh_sedan_a_SE_night@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_a_SW",
+      "file": "vehicles/veh_sedan_a_SW@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_a_SW_night",
+      "file": "vehicles/veh_sedan_a_SW_night@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_a_NW",
+      "file": "vehicles/veh_sedan_a_NW@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_a_NW_night",
+      "file": "vehicles/veh_sedan_a_NW_night@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_NE",
+      "file": "vehicles/veh_sedan_b_NE@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_NE_night",
+      "file": "vehicles/veh_sedan_b_NE_night@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_b_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_SE",
+      "file": "vehicles/veh_sedan_b_SE@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_SE_night",
+      "file": "vehicles/veh_sedan_b_SE_night@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_b_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_SW",
+      "file": "vehicles/veh_sedan_b_SW@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_SW_night",
+      "file": "vehicles/veh_sedan_b_SW_night@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_b_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_NW",
+      "file": "vehicles/veh_sedan_b_NW@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_b_NW_night",
+      "file": "vehicles/veh_sedan_b_NW_night@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_b_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_NE",
+      "file": "vehicles/veh_sedan_c_NE@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_NE_night",
+      "file": "vehicles/veh_sedan_c_NE_night@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_c_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_SE",
+      "file": "vehicles/veh_sedan_c_SE@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_SE_night",
+      "file": "vehicles/veh_sedan_c_SE_night@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_c_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_SW",
+      "file": "vehicles/veh_sedan_c_SW@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_SW_night",
+      "file": "vehicles/veh_sedan_c_SW_night@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_c_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_NW",
+      "file": "vehicles/veh_sedan_c_NW@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_sedan_c_NW_night",
+      "file": "vehicles/veh_sedan_c_NW_night@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_sedan_c_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "sedan",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_NE",
+      "file": "vehicles/veh_hatchback_a_NE@2x.png",
+      "size": [
+        66,
+        40
+      ],
+      "anchor": [
+        0.4061,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_NE_night",
+      "file": "vehicles/veh_hatchback_a_NE_night@2x.png",
+      "size": [
+        66,
+        40
+      ],
+      "anchor": [
+        0.4061,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_SE",
+      "file": "vehicles/veh_hatchback_a_SE@2x.png",
+      "size": [
+        66,
+        50
+      ],
+      "anchor": [
+        0.4061,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_SE_night",
+      "file": "vehicles/veh_hatchback_a_SE_night@2x.png",
+      "size": [
+        66,
+        50
+      ],
+      "anchor": [
+        0.4061,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_SW",
+      "file": "vehicles/veh_hatchback_a_SW@2x.png",
+      "size": [
+        68,
+        50
+      ],
+      "anchor": [
+        0.5707,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_SW_night",
+      "file": "vehicles/veh_hatchback_a_SW_night@2x.png",
+      "size": [
+        68,
+        50
+      ],
+      "anchor": [
+        0.5707,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_NW",
+      "file": "vehicles/veh_hatchback_a_NW@2x.png",
+      "size": [
+        68,
+        40
+      ],
+      "anchor": [
+        0.5707,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_a_NW_night",
+      "file": "vehicles/veh_hatchback_a_NW_night@2x.png",
+      "size": [
+        68,
+        40
+      ],
+      "anchor": [
+        0.5707,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_NE",
+      "file": "vehicles/veh_hatchback_b_NE@2x.png",
+      "size": [
+        66,
+        40
+      ],
+      "anchor": [
+        0.4061,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_NE_night",
+      "file": "vehicles/veh_hatchback_b_NE_night@2x.png",
+      "size": [
+        66,
+        40
+      ],
+      "anchor": [
+        0.4061,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_b_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_SE",
+      "file": "vehicles/veh_hatchback_b_SE@2x.png",
+      "size": [
+        66,
+        50
+      ],
+      "anchor": [
+        0.4061,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_SE_night",
+      "file": "vehicles/veh_hatchback_b_SE_night@2x.png",
+      "size": [
+        66,
+        50
+      ],
+      "anchor": [
+        0.4061,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_b_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_SW",
+      "file": "vehicles/veh_hatchback_b_SW@2x.png",
+      "size": [
+        68,
+        50
+      ],
+      "anchor": [
+        0.5707,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_SW_night",
+      "file": "vehicles/veh_hatchback_b_SW_night@2x.png",
+      "size": [
+        68,
+        50
+      ],
+      "anchor": [
+        0.5707,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_b_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_NW",
+      "file": "vehicles/veh_hatchback_b_NW@2x.png",
+      "size": [
+        68,
+        40
+      ],
+      "anchor": [
+        0.5707,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_b_NW_night",
+      "file": "vehicles/veh_hatchback_b_NW_night@2x.png",
+      "size": [
+        68,
+        40
+      ],
+      "anchor": [
+        0.5707,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_b_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_NE",
+      "file": "vehicles/veh_hatchback_c_NE@2x.png",
+      "size": [
+        66,
+        40
+      ],
+      "anchor": [
+        0.4061,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_NE_night",
+      "file": "vehicles/veh_hatchback_c_NE_night@2x.png",
+      "size": [
+        66,
+        40
+      ],
+      "anchor": [
+        0.4061,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_c_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_SE",
+      "file": "vehicles/veh_hatchback_c_SE@2x.png",
+      "size": [
+        66,
+        50
+      ],
+      "anchor": [
+        0.4061,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_SE_night",
+      "file": "vehicles/veh_hatchback_c_SE_night@2x.png",
+      "size": [
+        66,
+        50
+      ],
+      "anchor": [
+        0.4061,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_c_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_SW",
+      "file": "vehicles/veh_hatchback_c_SW@2x.png",
+      "size": [
+        68,
+        50
+      ],
+      "anchor": [
+        0.5707,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_SW_night",
+      "file": "vehicles/veh_hatchback_c_SW_night@2x.png",
+      "size": [
+        68,
+        50
+      ],
+      "anchor": [
+        0.5707,
+        0.5336
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_c_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_NW",
+      "file": "vehicles/veh_hatchback_c_NW@2x.png",
+      "size": [
+        68,
+        40
+      ],
+      "anchor": [
+        0.5707,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_hatchback_c_NW_night",
+      "file": "vehicles/veh_hatchback_c_NW_night@2x.png",
+      "size": [
+        68,
+        40
+      ],
+      "anchor": [
+        0.5707,
+        0.57
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_hatchback_c_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "hatchback",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.42,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_NE",
+      "file": "vehicles/veh_pickup_a_NE@2x.png",
+      "size": [
+        76,
+        48
+      ],
+      "anchor": [
+        0.42,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_NE_night",
+      "file": "vehicles/veh_pickup_a_NE_night@2x.png",
+      "size": [
+        76,
+        48
+      ],
+      "anchor": [
+        0.42,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_SE",
+      "file": "vehicles/veh_pickup_a_SE@2x.png",
+      "size": [
+        76,
+        54
+      ],
+      "anchor": [
+        0.42,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_SE_night",
+      "file": "vehicles/veh_pickup_a_SE_night@2x.png",
+      "size": [
+        76,
+        54
+      ],
+      "anchor": [
+        0.42,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_SW",
+      "file": "vehicles/veh_pickup_a_SW@2x.png",
+      "size": [
+        78,
+        54
+      ],
+      "anchor": [
+        0.5651,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_SW_night",
+      "file": "vehicles/veh_pickup_a_SW_night@2x.png",
+      "size": [
+        78,
+        54
+      ],
+      "anchor": [
+        0.5651,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_NW",
+      "file": "vehicles/veh_pickup_a_NW@2x.png",
+      "size": [
+        78,
+        48
+      ],
+      "anchor": [
+        0.5651,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_a_NW_night",
+      "file": "vehicles/veh_pickup_a_NW_night@2x.png",
+      "size": [
+        78,
+        48
+      ],
+      "anchor": [
+        0.5651,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_NE",
+      "file": "vehicles/veh_pickup_b_NE@2x.png",
+      "size": [
+        76,
+        48
+      ],
+      "anchor": [
+        0.42,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_NE_night",
+      "file": "vehicles/veh_pickup_b_NE_night@2x.png",
+      "size": [
+        76,
+        48
+      ],
+      "anchor": [
+        0.42,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_b_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_SE",
+      "file": "vehicles/veh_pickup_b_SE@2x.png",
+      "size": [
+        76,
+        54
+      ],
+      "anchor": [
+        0.42,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_SE_night",
+      "file": "vehicles/veh_pickup_b_SE_night@2x.png",
+      "size": [
+        76,
+        54
+      ],
+      "anchor": [
+        0.42,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_b_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_SW",
+      "file": "vehicles/veh_pickup_b_SW@2x.png",
+      "size": [
+        78,
+        54
+      ],
+      "anchor": [
+        0.5651,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_SW_night",
+      "file": "vehicles/veh_pickup_b_SW_night@2x.png",
+      "size": [
+        78,
+        54
+      ],
+      "anchor": [
+        0.5651,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_b_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_NW",
+      "file": "vehicles/veh_pickup_b_NW@2x.png",
+      "size": [
+        78,
+        48
+      ],
+      "anchor": [
+        0.5651,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_b_NW_night",
+      "file": "vehicles/veh_pickup_b_NW_night@2x.png",
+      "size": [
+        78,
+        48
+      ],
+      "anchor": [
+        0.5651,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_b_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_NE",
+      "file": "vehicles/veh_pickup_c_NE@2x.png",
+      "size": [
+        76,
+        48
+      ],
+      "anchor": [
+        0.42,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_NE_night",
+      "file": "vehicles/veh_pickup_c_NE_night@2x.png",
+      "size": [
+        76,
+        48
+      ],
+      "anchor": [
+        0.42,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_c_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_SE",
+      "file": "vehicles/veh_pickup_c_SE@2x.png",
+      "size": [
+        76,
+        54
+      ],
+      "anchor": [
+        0.42,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_SE_night",
+      "file": "vehicles/veh_pickup_c_SE_night@2x.png",
+      "size": [
+        76,
+        54
+      ],
+      "anchor": [
+        0.42,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_c_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_SW",
+      "file": "vehicles/veh_pickup_c_SW@2x.png",
+      "size": [
+        78,
+        54
+      ],
+      "anchor": [
+        0.5651,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_SW_night",
+      "file": "vehicles/veh_pickup_c_SW_night@2x.png",
+      "size": [
+        78,
+        54
+      ],
+      "anchor": [
+        0.5651,
+        0.5104
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_c_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_NW",
+      "file": "vehicles/veh_pickup_c_NW@2x.png",
+      "size": [
+        78,
+        48
+      ],
+      "anchor": [
+        0.5651,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_pickup_c_NW_night",
+      "file": "vehicles/veh_pickup_c_NW_night@2x.png",
+      "size": [
+        78,
+        48
+      ],
+      "anchor": [
+        0.5651,
+        0.5529
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_pickup_c_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "pickup",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.56,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_NE",
+      "file": "vehicles/veh_van_a_NE@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.4054,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_NE_night",
+      "file": "vehicles/veh_van_a_NE_night@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.4054,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_SE",
+      "file": "vehicles/veh_van_a_SE@2x.png",
+      "size": [
+        74,
+        58
+      ],
+      "anchor": [
+        0.4054,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_SE_night",
+      "file": "vehicles/veh_van_a_SE_night@2x.png",
+      "size": [
+        74,
+        58
+      ],
+      "anchor": [
+        0.4054,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_SW",
+      "file": "vehicles/veh_van_a_SW@2x.png",
+      "size": [
+        76,
+        58
+      ],
+      "anchor": [
+        0.5547,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_SW_night",
+      "file": "vehicles/veh_van_a_SW_night@2x.png",
+      "size": [
+        76,
+        58
+      ],
+      "anchor": [
+        0.5547,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_NW",
+      "file": "vehicles/veh_van_a_NW@2x.png",
+      "size": [
+        76,
+        50
+      ],
+      "anchor": [
+        0.5547,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_a_NW_night",
+      "file": "vehicles/veh_van_a_NW_night@2x.png",
+      "size": [
+        76,
+        50
+      ],
+      "anchor": [
+        0.5547,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_NE",
+      "file": "vehicles/veh_van_b_NE@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.4054,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_NE_night",
+      "file": "vehicles/veh_van_b_NE_night@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.4054,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_b_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_SE",
+      "file": "vehicles/veh_van_b_SE@2x.png",
+      "size": [
+        74,
+        58
+      ],
+      "anchor": [
+        0.4054,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_SE_night",
+      "file": "vehicles/veh_van_b_SE_night@2x.png",
+      "size": [
+        74,
+        58
+      ],
+      "anchor": [
+        0.4054,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_b_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_SW",
+      "file": "vehicles/veh_van_b_SW@2x.png",
+      "size": [
+        76,
+        58
+      ],
+      "anchor": [
+        0.5547,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_SW_night",
+      "file": "vehicles/veh_van_b_SW_night@2x.png",
+      "size": [
+        76,
+        58
+      ],
+      "anchor": [
+        0.5547,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_b_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_NW",
+      "file": "vehicles/veh_van_b_NW@2x.png",
+      "size": [
+        76,
+        50
+      ],
+      "anchor": [
+        0.5547,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_b_NW_night",
+      "file": "vehicles/veh_van_b_NW_night@2x.png",
+      "size": [
+        76,
+        50
+      ],
+      "anchor": [
+        0.5547,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_b_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_NE",
+      "file": "vehicles/veh_van_c_NE@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.4054,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_NE_night",
+      "file": "vehicles/veh_van_c_NE_night@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.4054,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_c_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_SE",
+      "file": "vehicles/veh_van_c_SE@2x.png",
+      "size": [
+        74,
+        58
+      ],
+      "anchor": [
+        0.4054,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_SE_night",
+      "file": "vehicles/veh_van_c_SE_night@2x.png",
+      "size": [
+        74,
+        58
+      ],
+      "anchor": [
+        0.4054,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_c_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_SW",
+      "file": "vehicles/veh_van_c_SW@2x.png",
+      "size": [
+        76,
+        58
+      ],
+      "anchor": [
+        0.5547,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_SW_night",
+      "file": "vehicles/veh_van_c_SW_night@2x.png",
+      "size": [
+        76,
+        58
+      ],
+      "anchor": [
+        0.5547,
+        0.5517
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_c_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_NW",
+      "file": "vehicles/veh_van_c_NW@2x.png",
+      "size": [
+        76,
+        50
+      ],
+      "anchor": [
+        0.5547,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_van_c_NW_night",
+      "file": "vehicles/veh_van_c_NW_night@2x.png",
+      "size": [
+        76,
+        50
+      ],
+      "anchor": [
+        0.5547,
+        0.5952
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_van_c_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "van",
+      "variant": "c",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_NE",
+      "file": "vehicles/veh_taxi_a_NE@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_NE_night",
+      "file": "vehicles/veh_taxi_a_NE_night@2x.png",
+      "size": [
+        72,
+        44
+      ],
+      "anchor": [
+        0.4122,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_taxi_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_SE",
+      "file": "vehicles/veh_taxi_a_SE@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_SE_night",
+      "file": "vehicles/veh_taxi_a_SE_night@2x.png",
+      "size": [
+        72,
+        50
+      ],
+      "anchor": [
+        0.4122,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_taxi_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_SW",
+      "file": "vehicles/veh_taxi_a_SW@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_SW_night",
+      "file": "vehicles/veh_taxi_a_SW_night@2x.png",
+      "size": [
+        74,
+        50
+      ],
+      "anchor": [
+        0.5644,
+        0.4848
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_taxi_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_NW",
+      "file": "vehicles/veh_taxi_a_NW@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_taxi_a_NW_night",
+      "file": "vehicles/veh_taxi_a_NW_night@2x.png",
+      "size": [
+        74,
+        44
+      ],
+      "anchor": [
+        0.5644,
+        0.5509
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_taxi_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "taxi",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.5,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_NE",
+      "file": "vehicles/veh_bus_a_NE@2x.png",
+      "size": [
+        108,
+        72
+      ],
+      "anchor": [
+        0.42,
+        0.6067
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_NE_night",
+      "file": "vehicles/veh_bus_a_NE_night@2x.png",
+      "size": [
+        108,
+        72
+      ],
+      "anchor": [
+        0.42,
+        0.6067
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_bus_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_SE",
+      "file": "vehicles/veh_bus_a_SE@2x.png",
+      "size": [
+        108,
+        78
+      ],
+      "anchor": [
+        0.42,
+        0.56
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_SE_night",
+      "file": "vehicles/veh_bus_a_SE_night@2x.png",
+      "size": [
+        108,
+        78
+      ],
+      "anchor": [
+        0.42,
+        0.56
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_bus_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_SW",
+      "file": "vehicles/veh_bus_a_SW@2x.png",
+      "size": [
+        110,
+        78
+      ],
+      "anchor": [
+        0.5599,
+        0.56
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_SW_night",
+      "file": "vehicles/veh_bus_a_SW_night@2x.png",
+      "size": [
+        110,
+        78
+      ],
+      "anchor": [
+        0.5599,
+        0.56
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_bus_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_NW",
+      "file": "vehicles/veh_bus_a_NW@2x.png",
+      "size": [
+        110,
+        72
+      ],
+      "anchor": [
+        0.5599,
+        0.6067
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_bus_a_NW_night",
+      "file": "vehicles/veh_bus_a_NW_night@2x.png",
+      "size": [
+        110,
+        72
+      ],
+      "anchor": [
+        0.5599,
+        0.6067
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_bus_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "bus",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.95,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_NE",
+      "file": "vehicles/veh_delivery_truck_a_NE@2x.png",
+      "size": [
+        92,
+        58
+      ],
+      "anchor": [
+        0.4096,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_NE_night",
+      "file": "vehicles/veh_delivery_truck_a_NE_night@2x.png",
+      "size": [
+        92,
+        58
+      ],
+      "anchor": [
+        0.4096,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_SE",
+      "file": "vehicles/veh_delivery_truck_a_SE@2x.png",
+      "size": [
+        92,
+        72
+      ],
+      "anchor": [
+        0.4096,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_SE_night",
+      "file": "vehicles/veh_delivery_truck_a_SE_night@2x.png",
+      "size": [
+        92,
+        72
+      ],
+      "anchor": [
+        0.4096,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_SW",
+      "file": "vehicles/veh_delivery_truck_a_SW@2x.png",
+      "size": [
+        96,
+        72
+      ],
+      "anchor": [
+        0.5608,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_SW_night",
+      "file": "vehicles/veh_delivery_truck_a_SW_night@2x.png",
+      "size": [
+        96,
+        72
+      ],
+      "anchor": [
+        0.5608,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_NW",
+      "file": "vehicles/veh_delivery_truck_a_NW@2x.png",
+      "size": [
+        96,
+        58
+      ],
+      "anchor": [
+        0.5608,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_a_NW_night",
+      "file": "vehicles/veh_delivery_truck_a_NW_night@2x.png",
+      "size": [
+        96,
+        58
+      ],
+      "anchor": [
+        0.5608,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_NE",
+      "file": "vehicles/veh_delivery_truck_b_NE@2x.png",
+      "size": [
+        92,
+        58
+      ],
+      "anchor": [
+        0.4096,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_NE_night",
+      "file": "vehicles/veh_delivery_truck_b_NE_night@2x.png",
+      "size": [
+        92,
+        58
+      ],
+      "anchor": [
+        0.4096,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_b_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_SE",
+      "file": "vehicles/veh_delivery_truck_b_SE@2x.png",
+      "size": [
+        92,
+        72
+      ],
+      "anchor": [
+        0.4096,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_SE_night",
+      "file": "vehicles/veh_delivery_truck_b_SE_night@2x.png",
+      "size": [
+        92,
+        72
+      ],
+      "anchor": [
+        0.4096,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_b_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_SW",
+      "file": "vehicles/veh_delivery_truck_b_SW@2x.png",
+      "size": [
+        96,
+        72
+      ],
+      "anchor": [
+        0.5608,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_SW_night",
+      "file": "vehicles/veh_delivery_truck_b_SW_night@2x.png",
+      "size": [
+        96,
+        72
+      ],
+      "anchor": [
+        0.5608,
+        0.5672
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_b_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_NW",
+      "file": "vehicles/veh_delivery_truck_b_NW@2x.png",
+      "size": [
+        96,
+        58
+      ],
+      "anchor": [
+        0.5608,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_delivery_truck_b_NW_night",
+      "file": "vehicles/veh_delivery_truck_b_NW_night@2x.png",
+      "size": [
+        96,
+        58
+      ],
+      "anchor": [
+        0.5608,
+        0.5943
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_delivery_truck_b_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "delivery_truck",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 0.72,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_NE",
+      "file": "vehicles/veh_semi_a_NE@2x.png",
+      "size": [
+        122,
+        76
+      ],
+      "anchor": [
+        0.4321,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_NE_night",
+      "file": "vehicles/veh_semi_a_NE_night@2x.png",
+      "size": [
+        122,
+        76
+      ],
+      "anchor": [
+        0.4321,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_a_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "NE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_SE",
+      "file": "vehicles/veh_semi_a_SE@2x.png",
+      "size": [
+        122,
+        88
+      ],
+      "anchor": [
+        0.4321,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_SE_night",
+      "file": "vehicles/veh_semi_a_SE_night@2x.png",
+      "size": [
+        122,
+        88
+      ],
+      "anchor": [
+        0.4321,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_a_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "SE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_SW",
+      "file": "vehicles/veh_semi_a_SW@2x.png",
+      "size": [
+        126,
+        88
+      ],
+      "anchor": [
+        0.5472,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_SW_night",
+      "file": "vehicles/veh_semi_a_SW_night@2x.png",
+      "size": [
+        126,
+        88
+      ],
+      "anchor": [
+        0.5472,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_a_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "SW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_NW",
+      "file": "vehicles/veh_semi_a_NW@2x.png",
+      "size": [
+        126,
+        76
+      ],
+      "anchor": [
+        0.5472,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_a_NW_night",
+      "file": "vehicles/veh_semi_a_NW_night@2x.png",
+      "size": [
+        126,
+        76
+      ],
+      "anchor": [
+        0.5472,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_a_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "a",
+      "direction": "NW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_NE",
+      "file": "vehicles/veh_semi_b_NE@2x.png",
+      "size": [
+        122,
+        76
+      ],
+      "anchor": [
+        0.4321,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_NE_night",
+      "file": "vehicles/veh_semi_b_NE_night@2x.png",
+      "size": [
+        122,
+        76
+      ],
+      "anchor": [
+        0.4321,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_b_NE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "NE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_SE",
+      "file": "vehicles/veh_semi_b_SE@2x.png",
+      "size": [
+        122,
+        88
+      ],
+      "anchor": [
+        0.4321,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_SE_night",
+      "file": "vehicles/veh_semi_b_SE_night@2x.png",
+      "size": [
+        122,
+        88
+      ],
+      "anchor": [
+        0.4321,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_b_SE",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "SE",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_SW",
+      "file": "vehicles/veh_semi_b_SW@2x.png",
+      "size": [
+        126,
+        88
+      ],
+      "anchor": [
+        0.5472,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_SW_night",
+      "file": "vehicles/veh_semi_b_SW_night@2x.png",
+      "size": [
+        126,
+        88
+      ],
+      "anchor": [
+        0.5472,
+        0.5609
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_b_SW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "SW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_NW",
+      "file": "vehicles/veh_semi_b_NW@2x.png",
+      "size": [
+        126,
+        76
+      ],
+      "anchor": [
+        0.5472,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "vehicle",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
+      "name": "veh_semi_b_NW_night",
+      "file": "vehicles/veh_semi_b_NW_night@2x.png",
+      "size": [
+        126,
+        76
+      ],
+      "anchor": [
+        0.5472,
+        0.588
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "veh_semi_b_NW",
+      "blend": "add",
+      "category": "vehicle",
+      "type": "semi",
+      "variant": "b",
+      "direction": "NW",
+      "lengthTiles": 1.18,
+      "laneOffsetTiles": 0.15
+    },
+    {
       "name": "construction_1x1_stage1",
       "file": "buildings/construction_1x1_stage1@2x.png",
       "size": [

@@ -57,6 +57,7 @@ function diamond(g: Graphics, i: number, j: number) {
   world.addChild(objG, objSprites);
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
+  const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
   let near: number[][] = [];
   const computeNear = () => { // BFS distance from nearest road (4-neighbour steps)
@@ -73,7 +74,10 @@ function diamond(g: Graphics, i: number, j: number) {
       if (road[i][j]) {
         const m = (inb(i+1,j)&&road[i+1][j]?1:0)|(inb(i-1,j)&&road[i-1][j]?2:0)|(inb(i,j+1)&&road[i][j+1]?4:0)|(inb(i,j-1)&&road[i][j-1]?8:0);
         drawSprite('road_' + m, x, y, objG, objSprites);
-      } else if (zone[i][j]) drawSprite('zone_' + zone[i][j], x, y, objG, objSprites);
+      } else if (zone[i][j]) {
+        drawSprite('zone_' + zone[i][j], x, y, objG, objSprites);
+        if (bld[i][j]) drawSprite(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objG, objSprites, (i * 73856093) ^ (j * 19349663));
+      }
       else if (terrain[i][j] === 'forest') objG.circle(x - 6, y - 4, 6).fill(0x2a5e25).circle(x + 7, y - 1, 5).fill(0x2f6a29);
     }
   };
@@ -107,7 +111,7 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const valid = (i: number, j: number) => {
     if (tool === 'road') return terrain[i][j] !== 'water';
-    if (tool === 'bulldoze') return road[i][j] || !!zone[i][j];
+    if (tool === 'bulldoze') return road[i][j] || !!zone[i][j] || bld[i][j] > 0;
     return terrain[i][j] !== 'water' && !road[i][j] && near[i][j] <= 3;
   };
   const showPreview = () => {
@@ -117,13 +121,13 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const commit = () => {
     for (const [i, j] of dragTiles()) { if (!valid(i, j)) continue;
-      if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; }
-      else if (tool === 'bulldoze') { road[i][j] = false; zone[i][j] = ''; }
-      else zone[i][j] = tool; }
+      if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; }
+      else if (tool === 'bulldoze') { road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; }
+      else { if (zone[i][j] !== tool) bld[i][j] = 0; zone[i][j] = tool; } }
     drag = null; preview.clear(); redraw();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, terrain, setTool, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, terrain, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -148,14 +152,74 @@ function diamond(g: Graphics, i: number, j: number) {
     const { i, j } = toTile((mouse.x - world.position.x) / zoom, (mouse.y - world.position.y) / zoom);
     if (i < 0 || j < 0 || i >= N || j >= N) { hud.textContent = 'Tile: —'; return; }
     diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 });
-    hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? 'road' : zone[i][j] ? ({R:'residential',C:'commercial',I:'industrial'} as any)[zone[i][j]] + ' zone' : terrain[i][j]})`;
+    hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? 'road' : zone[i][j] ? ZNAME[zone[i][j]] + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : ' zone') : terrain[i][j]})`;
+  };
+
+  // ---- simulation ----
+  const ZNAME: Record<string, string> = { R: 'Residential', C: 'Commercial', I: 'Industrial' };
+  const DNAME = ['', 'Low density', 'Medium density', 'High density'];
+  const CAP: Record<string, number[]> = { R: [0, 12, 45, 140], C: [0, 6, 22, 70], I: [0, 10, 32, 90] };
+  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0 };
+  let downAt: { x: number; y: number } | null = null;
+  const clamp = (v: number) => Math.max(-1, Math.min(1, v));
+  const census = () => {
+    sim.pop = sim.jobsC = sim.jobsI = 0;
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (bld[i][j]) {
+      const v = CAP[zone[i][j]][bld[i][j]];
+      if (zone[i][j] === 'R') sim.pop += v; else if (zone[i][j] === 'C') sim.jobsC += v; else sim.jobsI += v;
+    }
+    const jobs = sim.jobsC + sim.jobsI, workers = sim.pop * 0.6;
+    sim.dR = clamp((jobs * 1.3 + 40 - sim.pop) / Math.max(60, sim.pop * 0.5));      // people come for jobs
+    sim.dC = clamp((sim.pop * 0.25 + 5 - sim.jobsC) / Math.max(15, sim.pop * 0.15));  // shops follow residents
+    sim.dI = clamp((40 + workers * 0.5 - sim.jobsI) / Math.max(30, sim.jobsI * 0.5)); // outside demand + workforce
+  };
+  const tick = () => {
+    sim.day++;
+    const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      const z = zone[i][j]; if (!z) continue;
+      const dem = d[z], L = bld[i][j];
+      if (near[i][j] > 3) { if (L && Math.random() < 0.05) bld[i][j]--; continue; } // lost road access
+      if (dem > 0 && L < 3) {
+        const need = [0, 0, 0.25, 0.5][L + 1]; // higher density needs sustained strong demand
+        if (dem > need && Math.random() < (L === 0 ? 0.06 : 0.012) * dem) bld[i][j]++;
+      } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) bld[i][j]--;
+    }
+    census(); redraw(); updateStats();
+  };
+  // top HUD
+  const stats = document.getElementById('stats')!;
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
+  const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
+  const updateStats = () => {
+    stats.querySelector('#nums')!.innerHTML = `<b>${dateStr()}</b> · Population <b>${sim.pop.toLocaleString()}</b> · Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b> <small>(C ${sim.jobsC} / I ${sim.jobsI})</small>`;
+    stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
+  };
+  let timer = 0;
+  const setSpeed = (n: number) => {
+    sim.speed = n; clearInterval(timer);
+    if (n > 0) timer = window.setInterval(tick, 1000 / n);
+    stats.querySelectorAll('#speed button').forEach(b => b.classList.toggle('on', +(b as HTMLElement).dataset.s! === n));
+  };
+  let lastSpeed = 1;
+  stats.querySelectorAll('#speed button').forEach(b => (b as HTMLElement).onclick = () => setSpeed(+(b as HTMLElement).dataset.s!));
+  window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); if (sim.speed) { lastSpeed = sim.speed; setSpeed(0); } else setSpeed(lastSpeed); } });
+  census(); updateStats(); setSpeed(1);
+  // info panel
+  const info = document.getElementById('info')!;
+  const inspect = ({ i, j }: { i: number; j: number }) => {
+    if (!inb(i, j) || !bld[i][j]) { info.style.display = 'none'; return; }
+    const z = zone[i][j], v = CAP[z][bld[i][j]];
+    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br><small>Tile ${i}, ${j}</small>`;
+    info.style.display = 'block';
   };
 
   // pointers: drag pan + pinch zoom
   const ptrs = new Map<number, { x: number; y: number }>();
   let pinchDist = 0;
   const c = app.canvas;
-  c.addEventListener('pointerdown', e => { c.setPointerCapture(e.pointerId);
+  c.addEventListener('pointerdown', e => { c.setPointerCapture(e.pointerId); if (ptrs.size === 0) downAt = { x: e.clientX, y: e.clientY };
     if (tool !== 'select' && ptrs.size === 0 && e.button === 0) { const t = tileAt(e.clientX, e.clientY); drag = { i: t.i, j: t.j, ci: t.i, cj: t.j }; showPreview(); }
     else if (drag) { drag = null; preview.clear(); } // second finger cancels build -> pinch
     ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinchDist = Math.hypot(a.x - b.x, a.y - b.y); } });
@@ -174,7 +238,7 @@ function diamond(g: Graphics, i: number, j: number) {
       }
     }
   });
-  const up = (e: PointerEvent) => { if (drag && e.type === 'pointerup') commit(); else if (drag) { drag = null; preview.clear(); } ptrs.delete(e.pointerId); pinchDist = 0; if (e.pointerType !== 'mouse') mouse = { x: e.clientX, y: e.clientY }; };
+  const up = (e: PointerEvent) => { if (e.type === 'pointerup' && tool === 'select' && ptrs.size === 1 && downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 6) inspect(tileAt(e.clientX, e.clientY)); if (drag && e.type === 'pointerup') commit(); else if (drag) { drag = null; preview.clear(); } ptrs.delete(e.pointerId); pinchDist = 0; if (e.pointerType !== 'mouse') mouse = { x: e.clientX, y: e.clientY }; };
   c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
   c.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') mouse = null; });
   c.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, zoom * Math.exp(-e.deltaY * 0.0015)); }, { passive: false });

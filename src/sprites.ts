@@ -26,6 +26,7 @@ export async function loadManifest() {
     if (a.aliasOf) aliasOf.set(a.name, a.aliasOf);
     if (a.nightOf || a.name.endsWith('_night')) { nights.set(a.nightOf ?? a.name.slice(0, -6), a.name); return; }
     // explicit variantOf, or implicit <base>_<letter> naming for buildings
+    if (a.facing) return; // <name>_<NE|SE|SW|NW> are picked by facing, not as random variants
     const base = a.variantOf ?? (/^(bld_.+)_[a-z]$/.exec(a.name)?.[1]);
     if (a.weight != null) weights.set(a.name, +a.weight);
     const edge = (a.autotile?.set === 'forest_edge' || a.autotile?.set === 'sand_edge') && a.autotile.mask !== 15; // edge pieces are picked by mask, not as random variants
@@ -53,6 +54,8 @@ export function placeNight(key: string, x: number, y: number, layer: Container, 
   const a = night ? art.get(night) : undefined; if (!a) return undefined;
   const s = new Sprite(a.tex); s.anchor.set(a.anchor[0], a.anchor[1]); s.scale.set(a.scale); s.position.set(x, y); s.blendMode = 'add'; layer.addChild(s); return s;
 }
+/** the variant `place` would pick for this tile, turned to face `dir` (NE/SE/SW/NW); unsuffixed art when that facing is missing */
+export function facingName(key: string, seed: number, dir: string): string { const n = resolveName(key, seed); if (!n) return key; const f = `${n}_${dir}`; return art.has(f) ? f : n; }
 export const hasArt = (key: string) => !!resolve(key, 0);
 export const artTex = (name: string) => art.get(name)?.tex;
 

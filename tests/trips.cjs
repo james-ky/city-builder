@@ -29,5 +29,5 @@ ok('clicking a car shows who/where',!!ci2&&/min/.test(ci2)&&/(Going to|heading h
 const bi=await p.evaluate(([ci,cj])=>{const s=__city.tileToScreen(ci-5,cj-4);__city.inspectAt(s.x,s.y);return document.getElementById('info').innerText},c);
 ok('clicking a home shows commutes',/Where residents go/.test(bi)&&/min drive|walk/.test(bi),bi.replace(/\n/g,' | '));
 await p.evaluate(()=>{__city.fastForward(40);__city.setCovView('traffic')});const vol=await p.evaluate(()=>{let s=0;for(const v of __city.trips().volume)s+=v;return s});ok('traffic volume map fills',vol>0,Math.round(vol)+' veh/day');
-const sv=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));const v=o.version;__city.applySave(o);let s=0;for(const x of __city.trips().volume)s+=x;delete o.traffic;o.version=4;__city.applySave(o);return [v,s>0]});ok('save v5 keeps traffic; v4 loads',sv[0]===5&&sv[1],JSON.stringify(sv));
+const sv=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));const v=o.version;__city.applySave(o);let s=0;for(const x of __city.trips().volume)s+=x;delete o.traffic;o.version=4;__city.applySave(o);return [v,s>0]});ok('save (v5+) keeps traffic; v4 loads',sv[0]>=5&&sv[1],JSON.stringify(sv));
 ok('no page errors',!errs.length,errs.join(' | '));console.log(res.join('\n'));await b.close();process.exit(res.some(r=>r.startsWith('FAIL'))?1:0)})();

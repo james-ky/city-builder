@@ -4,3 +4,8 @@ Keys: `grass`, `water`, `sand`, `forest`, `zone_R`, `zone_C`, `zone_I`,
 `road_<mask>` where mask is 0-15 (bit 1 = +i neighbor, 2 = -i, 4 = +j, 8 = -j).
 Tile footprint: 64x32 px diamond; image anchored at the tile's bottom corner.
 Anything not listed is drawn in code.
+
+## Buildings
+`bld_<zone>_<level>`: zone R/C/I, level 1 = low, 2 = medium, 3 = high density
+(e.g. `bld_R_1` houses, `bld_C_2` mid-rise shops, `bld_I_3` heavy industry).
+Drawn on top of the zone tile, anchored at the tile's bottom corner; images can be taller than 32px.

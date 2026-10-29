@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "artRevision": "v2-polish",
   "displayScale": 0.5,
   "baseTile": [
     64,
@@ -57,6 +58,70 @@
       "rule": "bit set when that neighbour is land. Clear a corner bit if either adjacent edge bit is set (N needs NW,NE clear; E: NE,SE; S: SE,SW; W: SW,NW). Reduced mask 0 = plain water; else file shore_<mask>.",
       "count": 47
     },
+    "shore_sand": {
+      "appliesTo": "water tiles whose land neighbours are beach sand",
+      "bits": "same as shore (8-bit, corners reduced, 47 tiles)",
+      "files": "terrain/shore_sand/shore_sand_<mask:03d>@2x.png",
+      "count": 47,
+      "rule": "Compute the reduced shore mask exactly as for shore. Then count the land neighbours that set a bit in the reduced mask: if strictly more of them are sand than grass, use shore_sand_<mask>; otherwise (tie, majority grass, or any non-sand land) use shore_<mask>. Reduced mask 0 = plain water_a/b. Its land side has the same flat sand border as sand_a, so it meets sand_a and sand_edge_* seamlessly; water/foam/shallows match shore_* exactly, so shore and shore_sand tiles can sit side by side along the water."
+    },
+    "sand_edge": {
+      "appliesTo": "sand tiles",
+      "bits": {
+        "NE": 1,
+        "SE": 2,
+        "SW": 4,
+        "NW": 8
+      },
+      "neighbourOffsets_di_dj": {
+        "NE": [
+          0,
+          -1
+        ],
+        "SE": [
+          1,
+          0
+        ],
+        "SW": [
+          0,
+          1
+        ],
+        "NW": [
+          -1,
+          0
+        ]
+      },
+      "rule": "bit set when that edge neighbour is sand OR water (water counts as sand so the beach runs to the shoreline). Mask 15 -> sand_a; else terrain/sand_edge/sand_edge_<mask:02d>@2x.png (mask 0 = lone sand patch). Open sides fade into the shared grass background ~0.2 tile inside the tile with an irregular border, so the tile edge on an open side is plain grass and meets grass_a..f seamlessly. 4-bit set: no diagonal bits, so an inside corner where only the diagonal neighbour is grass stays sand.",
+      "count": 16
+    },
+    "forest_edge": {
+      "bits": {
+        "NE": 1,
+        "SE": 2,
+        "SW": 4,
+        "NW": 8
+      },
+      "neighbourOffsets_di_dj": {
+        "NE": [
+          0,
+          -1
+        ],
+        "SE": [
+          1,
+          0
+        ],
+        "SW": [
+          0,
+          1
+        ],
+        "NW": [
+          -1,
+          0
+        ]
+      },
+      "rule": "bit set when that edge neighbour is also forest. Mask 15 -> any of forest_a..d (interior); else forest_edge_<mask:02d> (trees thin out to bushes toward open sides; mask 0 = lone copse). Object layer over a grass tile, anchor (0.5,0.75).",
+      "count": 16
+    },
     "road": {
       "bits": {
         "NE": 1,
@@ -64,6 +129,11 @@
         "SW": 4,
         "NW": 8
       },
+      "asphaltHalfWidthTiles": 0.3,
+      "sidewalkWidthTiles": 0.1,
+      "sidewalkOuterHalfWidthTiles": 0.4,
+      "laneOffsetTiles": 0.15,
+      "crosswalks": "on every arm of T (3-arm) and cross (4-arm) pieces",
       "rule": "bit set when that edge neighbour is road; mask 0 has no sprite (use a dead-end)."
     }
   },
@@ -85,7 +155,14 @@
       ],
       "scale": 0.5,
       "layer": "ground",
-      "variantOf": "grass"
+      "variantOf": "grass",
+      "variant": "a",
+      "weight": 1.0,
+      "features": [
+        "noise",
+        "mowing tone",
+        "flowers"
+      ]
     },
     {
       "name": "grass_b",
@@ -104,7 +181,14 @@
       ],
       "scale": 0.5,
       "layer": "ground",
-      "variantOf": "grass"
+      "variantOf": "grass",
+      "variant": "b",
+      "weight": 1.0,
+      "features": [
+        "noise",
+        "mowing tone",
+        "flowers"
+      ]
     },
     {
       "name": "grass_c",
@@ -123,7 +207,93 @@
       ],
       "scale": 0.5,
       "layer": "ground",
-      "variantOf": "grass"
+      "variantOf": "grass",
+      "variant": "c",
+      "weight": 1.0,
+      "features": [
+        "noise",
+        "mowing tone",
+        "flowers"
+      ]
+    },
+    {
+      "name": "grass_d",
+      "file": "terrain/grass_d@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "grass",
+      "variant": "d",
+      "weight": 0.8,
+      "features": [
+        "noise",
+        "mowing tone",
+        "flowers"
+      ]
+    },
+    {
+      "name": "grass_e",
+      "file": "terrain/grass_e@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "grass",
+      "variant": "e",
+      "weight": 0.8,
+      "features": [
+        "noise",
+        "mowing tone",
+        "flowers"
+      ]
+    },
+    {
+      "name": "grass_f",
+      "file": "terrain/grass_f@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "grass",
+      "variant": "f",
+      "weight": 0.25,
+      "features": [
+        "noise",
+        "mowing tone",
+        "flowers",
+        "dirt patch"
+      ]
     },
     {
       "name": "water_a",
@@ -189,7 +359,13 @@
       "scale": 0.5,
       "layer": "object",
       "variantOf": "forest",
-      "placeOn": "grass"
+      "placeOn": "grass",
+      "variant": "a",
+      "mix": "mixed",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 15
+      }
     },
     {
       "name": "forest_b",
@@ -209,7 +385,482 @@
       "scale": 0.5,
       "layer": "object",
       "variantOf": "forest",
-      "placeOn": "grass"
+      "placeOn": "grass",
+      "variant": "b",
+      "mix": "pine",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 15
+      }
+    },
+    {
+      "name": "forest_c",
+      "file": "terrain/forest_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "variant": "c",
+      "mix": "leaf",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 15
+      }
+    },
+    {
+      "name": "forest_d",
+      "file": "terrain/forest_d@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "variant": "d",
+      "mix": "mixed",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 15
+      }
+    },
+    {
+      "name": "forest_edge_00",
+      "file": "terrain/forest_edge/forest_edge_00@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 0,
+        "forestNeighbours": []
+      }
+    },
+    {
+      "name": "forest_edge_01",
+      "file": "terrain/forest_edge/forest_edge_01@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 1,
+        "forestNeighbours": [
+          "NE"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_02",
+      "file": "terrain/forest_edge/forest_edge_02@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 2,
+        "forestNeighbours": [
+          "SE"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_03",
+      "file": "terrain/forest_edge/forest_edge_03@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 3,
+        "forestNeighbours": [
+          "NE",
+          "SE"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_04",
+      "file": "terrain/forest_edge/forest_edge_04@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 4,
+        "forestNeighbours": [
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_05",
+      "file": "terrain/forest_edge/forest_edge_05@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 5,
+        "forestNeighbours": [
+          "NE",
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_06",
+      "file": "terrain/forest_edge/forest_edge_06@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 6,
+        "forestNeighbours": [
+          "SE",
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_07",
+      "file": "terrain/forest_edge/forest_edge_07@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 7,
+        "forestNeighbours": [
+          "NE",
+          "SE",
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_08",
+      "file": "terrain/forest_edge/forest_edge_08@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 8,
+        "forestNeighbours": [
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_09",
+      "file": "terrain/forest_edge/forest_edge_09@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 9,
+        "forestNeighbours": [
+          "NE",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_10",
+      "file": "terrain/forest_edge/forest_edge_10@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 10,
+        "forestNeighbours": [
+          "SE",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_11",
+      "file": "terrain/forest_edge/forest_edge_11@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 11,
+        "forestNeighbours": [
+          "NE",
+          "SE",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_12",
+      "file": "terrain/forest_edge/forest_edge_12@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 12,
+        "forestNeighbours": [
+          "SW",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_13",
+      "file": "terrain/forest_edge/forest_edge_13@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 13,
+        "forestNeighbours": [
+          "NE",
+          "SW",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "forest_edge_14",
+      "file": "terrain/forest_edge/forest_edge_14@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "variantOf": "forest",
+      "placeOn": "grass",
+      "autotile": {
+        "set": "forest_edge",
+        "mask": 14,
+        "forestNeighbours": [
+          "SE",
+          "SW",
+          "NW"
+        ]
+      }
     },
     {
       "name": "shore_001",
@@ -1847,6 +2498,1662 @@
       "scale": 0.5,
       "layer": "ground",
       "variantOf": "sand"
+    },
+    {
+      "name": "shore_sand_001",
+      "file": "terrain/shore_sand/shore_sand_001@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 1,
+        "land": [
+          "NE"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_002",
+      "file": "terrain/shore_sand/shore_sand_002@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 2,
+        "land": [
+          "SE"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_003",
+      "file": "terrain/shore_sand/shore_sand_003@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 3,
+        "land": [
+          "NE",
+          "SE"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_004",
+      "file": "terrain/shore_sand/shore_sand_004@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 4,
+        "land": [
+          "SW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_005",
+      "file": "terrain/shore_sand/shore_sand_005@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 5,
+        "land": [
+          "NE",
+          "SW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_006",
+      "file": "terrain/shore_sand/shore_sand_006@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 6,
+        "land": [
+          "SE",
+          "SW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_007",
+      "file": "terrain/shore_sand/shore_sand_007@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 7,
+        "land": [
+          "NE",
+          "SE",
+          "SW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_008",
+      "file": "terrain/shore_sand/shore_sand_008@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 8,
+        "land": [
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_009",
+      "file": "terrain/shore_sand/shore_sand_009@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 9,
+        "land": [
+          "NE",
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_010",
+      "file": "terrain/shore_sand/shore_sand_010@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 10,
+        "land": [
+          "SE",
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_011",
+      "file": "terrain/shore_sand/shore_sand_011@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 11,
+        "land": [
+          "NE",
+          "SE",
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_012",
+      "file": "terrain/shore_sand/shore_sand_012@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 12,
+        "land": [
+          "SW",
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_013",
+      "file": "terrain/shore_sand/shore_sand_013@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 13,
+        "land": [
+          "NE",
+          "SW",
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_014",
+      "file": "terrain/shore_sand/shore_sand_014@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 14,
+        "land": [
+          "SE",
+          "SW",
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_015",
+      "file": "terrain/shore_sand/shore_sand_015@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 15,
+        "land": [
+          "NE",
+          "SE",
+          "SW",
+          "NW"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_016",
+      "file": "terrain/shore_sand/shore_sand_016@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 16,
+        "land": [
+          "N"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_018",
+      "file": "terrain/shore_sand/shore_sand_018@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 18,
+        "land": [
+          "SE",
+          "N"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_020",
+      "file": "terrain/shore_sand/shore_sand_020@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 20,
+        "land": [
+          "SW",
+          "N"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_022",
+      "file": "terrain/shore_sand/shore_sand_022@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 22,
+        "land": [
+          "SE",
+          "SW",
+          "N"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_032",
+      "file": "terrain/shore_sand/shore_sand_032@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 32,
+        "land": [
+          "E"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_036",
+      "file": "terrain/shore_sand/shore_sand_036@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 36,
+        "land": [
+          "SW",
+          "E"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_040",
+      "file": "terrain/shore_sand/shore_sand_040@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 40,
+        "land": [
+          "NW",
+          "E"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_044",
+      "file": "terrain/shore_sand/shore_sand_044@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 44,
+        "land": [
+          "SW",
+          "NW",
+          "E"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_048",
+      "file": "terrain/shore_sand/shore_sand_048@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 48,
+        "land": [
+          "N",
+          "E"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_052",
+      "file": "terrain/shore_sand/shore_sand_052@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 52,
+        "land": [
+          "SW",
+          "N",
+          "E"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_064",
+      "file": "terrain/shore_sand/shore_sand_064@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 64,
+        "land": [
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_065",
+      "file": "terrain/shore_sand/shore_sand_065@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 65,
+        "land": [
+          "NE",
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_072",
+      "file": "terrain/shore_sand/shore_sand_072@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 72,
+        "land": [
+          "NW",
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_073",
+      "file": "terrain/shore_sand/shore_sand_073@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 73,
+        "land": [
+          "NE",
+          "NW",
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_080",
+      "file": "terrain/shore_sand/shore_sand_080@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 80,
+        "land": [
+          "N",
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_096",
+      "file": "terrain/shore_sand/shore_sand_096@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 96,
+        "land": [
+          "E",
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_104",
+      "file": "terrain/shore_sand/shore_sand_104@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 104,
+        "land": [
+          "NW",
+          "E",
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_112",
+      "file": "terrain/shore_sand/shore_sand_112@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 112,
+        "land": [
+          "N",
+          "E",
+          "S"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_128",
+      "file": "terrain/shore_sand/shore_sand_128@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 128,
+        "land": [
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_129",
+      "file": "terrain/shore_sand/shore_sand_129@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 129,
+        "land": [
+          "NE",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_130",
+      "file": "terrain/shore_sand/shore_sand_130@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 130,
+        "land": [
+          "SE",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_131",
+      "file": "terrain/shore_sand/shore_sand_131@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 131,
+        "land": [
+          "NE",
+          "SE",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_144",
+      "file": "terrain/shore_sand/shore_sand_144@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 144,
+        "land": [
+          "N",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_146",
+      "file": "terrain/shore_sand/shore_sand_146@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 146,
+        "land": [
+          "SE",
+          "N",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_160",
+      "file": "terrain/shore_sand/shore_sand_160@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 160,
+        "land": [
+          "E",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_176",
+      "file": "terrain/shore_sand/shore_sand_176@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 176,
+        "land": [
+          "N",
+          "E",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_192",
+      "file": "terrain/shore_sand/shore_sand_192@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 192,
+        "land": [
+          "S",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_193",
+      "file": "terrain/shore_sand/shore_sand_193@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 193,
+        "land": [
+          "NE",
+          "S",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_208",
+      "file": "terrain/shore_sand/shore_sand_208@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 208,
+        "land": [
+          "N",
+          "S",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_224",
+      "file": "terrain/shore_sand/shore_sand_224@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 224,
+        "land": [
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "shore_sand_240",
+      "file": "terrain/shore_sand/shore_sand_240@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "autotile": {
+        "set": "shore_sand",
+        "mask": 240,
+        "land": [
+          "N",
+          "E",
+          "S",
+          "W"
+        ]
+      },
+      "landType": "sand"
+    },
+    {
+      "name": "sand_edge_00",
+      "file": "terrain/sand_edge/sand_edge_00@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 0,
+        "sandNeighbours": []
+      }
+    },
+    {
+      "name": "sand_edge_01",
+      "file": "terrain/sand_edge/sand_edge_01@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 1,
+        "sandNeighbours": [
+          "NE"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_02",
+      "file": "terrain/sand_edge/sand_edge_02@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 2,
+        "sandNeighbours": [
+          "SE"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_03",
+      "file": "terrain/sand_edge/sand_edge_03@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 3,
+        "sandNeighbours": [
+          "NE",
+          "SE"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_04",
+      "file": "terrain/sand_edge/sand_edge_04@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 4,
+        "sandNeighbours": [
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_05",
+      "file": "terrain/sand_edge/sand_edge_05@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 5,
+        "sandNeighbours": [
+          "NE",
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_06",
+      "file": "terrain/sand_edge/sand_edge_06@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 6,
+        "sandNeighbours": [
+          "SE",
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_07",
+      "file": "terrain/sand_edge/sand_edge_07@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 7,
+        "sandNeighbours": [
+          "NE",
+          "SE",
+          "SW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_08",
+      "file": "terrain/sand_edge/sand_edge_08@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 8,
+        "sandNeighbours": [
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_09",
+      "file": "terrain/sand_edge/sand_edge_09@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 9,
+        "sandNeighbours": [
+          "NE",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_10",
+      "file": "terrain/sand_edge/sand_edge_10@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 10,
+        "sandNeighbours": [
+          "SE",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_11",
+      "file": "terrain/sand_edge/sand_edge_11@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 11,
+        "sandNeighbours": [
+          "NE",
+          "SE",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_12",
+      "file": "terrain/sand_edge/sand_edge_12@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 12,
+        "sandNeighbours": [
+          "SW",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_13",
+      "file": "terrain/sand_edge/sand_edge_13@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 13,
+        "sandNeighbours": [
+          "NE",
+          "SW",
+          "NW"
+        ]
+      }
+    },
+    {
+      "name": "sand_edge_14",
+      "file": "terrain/sand_edge/sand_edge_14@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand",
+      "autotile": {
+        "set": "sand_edge",
+        "mask": 14,
+        "sandNeighbours": [
+          "SE",
+          "SW",
+          "NW"
+        ]
+      }
     },
     {
       "name": "zone_R",

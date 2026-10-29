@@ -28,7 +28,7 @@ export async function loadManifest() {
     // explicit variantOf, or implicit <base>_<letter> naming for buildings
     const base = a.variantOf ?? (/^(bld_.+)_[a-z]$/.exec(a.name)?.[1]);
     if (a.weight != null) weights.set(a.name, +a.weight);
-    const edge = a.autotile?.set === 'forest_edge' && a.autotile.mask !== 15; // edge pieces are picked by mask, not as random variants
+    const edge = (a.autotile?.set === 'forest_edge' || a.autotile?.set === 'sand_edge') && a.autotile.mask !== 15; // edge pieces are picked by mask, not as random variants
     if (base && !edge) variants.set(base, [...(variants.get(base) ?? []), a.name].sort());
     if (a.autotile && !(a.autotile.set === 'shore' && a.autotile.mask === 0)) keyed.set(`${a.autotile.set}_${a.autotile.mask}`, a.name);
   }));

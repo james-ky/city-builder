@@ -167,6 +167,10 @@ function diamond(g: Graphics, i: number, j: number) {
     if (isLand(i - 1, j + 1) && !sw && !nw) m |= 128;
     return m;
   };
+  // shore_sand when strictly more of the land neighbours that set bits are sand than not; sand_edge bits count sand or water (or off-map)
+  const SHORE_NB: [number, number, number][] = [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0], [16, -1, -1], [32, 1, -1], [64, 1, 1], [128, -1, 1]];
+  const sandyShore = (i: number, j: number, m: number) => { let s = 0, g = 0; for (const [bit, a, b] of SHORE_NB) if (m & bit) { if (inb(i + a, j + b) && terrain[i + a][j + b] === 'sand') s++; else g++; } return s > g; };
+  const beachy = (i: number, j: number) => !inb(i, j) || terrain[i][j] === 'sand' || terrain[i][j] === 'water';
   const sandKey = hasArt('sand') ? 'sand' : hasArt('grass') ? 'grass' : 'sand';
   gridL.visible = localStorage.getItem('grid') !== 'off';
   const gridBtn = document.getElementById('gridBtn')!;
@@ -219,7 +223,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const buildGround = (ch: Chunk) => { chunkTiles(ch, (i, j) => {
     const { x, y } = toScreen(i, j), t = terrain[i][j];
     let key: string = t === 'sand' ? sandKey : t === 'forest' ? 'grass' : t;
-    if (t === 'water') { const m = shoreMask(i, j); if (m && hasArt('shore_' + m)) key = 'shore_' + m; }
+    if (t === 'water') { const m = shoreMask(i, j); if (m && hasArt('shore_' + m)) key = (sandyShore(i, j, m) && hasArt('shore_sand_' + m) ? 'shore_sand_' : 'shore_') + m; }
+    else if (t === 'sand') { const m = (beachy(i, j - 1) ? 1 : 0) | (beachy(i + 1, j) ? 2 : 0) | (beachy(i, j + 1) ? 4 : 0) | (beachy(i - 1, j) ? 8 : 0); if (m !== 15 && hasArt('sand_edge_' + m)) key = 'sand_edge_' + m; }
     place(key, x, y, ch.g, seedOf(i, j)); }); 
     // grid: one Graphics of lines per chunk (much cheaper to fill than a sprite per tile)
     const g = new Graphics(), i0 = ch.ci * CH, j0 = ch.cj * CH, i1 = Math.min(N, i0 + CH), j1 = Math.min(N, j0 + CH), pt = (i: number, j: number) => toScreen(i - 0.5, j - 0.5);

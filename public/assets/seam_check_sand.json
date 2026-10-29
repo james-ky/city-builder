@@ -1,0 +1,40 @@
+{
+ "tiles": 61,
+ "missing_px_inside_diamond_max": 0,
+ "same_tile_8x8_gap_px_max": 0,
+ "sand_edge_islands_in_grass": {
+  "gap_px": 0,
+  "edge_step": 1.26,
+  "inside_step": 2.3
+ },
+ "sand_edge_random_mix_with_grass": {
+  "gap_px": 0,
+  "edge_step": 1.94,
+  "inside_step": 2.65
+ },
+ "shore_sand_lake_in_sand_a": {
+  "gap_px": 0,
+  "edge_step": 0.86,
+  "inside_step": 1.08
+ },
+ "shore_sand_lake_with_beach_into_grass": {
+  "gap_px": 0,
+  "edge_step": 1.54,
+  "inside_step": 1.55
+ },
+ "shore_sand_random_water_on_sand": {
+  "gap_px": 0,
+  "edge_step": 0.86,
+  "inside_step": 1.49
+ },
+ "shore_sand_straight_beach_sand_a_to_water": {
+  "gap_px": 0,
+  "edge_step": 0.65,
+  "inside_step": 0.74
+ },
+ "shore_and_shore_sand_alternating_along_water": {
+  "gap_px": 0,
+  "edge_step": 2.11,
+  "inside_step": 0.83
+ }
+}

@@ -13,3 +13,7 @@ Game keys the code asks for (missing ones are drawn in code):
 ## v3: variants and construction
 - Variants: `bld_<Z>_<T>_a|b|c` (variantOf `bld_<Z>_<T>`). Each tile picks one stably from its coordinates; if no variants exist the base name is used.
 - Construction: `construction_1x1_stage1..3` (128x128) and `construction_1x1_tall_stage1..3` (128x192, anchor 0.5,0.8333) for tall targets (R/C tier 3). Each stage lasts 2 game-days.
+
+## Night lights
+Optional per-building overlays: `bld_<Z>_<T>_<v>_night` (or any asset with `"nightOf": "<building asset name>"`), same size/anchor as the building.
+Drawn above the night shading with additive blending and faded in with darkness. If a building has no night overlay, it shows no lights.

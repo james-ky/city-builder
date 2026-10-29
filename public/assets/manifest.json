@@ -1,0 +1,4 @@
+{
+  "_readme": "Map a sprite key to a PNG in this folder, e.g. \"zone_R\": \"zone_r.png\". Keys without an entry are drawn in code. Sprites are 64x32 diamond tiles (taller images OK; they are anchored at bottom-center of the tile).",
+  "sprites": {}
+}

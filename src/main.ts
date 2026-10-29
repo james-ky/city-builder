@@ -74,13 +74,15 @@ function diamond(g: Graphics, i: number, j: number) {
     hospital: { name: 'Hospital', size: 3, cost: 1200, radius: 16, kind: 'health' },
   };
   type Civ = { type: string; i: number; j: number; s: number };
+  const UPKEEP: Record<string, number> = { school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180 }; // $/month at 100% funding
+  const funding: Record<string, number> = Object.fromEntries(Object.keys(SERV).map(k => [k, 1])); // 0..1 per service type
   const civs: Civ[] = [];
   const civAt: (Civ | null)[][] = [...Array(N)].map(() => Array(N).fill(null));
   const KINDS: Kind[] = ['edu', 'police', 'fire', 'health'];
   const cov: Record<Kind, number[][]> = Object.fromEntries(KINDS.map(k => [k, [...Array(N)].map(() => Array(N).fill(0))])) as any;
   const computeCoverage = () => { // 1 at the building, fading to 0 at its radius; best provider wins
     for (const k of KINDS) for (const row of cov[k]) row.fill(0);
-    for (const c of civs) { const S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2, r = S.radius;
+    for (const c of civs) { const S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2, r = S.radius * funding[c.type]; if (r < 0.5) continue; // lower funding shrinks coverage
       for (let i = Math.max(0, Math.floor(ci - r)); i <= Math.min(N - 1, Math.ceil(ci + r)); i++) for (let j = Math.max(0, Math.floor(cj - r)); j <= Math.min(N - 1, Math.ceil(cj + r)); j++) {
         const v = 1 - Math.hypot(i - ci, j - cj) / r; if (v > cov[S.kind][i][j]) cov[S.kind][i][j] = v; } }
   };
@@ -195,8 +197,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const touchesRoad = (i0: number, j0: number, s: number) => { for (let k = 0; k < s; k++) if (isRoad(i0 - 1, j0 + k) || isRoad(i0 + s, j0 + k) || isRoad(i0 + k, j0 - 1) || isRoad(i0 + k, j0 + s)) return true; return false; };
   const canPlop = (t: string, hi: number, hj: number) => { const f = svcFoot(t, hi, hj); return f.tiles.every(([i, j]) => tileFree(i, j)) && touchesRoad(f.i0, f.j0, f.s); };
   const plop = (t: string, hi: number, hj: number) => {
-    if (!canPlop(t, hi, hj)) return false; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s };
-    civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; sim.spent += SERV[t].cost; redraw(); census(); updateStats(); return true;
+    if (!canPlop(t, hi, hj)) return false; if (!spend(SERV[t].cost)) return false; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s };
+    civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; redraw(); census(); updateStats(); return true;
   };
   const removeCiv = (c: Civ) => { civs.splice(civs.indexOf(c), 1); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = null; };
   const valid = (i: number, j: number) => {
@@ -208,13 +210,23 @@ function diamond(g: Graphics, i: number, j: number) {
     preview.clear();
     if (tool.startsWith('svc:')) { if (drag) { const t = tool.slice(4), ok = canPlop(t, drag.ci, drag.cj); for (const [i, j] of svcFoot(t, drag.ci, drag.cj).tiles) if (inb(i, j)) { diamond(preview, i, j); preview.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.5 }); } } return; }
     const col = tool === 'road' ? 0x9aa0a6 : tool === 'bulldoze' ? 0xff8800 : ({R:0x3ecf4a,C:0x3b8cff,I:0xf2c230} as any)[tool];
+    let c = 0; for (const [i, j] of dragTiles()) if (valid(i, j)) c += tool === 'road' ? (road[i][j] ? 0 : COST.road) : tool === 'bulldoze' ? COST.bulldoze : (zone[i][j] !== tool ? COST.zone : 0);
+    hud.textContent = `Cost: $${c.toLocaleString()}` + (c > sim.funds ? ' (not enough funds)' : '');
     for (const [i, j] of dragTiles()) { diamond(preview, i, j); preview.fill({ color: valid(i, j) ? col : 0xff2020, alpha: 0.55 }); }
   };
   const commit = () => {
     if (tool.startsWith('svc:')) { if (drag) plop(tool.slice(4), drag.ci, drag.cj); drag = null; preview.clear(); return; }
-    for (const [i, j] of dragTiles()) { if (!valid(i, j)) continue;
+    const tiles = dragTiles().filter(([i, j]) => valid(i, j)), seen = new Set<Civ>();
+    let cost = 0;
+    for (const [i, j] of tiles) {
+      if (tool === 'road') { if (!road[i][j]) cost += COST.road; }
+      else if (tool === 'bulldoze') { const c = civAt[i][j]; if (c) { if (!seen.has(c)) { seen.add(c); cost += COST.bulldozeCivic; } } else cost += COST.bulldoze; }
+      else if (zone[i][j] !== tool) cost += COST.zone;
+    }
+    if (!spend(cost)) { drag = null; preview.clear(); return; }
+    for (const [i, j] of tiles) {
       if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
-      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
+      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
       else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; } zone[i][j] = tool; } }
     drag = null; preview.clear(); redraw(); census(); updateStats();
   };
@@ -253,7 +265,39 @@ function diamond(g: Graphics, i: number, j: number) {
   const ZNAME: Record<string, string> = { R: 'Residential', C: 'Commercial', I: 'Industrial' };
   const DNAME = ['', 'Low density', 'Medium density', 'High density'];
   const CAP: Record<string, number[]> = { R: [0, 12, 45, 140], C: [0, 6, 22, 70], I: [0, 10, 32, 90] };
-  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0 };
+  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0 };
+  // ---- budget ----
+  const tax: Record<string, number> = { R: 9, C: 9, I: 9 };
+  const COST = { road: 10, zone: 5, bulldoze: 2, bulldozeCivic: 50 };
+  const LOAN = 10000, LOAN_RATE = 0.01; // 1% per month
+  type Report = { income: Record<string, number>; expense: Record<string, number>; net: number };
+  let lastMonth: Report | null = null;
+  const toastEl = document.getElementById('toast')!; let toastT = 0;
+  const toast = (msg: string) => { toastEl.textContent = msg; toastEl.style.opacity = '1'; clearTimeout(toastT); toastT = window.setTimeout(() => toastEl.style.opacity = '0', 2600); };
+  const spend = (cost: number) => { // returns false (and explains) if the city can't afford it
+    if (cost <= 0) return true;
+    if (sim.funds < cost) { toast(`Not enough funds: this costs $${cost.toLocaleString()}, you have $${Math.floor(sim.funds).toLocaleString()}` + (sim.loan ? '' : ' (a loan is available in the Budget panel, B)')); return false; }
+    sim.funds -= cost; sim.spent += cost; return true;
+  };
+  const projection = (): Report => {
+    let roads = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) roads++;
+    const income: Record<string, number> = {
+      'Residential tax': Math.round(tax.R / 100 * sim.pop * 10),
+      'Commercial tax': Math.round(tax.C / 100 * sim.jobsC * 12),
+      'Industrial tax': Math.round(tax.I / 100 * sim.jobsI * 12) };
+    const expense: Record<string, number> = { 'Road upkeep': roads * 1 };
+    for (const c of civs) { const k = SERV[c.type].name; expense[k] = (expense[k] ?? 0) + Math.round(UPKEEP[c.type] * funding[c.type]); }
+    extraExpenses(expense);
+    if (sim.loan) expense['Loan interest'] = Math.round(sim.loan * LOAN_RATE);
+    const net = Object.values(income).reduce((a, b) => a + b, 0) - Object.values(expense).reduce((a, b) => a + b, 0);
+    return { income, expense, net };
+  };
+  let extraExpenses = (_e: Record<string, number>) => {}; // utilities hook in here
+  const monthly = () => {
+    lastMonth = projection(); sim.funds += lastMonth.net;
+    if (sim.funds < 0) toast(`⚠ The city is in debt ($${Math.floor(sim.funds).toLocaleString()}). Raise taxes, cut funding, or take a loan.`);
+    renderBudget();
+  };
   let downAt: { x: number; y: number } | null = null;
   const clamp = (v: number) => Math.max(-1, Math.min(1, v));
   const poll: number[][] = [...Array(N)].map(() => Array(N).fill(0));
@@ -275,9 +319,11 @@ function diamond(g: Graphics, i: number, j: number) {
     sim.dR = clamp((jobs * 1.6 + 60 - sim.pop) / Math.max(60, sim.pop * 0.4));      // people come for jobs
     sim.dC = clamp((sim.pop * 0.35 + 10 - sim.jobsC) / Math.max(15, sim.pop * 0.12));  // shops follow residents
     sim.dI = clamp((60 + sim.day * 0.4 + workers * 0.6 - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); // outside demand + workforce
+    // taxes: each point below the 9% default boosts that zone's demand, each point above lowers it
+    sim.dR = clamp(sim.dR + (9 - tax.R) * 0.05); sim.dC = clamp(sim.dC + (9 - tax.C) * 0.05); sim.dI = clamp(sim.dI + (9 - tax.I) * 0.05);
   };
   const tick = () => {
-    lastTick = performance.now(); sim.day++; let changed = false;
+    lastTick = performance.now(); sim.day++; if (sim.day % 30 === 0) monthly(); let changed = false;
     const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
       const z = zone[i][j]; if (!z) continue;
@@ -307,7 +353,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
   const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
   const updateStats = () => {
-    stats.querySelector('#nums')!.innerHTML = `<span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it">Spent <b>$${sim.spent.toLocaleString()}</b></span>`;
+    stats.querySelector('#nums')!.innerHTML = `<span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it${sim.funds < 0 ? ' neg' : ''}" title="Funds${sim.loan ? ' (loan $' + sim.loan.toLocaleString() + ')' : ''}">${sim.funds < 0 ? '⚠ ' : ''}Funds <b>$${Math.floor(sim.funds).toLocaleString()}</b></span>`;
+    if (document.getElementById('budget')!.style.display === 'block') renderBudget();
     stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
   };
   let timer = 0;
@@ -364,6 +411,32 @@ function diamond(g: Graphics, i: number, j: number) {
   window.addEventListener('pointerdown', firstGesture); window.addEventListener('keydown', firstGesture);
   syncMusic();
   (window as any).__jazz = jazz; (window as any).__amb = amb;
+  // ---- Budget panel (button + B) ----
+  Object.assign((window as any).__city, { tax, funding, monthly, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
+  const budgetEl = document.getElementById('budget')!;
+  const money = (v: number) => (v < 0 ? '−$' : '$') + Math.abs(Math.round(v)).toLocaleString();
+  const renderBudget = () => {
+    const p = projection(), lm = lastMonth;
+    const rows = (o: Record<string, number>, sign: string) => Object.entries(o).map(([k, v]) => `<tr><td>${k}</td><td>${sign}${money(v)}</td></tr>`).join('');
+    const types = [...new Set(civs.map(c => c.type))];
+    budgetEl.innerHTML = `<div class="bh"><b>Budget</b><button id="bClose">✕</button></div>
+      <div>Funds <b>${money(sim.funds)}</b>${sim.loan ? ` · Loan ${money(sim.loan)} (1%/month)` : ''}${sim.funds < 0 ? ' <span class="neg">⚠ in debt</span>' : ''}</div>
+      <div>Last month's net: <b class="${lm && lm.net < 0 ? 'neg' : 'pos'}">${lm ? money(lm.net) : '—'}</b> · Next month (projected): <b class="${p.net < 0 ? 'neg' : 'pos'}">${money(p.net)}</b></div>
+      <h4>Taxes</h4>${(['R', 'C', 'I'] as const).map(z => `<label class="sl">${ZNAME[z]} <input type="range" min="0" max="20" step="1" value="${tax[z]}" data-tax="${z}"> <b>${tax[z]}%</b></label>`).join('')}
+      <h4>Next month</h4><table>${rows(p.income, '+')}${rows(p.expense, '−')}<tr class="tot"><td>Net</td><td>${money(p.net)}</td></tr></table>
+      ${types.length ? `<h4>Service funding</h4>${types.map(t => `<label class="sl">${SERV[t].name} <input type="range" min="0" max="100" step="10" value="${Math.round(funding[t] * 100)}" data-fund="${t}"> <b>${Math.round(funding[t] * 100)}%</b></label>`).join('')}` : ''}
+      <h4>Loan</h4>${sim.loan ? `<button id="bRepay">Repay ${money(sim.loan)}</button>` : `<button id="bLoan">Take a ${money(LOAN)} loan (1% interest per month)</button>`}`;
+    budgetEl.querySelector('#bClose')!.addEventListener('click', () => budgetEl.style.display = 'none');
+    budgetEl.querySelectorAll<HTMLInputElement>('input[data-tax]').forEach(el => el.onchange = () => { tax[el.dataset.tax!] = el.valueAsNumber; census(); updateStats(); renderBudget(); });
+    budgetEl.querySelectorAll<HTMLInputElement>('input[data-tax]').forEach(el => el.oninput = () => { el.nextElementSibling!.textContent = el.value + '%'; });
+    budgetEl.querySelectorAll<HTMLInputElement>('input[data-fund]').forEach(el => { el.oninput = () => { el.nextElementSibling!.textContent = el.value + '%'; }; el.onchange = () => { funding[el.dataset.fund!] = el.valueAsNumber / 100; computeCoverage(); census(); updateStats(); renderBudget(); }; });
+    budgetEl.querySelector('#bLoan')?.addEventListener('click', () => { sim.loan = LOAN; sim.funds += LOAN; updateStats(); renderBudget(); });
+    budgetEl.querySelector('#bRepay')?.addEventListener('click', () => { if (sim.funds < sim.loan) { toast('Not enough funds to repay the loan yet'); return; } sim.funds -= sim.loan; sim.loan = 0; updateStats(); renderBudget(); });
+  };
+  budgetEl.addEventListener('pointerdown', e => e.stopPropagation());
+  const toggleBudget = () => { budgetEl.style.display = budgetEl.style.display === 'block' ? 'none' : 'block'; if (budgetEl.style.display === 'block') renderBudget(); };
+  document.getElementById('budgetBtn')!.onclick = e => { e.stopPropagation(); toggleBudget(); };
+  window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'b' && !(e.target instanceof HTMLInputElement)) toggleBudget(); });
   // info panel
   const info = document.getElementById('info')!;
   const inspect = ({ i, j }: { i: number; j: number }) => {

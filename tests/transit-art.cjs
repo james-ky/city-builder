@@ -12,7 +12,7 @@ await p.evaluate(([ci,cj])=>{const C=__city,N=C.N();const R=(i,j)=>{C.road[i][j]
  C.refresh();C.markTripsDirty();C.fastForward(1);C.centerOn(ci,cj);C.setZoom(1.6);},c);
 // 1. no random buses or semis
 const man=await p.evaluate(()=>fetch('./assets/manifest.json').then(r=>r.json()).then(m=>({rev:m.artRevision,n:m.assets.filter(a=>/bus_depot|bus_stop/.test(a.name)).length})));
-ok('manifest is v3-soft3d-k with depot + stop art',man.rev==='v3-soft3d-k'&&man.n===18,JSON.stringify(man));
+ok('manifest is v3-soft3d-k or later with depot + stop art',man.rev>='v3-soft3d-k'&&man.n===18,JSON.stringify(man));
 await p.evaluate(([ci,cj])=>{const C=__city;C.setCarsOnly(true);for(const [i,j] of [[ci,cj-10],[ci,cj-3],[ci,cj+4],[ci,cj+10]])C.toggleStop(i,j);C.paint('svc:busdepot',ci+1,cj-8,ci+1,cj-8);C.setTool('select');C.markTripsDirty();C.fastForward(1);__fx.setDay(36)},c);
 const face=await p.evaluate(()=>{const d=__city.civs.find(c=>c.type==='busdepot');return d?['','NE','SE','SW','NW'][__city.civFace(d)]:null});
 ok('depot faces the road it touches (main street on its NW side)',face==='NW',String(face));

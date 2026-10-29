@@ -7,7 +7,8 @@ const keyed = new Map<string, string>();     // lookup key (road_3, shore_16) ->
 const weights = new Map<string, number>(); // variant name -> pick weight (default 1)
 const variants = new Map<string, string[]>(); // grass -> [grass_a, grass_b, ...]
 const aliasOf = new Map<string, string>();   // bld_R_1 -> bld_R_1_a
-const nights = new Map<string, string>();     // building asset -> its night-lights overlay (bld_R_1_a -> bld_R_1_a_night)
+const nights = new Map<string, string>();
+const meta = new Map<string, any>();           // asset name -> its manifest entry (vehicle body fields etc.)     // building asset -> its night-lights overlay (bld_R_1_a -> bld_R_1_a_night)
 /** Game keys that map onto differently-named art. Add entries here as new art arrives. */
 const ALIAS: Record<string, string> = { grid: 'grid_overlay', civic_school: 'school_elem', civic_highschool: 'school_high', civic_police: 'police', civic_fire: 'fire_station', civic_clinic: 'clinic', civic_hospital: 'hospital' };
 
@@ -23,6 +24,7 @@ export async function loadManifest() {
       const want = (a.size?.[0] ?? tex.source.pixelWidth) * (a.scale ?? defScale);
       art.set(a.name, { tex, anchor: a.anchor ?? [0.5, 0.5], scale: want / tex.width });
     } catch { console.warn('missing art', a.file); return; }
+    meta.set(a.name, a);
     if (a.aliasOf) aliasOf.set(a.name, a.aliasOf);
     if (a.nightOf || a.name.endsWith('_night')) { nights.set(a.nightOf ?? a.name.slice(0, -6), a.name); return; }
     // explicit variantOf, or implicit <base>_<letter> naming for buildings
@@ -56,6 +58,8 @@ export function placeNight(key: string, x: number, y: number, layer: Container, 
 }
 /** the variant `place` would pick for this tile, turned to face `dir` (NE/SE/SW/NW); unsuffixed art when that facing is missing */
 export function facingName(key: string, seed: number, dir: string): string { const n = resolveName(key, seed); if (!n) return key; const f = `${n}_${dir}`; return art.has(f) ? f : n; }
+/** raw manifest entry for an asset (undefined if none) */
+export const artMeta = (name: string) => meta.get(name);
 export const hasArt = (key: string) => !!resolve(key, 0);
 export const artTex = (name: string) => art.get(name)?.tex;
 

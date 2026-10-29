@@ -557,7 +557,7 @@ function diamond(g: Graphics, i: number, j: number) {
   // ---- "alive" effects (all code-drawn; toggled in the gear menu) ----
   const FX = ['clouds', 'smoke', 'pollution', 'cars', 'daynight', 'nature'] as const;
   const FXNAME: Record<string, string> = { clouds: 'Cloud shadows', smoke: 'Factory smoke', pollution: 'Pollution overlay', cars: 'Traffic', daynight: 'Day / night', nature: 'Birds & swaying trees' };
-  const fx: Record<string, boolean> = { clouds: true, smoke: true, pollution: false, cars: true, daynight: true, nature: true, ...JSON.parse(localStorage.getItem('fx') ?? '{}') };
+  const fx: Record<string, boolean> = { clouds: true, smoke: true, pollution: false, cars: true, daynight: true, nature: true, ...(() => { try { const o = JSON.parse(localStorage.getItem('fx') ?? '{}'); return o && typeof o === 'object' ? Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'boolean')) : {}; } catch { return {}; } })() };
   let lastTick = performance.now();
   const covL = new Container(); world.addChildAt(covL, world.getChildIndex(gridL));
   let covView = '';
@@ -765,15 +765,19 @@ function diamond(g: Graphics, i: number, j: number) {
   menu.addEventListener('pointerdown', e => e.stopPropagation());
   document.getElementById('fxList')!.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
   menu.querySelectorAll<HTMLInputElement>('#fxList input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
+  { const rb = document.createElement('button'); rb.textContent = '↺ Reset view & settings'; rb.style.marginTop = '6px';
+    rb.onclick = () => { for (const k of ['fx', 'grid', 'zones', 'music', 'ambience', 'volume', 'ambVolume', 'autosave']) localStorage.removeItem(k); location.reload(); }; menu.appendChild(rb); }
+  if (new URLSearchParams(location.search).has('debug')) { const d = document.createElement('div'); d.style.cssText = 'position:fixed;left:10px;bottom:120px;z-index:20;background:#000c;color:#9f9;font:11px monospace;padding:6px;white-space:pre;pointer-events:none'; document.body.appendChild(d);
+    setInterval(() => { d.textContent = `renderer ${app.renderer.name} ${app.canvas.width}x${app.canvas.height} dpr ${devicePixelRatio}\ncam ${camX.toFixed(0)},${camY.toFixed(0)} zoom ${zoom.toFixed(3)} far ${far}\nworld vis ${world.visible} a ${world.alpha}\n` + world.children.map((c, k) => `${k} vis ${c.visible} a ${c.alpha.toFixed(2)} n ${c.children.length}`).join('\n'); }, 500); }
   document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
   setFxVisibility();
   let clock = 0, windF = -1, chunkErr = false;
   let night = 0;
-  const applyNight = (n: number) => { // objects are tinted to match the shading (per visible chunk, lazily); lights fade in additively
+  function applyNight(n: number) { // function declaration: hoisted, because setFxVisibility can call it during init (day/night off) // objects are tinted to match the shading (per visible chunk, lazily); lights fade in additively
     if (Math.abs(n - lastNightTint) < 0.01) return; lastNightTint = n;
     const r = Math.round(255 * (1 - 0.48 * n)), g = Math.round(255 * (1 - 0.46 * n)), b = Math.round(255 * (1 - 0.36 * n)); curTint = (r << 16) | (g << 8) | b;
     smokeL.alpha = 1 - 0.5 * n;
-  };
+  }
   const syncChunkNight = () => { for (const ch of chunks) if (ch.vis) {
     if (ch.tint !== curTint) { ch.tint = curTint; for (const c of ch.ob.children) if (!(c as any).__light) (c as Sprite).tint = curTint; }
     if (ch.la !== lastNightTint) { ch.la = lastNightTint; for (const l of ch.lights) { l.alpha = Math.max(0, lastNightTint); l.visible = l.alpha > 0.02; } } } };

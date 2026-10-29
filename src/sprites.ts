@@ -44,10 +44,10 @@ function resolveName(key: string, seed: number): string | undefined {
 }
 const resolve = (key: string, seed: number) => { const n = resolveName(key, seed); return n ? art.get(n) : undefined; };
 /** Night-lights overlay for the same variant `place` would pick; additive blend. Nothing if no art exists. */
-export function placeNight(key: string, x: number, y: number, layer: Container, seed = 0) {
+export function placeNight(key: string, x: number, y: number, layer: Container, seed = 0): Sprite | undefined {
   const n = resolveName(key, seed), night = n && (nights.get(n) ?? nights.get(aliasOf.get(n) ?? ''));
-  const a = night ? art.get(night) : undefined; if (!a) return;
-  const s = new Sprite(a.tex); s.anchor.set(a.anchor[0], a.anchor[1]); s.scale.set(a.scale); s.position.set(x, y); s.blendMode = 'add'; layer.addChild(s);
+  const a = night ? art.get(night) : undefined; if (!a) return undefined;
+  const s = new Sprite(a.tex); s.anchor.set(a.anchor[0], a.anchor[1]); s.scale.set(a.scale); s.position.set(x, y); s.blendMode = 'add'; layer.addChild(s); return s;
 }
 export const hasArt = (key: string) => !!resolve(key, 0);
 

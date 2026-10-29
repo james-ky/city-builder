@@ -48,8 +48,11 @@ function diamond(g: Graphics, i: number, j: number) {
 
   await loadManifest();
   const groundL = new Container(), roadL = new Container(), zoneL = new Container(), gridL = new Container(), objL = new Container();
-  const pollL = new Container(), carL = new Container(), cloudL = new Container(), nightG = new Graphics(), lightsL = new Container(), skyL = new Container(), smokeL = new Container();
-  world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, objL, smokeL, cloudL, nightG, lightsL, skyL);
+  const pollL = new Container(), carL = new Container(), cloudL = new Container(), nightG = new Graphics(), skyL = new Container(), smokeL = new Container();
+  // night shading darkens ground layers; objects (objL) are darkened by tint so each building's night-lights
+  // overlay can sit right after it in the same depth-sorted container (correct occlusion).
+  world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, nightG, objL, smokeL, cloudL, skyL);
+  const lights: Sprite[] = []; let lastNightTint = -1;
   const trees: { s: { skew: { x: number } }; ph: number }[] = [];
   const blds: { x: number; y: number; z: string; L: number; seed: number }[] = [];
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
@@ -102,7 +105,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
   const redraw = () => {
-    clear(roadL); clear(zoneL); clear(objL); clear(lightsL); trees.length = 0; blds.length = 0;
+    clear(roadL); clear(zoneL); clear(objL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
     computeNear();
     for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
       const { x, y } = toScreen(i, j), seed = seedOf(i, j);
@@ -112,7 +115,7 @@ function diamond(g: Graphics, i: number, j: number) {
       } else if (zone[i][j]) {
         if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
         if (consT[i][j]) place(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, objL, seed);
-        else if (bld[i][j]) { place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); placeNight(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, lightsL, seed); blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
+        else if (bld[i][j]) { place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); { const l = placeNight(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); if (l) { l.alpha = 0; lights.push(l); } } blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
       } else if (terrain[i][j] === 'forest') trees.push({ s: place('forest', x, y, objL, seed), ph: (seed % 628) / 100 });
     }
   };
@@ -349,7 +352,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const birds = [...Array(4)].map(() => { const g = new Graphics().moveTo(-4, -1).lineTo(0, 1).lineTo(4, -1).stroke({ width: 1.2, color: 0x222222 }); skyL.addChild(g); return g; });
     return { cx: c.x, cy: c.y - 40, r: 40 + k * 15, ph: k * 1.7, birds };
   });
-  const setFxVisibility = () => { cloudL.visible = fx.clouds; carL.visible = fx.cars; skyL.visible = fx.nature; smokeL.visible = fx.smoke; if (!fx.daynight) { nightG.clear(); lightsL.alpha = 0; app.renderer.background.color = 0x1b2430; } drawPollution(); };
+  const setFxVisibility = () => { cloudL.visible = fx.clouds; carL.visible = fx.cars; skyL.visible = fx.nature; smokeL.visible = fx.smoke; if (!fx.daynight) { nightG.clear(); applyNight(0); app.renderer.background.color = 0x1b2430; } drawPollution(); };
   const menu = document.getElementById('fxMenu')!;
   menu.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
   menu.querySelectorAll('input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
@@ -357,6 +360,14 @@ function diamond(g: Graphics, i: number, j: number) {
   setFxVisibility();
   let clock = 0;
   let night = 0;
+  const applyNight = (n: number) => { // tint objects to match the shading; lights fade in additively
+    if (Math.abs(n - lastNightTint) < 0.01) return; lastNightTint = n;
+    const r = Math.round(255 * (1 - 0.48 * n)), g = Math.round(255 * (1 - 0.46 * n)), b = Math.round(255 * (1 - 0.36 * n)), tint = (r << 16) | (g << 8) | b;
+    const isLight = new Set<unknown>(lights);
+    for (const c of objL.children) if (!isLight.has(c)) (c as Sprite).tint = tint;
+    for (const l of lights) l.alpha = n;
+    smokeL.alpha = 1 - 0.5 * n;
+  };
   app.ticker.add(t => {
     const dt = t.deltaMS / 1000; clock += dt;
     // day/night: one full cycle every 24 game-days, smoothed between ticks
@@ -366,7 +377,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const tod = document.getElementById('tod'); if (tod) tod.textContent = (night > 0.5 ? '🌙 ' : '☀️ ') + String(Math.floor(hour)).padStart(2, '0') + ':00';
     if (fx.daynight) {
       nightG.clear().rect(W0 - 2000, -2000, W1 - W0 + 4000, H1 + 4000).fill({ color: 0x0a1030, alpha: night * 0.5 });
-      lightsL.alpha = night; // per-building night overlays (art), additive
+      applyNight(night);
       app.renderer.background.color = night > 0.5 ? 0x0d1220 : 0x1b2430;
     }
     if (fx.clouds) for (const c of clouds) { c.x += 12 * dt; c.y += 3 * dt; if (c.x > W1 + 300) { c.x = W0 - 300; c.y = Math.random() * H1; } }

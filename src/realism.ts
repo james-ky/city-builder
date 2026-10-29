@@ -110,3 +110,30 @@ export const ROAD_WIDTHS = [
 ];
 export const roadBuild = (t: RoadTier, w: number) => Math.round(ROAD_TIERS[t].build * ROAD_WIDTHS[w].buildMul);
 export const roadUpkeep = (t: RoadTier, w: number) => ROAD_TIERS[t].upkeep * ROAD_WIDTHS[w].upkeepMul;
+
+// =====================================================================================
+// TRIPS — who travels where and when (agent-based traffic).
+//   - US BLS: employment-population ratio ≈ 60 % of adults → ≈ 0.48 workers per resident (matches 2.1 residents/job).
+//   - US Census: ≈ 18 % of residents are school-age (5–17).
+//   - NHTS 2017: ≈ 85 % of commutes are by car (≈ 76 % drive alone, 9 % carpool); ~1.1 people per car;
+//     school trips ≈ 45 % by private car (rest bus/walk); ≈ 1 shopping/errand trip per person per day,
+//     ~85 % by car. Trips under ~400 m (≈ 4 tiles) are mostly walked.
+//   - Traffic engineering: a 2-lane local street carries ~8,000–12,000 vehicles/day before it jams;
+//     BPR curve travel time = free-flow × (1 + 0.15 (volume/capacity)^4).
+//   - Free-flow speeds: dirt ~30 km/h, asphalt ~45 km/h, concrete ~50 km/h on city streets.
+// =====================================================================================
+export const TRIPS = {
+  workersPerResident: 0.48,
+  kidsPerResident: 0.18,
+  carShare: { work: 0.85, school: 0.45, errand: 0.85 } as Record<string, number>,
+  peoplePerCar: 1.1,
+  errandsPerPersonPerDay: 1.0,
+  walkTiles: 4,                     // trips this short (≈ 400 m) are walked
+  dailyCapacityPerLane: 5000,       // vehicles/day per lane before the BPR curve bites (≈ 10k per 2-lane road)
+  speedKmh: { 1: 30, 2: 45, 3: 50 } as Record<number, number>,
+  tileMeters: 20,
+  schoolSeats: { school: 500, highschool: 1500 } as Record<string, number>,
+  // share of each trip type leaving in each hour (0–23); return trips mirror these
+  out: { work: { 6: 0.25, 7: 0.45, 8: 0.25, 9: 0.05 }, school: { 7: 0.7, 8: 0.3 }, errand: { 10: 0.12, 11: 0.12, 12: 0.18, 13: 0.12, 14: 0.08, 15: 0.08, 17: 0.1, 18: 0.1, 19: 0.06, 21: 0.03, 22: 0.01 } } as Record<string, Record<number, number>>,
+  back: { work: { 16: 0.2, 17: 0.45, 18: 0.3, 19: 0.05 }, school: { 15: 0.8, 16: 0.2 }, errand: { 11: 0.1, 12: 0.12, 13: 0.18, 14: 0.12, 15: 0.1, 16: 0.08, 18: 0.1, 19: 0.1, 20: 0.06, 22: 0.03, 23: 0.01 } } as Record<string, Record<number, number>>,
+};

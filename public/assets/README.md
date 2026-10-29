@@ -43,3 +43,6 @@ UI icons (same size as the other ui/icons):
 
 ## Vehicles
 `vehicles/veh_<type>_<variant>_<NE|SE|SW|NW>` with matching `_night` overlays (additive). Size and anchor come from the manifest. Vehicles drive in right-hand lanes (offsets in game px: NE +4.8,+2.4 · SE −4.8,+2.4 · SW −4.8,−2.4 · NW +4.8,−2.4) and depth-sort with buildings by screen y. Types are weighted by the area: semis and delivery trucks near industry and commerce, taxis downtown, and an occasional bus.
+
+## Suburban lots (low-density residential)
+`buildings/lots/r1_lot_1x<D>_<NE|SE|SW|NW>_<a|b|c>` (+ `_night`). dir = the road side. NE/SW road: w_i=1, d_j=D; SE/NW road: w_i=D, d_j=1. Drawn at toScreen(i0,j0) + ((w_i−d_j)·16, (w_i+d_j−2)·8) game px; depth = max i + max j (ties by max i). A lot is claimed when a road-side R tile starts growing: facing from the adjacent road, depth 1–3 weighted by the free zoned tiles behind it (seeded). Growing to medium or high density turns the lot into square buildings; bulldozing any tile removes the whole lot. Saves (format v2) store each lot's origin, footprint and facing.

@@ -65,6 +65,13 @@ function diamond(g: Graphics, i: number, j: number) {
   const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
   const consT: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // construction target level (0 = none)
   const consD: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // days under construction
+  // ---- suburban lots: low-density houses on 1 tile of frontage x 1-3 tiles deep, facing their road ----
+  type Lot = { i0: number; j0: number; wi: number; dj: number; dir: 'NE' | 'SE' | 'SW' | 'NW'; v: string };
+  const lot: (Lot | null)[][] = [...Array(N)].map(() => Array(N).fill(null));
+  const lots = new Set<Lot>();
+  const lotTiles = (l: Lot) => { const t: [number, number][] = []; for (let a = 0; a < l.wi; a++) for (let b = 0; b < l.dj; b++) t.push([l.i0 + a, l.j0 + b]); return t; };
+  const lotReady = (l: Lot) => lotTiles(l).every(([i, j]) => bld[i][j] >= 1 && !consT[i][j]);
+  const lotKey = (l: Lot) => `r1_lot_1x${Math.max(l.wi, l.dj)}_${l.dir}_${l.v}`;
   const CONS_DAYS = 2; // days per construction stage (3 stages)
   const isTall = (z: string, L: number) => L === 3 && (z === 'R' || z === 'C');
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
@@ -239,6 +246,9 @@ function diamond(g: Graphics, i: number, j: number) {
       } else if (zone[i][j]) {
         if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, ch.zn, seed);
         if (consT[i][j]) P(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, seed, y);
+        else if (lot[i][j] && lotReady(lot[i][j]!)) { const l = lot[i][j]!; // one sprite for the lot, drawn at its front-most (max i, max j) tile
+          if (i === l.i0 + l.wi - 1 && j === l.j0 + l.dj - 1) { const o = toScreen(l.i0, l.j0), lx = o.x + (l.wi - l.dj) * 16, ly = o.y + (l.wi + l.dj - 2) * 8, k = lotKey(l);
+            P(k, lx, ly, seed, y + i * 0.001); PN(k, lx, ly, seed, y + i * 0.001); ch.blds.push({ x, y, z: 'R', L: 1, seed }); } }
         else if (bld[i][j]) { const k = `bld_${zone[i][j]}_${bld[i][j]}`; P(k, x, y, seed, y); PN(k, x, y, seed, y); ch.blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
       }
       if (road[i][j] && pline[i][j]) { const pl = (a: number, b: number) => inb(a, b) && pline[a][b]; P('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, seed, y); }
@@ -249,7 +259,7 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const STATUS_H = [0, 34, 52, 86]; // bubble sits a few px above each density's roof
   const drawChunkIcons = (ch: Chunk) => { clear(ch.ic); ch.iconDirty = false; const g = new Graphics(); ch.ic.addChild(g); const art = hasArt('status_no_power');
-    chunkTiles(ch, (i, j) => { if (!(zone[i][j] && bld[i][j] && (!powered[i][j] || !watered[i][j]))) return;
+    chunkTiles(ch, (i, j) => { if (!(zone[i][j] && bld[i][j] && (!powered[i][j] || !watered[i][j]))) return; const lt = lot[i][j]; if (lt && (i !== lt.i0 + lt.wi - 1 || j !== lt.j0 + lt.dj - 1)) return;
       if (art) { const { x, y } = toScreen(i, j), yy = y - STATUS_H[bld[i][j]], two = !powered[i][j] && !watered[i][j];
         if (!powered[i][j]) place('status_no_power', x - (two ? 7 : 0), yy, ch.ic); if (!watered[i][j]) place('status_no_water', x + (two ? 7 : 0), yy, ch.ic); return; }
       const { x, y } = toScreen(i, j), yy = y - 26 - bld[i][j] * 6; let xx = x - (!powered[i][j] && !watered[i][j] ? 6 : 0);
@@ -290,6 +300,20 @@ function diamond(g: Graphics, i: number, j: number) {
     }
   };
   let zlist: number[] = [];
+  const addLot = (l: Lot) => { lots.add(l); for (const [i, j] of lotTiles(l)) lot[i][j] = l; markDirty(l.i0, l.j0, l.i0 + l.wi - 1, l.j0 + l.dj - 1); };
+  /** dissolve: tiles stay as square buildings; clear: the whole lot is bulldozed */
+  const removeLot = (l: Lot, clearAll = false) => { lots.delete(l); for (const [i, j] of lotTiles(l)) { lot[i][j] = null; if (clearAll) { zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; } } markDirty(l.i0, l.j0, l.i0 + l.wi - 1, l.j0 + l.dj - 1); };
+  const LOTDIR: [Lot['dir'], number, number][] = [['NE', 0, -1], ['SE', 1, 0], ['SW', 0, 1], ['NW', -1, 0]]; // road side -> offset to the road tile
+  const tryMakeLot = (i: number, j: number) => { // (i,j) is the front tile; the lot extends away from the road
+    const opts = LOTDIR.filter(([, a, b]) => isRoad(i + a, j + b)); if (!opts.length) return null;
+    const sd = seedOf(i, j), [dir, a, b] = opts[sd % opts.length];
+    const free = (x: number, y: number) => inb(x, y) && zone[x][y] === 'R' && !bld[x][y] && !consT[x][y] && !lot[x][y] && !road[x][y] && !civAt[x][y];
+    let max = 1; while (max < 3 && free(i - a * max, j - b * max)) max++;
+    const w = [6, 5, 4].slice(0, max), r = ((sd >>> 8) % 1000) / 1000 * w.reduce((x, y) => x + y, 0); let D = 1, acc = 0; for (let k = 0; k < max; k++) { acc += w[k]; if (r < acc) { D = k + 1; break; } }
+    const back = [i - a * (D - 1), j - b * (D - 1)], i0 = Math.min(i, back[0]), j0 = Math.min(j, back[1]);
+    const l: Lot = { i0, j0, wi: a ? D : 1, dj: b ? D : 1, dir, v: 'abc'[(sd >>> 4) % 3] };
+    if (!hasArt(lotKey(l))) return null; addLot(l); return l;
+  };
   const rebuildZ = () => { zlist = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j]) zlist.push(i * N + j); };
   computeNear(); rebuildZ();
   const preview = new Graphics(), hl = new Graphics();
@@ -369,6 +393,8 @@ function diamond(g: Graphics, i: number, j: number) {
     }
     if (!spend(cost)) { drag = null; preview.clear(); return; }
     for (const [i, j] of tiles) {
+      if (lot[i][j] && (tool === 'bulldoze' && !underground)) { removeLot(lot[i][j]!, true); continue; }
+      if (lot[i][j] && (tool === 'road' || ['R', 'C', 'I'].includes(tool))) removeLot(lot[i][j]!);
       if (tool === 'pline') { pline[i][j] = true; continue; }
       if (tool === 'pipe') { pipe[i][j] = true; continue; }
       if (tool === 'bulldoze' && underground) { pipe[i][j] = false; continue; }
@@ -494,13 +520,17 @@ function diamond(g: Graphics, i: number, j: number) {
       const L = bld[i][j];
       const dem = d[z] - Math.min(0.3, crime[i][j] * 0.05) // crime lowers desirability everywhere
         + (z === 'R' ? -Math.min(0.4, poll[i][j] * 0.04) + 0.15 * cov.edu[i][j] + 0.15 * cov.health[i][j] : 0); // pollution vs schools & health care
-      if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; markDirty(i, j, i, j); } continue; } // lost road access
+      if (near[i][j] > 3) { if (L && Math.random() < 0.05) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); } continue; } // lost road access
       if (dem > 0 && L < 3) {
         const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
         const utilOk = L + 1 < 2 || (powered[i][j] && watered[i][j]); // no power or water: stays low density
         const eduOk = utilOk && !(z === 'R' && L + 1 === 3 && cov.edu[i][j] <= 0); // high-density housing needs a school nearby
-        if (eduOk && dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) { consT[i][j] = L + 1; consD[i][j] = 0; markDirty(i, j, i, j); }
-      } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) { bld[i][j]--; markDirty(i, j, i, j); }
+        if (eduOk && dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) {
+          if (lot[i][j] && L + 1 >= 2) removeLot(lot[i][j]!); // denser buildings replace the lot with square buildings
+          const nl = z === 'R' && L === 0 && !lot[i][j] ? tryMakeLot(i, j) : null;
+          if (nl) { for (const [a, b] of lotTiles(nl)) { consT[a][b] = 1; consD[a][b] = consD[i][j] = 0; } }
+          else { consT[i][j] = L + 1; consD[i][j] = 0; markDirty(i, j, i, j); } }
+      } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); }
     }
     census(false); updateStats();
     const dt = performance.now() - t0; perf.tick = perf.tick * 0.9 + dt * 0.1; perf.tickMax = Math.max(perf.tickMax, dt); perf.n++;
@@ -612,13 +642,14 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd) } };
+      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd) } };
   };
   const applySave = (o: any) => {
     const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD');
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       road[i][j] = !!(fl[k] & 1); pline[i][j] = !!(fl[k] & 2); pipe[i][j] = !!(fl[k] & 4); zone[i][j] = ZZ[zn[k]] ?? ''; bld[i][j] = bl[k]; consT[i][j] = ct[k]; consD[i][j] = cd[k]; civAt[i][j] = null; }
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
+    for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l });
     Object.assign(sim, o.sim); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
     if (o.cam) { camX = o.cam.x; camY = o.cam.y; zoom = clampZoom(o.cam.zoom); }
     computeNear(); rebuildZ(); markAll(); census(); updateStats(); setSpeed(o.sim.speed ?? 1);
@@ -656,7 +687,7 @@ function diamond(g: Graphics, i: number, j: number) {
   document.getElementById('saveBtn')!.onclick = e => { e.stopPropagation(); toggleSave(); };
   window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveTo(city.name, 'slot:' + city.name).then(() => toastOk(`Saved “${city.name}”`)); } });
   if (loaded) applySave(loaded);
-  Object.assign((window as any).__city, { serialize, applySave, saveTo, listSaves });
+  Object.assign((window as any).__city, { lots: () => [...lots], lotAt: (i: number, j: number) => lot[i][j], serialize, applySave, saveTo, listSaves });
   // info panel
   const info = document.getElementById('info')!;
   const inspect = ({ i, j }: { i: number; j: number }) => {
@@ -667,7 +698,8 @@ function diamond(g: Graphics, i: number, j: number) {
       info.innerHTML = S.util ? `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost} · Upkeep $${UPKEEP[c.type]}/month<br>Output: <b>${S.out}</b> ${S.kind === 'power' ? '⚡' : '💧'}<br>City ${S.kind === 'power' ? `power: ${util.pUse}/${util.pCap} (demand ${util.pWant})` : `water: ${util.wUse}/${util.wCap} (demand ${util.wWant})`}<br>` : `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost}<br>Coverage radius: ${S.radius} tiles<br>Residents covered: <b>${served}</b><br>Power ${powered[i][j] ? '✔' : '✘'} · Water ${watered[i][j] ? '✔' : '✘'}<br><small>Tile ${c.i}, ${c.j}</small>`; info.style.display = 'block'; return; }
     if (!inb(i, j) || !bld[i][j]) { info.style.display = 'none'; return; }
     const z = zone[i][j], v = z === 'R' ? resCap(i, j) : CAP[z][bld[i][j]];
-    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Power ${powered[i][j] ? '✔' : '✘ none'} · Water ${watered[i][j] ? '✔' : '✘ none'}${powered[i][j] && watered[i][j] ? '' : ' (stays low density)'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
+    const lt = lot[i][j];
+    info.innerHTML = `<b>${lt ? 'Suburban house' : ZNAME[z] + ' building'}</b><br>${lt ? `Lot 1×${Math.max(lt.wi, lt.dj)}, facing ${lt.dir} road` : `${DNAME[bld[i][j]]} (level ${bld[i][j]})`}<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Power ${powered[i][j] ? '✔' : '✘ none'} · Water ${watered[i][j] ? '✔' : '✘ none'}${powered[i][j] && watered[i][j] ? '' : ' (stays low density)'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
     info.style.display = 'block';
   };
 

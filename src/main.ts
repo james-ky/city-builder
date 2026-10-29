@@ -281,12 +281,12 @@ function diamond(g: Graphics, i: number, j: number) {
   const OVC = { water: rgba(0x3478bd), sand: rgba(0xdccb92), grass: rgba(0x5ea849), forest: rgba(0x2f6a2a), road: rgba(0x6b6f76), civ: rgba(0xe8e2d6), line: rgba(0xc9b26a),
     R: [rgba(0x7fd08a), rgba(0xd8b48a), rgba(0xc77f5e), rgba(0xa7b4c4)], C: [rgba(0x86b6f0), rgba(0x9fc3e8), rgba(0x6f9fd6), rgba(0x8fb0d0)], I: [rgba(0xe8d47a), rgba(0xb8b2a8), rgba(0x9a948c), rgba(0x86807a)] } as any;
   const overviewL = new Container(); world.addChildAt(overviewL, world.getChildIndex(groundL) + 1);
-  const overview = tileTex(overviewL); // always-on base layer: even if chunk sprites fail, the map still shows
+  const overview = tileTex(overviewL); overviewL.visible = false; // only for far zoom (or if detailed drawing fails); never under detailed tiles
   const paintOverview = () => { ovDirty = false; overview.paint((i, j) => civAt[i][j] ? OVC.civ : road[i][j] ? OVC.road : zone[i][j] ? OVC[zone[i][j]][bld[i][j]] : pline[i][j] ? OVC.line : OVC[terrain[i][j]]); };
   const FAR = 0.2; let far = false, lastOv = 0, visRoads: [number, number][] = [];
   const updateChunks = () => {
     const vx0 = -world.position.x / zoom, vy0 = -world.position.y / zoom, vx1 = vx0 + app.screen.width / zoom, vy1 = vy0 + app.screen.height / zoom, now = performance.now();
-    far = zoom < FAR;
+    far = zoom < FAR; overviewL.visible = far || chunkErr;
     if (ovDirty && (far || !lastOv || now - lastOv > 5000) && now - lastOv > 700) { lastOv = now; paintOverview(); }
     const t0 = now, showGrid = zoom > 0.3; visRoads = [];
     for (const ch of chunks) {
@@ -299,7 +299,7 @@ function diamond(g: Graphics, i: number, j: number) {
       ch.vis = v; ch.g.visible = ch.rd.visible = ch.zn.visible = ch.ob.visible = ch.pp.visible = ch.ic.visible = v; ch.gr.visible = v && showGrid;
     }
   };
-  let zlist: number[] = [];
+  let zlist: number[] = []; let overlayHook = () => {};
   const addLot = (l: Lot) => { lots.add(l); for (const [i, j] of lotTiles(l)) lot[i][j] = l; markDirty(l.i0, l.j0, l.i0 + l.wi - 1, l.j0 + l.dj - 1); };
   /** dissolve: tiles stay as square buildings; clear: the whole lot is bulldozed */
   const removeLot = (l: Lot, clearAll = false) => { lots.delete(l); for (const [i, j] of lotTiles(l)) { lot[i][j] = null; if (clearAll) { zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; } } markDirty(l.i0, l.j0, l.i0 + l.wi - 1, l.j0 + l.dj - 1); };
@@ -562,17 +562,24 @@ function diamond(g: Graphics, i: number, j: number) {
   const covL = new Container(); world.addChildAt(covL, world.getChildIndex(gridL));
   let covView = '';
   const COVCOL: Record<string, number> = { edu: 0xffd23f, police: 0x3b6cff, fire: 0xff5a36, health: 0x3fe0c5, crime: 0xb000ff, fireRisk: 0xff8800, power: 0xffd23f, water: 0x3d8fe0 };
-  const covTex = tileTex(covL), pollTex = tileTex(pollL);
+  const covG = new Graphics(), pollG = new Graphics(); covL.addChild(covG); pollL.addChild(pollG); let covDirty = true, pollDirty = true, ovKey = '';
+  let covFn: ((i: number, j: number) => [number, number] | null) | null = null;
+  const pollFn = (i: number, j: number): [number, number] | null => poll[i][j] > 0.3 ? [0x6b4a1e, Math.min(0.55, poll[i][j] * 0.07)] : null;
+  const paintOverlay = (g: Graphics, fn: (i: number, j: number) => [number, number] | null) => { g.clear();
+    for (const ch of chunks) if (ch.vis) chunkTiles(ch, (i, j) => { const v = fn(i, j); if (v) { diamond(g, i, j); g.fill({ color: v[0], alpha: v[1] }); } }); };
+  const bx = (g: Graphics) => { const r = g.getLocalBounds(); return { x: r.x, y: r.y, width: r.width, height: r.height }; };
+  Object.assign((window as any).__city, { align: () => ({ far, overview: overviewL.visible, cov: covG.visible ? bx(covG) : null, poll: pollG.visible ? bx(pollG) : null, grid: gridL.visible }) });
+  overlayHook = () => { let key = ''; for (let k = 0; k < chunks.length; k++) if (chunks[k].vis) key += k + ','; const moved = key !== ovKey;
+    if (covView && covFn && (covDirty || moved)) { covDirty = false; paintOverlay(covG, covFn); } if (fx.pollution && (pollDirty || moved)) { pollDirty = false; paintOverlay(pollG, pollFn); } ovKey = key; };
   const drawCoverage = () => {
-    covTex.sp.visible = !!covView; if (!covView) return;
+    covG.visible = !!covView; covDirty = true; if (!covView) return;
     const src: any = covView === 'power' ? powered.map(r => r.map(Number)) : covView === 'water' ? watered.map(r => r.map(Number)) : covView === 'crime' ? crime : covView === 'fireRisk' ? fireRisk : cov[covView as Kind], scale = covView === 'crime' ? 0.25 : covView === 'fireRisk' ? 0.25 : 1;
-    const col = COVCOL[covView]; covTex.paint((i, j) => { const v = Math.min(1, src[i][j] * scale); return v > 0.02 ? rgba(col, 0.12 + 0.45 * v) : 0; });
+    covFn = (i, j) => { const v = Math.min(1, src[i][j] * scale); return v > 0.02 ? [COVCOL[covView], 0.12 + 0.45 * v] : null; };
   };
   const setCovView = (v: string) => { covView = v; (document.getElementById('covSel') as HTMLSelectElement).value = v; drawCoverage(); };
   document.getElementById('covSel')!.onchange = e => setCovView((e.target as HTMLSelectElement).value);
   const drawPollution = () => {
-    pollTex.sp.visible = fx.pollution; if (!fx.pollution) return;
-    pollTex.paint((i, j) => poll[i][j] > 0.3 ? rgba(0x6b4a1e, Math.min(0.55, poll[i][j] * 0.07)) : 0);
+    pollG.visible = fx.pollution; pollDirty = true;
   };
   census(); updateStats(); setSpeed(1);
   // ---- music (real CC0 / CC-BY tracks, see CREDITS.md) + separate ambience ----
@@ -793,7 +800,7 @@ function diamond(g: Graphics, i: number, j: number) {
       applyNight(night);
       app.renderer.background.color = night > 0.5 ? 0x0d1220 : 0x1b2430;
     }
-    try { updateChunks(); syncChunkNight(); } catch (err) { if (!chunkErr) { chunkErr = true; console.error('map drawing failed', err); toast('Map drawing problem: ' + (err as Error).message + ' (showing the simple map)'); overviewL.visible = true; } }
+    try { updateChunks(); syncChunkNight(); overlayHook(); } catch (err) { if (!chunkErr) { chunkErr = true; console.error('map drawing failed', err); toast('Map drawing problem: ' + (err as Error).message + ' (showing the simple map)'); overviewL.visible = true; } }
     { const f = Math.floor(clock * 8); if (f !== windF) { windF = f; const fr = [0, 1, 2, 3].map(k => artTex('util_wind_f' + k)); if (fr[0]) for (const ch of chunks) if (ch.vis) for (const w of ch.winds) w.texture = fr[(f + (w as any).__ph) % 4]!; } } // turbines spin at 8 fps
     if (fx.clouds) for (const c of clouds) { c.x += 12 * dt; c.y += 3 * dt; if (c.x > W1 + 300) { c.x = W0 - 300; c.y = Math.random() * H1; } }
     if (fx.nature) {

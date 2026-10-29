@@ -78,6 +78,9 @@ function diamond(g: Graphics, i: number, j: number) {
   const avCases = new Map<string, number>(); // stopgap avenue shapes drawn as straight half + overlay
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
   const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
+  const zden: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // zone density cap: 1 light, 2 medium, 3 dense (0 = uncapped, legacy/test)
+  const zface: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 auto, 1 NE, 2 SE, 3 SW, 4 NW
+  let volRef: Float32Array | null = null; // trips.volume once the trip sim exists
   const consT: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // construction target level (0 = none)
   const consD: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // days under construction
   // ---- suburban lots: low-density houses on 1 tile of frontage x 1-3 tiles deep, facing their road ----
@@ -210,6 +213,20 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
+  const FACE: [string, number, number][] = [['Auto', 0, 0], ['NE', 0, -1], ['SE', 1, 0], ['SW', 0, 1], ['NW', -1, 0]]; // facing -> offset to the front road tile
+  const capOf = (i: number, j: number) => zden[i][j] || 3;
+  /** the road side a building on (i,j) faces: locked facing if that side has a road, else on Auto the busiest adjacent road (stable NE,SE,SW,NW tie-break); 0 = no road on the front */
+  const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isRoad(a, b)) continue; const v = volRef ? volRef[a * N + b] : 0; if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
+  const faceFor = (i: number, j: number, want: number) => want ? (isRoad(i + FACE[want][1], j + FACE[want][2]) ? want : 0) : autoFace(i, j);
+  const facingOf = (i: number, j: number) => faceFor(i, j, zface[i][j]);
+  /** every building needs its own road: a lot counts if its front edge touches a road on its facing side */
+  const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isRoad(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
+  /** road tile in front of the building's entrance (-1 none) */
+  const entranceOf = (i: number, j: number) => { if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isRoad(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
+  const drawFace = (i: number, j: number) => { const l = lot[i][j]; if (l) return FACE.findIndex(x => x[0] === l.dir); return facingOf(i, j) || zface[i][j] || 2; };
+  const DENN = ['', 'Light', 'Medium', 'Dense'];
+  const CAPNAME: Record<string, string[]> = { R: ['', 'single-family homes', 'up to mid-rise apartments', 'up to towers'], C: ['', 'storefronts', 'main-street blocks & small offices', 'up to office towers'], I: ['', 'workshops', 'mid-size factories', 'heavy industry'] };
+  let zoneDen = 2, zoneFace = 0;
   /** (i,j)->(i+a,j+b) is a real road connection: the two halves of an avenue sit side by side but are not joined */
   const partner = (i: number, j: number, a: number, b: number) => { const d = rpd[i][j]; return !!d && (a !== 0) !== (b !== 0) && BITOF(a, b) === d && inb(i + a, j + b) && road[i + a][j + b] && rpd[i + a][j + b] === OPP[d]; };
   const guessPartners = () => { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) rpd[i][j] = 0; // old saves: pair halves side by side (along-i avenues pair on j, along-j on i)
@@ -338,7 +355,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); }
     clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.winds = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tls = []; ch.trucks = []; ch.tint = -1; ch.la = -1;
     const P = (key: string, x: number, y: number, seed: number, z: number) => { const o = place(key, x, y, ch.ob, seed); o.zIndex = z; return o; };
-    const PN = (key: string, x: number, y: number, seed: number, z: number) => { const l = placeNight(key, x, y, ch.ob, seed); if (l) { l.zIndex = z; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } };
+    const PN = (key: string, x: number, y: number, seed: number, z: number) => { const l = placeNight(key, x, y, ch.ob, seed); if (l) { l.zIndex = z; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } return l; };
     chunkTiles(ch, (i, j) => {
       const { x, y } = toScreen(i, j), seed = seedOf(i, j);
       const cv = civAt[i][j];
@@ -364,12 +381,14 @@ function diamond(g: Graphics, i: number, j: number) {
             ch.tls.push(tl); } }
       } else if (zone[i][j]) {
         if (pk[i][j]) drawParking(ch, i, j, x, y, seed, pk[i][j]);
-        else if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, ch.zn, seed);
-        if (consT[i][j]) P(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, seed, y);
+        else if (!bld[i][j] && !consT[i][j]) { const o = place('zone_' + zone[i][j], x, y, ch.zn, seed), d = zden[i][j] || 2; o.alpha = [1, 0.4, 0.75, 1][d]; if (d === 3) (o as any).tint = 0xb0b0b0; }
+        if (!hasAccess(i, j) && !lot[i][j]) { const g = new Graphics(); g.circle(x, y - 2, 4).fill({ color: 0xff3030, alpha: 0.9 }).stroke({ width: 1.5, color: 0xffffff }); g.moveTo(x - 2.5, y - 2).lineTo(x + 2.5, y - 2).stroke({ width: 1.5, color: 0xffffff }); g.zIndex = y + 50; ch.ob.addChild(g); } // landlocked marker
+        const flip = (o: any) => { if (o && (drawFace(i, j) === 3 || drawFace(i, j) === 4)) o.scale.x = -Math.abs(o.scale.x); }; // stopgap: SE-facing art mirrored for SW/NW
+        if (consT[i][j]) flip(P(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, seed, y));
         else if (lot[i][j] && lotReady(lot[i][j]!)) { const l = lot[i][j]!; // one sprite for the lot, drawn at its front-most (max i, max j) tile
           if (i === l.i0 + l.wi - 1 && j === l.j0 + l.dj - 1) { const o = toScreen(l.i0, l.j0), lx = o.x + (l.wi - l.dj) * 16, ly = o.y + (l.wi + l.dj - 2) * 8, k = lotKey(l);
             P(k, lx, ly, seed, y + i * 0.001); PN(k, lx, ly, seed, y + i * 0.001); ch.blds.push({ x, y, z: 'R', L: 1, seed }); } }
-        else if (bld[i][j]) { const k = `bld_${zone[i][j]}_${bld[i][j]}`; P(k, x, y, seed, y); PN(k, x, y, seed, y); ch.blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
+        else if (bld[i][j]) { const k = `bld_${zone[i][j]}_${bld[i][j]}`; flip(P(k, x, y, seed, y)); flip(PN(k, x, y, seed, y)); ch.blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
       }
       if (road[i][j] && pline[i][j]) { const pl = (a: number, b: number) => inb(a, b) && pline[a][b]; P('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, seed, y); }
       if (pipe[i][j]) { const pp = (a: number, b: number) => inb(a, b) && (pipe[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'water')); place('pipe_' + ((pp(i, j - 1) ? 1 : 0) | (pp(i + 1, j) ? 2 : 0) | (pp(i, j + 1) ? 4 : 0) | (pp(i - 1, j) ? 8 : 0)), x, y, ch.pp, seed); }
@@ -425,8 +444,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const removeLot = (l: Lot, clearAll = false) => { lots.delete(l); for (const [i, j] of lotTiles(l)) { lot[i][j] = null; if (clearAll) { zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; } } markDirty(l.i0, l.j0, l.i0 + l.wi - 1, l.j0 + l.dj - 1); };
   const LOTDIR: [Lot['dir'], number, number][] = [['NE', 0, -1], ['SE', 1, 0], ['SW', 0, 1], ['NW', -1, 0]]; // road side -> offset to the road tile
   const tryMakeLot = (i: number, j: number) => { // (i,j) is the front tile; the lot extends away from the road
-    const opts = LOTDIR.filter(([, a, b]) => isRoad(i + a, j + b)); if (!opts.length) return null;
-    const sd = seedOf(i, j), [dir, a, b] = opts[sd % opts.length];
+    const f = facingOf(i, j); if (!f) return null;
+    const sd = seedOf(i, j), [dir, a, b] = LOTDIR[f - 1];
     const free = (x: number, y: number) => inb(x, y) && zone[x][y] === 'R' && !bld[x][y] && !consT[x][y] && !lot[x][y] && !road[x][y] && !civAt[x][y];
     let max = 1; while (max < 3 && free(i - a * max, j - b * max)) max++;
     const w = [6, 5, 4].slice(0, max), r = ((sd >>> 8) % 1000) / 1000 * w.reduce((x, y) => x + y, 0); let D = 1, acc = 0; for (let k = 0; k < max; k++) { acc += w[k]; if (r < acc) { D = k + 1; break; } }
@@ -458,6 +477,18 @@ function diamond(g: Graphics, i: number, j: number) {
   tierBar.querySelectorAll<HTMLElement>('button[data-w]').forEach(b => b.onclick = () => setRoadWidth(+b.dataset.w!));
   const setRoadTier = (t: RoadTier) => { if (t === 1 && roadW > 0) { roadW = 0; toast('Dirt only comes as a 2-lane road'); } roadTier = t; refreshTierBar(); };
   tierBar.querySelectorAll<HTMLElement>('button[data-tier]').forEach(b => b.onclick = () => setRoadTier(+b.dataset.tier! as RoadTier)); setRoadTier(2);
+  const zoneBar = document.createElement('div'); zoneBar.id = 'zoneBar'; zoneBar.style.cssText = tierBar.style.cssText; zoneBar.addEventListener('pointerdown', e => e.stopPropagation()); document.body.appendChild(zoneBar);
+  const BS = 'background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer';
+  const refreshZoneBar = () => { const z = ['R', 'C', 'I'].includes(tool) ? tool : 'R';
+    zoneBar.innerHTML = '<span style="align-self:center">Density</span>' + [1, 2, 3].map(d => `<button data-den="${d}" title="${DENN[d]} ${ZNAME[z]}: ${CAPNAME[z][d]}. Never grows past this. Free." style="${BS};background:${d === zoneDen ? '#3d6fd1' : '#2b3442'}">${DENN[d]} <small style="color:#9cf">${CAPNAME[z][d]}</small></button>`).join('')
+      + `<span style="align-self:center;margin-left:8px;border-left:1px solid #556;padding-left:8px">Facing</span><button data-face="1" title="Which way entrances face. Auto faces the busiest adjacent road. Press R to cycle." style="${BS}">${['⟳ Auto', '↗ NE', '↘ SE', '↙ SW', '↖ NW'][zoneFace]} <small style="color:#9cf">(R)</small></button>`;
+    zoneBar.querySelectorAll<HTMLElement>('button[data-den]').forEach(b => b.onclick = () => setZoneDen(+b.dataset.den!));
+    zoneBar.querySelector<HTMLElement>('button[data-face]')!.onclick = () => setZoneFace((zoneFace + 1) % 5); };
+  const setZoneDen = (d: number) => { zoneDen = d; refreshZoneBar(); showPreview(); };
+  const setZoneFace = (f: number) => { zoneFace = f; refreshZoneBar(); showPreview(); };
+  let confirmDown = (n: number) => window.confirm(`${n} building${n > 1 ? 's are' : ' is'} bigger than the new density allows. Demolish and rebuild ${n > 1 ? 'them' : 'it'} smaller?`);
+  window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'r' && ['R', 'C', 'I'].includes(tool) && !(e.target instanceof HTMLInputElement)) setZoneFace((zoneFace + 1) % 5); });
+  { const prev = toolHook; toolHook = t => { prev?.(t); zoneBar.style.display = ['R', 'C', 'I'].includes(t) ? 'flex' : 'none'; if (zoneBar.style.display === 'flex') refreshZoneBar(); }; }
   { const prev = toolHook; toolHook = t => { prev?.(t); tierBar.style.display = t === 'road' ? 'flex' : 'none'; document.getElementById('services')!.style.visibility = t === 'road' ? 'hidden' : ''; }; }
   // Services toolbar group
   const svcBar = document.getElementById('services')!;
@@ -512,6 +543,11 @@ function diamond(g: Graphics, i: number, j: number) {
     let c = 0; for (const [i, j] of dragTiles()) if (valid(i, j)) c += tool === 'pline' ? COST.pline : tool === 'pipe' ? COST.pipe : tool === 'road' ? roadCost(i, j) : tool === 'bulldoze' ? COST.bulldoze : 0;
     hud.textContent = `Cost: $${c.toLocaleString()}` + (c > sim.funds ? ' (not enough funds)' : '');
     for (const [i, j] of dragTiles()) { diamond(preview, i, j); preview.fill({ color: valid(i, j) ? col : 0xff2020, alpha: 0.55 }); }
+    if (['R', 'C', 'I'].includes(tool)) { let bad = 0; for (const [i, j] of dragTiles()) { if (!valid(i, j)) continue; const f = faceFor(i, j, zoneFace), d = f || zoneFace; if (!f) bad++;
+        const p = toScreen(i, j), q = toScreen(i + (FACE[d || 2][1]) * 0.42, j + (FACE[d || 2][2]) * 0.42), c = f ? 0xffffff : 0xff3030;
+        if (!d) { preview.circle(p.x, p.y, 3).fill({ color: c }); continue; }
+        const dx = q.x - p.x, dy = q.y - p.y; preview.moveTo(p.x - dx * 0.3, p.y - dy * 0.3).lineTo(q.x, q.y).stroke({ width: 2, color: c }); preview.poly([q.x, q.y, q.x - dx * 0.35 - dy * 0.3, q.y - dy * 0.35 + dx * 0.3, q.x - dx * 0.35 + dy * 0.3, q.y - dy * 0.35 - dx * 0.3]).fill(c); }
+      hud.textContent = `${DENN[zoneDen]} ${ZNAME[tool]} (cap: ${CAPNAME[tool][zoneDen]}) · Facing ${FACE[zoneFace][0]} (R to change) · Free` + (bad ? ` · ⚠ ${bad} tile${bad > 1 ? 's' : ''} with no road access on the front` : ''); }
   };
   const commit = () => {
     if (tool.startsWith('svc:')) { if (drag) plop(tool.slice(4), drag.ci, drag.cj); drag = null; preview.clear(); return; }
@@ -525,6 +561,8 @@ function diamond(g: Graphics, i: number, j: number) {
       else if (tool === 'bulldoze' && underground) cost += COST.bulldoze;
       else if (tool === 'bulldoze') { const c = civAt[i][j]; if (c) { if (!seen.has(c)) { seen.add(c); cost += COST.bulldozeCivic; } } else cost += COST.bulldoze; }
     }
+    if (['R', 'C', 'I'].includes(tool)) { const down = tiles.filter(([i, j]) => zone[i][j] === tool && Math.max(bld[i][j], consT[i][j]) > zoneDen).length;
+      if (down && !confirmDown(down)) { drag = null; preview.clear(); return; } }
     if (!spend(cost)) { drag = null; preview.clear(); return; }
     for (const [i, j] of tiles) {
       if (lot[i][j] && (tool === 'bulldoze' && !underground)) { removeLot(lot[i][j]!, true); continue; }
@@ -533,15 +571,17 @@ function diamond(g: Graphics, i: number, j: number) {
       if (tool === 'pline') { pline[i][j] = true; continue; }
       if (tool === 'pipe') { pipe[i][j] = true; continue; }
       if (tool === 'bulldoze' && underground) { pipe[i][j] = false; continue; }
-      if (tool === 'road') { const w = wAt.get(i * N + j)!; if (roadCost(i, j, wKind(w)) > 0) startRoad(i, j, Math.max(roadTier, rtier[i][j] || 0) as RoadTier, w, pdAt.get(i * N + j) ?? 0); zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
-      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; rw[i][j] = 0; rpd[i][j] = 0; rtier[i][j] = 0; rstage[i][j] = 0; rfrom[i][j] = 0; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
-      else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; } zone[i][j] = tool; } }
+      if (tool === 'road') { const w = wAt.get(i * N + j)!; if (roadCost(i, j, wKind(w)) > 0) startRoad(i, j, Math.max(roadTier, rtier[i][j] || 0) as RoadTier, w, pdAt.get(i * N + j) ?? 0); zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; zden[i][j] = zface[i][j] = 0; }
+      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; rw[i][j] = 0; rpd[i][j] = 0; rtier[i][j] = 0; rstage[i][j] = 0; rfrom[i][j] = 0; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; zden[i][j] = zface[i][j] = 0; }
+      else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; }
+        zone[i][j] = tool; zden[i][j] = zoneDen; zface[i][j] = zoneFace;
+        if (Math.max(bld[i][j], consT[i][j]) > zoneDen) { const old = Math.max(bld[i][j], consT[i][j]); if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j] = 0; consT[i][j] = hasAccess(i, j) ? Math.min(old, zoneDen) : 0; consD[i][j] = 0; } } } // over the new cap: demolish and rebuild smaller
     if (tiles.length) { let a = N, b = N, c2 = 0, d = 0; for (const [i, j] of tiles) { a = Math.min(a, i); b = Math.min(b, j); c2 = Math.max(c2, i); d = Math.max(d, j); } markDirty(a, b, c2, d); }
     tripsDirty = true; if (tool === 'road' || tool === 'bulldoze') computeNear(); if (tool !== 'pline' && tool !== 'pipe') rebuildZ();
     drag = null; preview.clear(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, zden, zface, facingOf: (i: number, j: number) => FACE[facingOf(i, j)][0], hasAccess: (i: number, j: number) => hasAccess(i, j), entranceOf: (i: number, j: number) => entranceOf(i, j), lotAt: (i: number, j: number) => lot[i][j], setZoneDensity: (d: number) => setZoneDen(d), setZoneFacing: (f: number) => setZoneFace(f), paint: (t: string, i0: number, j0: number, i1: number, j1: number) => { setTool(t); drag = { i: i0, j: j0, ci: i1, cj: j1 }; commit(); }, setConfirm: (f: (n: number) => boolean) => { confirmDown = f; }, refresh: () => { computeNear(); rebuildZ(); markAll(); }, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -569,7 +609,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (tool.startsWith('svc:') && !drag) { const t = tool.slice(4), ok = canPlop(t, i, j); for (const [a, b] of svcFoot(t, i, j).tiles) if (inb(a, b)) { diamond(hl, a, b); hl.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.35 }); } }
     else { diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 }); }
     if (civAt[i][j]) { hud.textContent = `Tile: ${i}, ${j}  (${SERV[civAt[i][j]!.type].name})`; return; }
-    hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? ROAD_TIERS[rtier[i][j] as RoadTier]?.name.toLowerCase() + ' ' + ROAD_WIDTHS[wKind(rw[i][j])].name.toLowerCase() + (rstage[i][j] ? ' · ' + ['', 'surveyed', 'graded', 'gravel base', 'surfacing'][rstage[i][j]] + (rfrom[i][j] ? ' (upgrade, still open)' : ' (closed)') : '') : zone[i][j] ? ZNAME[zone[i][j]] + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : ' zone') : terrain[i][j]})`;
+    hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? ROAD_TIERS[rtier[i][j] as RoadTier]?.name.toLowerCase() + ' ' + ROAD_WIDTHS[wKind(rw[i][j])].name.toLowerCase() + (rstage[i][j] ? ' · ' + ['', 'surveyed', 'graded', 'gravel base', 'surfacing'][rstage[i][j]] + (rfrom[i][j] ? ' (upgrade, still open)' : ' (closed)') : '') : zone[i][j] ? `${DENN[zden[i][j]] || 'Uncapped'} ${ZNAME[zone[i][j]]} zone (cap: ${CAPNAME[zone[i][j]][capOf(i, j)]})` + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : '') + ` · facing ${zface[i][j] ? FACE[zface[i][j]][0] : 'Auto' + (facingOf(i, j) ? ' (' + FACE[facingOf(i, j)][0] + ')' : '')}` + (hasAccess(i, j) ? '' : ' · ⚠ no road access') : terrain[i][j]})`;
   };
 
   // ---- simulation ----
@@ -664,10 +704,11 @@ function diamond(g: Graphics, i: number, j: number) {
         continue;
       }
       const L = bld[i][j];
+      if (!hasAccess(i, j)) { if (L && Math.random() < 0.01) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); } continue; } // no road on the front: never grows, landlocked buildings are abandoned over time
       const dem = d[z] - Math.min(0.3, crime[i][j] * 0.05) // crime lowers desirability everywhere
         + (z === 'R' ? -Math.min(0.4, poll[i][j] * 0.04) + 0.15 * cov.edu[i][j] + 0.15 * cov.health[i][j] : 0); // pollution vs schools & health care
       if (near[i][j] > 3) { if (L && Math.random() < 0.05) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); } continue; } // lost road access
-      if (dem > 0 && L < 3) {
+      if (dem > 0 && L < capOf(i, j)) {
         const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
         const utilOk = L + 1 < 2 || (powered[i][j] && watered[i][j]); // no power or water: stays low density
         const eduOk = utilOk && !(z === 'R' && L + 1 === 3 && cov.edu[i][j] <= 0); // high-density housing needs a school nearby
@@ -790,7 +831,7 @@ function diamond(g: Graphics, i: number, j: number) {
   document.getElementById('budgetBtn')!.onclick = e => { e.stopPropagation(); toggleBudget(); };
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'b' && !(e.target instanceof HTMLInputElement)) toggleBudget(); });
   // ---- agent-based trips (logic in src/trips.ts): the cars on screen are sampled real trips ----
-  const trips = new TripSim({ N, seed: city.seed ?? 1, drivable: (i, j) => drivable(i, j), linked: (i, j, a, b) => !partner(i, j, a, b),
+  const trips = new TripSim({ N, seed: city.seed ?? 1, entrance: (i, j) => entranceOf(i, j), drivable: (i, j) => drivable(i, j), linked: (i, j, a, b) => !partner(i, j, a, b),
     tileSecs: (i, j) => TRIPS.tileMeters / (TRIPS.speedKmh[(rtier[i][j] || 2)] / 3.6),
     capacity: (i, j) => TRIPS.dailyCapacityPerLane * ROAD_WIDTHS[wKind(rw[i][j])].lanes * ROAD_TIERS[(rtier[i][j] || 2) as RoadTier].capacity,
     residents: (i, j) => zone[i][j] === 'R' && bld[i][j] ? resCap(i, j) : 0, jobs: (i, j) => (zone[i][j] === 'C' || zone[i][j] === 'I') && bld[i][j] ? CAP[zone[i][j]][bld[i][j]] : 0,
@@ -799,6 +840,7 @@ function diamond(g: Graphics, i: number, j: number) {
     parkSpaces: (i, j) => { const c = civAt[i][j]; if (c) return SERV[c.type].kind === 'parking' && i === c.i && j === c.j ? (PARKING as any)[c.type].spaces : 0;
       if (pk[i][j]) return pk[i][j] === 1 ? PARKING.privateLot.spaces : PARKING.privateGarage.spaces; return drivable(i, j) ? PARKING.streetSpaces[wKind(rw[i][j])] : 0; },
     needsParking: (i, j) => { const c = civAt[i][j]; if (c) return c.type === 'hospital' || c.type === 'highschool'; return zone[i][j] === 'C' && bld[i][j] >= 2; } });
+  volRef = trips.volume;
   /** private parking grows on its own where drivers can't find spaces: a free or low-density C tile near the shortfall becomes a lot (a garage next to C3) */
   const growParking = () => { let made = 0; const cand: [number, number][] = []; for (let k = 0; k < N * N; k++) if (trips.unmet[k] > 8) cand.push([k, trips.unmet[k]]); cand.sort((a, b) => b[1] - a[1]);
     for (const [k] of cand) { if (made >= 4) break; const [di, dj] = tileOf(k); let done = false;
@@ -828,13 +870,14 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); rt[k] = rtier[i][j]; rs[k] = rstage[i][j]; rd[k] = Math.min(255, rday[i][j]); rf[k] = rfrom[i][j]; ww[k] = rw[i][j]; pd[k] = rpd[i][j]; }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
+      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
   };
   const applySave = (o: any) => {
-    const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0, ww = o.grids.rwidth ? g('rwidth') : z0, pkg = o.grids.pk ? g('pk') : null, pd = o.grids.rpart ? g('rpart') : null; roadWorks.length = 0;
+    const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0, ww = o.grids.rwidth ? g('rwidth') : z0, pkg = o.grids.pk ? g('pk') : null, pd = o.grids.rpart ? g('rpart') : null, zdg = o.grids.zden ? g('zden') : null, zfg = o.grids.zface ? g('zface') : null; roadWorks.length = 0;
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       road[i][j] = !!(fl[k] & 1); pline[i][j] = !!(fl[k] & 2); pipe[i][j] = !!(fl[k] & 4); zone[i][j] = ZZ[zn[k]] ?? ''; bld[i][j] = bl[k]; consT[i][j] = ct[k]; consD[i][j] = cd[k]; civAt[i][j] = null;
-      rtier[i][j] = road[i][j] ? (rt ? rt[k] || 2 : 2) : 0; rstage[i][j] = road[i][j] ? rs[k] : 0; rday[i][j] = rd[k]; rfrom[i][j] = rf[k]; rw[i][j] = road[i][j] ? ww[k] : 0; pk[i][j] = pkg ? pkg[k] : 0; rpd[i][j] = pd && rw[i][j] >= 2 ? pd[k] : 0; if (rstage[i][j]) roadWorks.push(k); }
+      rtier[i][j] = road[i][j] ? (rt ? rt[k] || 2 : 2) : 0; rstage[i][j] = road[i][j] ? rs[k] : 0; rday[i][j] = rd[k]; rfrom[i][j] = rf[k]; rw[i][j] = road[i][j] ? ww[k] : 0; pk[i][j] = pkg ? pkg[k] : 0; rpd[i][j] = pd && rw[i][j] >= 2 ? pd[k] : 0; if (rstage[i][j]) roadWorks.push(k);
+      zden[i][j] = zdg ? zdg[k] : zone[i][j] ? (bld[i][j] || consT[i][j] || 2) : 0; zface[i][j] = zfg ? zfg[k] : 0; } // pre-v7: density of the current building (empty = Medium), Auto facing
     if (!pd) guessPartners();
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
     for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l });
@@ -903,6 +946,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const z = zone[i][j], v = z === 'R' ? resCap(i, j) : CAP[z][bld[i][j]];
     const lt = lot[i][j];
     info.innerHTML = `<b>${lt ? 'Suburban house' : ZNAME[z] + ' building'}</b><br>${lt ? `Lot 1×${Math.max(lt.wi, lt.dj)}, facing ${lt.dir} road` : `${DNAME[bld[i][j]]} (level ${bld[i][j]})`}<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${Math.round(v * 10) / 10}</b> · Power ${fmtPower(PDEM[z][bld[i][j]])} · Water ${fmtWater(WDEM[z][bld[i][j]])}<br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Power ${powered[i][j] ? '✔' : '✘ none'} · Water ${watered[i][j] ? '✔' : '✘ none'}${powered[i][j] && watered[i][j] ? '' : ' (stays low density)'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
+    info.innerHTML += `<br>${DENN[zden[i][j]] || 'Uncapped'} zone (cap: ${CAPNAME[z][capOf(i, j)]}) · faces ${FACE[drawFace(i, j)][0]}${zface[i][j] ? ' (locked)' : ' (auto)'}` + (hasAccess(i, j) ? '' : '<br>⚠ No road access on the front: this building is being abandoned');
     info.innerHTML += zone[i][j] === 'R' ? commuteHtml(i * N + j) : workersHtml(i * N + j) + (trips.unmet[i * N + j] > 0.5 ? `<br>⚠ ${Math.round(trips.unmet[i * N + j])} cars can't find parking nearby` : '');
     info.style.display = 'block';
   };
@@ -1086,7 +1130,7 @@ function diamond(g: Graphics, i: number, j: number) {
       if ((bi * 7 + bj * 3) % 5 === 0 && i % 8 === 2 && j % 8 === 2) { let ok = true; for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) if (!inb(i + a, j + b) || terrain[i + a][j + b] === 'water' || (i + a) % 8 === 0 || (j + b) % 8 === 0) ok = false;
         if (ok) { const c: Civ = { type: 'coal', i, j, s: 3 }; civs.push(c); for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) civAt[i + a][j + b] = c; const t: Civ = { type: 'tower', i: i + 4, j, s: 1 }; if (!civAt[i + 4][j] && (i + 4) % 8) { civs.push(t); civAt[i + 4][j] = t; } continue; } }
       if (civAt[i][j]) continue;
-      zone[i][j] = (bi + bj) % 6 === 0 ? 'I' : (bi * 3 + bj) % 4 === 0 ? 'C' : 'R'; bld[i][j] = 1 + Math.floor(rnd() * 3); consT[i][j] = 0;
+      zone[i][j] = (bi + bj) % 6 === 0 ? 'I' : (bi * 3 + bj) % 4 === 0 ? 'C' : 'R'; bld[i][j] = 1 + Math.floor(rnd() * 3); consT[i][j] = 0; zden[i][j] = 3;
     }
     computeNear(); rebuildZ(); markAll(); census(); updateStats();
   };

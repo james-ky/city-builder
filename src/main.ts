@@ -218,7 +218,9 @@ function diamond(g: Graphics, i: number, j: number) {
   const FACE: [string, number, number][] = [['Auto', 0, 0], ['NE', 0, -1], ['SE', 1, 0], ['SW', 0, 1], ['NW', -1, 0]]; // facing -> offset to the front road tile
   const capOf = (i: number, j: number) => zden[i][j] || 3;
   /** the road side a building on (i,j) faces: locked facing if that side has a road, else on Auto the busiest adjacent road (stable NE,SE,SW,NW tie-break); 0 = no road on the front */
-  const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isRoad(a, b)) continue; const v = volRef ? volRef[a * N + b] : 0; if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
+  /** frontage tie-break for Auto: how many zoned tiles in a row along that road (up to 4 each way) also front it (corner lots face the street their row lines, not always SE) */
+  const front = (i: number, j: number, f: number) => { const di = FACE[f][2] ? 1 : 0, dj = 1 - di; let n = 0; for (const s of [-1, 1]) for (let k = 1; k <= 4; k++) { const a = i + di * s * k, b = j + dj * s * k; if (!(inb(a, b) && zone[a][b] && isRoad(a + FACE[f][1], b + FACE[f][2]))) break; n++; } return n; };
+  const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isRoad(a, b)) continue; const v = (volRef ? volRef[a * N + b] : 0) + 1e-4 * front(i, j, f); if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
   const faceFor = (i: number, j: number, want: number) => want ? (isRoad(i + FACE[want][1], j + FACE[want][2]) ? want : 0) : autoFace(i, j);
   const facingOf = (i: number, j: number) => faceFor(i, j, zface[i][j]);
   /** every building needs its own road: a lot counts if its front edge touches a road on its facing side */
@@ -483,6 +485,18 @@ function diamond(g: Graphics, i: number, j: number) {
     const l: Lot = { i0, j0, wi: a ? D : 1, dj: b ? D : 1, dir, v: 'abc'[(sd >>> 4) % 3] };
     if (!hasArt(lotKey(l))) return null; addLot(l); return l;
   };
+  /** keep suburban lots facing the way their tiles are zoned: a lot whose tiles are locked to another side (or that lost its front road) is re-faced;
+   *  a 1x1 lot just turns, a deeper lot splits into 1x1 lots on the tiles that can reach a road the new way (the rest stay as plain houses) */
+  const syncLot = (l: Lot) => {
+    const tiles = lotTiles(l), cur = FACE.findIndex(x => x[0] === l.dir);
+    const locked = tiles.some(([i, j]) => zface[i][j] && zface[i][j] !== cur), ok = tiles.some(([i, j]) => isRoad(i + FACE[cur][1], j + FACE[cur][2]));
+    if (!locked && ok) return false;
+    if (tiles.length === 1) { const f = facingOf(l.i0, l.j0); if (!f || f === cur) return false; l.dir = FACE[f][0] as Lot['dir']; markDirty(l.i0, l.j0, l.i0, l.j0); return true; }
+    removeLot(l);
+    for (const [i, j] of tiles) { const f = facingOf(i, j); if (!f) continue; const n: Lot = { i0: i, j0: j, wi: 1, dj: 1, dir: FACE[f][0] as Lot['dir'], v: l.v }; if (hasArt(lotKey(n))) addLot(n); }
+    return true;
+  };
+  const syncLots = () => { let n = 0; for (const l of [...lots]) if (syncLot(l)) n++; return n; };
   const rebuildZ = () => { zlist = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j]) zlist.push(i * N + j); };
   computeNear(); rebuildZ();
   const preview = new Graphics(), hl = new Graphics();
@@ -632,14 +646,15 @@ function diamond(g: Graphics, i: number, j: number) {
       if (tool === 'road') { const w = wAt.get(i * N + j)!; if (roadCost(i, j, wKind(w)) > 0) startRoad(i, j, Math.max(roadTier, rtier[i][j] || 0) as RoadTier, w, pdAt.get(i * N + j) ?? 0); zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; zden[i][j] = zface[i][j] = 0; }
       else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; rw[i][j] = 0; rpd[i][j] = 0; rtier[i][j] = 0; rstage[i][j] = 0; rfrom[i][j] = 0; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; zden[i][j] = zface[i][j] = 0; }
       else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; }
-        zone[i][j] = tool; zden[i][j] = zoneDen; zface[i][j] = zoneFace;
+        const keepFace = zone[i][j] === tool && !zoneFace; // re-zoning (e.g. Medium -> Light) with the tool on Auto keeps the facing the player locked
+        zone[i][j] = tool; zden[i][j] = zoneDen; if (!keepFace) zface[i][j] = zoneFace;
         if (Math.max(bld[i][j], consT[i][j]) > zoneDen) { const old = Math.max(bld[i][j], consT[i][j]); if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j] = 0; consT[i][j] = hasAccess(i, j) ? Math.min(old, zoneDen) : 0; consD[i][j] = 0; } } } // over the new cap: demolish and rebuild smaller
     if (tiles.length) { let a = N, b = N, c2 = 0, d = 0; for (const [i, j] of tiles) { a = Math.min(a, i); b = Math.min(b, j); c2 = Math.max(c2, i); d = Math.max(d, j); } markDirty(a, b, c2, d); }
     tripsDirty = true; if (tool === 'road' || tool === 'bulldoze') computeNear(); if (tool !== 'pline' && tool !== 'pipe') rebuildZ();
-    drag = null; preview.clear(); census(); updateStats();
+    syncLots(); drag = null; preview.clear(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), rerollPark: (c: Civ) => rerollPark(c), poll: () => poll, computeAll: () => { computeCoverage(); computePollution(); }, parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, zden, zface, facingOf: (i: number, j: number) => FACE[facingOf(i, j)][0], hasAccess: (i: number, j: number) => hasAccess(i, j), entranceOf: (i: number, j: number) => entranceOf(i, j), lotAt: (i: number, j: number) => lot[i][j], setZoneDensity: (d: number) => setZoneDen(d), setZoneFacing: (f: number) => setZoneFace(f), paint: (t: string, i0: number, j0: number, i1: number, j1: number) => { setTool(t); drag = { i: i0, j: j0, ci: i1, cj: j1 }; commit(); }, setConfirm: (f: (n: number) => boolean) => { confirmDown = f; }, refresh: () => { computeNear(); rebuildZ(); markAll(); }, ctrlAt: (i: number, j: number) => classify(i, j), setIx: (i: number, j: number, o: any) => setIx(i, j, o), ixSet, decide: (cc: any, din: string, w: number, cb: boolean) => decide(cc, din, w, cb), lightState: (a: number, ph: number, cyc: number, g0: number) => lightState(a, ph, cyc, g0), openIx: (i: number, j: number) => { const p = toScreen(i, j); openIx(i, j, p.x * zoom + world.position.x, p.y * zoom + world.position.y); }, ctrlMap: ctrl, spriteFor: (i: number, j: number) => { const sd = seedOf(i, j), d = FACE[drawFace(i, j)][0]; return consT[i][j] ? facingName(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, sd, d) : bld[i][j] ? facingName(`bld_${zone[i][j]}_${bld[i][j]}`, sd, d) : ''; }, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), rerollPark: (c: Civ) => rerollPark(c), poll: () => poll, computeAll: () => { computeCoverage(); computePollution(); }, parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, zden, zface, facingOf: (i: number, j: number) => FACE[facingOf(i, j)][0], hasAccess: (i: number, j: number) => hasAccess(i, j), entranceOf: (i: number, j: number) => entranceOf(i, j), lotAt: (i: number, j: number) => lot[i][j], setZoneDensity: (d: number) => setZoneDen(d), setZoneFacing: (f: number) => setZoneFace(f), paint: (t: string, i0: number, j0: number, i1: number, j1: number) => { setTool(t); drag = { i: i0, j: j0, ci: i1, cj: j1 }; commit(); }, setConfirm: (f: (n: number) => boolean) => { confirmDown = f; }, refresh: () => { computeNear(); rebuildZ(); markAll(); }, ctrlAt: (i: number, j: number) => classify(i, j), setIx: (i: number, j: number, o: any) => setIx(i, j, o), ixSet, decide: (cc: any, din: string, w: number, cb: boolean) => decide(cc, din, w, cb), lightState: (a: number, ph: number, cyc: number, g0: number) => lightState(a, ph, cyc, g0), openIx: (i: number, j: number) => { const p = toScreen(i, j); openIx(i, j, p.x * zoom + world.position.x, p.y * zoom + world.position.y); }, ctrlMap: ctrl, spriteFor: (i: number, j: number) => { const sd = seedOf(i, j), d = FACE[drawFace(i, j)][0], lt = lot[i][j]; return lt && lotReady(lt) ? lotKey(lt) : consT[i][j] ? facingName(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, sd, d) : bld[i][j] ? facingName(`bld_${zone[i][j]}_${bld[i][j]}`, sd, d) : ''; }, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -943,7 +958,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (!pd) guessPartners();
     ixSet.clear(); autoCtl.clear(); for (const [k, mode, axis, cyc, split] of o.ix ?? []) ixSet.set(k, { mode, axis, cyc, split }); // pre-v9 saves: every junction is Auto
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
-    for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l });
+    for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l }); syncLots();
     Object.assign(sim, o.sim); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
     if (o.cam) { camX = o.cam.x; camY = o.cam.y; zoom = clampZoom(o.cam.zoom); }
     tripsDirty = true; trips.volume.fill(0); if (o.traffic?.volume) { const u = new Uint16Array(unb64(o.traffic.volume).buffer); trips.volume.set(u.subarray(0, N * N)); }
@@ -982,7 +997,7 @@ function diamond(g: Graphics, i: number, j: number) {
   document.getElementById('saveBtn')!.onclick = e => { e.stopPropagation(); toggleSave(); };
   window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveTo(city.name, 'slot:' + city.name).then(() => toastOk(`Saved “${city.name}”`)); } });
   if (loaded) applySave(loaded);
-  Object.assign((window as any).__city, { lots: () => [...lots], lotAt: (i: number, j: number) => lot[i][j], serialize, applySave, saveTo, listSaves });
+  Object.assign((window as any).__city, { lots: () => [...lots], syncLots: () => syncLots(), addLot: (l: Lot) => addLot(l), lotAt: (i: number, j: number) => lot[i][j], serialize, applySave, saveTo, listSaves });
   // info panel
   const info = document.getElementById('info')!;
   const KNAME: Record<string, string> = { work: 'commuting to work', school: 'school run', errand: 'shopping / errand' };

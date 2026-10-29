@@ -29,4 +29,14 @@ await p.keyboard.press('4');f0=await F();await drag([ci-4,cj-3],[ci-1,cj-1]);f1=
 const rt=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));const t=o.grids.rtier;__city.applySave(o);const a=__city.serialize().grids.rtier===t;
  delete o.grids.rtier;delete o.grids.rstage;delete o.grids.rday;delete o.grids.rfrom;o.version=2;__city.applySave(o);let bad=0;for(let i=0;i<__city.N();i++)for(let j=0;j<__city.N();j++)if(__city.road[i][j]&&(__city.rtier[i][j]!==2||__city.rstage[i][j]!==0))bad++;return [a,bad]});
 ok('save round trip keeps tiers',rt[0]);ok('old saves load as finished asphalt',rt[1]===0,'bad '+rt[1]);
+// widths: street (1 tile, 4 lanes) and avenue (2 tiles)
+await p.evaluate(()=>{__city.sim().funds+=20000;__city.setRoadTier(2);__city.setRoadWidth(1)});await p.keyboard.press('2');f0=await F();await drag([ci-5,cj-6],[ci+5,cj-6]);f1=await F();
+ok('asphalt street costs 11 x $45',Math.round(f0-f1)===495,f0-f1);ok('street tiles are width 1',await p.evaluate(([i,j])=>__city.rw[i][j]===1,[ci,cj-6]));
+await p.evaluate(()=>__city.setRoadWidth(2));f0=await F();await drag([ci-5,cj-9],[ci+5,cj-9]);f1=await F();
+const av=await p.evaluate(([i,j])=>[__city.rw[i][j-9],__city.rw[i][j-8],__city.road[i][j-8]],[ci,cj]);ok('avenue drag lays 2 tiles side by side',av[0]===2&&av[1]===2&&av[2],JSON.stringify(av));
+ok('avenue costs 22 tiles x $40',Math.round(f0-f1)===880,f0-f1);
+await p.evaluate(()=>{__city.setRoadWidth(1);__city.setRoadTier(1)});ok('dirt forces 2-lane',await p.evaluate(()=>__city.roadCost(0,0)===6));
+await p.evaluate(()=>__city.fastForward(20));
+const sv=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));const w=o.grids.rwidth;__city.applySave(o);const a=__city.serialize().grids.rwidth===w;delete o.grids.rwidth;__city.applySave(o);let n=0;for(const r of __city.rw)for(const v of r)n+=v;return [a,n]});
+ok('save keeps widths; old saves load as 2-lane',sv[0]&&sv[1]===0,JSON.stringify(sv));
 ok('no page errors',!errs.length,errs.join(' | '));console.log(res.join('\n'));await b.close();process.exit(res.some(r=>r.startsWith('FAIL'))?1:0)})();

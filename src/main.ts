@@ -51,7 +51,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const pollL = new Container(), carL = new Container(), cloudL = new Container(), nightG = new Graphics(), skyL = new Container(), smokeL = new Container();
   // night shading darkens ground layers; objects (objL) are darkened by tint so each building's night-lights
   // overlay can sit right after it in the same depth-sorted container (correct occlusion).
-  world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, nightG, objL, smokeL, cloudL, skyL);
+  const pipeL = new Container(), iconL = new Container();
+  world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, objL, smokeL, cloudL, skyL, iconL);
   const lights: Sprite[] = []; let lastNightTint = -1;
   const trees: { s: { skew: { x: number } }; ph: number }[] = [];
   const blds: { x: number; y: number; z: string; L: number; seed: number }[] = [];
@@ -64,21 +65,64 @@ function diamond(g: Graphics, i: number, j: number) {
   const isTall = (z: string, L: number) => L === 3 && (z === 'R' || z === 'C');
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
   // ---- civic services (plopped buildings) ----
-  type Kind = 'edu' | 'police' | 'fire' | 'health';
-  const SERV: Record<string, { name: string; size: number; cost: number; radius: number; kind: Kind }> = {
+  type Kind = 'edu' | 'police' | 'fire' | 'health' | 'power' | 'water';
+  const SERV: Record<string, { name: string; size: number; cost: number; radius: number; kind: Kind; util?: boolean; out?: number; needsWater?: boolean; key?: string }> = {
     school: { name: 'Elementary School', size: 2, cost: 400, radius: 10, kind: 'edu' },
     highschool: { name: 'High School', size: 3, cost: 900, radius: 16, kind: 'edu' },
     police: { name: 'Police Station', size: 2, cost: 500, radius: 12, kind: 'police' },
     fire: { name: 'Fire Station', size: 2, cost: 500, radius: 12, kind: 'fire' },
     clinic: { name: 'Clinic', size: 1, cost: 250, radius: 7, kind: 'health' },
     hospital: { name: 'Hospital', size: 3, cost: 1200, radius: 16, kind: 'health' },
+    coal: { name: 'Coal Power Plant', size: 3, cost: 3000, radius: 0, kind: 'power', util: true, out: 600, key: 'util_coal' },
+    wind: { name: 'Wind Turbine', size: 1, cost: 400, radius: 0, kind: 'power', util: true, out: 40, key: 'util_wind' },
+    pump: { name: 'Water Pump', size: 2, cost: 800, radius: 0, kind: 'water', util: true, out: 500, needsWater: true, key: 'util_pump' },
+    tower: { name: 'Water Tower', size: 1, cost: 500, radius: 0, kind: 'water', util: true, out: 150, key: 'util_tower' },
   };
   type Civ = { type: string; i: number; j: number; s: number };
-  const UPKEEP: Record<string, number> = { school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180 }; // $/month at 100% funding
+  const UPKEEP: Record<string, number> = { school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180, coal: 150, wind: 15, pump: 40, tower: 30 }; // $/month at 100% funding
   const funding: Record<string, number> = Object.fromEntries(Object.keys(SERV).map(k => [k, 1])); // 0..1 per service type
   const civs: Civ[] = [];
   const civAt: (Civ | null)[][] = [...Array(N)].map(() => Array(N).fill(null));
   const KINDS: Kind[] = ['edu', 'police', 'fire', 'health'];
+  // ---- power & water ----
+  const pline: boolean[][] = [...Array(N)].map(() => Array(N).fill(false)), pipe: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
+  const powered: boolean[][] = [...Array(N)].map(() => Array(N).fill(false)), watered: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
+  const PDEM: Record<string, number[]> = { R: [0, 2, 6, 15], C: [0, 3, 8, 18], I: [0, 5, 12, 25] }, WDEM: Record<string, number[]> = { R: [0, 2, 6, 15], C: [0, 2, 5, 12], I: [0, 4, 10, 20] };
+  const util = { pCap: 0, pUse: 0, pWant: 0, wCap: 0, wUse: 0, wWant: 0 };
+  const consumerDemand = (i: number, j: number, D: Record<string, number[]>) => { const c = civAt[i][j]; if (c) return SERV[c.type].util ? 0 : (i === c.i && j === c.j ? 10 : 0); return bld[i][j] && zone[i][j] ? D[zone[i][j]][bld[i][j]] : 0; };
+  const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const computeUtilities = () => {
+    for (const r of powered) r.fill(false); for (const r of watered) r.fill(false);
+    Object.assign(util, { pCap: 0, pUse: 0, pWant: 0, wCap: 0, wUse: 0, wWant: 0 });
+    // power: conductors are power lines, zoned tiles (built or not), service and utility buildings
+    const conducts = (i: number, j: number) => inb(i, j) && (pline[i][j] || !!zone[i][j] || !!civAt[i][j]);
+    const seen: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
+    for (let si = 0; si < N; si++) for (let sj = 0; sj < N; sj++) {
+      if (seen[si][sj] || !conducts(si, sj)) continue;
+      const comp: [number, number][] = [[si, sj]]; seen[si][sj] = true; const plants = new Set<Civ>();
+      for (let h = 0; h < comp.length; h++) { const [i, j] = comp[h]; const c = civAt[i][j]; if (c && SERV[c.type].kind === 'power') plants.add(c);
+        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (conducts(ni, nj) && !seen[ni][nj]) { seen[ni][nj] = true; comp.push([ni, nj]); } } }
+      let cap = 0; for (const p of plants) cap += SERV[p.type].out!; util.pCap += cap;
+      for (const [i, j] of comp) { const d = consumerDemand(i, j, PDEM); if (!d) continue; util.pWant += d; if (cap >= d) { cap -= d; util.pUse += d; markCiv(powered, i, j); } }
+    }
+    // water: pipes connect to pumps/towers; anything within 3 tiles of a connected pipe (or the facility) is served
+    const wseen: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
+    const assigned: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
+    for (const src of civs) { if (SERV[src.type].kind !== 'water' || wseen[src.i][src.j]) continue;
+      const net: [number, number][] = []; const facs = new Set<Civ>();
+      const isNet = (i: number, j: number) => inb(i, j) && (pipe[i][j] || (!!civAt[i][j] && SERV[civAt[i][j]!.type].kind === 'water'));
+      net.push([src.i, src.j]); wseen[src.i][src.j] = true;
+      for (let h = 0; h < net.length; h++) { const [i, j] = net[h]; const c = civAt[i][j]; if (c && SERV[c.type].kind === 'water') facs.add(c);
+        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (isNet(ni, nj) && !wseen[ni][nj]) { wseen[ni][nj] = true; net.push([ni, nj]); } } }
+      let cap = 0; for (const f of facs) cap += SERV[f.type].out!; util.wCap += cap;
+      const dist: number[][] = [...Array(N)].map(() => Array(N).fill(99)); const q: [number, number][] = [];
+      for (const [i, j] of net) { dist[i][j] = 0; q.push([i, j]); }
+      for (let h = 0; h < q.length; h++) { const [i, j] = q[h]; if (dist[i][j] >= 3) continue;
+        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (inb(ni, nj) && dist[ni][nj] > dist[i][j] + 1) { dist[ni][nj] = dist[i][j] + 1; q.push([ni, nj]); } } }
+      for (const [i, j] of q) { if (assigned[i][j]) continue; assigned[i][j] = true; const d = consumerDemand(i, j, WDEM); if (!d) continue; util.wWant += d; if (cap >= d) { cap -= d; util.wUse += d; markCiv(watered, i, j); } }
+    }
+  };
+  const markCiv = (m: boolean[][], i: number, j: number) => { const c = civAt[i][j]; if (c) { for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) m[c.i + a][c.j + b] = true; } else m[i][j] = true; };
   const cov: Record<Kind, number[][]> = Object.fromEntries(KINDS.map(k => [k, [...Array(N)].map(() => Array(N).fill(0))])) as any;
   const computeCoverage = () => { // 1 at the building, fading to 0 at its radius; best provider wins
     for (const k of KINDS) for (const row of cov[k]) row.fill(0);
@@ -137,7 +181,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
   const redraw = () => {
-    computeCoverage(); clear(roadL); clear(zoneL); clear(objL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
+    computeCoverage(); clear(roadL); clear(zoneL); clear(objL); clear(pipeL); clear(iconL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
     computeNear();
     for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
       const { x, y } = toScreen(i, j), seed = seedOf(i, j);
@@ -145,9 +189,12 @@ function diamond(g: Graphics, i: number, j: number) {
       if (cv) {
         place('civic_lot', x, y, zoneL, seed);
         if (i === cv.i + cv.s - 1 && j === cv.j) { // depth key i0+j0+size-1 (manifest placement); anchor = footprint centre
-          const c = toScreen(cv.i + (cv.s - 1) / 2, cv.j + (cv.s - 1) / 2), key = 'civic_' + cv.type;
+          const c = toScreen(cv.i + (cv.s - 1) / 2, cv.j + (cv.s - 1) / 2), key = SERV[cv.type].key ?? 'civic_' + cv.type;
           place(key, c.x, c.y, objL, seed); const l = placeNight(key, c.x, c.y, objL, seed); if (l) { l.alpha = 0; lights.push(l); }
         }
+      } else if (pline[i][j] && !road[i][j]) {
+        const pl = (a: number, b: number) => inb(a, b) && (pline[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'power'));
+        place('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, objL, seed);
       } else if (road[i][j]) {
         const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
         place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, roadL, seed);
@@ -155,7 +202,10 @@ function diamond(g: Graphics, i: number, j: number) {
         if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
         if (consT[i][j]) place(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, objL, seed);
         else if (bld[i][j]) { place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); { const l = placeNight(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); if (l) { l.alpha = 0; lights.push(l); } } blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
-      } else if (terrain[i][j] === 'forest') trees.push({ s: place('forest', x, y, objL, seed), ph: (seed % 628) / 100 });
+      }
+      if (road[i][j] && pline[i][j]) { const pl = (a: number, b: number) => inb(a, b) && pline[a][b]; place('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, objL, seed); }
+      if (pipe[i][j]) { const pp = (a: number, b: number) => inb(a, b) && (pipe[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'water')); place('pipe_' + ((pp(i, j - 1) ? 1 : 0) | (pp(i + 1, j) ? 2 : 0) | (pp(i, j + 1) ? 4 : 0) | (pp(i - 1, j) ? 8 : 0)), x, y, pipeL, seed); }
+      if (!zone[i][j] && !road[i][j] && !civAt[i][j] && !pline[i][j] && terrain[i][j] === 'forest') trees.push({ s: place('forest', x, y, objL, seed), ph: (seed % 628) / 100 });
     }
   };
   redraw();
@@ -164,24 +214,26 @@ function diamond(g: Graphics, i: number, j: number) {
 
   // ---- tools ----
   type Tool = string; // select | road | R | C | I | bulldoze | svc:<type>
-  const tools: [Tool, string][] = [['select','Select / Pan'],['road','Road'],['R','Residential'],['C','Commercial'],['I','Industrial'],['bulldoze','Bulldoze']];
+  const tools: [Tool, string][] = [['select','Select / Pan'],['road','Road'],['R','Residential'],['C','Commercial'],['I','Industrial'],['bulldoze','Bulldoze'],['pline','Power line'],['pipe','Pipe']];
+  let toolHook: ((t: string) => void) | undefined;
   const bar = document.getElementById('toolbar')!;
-  const setTool = (t: Tool) => { tool = t; syncZones(); if (t.startsWith('svc:')) setCovView(SERV[t.slice(4)].kind); document.querySelectorAll<HTMLElement>('#toolbar button, #services button[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
+  const setTool = (t: Tool) => { tool = t; syncZones(); toolHook?.(t); if (t.startsWith('svc:')) setCovView(SERV[t.slice(4)].kind); document.querySelectorAll<HTMLElement>('#toolbar button, #services button[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
   tools.forEach(([t, label], k) => { const b = document.createElement('button'); b.dataset.t = t; b.innerHTML = `<b>${k+1}</b> ${label}`; b.onclick = () => setTool(t); bar.appendChild(b); });
   // Services toolbar group
   const svcBar = document.getElementById('services')!;
   const ICON: Record<string, string> = { school: 'school_elem', highschool: 'school_high', police: 'police', fire: 'fire_station', clinic: 'clinic', hospital: 'hospital' };
-  svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}"><img src="./assets/ui/icons/icon_${ICON[k]}@2x.png" alt="">${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
-    + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option></select>';
+  svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}"><img src="./assets/ui/icons/icon_${ICON[k]}@2x.png" alt="">${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
+    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.out}${v.needsWater ? ', must touch water' : ''}">${{ coal: '🏭', wind: '🌬', pump: '⛲', tower: '🗼' }[k]} ${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
+    + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option><option value="power">Powered</option><option value="water">Water served</option></select>';
   svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => setTool((b as HTMLElement).dataset.t!));
   setTool('select');
-  window.addEventListener('keydown', e => { const k = +e.key; if (k >= 1 && k <= 6) setTool(tools[k-1][0]); if (e.key === 'Escape') { drag = null; preview.clear(); } });
+  window.addEventListener('keydown', e => { const k = +e.key; if (k >= 1 && k <= 8) setTool(tools[k-1][0]); if (e.key === 'Escape') { drag = null; preview.clear(); } });
 
   let drag: { i: number; j: number; ci: number; cj: number } | null = null;
   const dragTiles = (): [number, number][] => {
     if (!drag) return [];
     const out: [number, number][] = [];
-    if (tool === 'road') {
+    if (tool === 'road' || tool === 'pline' || tool === 'pipe') {
       const di = drag.ci - drag.i, dj = drag.cj - drag.j;
       if (Math.abs(di) >= Math.abs(dj)) for (let k = 0; k <= Math.abs(di); k++) out.push([drag.i + Math.sign(di) * k, drag.j]);
       else for (let k = 0; k <= Math.abs(dj); k++) out.push([drag.i, drag.j + Math.sign(dj) * k]);
@@ -195,22 +247,27 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let a = 0; a < S.size; a++) for (let b = 0; b < S.size; b++) out.push([i0 + a, j0 + b]); return { i0, j0, s: S.size, tiles: out }; };
   const tileFree = (i: number, j: number) => inb(i, j) && terrain[i][j] !== 'water' && !road[i][j] && !zone[i][j] && !civAt[i][j];
   const touchesRoad = (i0: number, j0: number, s: number) => { for (let k = 0; k < s; k++) if (isRoad(i0 - 1, j0 + k) || isRoad(i0 + s, j0 + k) || isRoad(i0 + k, j0 - 1) || isRoad(i0 + k, j0 + s)) return true; return false; };
-  const canPlop = (t: string, hi: number, hj: number) => { const f = svcFoot(t, hi, hj); return f.tiles.every(([i, j]) => tileFree(i, j)) && touchesRoad(f.i0, f.j0, f.s); };
+  const touchesWater = (i0: number, j0: number, s: number) => { const w = (i: number, j: number) => inb(i, j) && terrain[i][j] === 'water'; for (let k = 0; k < s; k++) if (w(i0 - 1, j0 + k) || w(i0 + s, j0 + k) || w(i0 + k, j0 - 1) || w(i0 + k, j0 + s)) return true; return false; };
+  const canPlop = (t: string, hi: number, hj: number) => { const f = svcFoot(t, hi, hj), S = SERV[t];
+    return f.tiles.every(([i, j]) => tileFree(i, j) && !pline[i][j]) && (S.util ? true : touchesRoad(f.i0, f.j0, f.s)) && (!S.needsWater || touchesWater(f.i0, f.j0, f.s)); };
   const plop = (t: string, hi: number, hj: number) => {
     if (!canPlop(t, hi, hj)) return false; if (!spend(SERV[t].cost)) return false; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s };
     civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; redraw(); census(); updateStats(); return true;
   };
   const removeCiv = (c: Civ) => { civs.splice(civs.indexOf(c), 1); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = null; };
   const valid = (i: number, j: number) => {
-    if (tool === 'road') return terrain[i][j] !== 'water' && !civAt[i][j];
-    if (tool === 'bulldoze') return road[i][j] || !!zone[i][j] || bld[i][j] > 0 || consT[i][j] > 0 || !!civAt[i][j];
-    return terrain[i][j] !== 'water' && !road[i][j] && !civAt[i][j] && near[i][j] <= 3;
+    if (tool === 'road') return terrain[i][j] !== 'water' && !civAt[i][j] && !pline[i][j];
+    if (tool === 'pline') return !civAt[i][j] && !zone[i][j] && !pline[i][j]; // lines can span water and cross roads
+    if (tool === 'pipe') return !pipe[i][j] && terrain[i][j] !== 'water';
+    if (tool === 'bulldoze' && underground) return pipe[i][j];
+    if (tool === 'bulldoze') return pline[i][j] || road[i][j] || !!zone[i][j] || bld[i][j] > 0 || consT[i][j] > 0 || !!civAt[i][j];
+    return terrain[i][j] !== 'water' && !road[i][j] && !civAt[i][j] && !pline[i][j] && near[i][j] <= 3;
   };
   const showPreview = () => {
     preview.clear();
     if (tool.startsWith('svc:')) { if (drag) { const t = tool.slice(4), ok = canPlop(t, drag.ci, drag.cj); for (const [i, j] of svcFoot(t, drag.ci, drag.cj).tiles) if (inb(i, j)) { diamond(preview, i, j); preview.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.5 }); } } return; }
-    const col = tool === 'road' ? 0x9aa0a6 : tool === 'bulldoze' ? 0xff8800 : ({R:0x3ecf4a,C:0x3b8cff,I:0xf2c230} as any)[tool];
-    let c = 0; for (const [i, j] of dragTiles()) if (valid(i, j)) c += tool === 'road' ? (road[i][j] ? 0 : COST.road) : tool === 'bulldoze' ? COST.bulldoze : (zone[i][j] !== tool ? COST.zone : 0);
+    const col = tool === 'pline' ? 0xffd23f : tool === 'pipe' ? 0x4fa3ff : tool === 'road' ? 0x9aa0a6 : tool === 'bulldoze' ? 0xff8800 : ({R:0x3ecf4a,C:0x3b8cff,I:0xf2c230} as any)[tool];
+    let c = 0; for (const [i, j] of dragTiles()) if (valid(i, j)) c += tool === 'pline' ? COST.pline : tool === 'pipe' ? COST.pipe : tool === 'road' ? (road[i][j] ? 0 : COST.road) : tool === 'bulldoze' ? COST.bulldoze : (zone[i][j] !== tool ? COST.zone : 0);
     hud.textContent = `Cost: $${c.toLocaleString()}` + (c > sim.funds ? ' (not enough funds)' : '');
     for (const [i, j] of dragTiles()) { diamond(preview, i, j); preview.fill({ color: valid(i, j) ? col : 0xff2020, alpha: 0.55 }); }
   };
@@ -220,13 +277,19 @@ function diamond(g: Graphics, i: number, j: number) {
     let cost = 0;
     for (const [i, j] of tiles) {
       if (tool === 'road') { if (!road[i][j]) cost += COST.road; }
+      else if (tool === 'pline') cost += COST.pline;
+      else if (tool === 'pipe') cost += COST.pipe;
+      else if (tool === 'bulldoze' && underground) cost += COST.bulldoze;
       else if (tool === 'bulldoze') { const c = civAt[i][j]; if (c) { if (!seen.has(c)) { seen.add(c); cost += COST.bulldozeCivic; } } else cost += COST.bulldoze; }
       else if (zone[i][j] !== tool) cost += COST.zone;
     }
     if (!spend(cost)) { drag = null; preview.clear(); return; }
     for (const [i, j] of tiles) {
+      if (tool === 'pline') { pline[i][j] = true; continue; }
+      if (tool === 'pipe') { pipe[i][j] = true; continue; }
+      if (tool === 'bulldoze' && underground) { pipe[i][j] = false; continue; }
       if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
-      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
+      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
       else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; } zone[i][j] = tool; } }
     drag = null; preview.clear(); redraw(); census(); updateStats();
   };
@@ -268,7 +331,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0 };
   // ---- budget ----
   const tax: Record<string, number> = { R: 9, C: 9, I: 9 };
-  const COST = { road: 10, zone: 5, bulldoze: 2, bulldozeCivic: 50 };
+  const COST = { road: 10, zone: 5, bulldoze: 2, bulldozeCivic: 50, pline: 5, pipe: 6 };
   const LOAN = 10000, LOAN_RATE = 0.01; // 1% per month
   type Report = { income: Record<string, number>; expense: Record<string, number>; net: number };
   let lastMonth: Report | null = null;
@@ -303,13 +366,14 @@ function diamond(g: Graphics, i: number, j: number) {
   const poll: number[][] = [...Array(N)].map(() => Array(N).fill(0));
   const computePollution = () => { // spreads up to 5 tiles from industry, stronger for higher tiers
     for (const row of poll) row.fill(0);
+    for (const c of civs) if (c.type === 'coal') { const ci = c.i + 1, cj = c.j + 1; for (let a = -7; a <= 7; a++) for (let b = -7; b <= 7; b++) { const d = Math.hypot(a, b); if (d <= 7 && inb(ci + a, cj + b)) poll[ci + a][cj + b] += 6 * (1 - d / 8); } }
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j] === 'I' && bld[i][j]) {
       const L = bld[i][j];
       for (let a = -5; a <= 5; a++) for (let b = -5; b <= 5; b++) { const d = Math.hypot(a, b); if (d <= 5 && inb(i + a, j + b)) poll[i + a][j + b] += L * (1 - d / 6); }
     }
   };
   const census = () => {
-    computePollution(); drawPollution(); computeRisks(); drawCoverage();
+    computeUtilities(); drawIcons(); computePollution(); drawPollution(); computeRisks(); drawCoverage();
     sim.pop = sim.jobsC = sim.jobsI = 0;
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (bld[i][j]) {
       const v = zone[i][j] === 'R' ? resCap(i, j) : CAP[zone[i][j]][bld[i][j]];
@@ -340,7 +404,8 @@ function diamond(g: Graphics, i: number, j: number) {
       const before = bld[i][j];
       if (dem > 0 && L < 3) {
         const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
-        const eduOk = !(z === 'R' && L + 1 === 3 && cov.edu[i][j] <= 0); // high-density housing needs a school nearby
+        const utilOk = L + 1 < 2 || (powered[i][j] && watered[i][j]); // no power or water: stays low density
+        const eduOk = utilOk && !(z === 'R' && L + 1 === 3 && cov.edu[i][j] <= 0); // high-density housing needs a school nearby
         if (eduOk && dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) { consT[i][j] = L + 1; consD[i][j] = 0; changed = true; }
       } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) bld[i][j]--;
       if (bld[i][j] !== before) changed = true;
@@ -353,7 +418,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
   const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
   const updateStats = () => {
-    stats.querySelector('#nums')!.innerHTML = `<span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it${sim.funds < 0 ? ' neg' : ''}" title="Funds${sim.loan ? ' (loan $' + sim.loan.toLocaleString() + ')' : ''}">${sim.funds < 0 ? '⚠ ' : ''}Funds <b>$${Math.floor(sim.funds).toLocaleString()}</b></span>`;
+    stats.querySelector('#nums')!.innerHTML = `<span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it${util.pWant > util.pCap ? ' neg' : ''}" title="Power: used / capacity (demand ${util.pWant})">⚡ <b>${util.pUse}/${util.pCap}</b></span><span class="it${util.wWant > util.wCap ? ' neg' : ''}" title="Water: used / capacity (demand ${util.wWant})">💧 <b>${util.wUse}/${util.wCap}</b></span><span class="it${sim.funds < 0 ? ' neg' : ''}" title="Funds${sim.loan ? ' (loan $' + sim.loan.toLocaleString() + ')' : ''}">${sim.funds < 0 ? '⚠ ' : ''}Funds <b>$${Math.floor(sim.funds).toLocaleString()}</b></span>`;
     if (document.getElementById('budget')!.style.display === 'block') renderBudget();
     stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
   };
@@ -373,11 +438,11 @@ function diamond(g: Graphics, i: number, j: number) {
   let lastTick = performance.now();
   const covL = new Container(); world.addChildAt(covL, world.getChildIndex(gridL));
   let covView = '';
-  const COVCOL: Record<string, number> = { edu: 0xffd23f, police: 0x3b6cff, fire: 0xff5a36, health: 0x3fe0c5, crime: 0xb000ff, fireRisk: 0xff8800 };
+  const COVCOL: Record<string, number> = { edu: 0xffd23f, police: 0x3b6cff, fire: 0xff5a36, health: 0x3fe0c5, crime: 0xb000ff, fireRisk: 0xff8800, power: 0xffd23f, water: 0x3d8fe0 };
   const drawCoverage = () => {
     clear(covL); if (!covView) return;
     const g = new Graphics(); covL.addChild(g);
-    const src = covView === 'crime' ? crime : covView === 'fireRisk' ? fireRisk : cov[covView as Kind], scale = covView === 'crime' ? 0.25 : covView === 'fireRisk' ? 0.25 : 1;
+    const src: any = covView === 'power' ? powered.map(r => r.map(Number)) : covView === 'water' ? watered.map(r => r.map(Number)) : covView === 'crime' ? crime : covView === 'fireRisk' ? fireRisk : cov[covView as Kind], scale = covView === 'crime' ? 0.25 : covView === 'fireRisk' ? 0.25 : 1;
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const v = Math.min(1, src[i][j] * scale); if (v > 0.02) { diamond(g, i, j); g.fill({ color: COVCOL[covView], alpha: 0.12 + 0.45 * v }); } }
   };
   const setCovView = (v: string) => { covView = v; (document.getElementById('covSel') as HTMLSelectElement).value = v; drawCoverage(); };
@@ -411,14 +476,32 @@ function diamond(g: Graphics, i: number, j: number) {
   window.addEventListener('pointerdown', firstGesture); window.addEventListener('keydown', firstGesture);
   syncMusic();
   (window as any).__jazz = jazz; (window as any).__amb = amb;
+  // ---- missing-utility icons + underground view ----
+  let underground = false;
+  function drawIcons() {
+    clear(iconL); const g = new Graphics(); iconL.addChild(g);
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j] && bld[i][j] && (!powered[i][j] || !watered[i][j])) {
+      const { x, y } = toScreen(i, j), yy = y - 26 - bld[i][j] * 6; let xx = x - (!powered[i][j] && !watered[i][j] ? 6 : 0);
+      if (!powered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx + 1, yy - 4, xx - 2, yy + 0.5, xx + 0.3, yy + 0.5, xx - 1, yy + 4, xx + 2.5, yy - 1, xx + 0.3, yy - 1]).fill(0xffe14d); xx += 12; }
+      if (!watered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx, yy - 3.8, xx + 2.4, yy + 0.8, xx, yy + 3, xx - 2.4, yy + 0.8]).fill(0x7cc8ff); }
+    }
+  }
+  const ugBtn = document.getElementById('ugBtn')!;
+  const setUnderground = (v: boolean) => { underground = v; ugBtn.classList.toggle('on', v);
+    for (const L of [roadL, carL, zoneL, objL, smokeL, cloudL, skyL, iconL]) L.alpha = v ? 0.12 : 1;
+    groundL.alpha = v ? 0.55 : 1; pipeL.visible = v; };
+  ugBtn.onclick = e => { e.stopPropagation(); setUnderground(!underground); };
+  window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'u') setUnderground(!underground); });
+  setUnderground(false);
+  toolHook = t => { if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); };
   // ---- Budget panel (button + B) ----
-  Object.assign((window as any).__city, { tax, funding, monthly, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
+  Object.assign((window as any).__city, { tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
   const budgetEl = document.getElementById('budget')!;
   const money = (v: number) => (v < 0 ? '−$' : '$') + Math.abs(Math.round(v)).toLocaleString();
   const renderBudget = () => {
     const p = projection(), lm = lastMonth;
     const rows = (o: Record<string, number>, sign: string) => Object.entries(o).map(([k, v]) => `<tr><td>${k}</td><td>${sign}${money(v)}</td></tr>`).join('');
-    const types = [...new Set(civs.map(c => c.type))];
+    const types = [...new Set(civs.filter(c => !SERV[c.type].util).map(c => c.type))];
     budgetEl.innerHTML = `<div class="bh"><b>Budget</b><button id="bClose">✕</button></div>
       <div>Funds <b>${money(sim.funds)}</b>${sim.loan ? ` · Loan ${money(sim.loan)} (1%/month)` : ''}${sim.funds < 0 ? ' <span class="neg">⚠ in debt</span>' : ''}</div>
       <div>Last month's net: <b class="${lm && lm.net < 0 ? 'neg' : 'pos'}">${lm ? money(lm.net) : '—'}</b> · Next month (projected): <b class="${p.net < 0 ? 'neg' : 'pos'}">${money(p.net)}</b></div>
@@ -444,10 +527,10 @@ function diamond(g: Graphics, i: number, j: number) {
     const pct = (v: number) => Math.round(v * 100) + '%';
     if (inb(i, j) && civAt[i][j]) { const c = civAt[i][j]!, S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2;
       let served = 0; for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) if (zone[a][b] === 'R' && bld[a][b] && Math.hypot(a - ci, b - cj) <= S.radius) served += resCap(a, b);
-      info.innerHTML = `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost}<br>Coverage radius: ${S.radius} tiles<br>Residents covered: <b>${served}</b><br><small>Tile ${c.i}, ${c.j}</small>`; info.style.display = 'block'; return; }
+      info.innerHTML = S.util ? `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost} · Upkeep $${UPKEEP[c.type]}/month<br>Output: <b>${S.out}</b> ${S.kind === 'power' ? '⚡' : '💧'}<br>City ${S.kind === 'power' ? `power: ${util.pUse}/${util.pCap} (demand ${util.pWant})` : `water: ${util.wUse}/${util.wCap} (demand ${util.wWant})`}<br>` : `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost}<br>Coverage radius: ${S.radius} tiles<br>Residents covered: <b>${served}</b><br>Power ${powered[i][j] ? '✔' : '✘'} · Water ${watered[i][j] ? '✔' : '✘'}<br><small>Tile ${c.i}, ${c.j}</small>`; info.style.display = 'block'; return; }
     if (!inb(i, j) || !bld[i][j]) { info.style.display = 'none'; return; }
     const z = zone[i][j], v = z === 'R' ? resCap(i, j) : CAP[z][bld[i][j]];
-    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
+    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Education ${pct(cov.edu[i][j])} · Health ${pct(cov.health[i][j])}<br>Police ${pct(cov.police[i][j])} · Fire ${pct(cov.fire[i][j])}<br>Crime: ${crime[i][j] < 1.5 ? 'low' : crime[i][j] < 3.5 ? 'medium' : 'high'} · Fire risk: ${fireRisk[i][j] < 1 ? 'low' : fireRisk[i][j] < 3 ? 'medium' : 'high'}<br>Power ${powered[i][j] ? '✔' : '✘ none'} · Water ${watered[i][j] ? '✔' : '✘ none'}${powered[i][j] && watered[i][j] ? '' : ' (stays low density)'}<br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
     info.style.display = 'block';
   };
 

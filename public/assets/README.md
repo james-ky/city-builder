@@ -21,3 +21,22 @@ Drawn above the night shading with additive blending and faded in with darkness.
 ## Civic services
 Game keys `civic_school|highschool|police|fire|clinic|hospital` map (ALIAS in src/sprites.ts) to `school_elem`, `school_high`, `police`, `fire_station`, `clinic`, `hospital` (+ `_night`).
 Placed at the footprint centre toScreen(i0+(N-1)/2, j0+(N-1)/2), depth key i0+j0+N-1. Toolbar icons: `ui/icons/icon_<name>@2x.png`.
+
+## Power & water (milestone 4) — art needed
+Code placeholders are drawn until these exist; drop them into the manifest and they are picked up automatically.
+
+Buildings (same style and anchor rules as civic buildings; footprint in tiles):
+- `util_coal` 3x3: coal power plant (stacks, coal pile). Also `util_coal_night`.
+- `util_wind` 1x1: wind turbine. Optional `util_wind_night` (red aviation light).
+- `util_pump` 2x2: water pump house (always placed touching water). Also `util_pump_night`.
+- `util_tower` 1x1: elevated water tower. Optional `util_tower_night`.
+
+Networks (16 autotile masks each, same bits as roads: NE=1, SE=2, SW=4, NW=8):
+- `power_line_0` … `power_line_15`: pylon on the tile, wires toward the masked edges. Drawn over grass, water and roads (must read over a road tile).
+- `pipe_0` … `pipe_15`: underground water pipe, only shown in the underground view over dimmed terrain.
+
+UI icons (same size as the other ui/icons):
+- `icon_coal`, `icon_wind`, `icon_pump`, `icon_tower`: utility tool buttons.
+- `icon_power_line`, `icon_pipe`: toolbar tools.
+- `status_no_power`, `status_no_water`: small badges that float above a building with no power or water (currently a red disc with a bolt or a drop).
+- `icon_underground`: underground-view toggle (currently ⛏).

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "artRevision": "v3-soft3d-k",
+ "artRevision": "v3-soft3d-l",
  "displayScale": 0.5,
  "baseTile": [
   64,
@@ -6523,13 +6523,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_sedan_a_NE_night",
@@ -6551,13 +6567,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_sedan_a_SE",
@@ -6577,13 +6609,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_sedan_a_SE_night",
@@ -6605,13 +6653,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_sedan_a_SW",
@@ -6631,13 +6695,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_sedan_a_SW_night",
@@ -6659,13 +6739,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_sedan_a_NW",
@@ -6685,13 +6781,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_sedan_a_NW_night",
@@ -6713,13 +6825,29 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_sedan_b_NE",
@@ -6739,13 +6867,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_sedan_b_NE_night",
@@ -6767,13 +6911,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_sedan_b_SE",
@@ -6793,13 +6953,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_sedan_b_SE_night",
@@ -6821,13 +6997,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_sedan_b_SW",
@@ -6847,13 +7039,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_sedan_b_SW_night",
@@ -6875,13 +7083,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_sedan_b_NW",
@@ -6901,13 +7125,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_sedan_b_NW_night",
@@ -6929,13 +7169,29 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_sedan_c_NE",
@@ -6955,13 +7211,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_sedan_c_NE_night",
@@ -6983,13 +7255,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_sedan_c_SE",
@@ -7009,13 +7297,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_sedan_c_SE_night",
@@ -7037,13 +7341,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_sedan_c_SW",
@@ -7063,13 +7383,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_sedan_c_SW_night",
@@ -7091,13 +7427,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_sedan_c_NW",
@@ -7117,13 +7469,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_sedan_c_NW_night",
@@ -7145,13 +7513,29 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_hatchback_a_NE",
@@ -7171,13 +7555,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_hatchback_a_NE_night",
@@ -7199,13 +7599,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_hatchback_a_SE",
@@ -7225,13 +7641,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_hatchback_a_SE_night",
@@ -7253,13 +7685,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_hatchback_a_SW",
@@ -7279,13 +7727,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_hatchback_a_SW_night",
@@ -7307,13 +7771,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_hatchback_a_NW",
@@ -7333,13 +7813,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_hatchback_a_NW_night",
@@ -7361,13 +7857,29 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_hatchback_b_NE",
@@ -7387,13 +7899,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_hatchback_b_NE_night",
@@ -7415,13 +7943,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_hatchback_b_SE",
@@ -7441,13 +7985,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_hatchback_b_SE_night",
@@ -7469,13 +8029,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_hatchback_b_SW",
@@ -7495,13 +8071,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_hatchback_b_SW_night",
@@ -7523,13 +8115,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_hatchback_b_NW",
@@ -7549,13 +8157,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_hatchback_b_NW_night",
@@ -7577,13 +8201,29 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_hatchback_c_NE",
@@ -7603,13 +8243,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_hatchback_c_NE_night",
@@ -7631,13 +8287,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_hatchback_c_SE",
@@ -7657,13 +8329,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_hatchback_c_SE_night",
@@ -7685,13 +8373,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_hatchback_c_SW",
@@ -7711,13 +8415,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_hatchback_c_SW_night",
@@ -7739,13 +8459,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    -3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_hatchback_c_NW",
@@ -7765,13 +8501,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_hatchback_c_NW_night",
@@ -7793,13 +8545,29 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.2,
+   "lengthTiles": 0.204,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.102,
+   "bodyRear": -0.102,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -6.5,
+    -3.3
+   ],
+   "taillightOffsetPx": [
+    6.5,
+    3.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_pickup_a_NE",
@@ -7819,13 +8587,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_pickup_a_NE_night",
@@ -7847,13 +8631,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_pickup_a_SE",
@@ -7873,13 +8673,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_pickup_a_SE_night",
@@ -7901,13 +8717,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_pickup_a_SW",
@@ -7927,13 +8759,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_pickup_a_SW_night",
@@ -7955,13 +8803,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_pickup_a_NW",
@@ -7981,13 +8845,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_pickup_a_NW_night",
@@ -8009,13 +8889,29 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_pickup_b_NE",
@@ -8035,13 +8931,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_pickup_b_NE_night",
@@ -8063,13 +8975,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_pickup_b_SE",
@@ -8089,13 +9017,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_pickup_b_SE_night",
@@ -8117,13 +9061,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_pickup_b_SW",
@@ -8143,13 +9103,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_pickup_b_SW_night",
@@ -8171,13 +9147,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_pickup_b_NW",
@@ -8197,13 +9189,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_pickup_b_NW_night",
@@ -8225,13 +9233,29 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_pickup_c_NE",
@@ -8251,13 +9275,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_pickup_c_NE_night",
@@ -8279,13 +9319,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_pickup_c_SE",
@@ -8305,13 +9361,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_pickup_c_SE_night",
@@ -8333,13 +9405,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_pickup_c_SW",
@@ -8359,13 +9447,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_pickup_c_SW_night",
@@ -8387,13 +9491,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    -4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_pickup_c_NW",
@@ -8413,13 +9533,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_pickup_c_NW_night",
@@ -8441,13 +9577,29 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.265,
+   "lengthTiles": 0.269,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1345,
+   "bodyRear": -0.1345,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.6,
+    -4.3
+   ],
+   "taillightOffsetPx": [
+    8.6,
+    4.3
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_van_a_NE",
@@ -8467,13 +9619,29 @@
    "type": "van",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_van_a_NE_night",
@@ -8495,13 +9663,29 @@
    "type": "van",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_van_a_SE",
@@ -8521,13 +9705,29 @@
    "type": "van",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_van_a_SE_night",
@@ -8549,13 +9749,29 @@
    "type": "van",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_van_a_SW",
@@ -8575,13 +9791,29 @@
    "type": "van",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_van_a_SW_night",
@@ -8603,13 +9835,29 @@
    "type": "van",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_van_a_NW",
@@ -8629,13 +9877,29 @@
    "type": "van",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_van_a_NW_night",
@@ -8657,13 +9921,29 @@
    "type": "van",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_van_b_NE",
@@ -8683,13 +9963,29 @@
    "type": "van",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_van_b_NE_night",
@@ -8711,13 +10007,29 @@
    "type": "van",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_van_b_SE",
@@ -8737,13 +10049,29 @@
    "type": "van",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_van_b_SE_night",
@@ -8765,13 +10093,29 @@
    "type": "van",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_van_b_SW",
@@ -8791,13 +10135,29 @@
    "type": "van",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_van_b_SW_night",
@@ -8819,13 +10179,29 @@
    "type": "van",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_van_b_NW",
@@ -8845,13 +10221,29 @@
    "type": "van",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_van_b_NW_night",
@@ -8873,13 +10265,29 @@
    "type": "van",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_van_c_NE",
@@ -8899,13 +10307,29 @@
    "type": "van",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_van_c_NE_night",
@@ -8927,13 +10351,29 @@
    "type": "van",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_van_c_SE",
@@ -8953,13 +10393,29 @@
    "type": "van",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_van_c_SE_night",
@@ -8981,13 +10437,29 @@
    "type": "van",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_van_c_SW",
@@ -9007,13 +10479,29 @@
    "type": "van",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_van_c_SW_night",
@@ -9035,13 +10523,29 @@
    "type": "van",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    -4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_van_c_NW",
@@ -9061,13 +10565,29 @@
    "type": "van",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_van_c_NW_night",
@@ -9089,13 +10609,29 @@
    "type": "van",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.25,
+   "lengthTiles": 0.254,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.127,
+   "bodyRear": -0.127,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -8.1,
+    -4.1
+   ],
+   "taillightOffsetPx": [
+    8.1,
+    4.1
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_taxi_a_NE",
@@ -9115,13 +10651,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_taxi_a_NE_night",
@@ -9143,13 +10695,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_taxi_a_SE",
@@ -9169,13 +10737,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_taxi_a_SE_night",
@@ -9197,13 +10781,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_taxi_a_SW",
@@ -9223,13 +10823,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_taxi_a_SW_night",
@@ -9251,13 +10867,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    -3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_taxi_a_NW",
@@ -9277,13 +10909,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_taxi_a_NW_night",
@@ -9305,13 +10953,29 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.235,
+   "lengthTiles": 0.239,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1195,
+   "bodyRear": -0.1195,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -7.6,
+    -3.8
+   ],
+   "taillightOffsetPx": [
+    7.6,
+    3.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_bus_a_NE",
@@ -9331,13 +10995,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    19.4,
+    -9.7
+   ],
+   "taillightOffsetPx": [
+    -19.4,
+    9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_bus_a_NE_night",
@@ -9359,13 +11039,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    19.4,
+    -9.7
+   ],
+   "taillightOffsetPx": [
+    -19.4,
+    9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_bus_a_SE",
@@ -9385,13 +11081,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    19.4,
+    9.7
+   ],
+   "taillightOffsetPx": [
+    -19.4,
+    -9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_bus_a_SE_night",
@@ -9413,13 +11125,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    19.4,
+    9.7
+   ],
+   "taillightOffsetPx": [
+    -19.4,
+    -9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_bus_a_SW",
@@ -9439,13 +11167,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -19.4,
+    9.7
+   ],
+   "taillightOffsetPx": [
+    19.4,
+    -9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_bus_a_SW_night",
@@ -9467,13 +11211,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -19.4,
+    9.7
+   ],
+   "taillightOffsetPx": [
+    19.4,
+    -9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_bus_a_NW",
@@ -9493,13 +11253,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -19.4,
+    -9.7
+   ],
+   "taillightOffsetPx": [
+    19.4,
+    9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_bus_a_NW_night",
@@ -9521,13 +11297,29 @@
    "type": "bus",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.6,
+   "lengthTiles": 0.6055,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.303,
+   "bodyRear": -0.3025,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -19.4,
+    -9.7
+   ],
+   "taillightOffsetPx": [
+    19.4,
+    9.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_delivery_truck_a_NE",
@@ -9547,13 +11339,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_delivery_truck_a_NE_night",
@@ -9575,13 +11383,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_delivery_truck_a_SE",
@@ -9601,13 +11425,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_delivery_truck_a_SE_night",
@@ -9629,13 +11469,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_delivery_truck_a_SW",
@@ -9655,13 +11511,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_delivery_truck_a_SW_night",
@@ -9683,13 +11555,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_delivery_truck_a_NW",
@@ -9709,13 +11597,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_delivery_truck_a_NW_night",
@@ -9737,13 +11641,29 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_delivery_truck_b_NE",
@@ -9763,13 +11683,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_delivery_truck_b_NE_night",
@@ -9791,13 +11727,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_delivery_truck_b_SE",
@@ -9817,13 +11769,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_delivery_truck_b_SE_night",
@@ -9845,13 +11813,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    -11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_delivery_truck_b_SW",
@@ -9871,13 +11855,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_delivery_truck_b_SW_night",
@@ -9899,13 +11899,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    -5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_delivery_truck_b_NW",
@@ -9925,13 +11941,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_delivery_truck_b_NW_night",
@@ -9953,13 +11985,29 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.35,
+   "lengthTiles": 0.3565,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.1795,
+   "bodyRear": -0.177,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -11.5,
+    -5.7
+   ],
+   "taillightOffsetPx": [
+    11.3,
+    5.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_semi_a_NE",
@@ -9979,13 +12027,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_semi_a_NE_night",
@@ -10007,13 +12071,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_semi_a_SE",
@@ -10033,13 +12113,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_semi_a_SE_night",
@@ -10061,13 +12157,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_semi_a_SW",
@@ -10087,13 +12199,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_semi_a_SW_night",
@@ -10115,13 +12243,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_semi_a_NW",
@@ -10141,13 +12285,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_semi_a_NW_night",
@@ -10169,13 +12329,29 @@
    "type": "semi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_semi_b_NE",
@@ -10195,13 +12371,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_semi_b_NE_night",
@@ -10223,13 +12415,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "veh_semi_b_SE",
@@ -10249,13 +12457,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_semi_b_SE_night",
@@ -10277,13 +12501,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    -25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "veh_semi_b_SW",
@@ -10303,13 +12543,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_semi_b_SW_night",
@@ -10331,13 +12587,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    -12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "veh_semi_b_NW",
@@ -10357,13 +12629,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "veh_semi_b_NW_night",
@@ -10385,13 +12673,29 @@
    "type": "semi",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.8,
+   "lengthTiles": 0.792,
    "laneOffsetTiles": [
     0.075,
     0.225
    ],
    "style": "soft3d",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "bodyFront": 0.3945,
+   "bodyRear": -0.3975,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -25.2,
+    -12.6
+   ],
+   "taillightOffsetPx": [
+    25.4,
+    12.7
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "util_coal",
@@ -19305,8 +21609,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    12.8,
+    -6.4
+   ],
+   "taillightOffsetPx": [
+    -12.3,
+    6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_grader_NE_night",
@@ -19327,8 +21647,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    12.8,
+    -6.4
+   ],
+   "taillightOffsetPx": [
+    -12.3,
+    6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_grader_SE",
@@ -19347,8 +21683,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    12.8,
+    6.4
+   ],
+   "taillightOffsetPx": [
+    -12.3,
+    -6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_grader_SE_night",
@@ -19369,8 +21721,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    12.8,
+    6.4
+   ],
+   "taillightOffsetPx": [
+    -12.3,
+    -6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_grader_SW",
@@ -19389,8 +21757,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -12.8,
+    6.4
+   ],
+   "taillightOffsetPx": [
+    12.3,
+    -6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_grader_SW_night",
@@ -19411,8 +21795,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -12.8,
+    6.4
+   ],
+   "taillightOffsetPx": [
+    12.3,
+    -6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_grader_NW",
@@ -19431,8 +21831,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -12.8,
+    -6.4
+   ],
+   "taillightOffsetPx": [
+    12.3,
+    6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "work_truck_grader_NW_night",
@@ -19453,8 +21869,24 @@
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3925,
+   "style": "soft3d",
+   "bodyFront": 0.2,
+   "bodyRear": -0.1925,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -12.8,
+    -6.4
+   ],
+   "taillightOffsetPx": [
+    12.3,
+    6.2
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "work_truck_dump_NE",
@@ -19473,8 +21905,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NE",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    11.7,
+    -5.9
+   ],
+   "taillightOffsetPx": [
+    -11.5,
+    5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_dump_NE_night",
@@ -19495,8 +21943,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NE",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    11.7,
+    -5.9
+   ],
+   "taillightOffsetPx": [
+    -11.5,
+    5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_dump_SE",
@@ -19515,8 +21979,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SE",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    11.7,
+    5.9
+   ],
+   "taillightOffsetPx": [
+    -11.5,
+    -5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_dump_SE_night",
@@ -19537,8 +22017,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SE",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    11.7,
+    5.9
+   ],
+   "taillightOffsetPx": [
+    -11.5,
+    -5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_dump_SW",
@@ -19557,8 +22053,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SW",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -11.7,
+    5.9
+   ],
+   "taillightOffsetPx": [
+    11.5,
+    -5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_dump_SW_night",
@@ -19579,8 +22091,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SW",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -11.7,
+    5.9
+   ],
+   "taillightOffsetPx": [
+    11.5,
+    -5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_dump_NW",
@@ -19599,8 +22127,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NW",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -11.7,
+    -5.9
+   ],
+   "taillightOffsetPx": [
+    11.5,
+    5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "work_truck_dump_NW_night",
@@ -19621,8 +22165,24 @@
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NW",
-   "lengthTiles": 0.36,
-   "style": "soft3d"
+   "lengthTiles": 0.363,
+   "style": "soft3d",
+   "bodyFront": 0.183,
+   "bodyRear": -0.18,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -11.7,
+    -5.9
+   ],
+   "taillightOffsetPx": [
+    11.5,
+    5.8
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "work_truck_paver_NE",
@@ -19641,8 +22201,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NE",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    9.1,
+    -4.6
+   ],
+   "taillightOffsetPx": [
+    -9.1,
+    4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_paver_NE_night",
@@ -19663,8 +22239,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NE",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    9.1,
+    -4.6
+   ],
+   "taillightOffsetPx": [
+    -9.1,
+    4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_paver_SE",
@@ -19683,8 +22275,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SE",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    9.1,
+    4.6
+   ],
+   "taillightOffsetPx": [
+    -9.1,
+    -4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_paver_SE_night",
@@ -19705,8 +22313,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SE",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    9.1,
+    4.6
+   ],
+   "taillightOffsetPx": [
+    -9.1,
+    -4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_paver_SW",
@@ -19725,8 +22349,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SW",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -9.1,
+    4.6
+   ],
+   "taillightOffsetPx": [
+    9.1,
+    -4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_paver_SW_night",
@@ -19747,8 +22387,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SW",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -9.1,
+    4.6
+   ],
+   "taillightOffsetPx": [
+    9.1,
+    -4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_paver_NW",
@@ -19767,8 +22423,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NW",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -9.1,
+    -4.6
+   ],
+   "taillightOffsetPx": [
+    9.1,
+    4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "work_truck_paver_NW_night",
@@ -19789,8 +22461,24 @@
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NW",
-   "lengthTiles": 0.28,
-   "style": "soft3d"
+   "lengthTiles": 0.285,
+   "style": "soft3d",
+   "bodyFront": 0.1425,
+   "bodyRear": -0.1425,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -9.1,
+    -4.6
+   ],
+   "taillightOffsetPx": [
+    9.1,
+    4.6
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "work_truck_mixer_NE",
@@ -19809,8 +22497,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    12.7,
+    -6.3
+   ],
+   "taillightOffsetPx": [
+    -12.8,
+    6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_mixer_NE_night",
@@ -19831,8 +22535,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    12.7,
+    -6.3
+   ],
+   "taillightOffsetPx": [
+    -12.8,
+    6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_NE",
+   "taillightGlow": "fx_taillight_glow_NE"
   },
   {
    "name": "work_truck_mixer_SE",
@@ -19851,8 +22571,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    12.7,
+    6.3
+   ],
+   "taillightOffsetPx": [
+    -12.8,
+    -6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_mixer_SE_night",
@@ -19873,8 +22609,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SE",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    64,
+    32
+   ],
+   "headlightOffsetPx": [
+    12.7,
+    6.3
+   ],
+   "taillightOffsetPx": [
+    -12.8,
+    -6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_SE",
+   "taillightGlow": "fx_taillight_glow_SE"
   },
   {
    "name": "work_truck_mixer_SW",
@@ -19893,8 +22645,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -12.7,
+    6.3
+   ],
+   "taillightOffsetPx": [
+    12.8,
+    -6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_mixer_SW_night",
@@ -19915,8 +22683,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    -64,
+    32
+   ],
+   "headlightOffsetPx": [
+    -12.7,
+    6.3
+   ],
+   "taillightOffsetPx": [
+    12.8,
+    -6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_SW",
+   "taillightGlow": "fx_taillight_glow_SW"
   },
   {
    "name": "work_truck_mixer_NW",
@@ -19935,8 +22719,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -12.7,
+    -6.3
+   ],
+   "taillightOffsetPx": [
+    12.8,
+    6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "work_truck_mixer_NW_night",
@@ -19957,8 +22757,24 @@
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NW",
-   "lengthTiles": 0.38,
-   "style": "soft3d"
+   "lengthTiles": 0.3984,
+   "style": "soft3d",
+   "bodyFront": 0.198,
+   "bodyRear": -0.2004,
+   "travelAxisPx": [
+    -64,
+    -32
+   ],
+   "headlightOffsetPx": [
+    -12.7,
+    -6.3
+   ],
+   "taillightOffsetPx": [
+    12.8,
+    6.4
+   ],
+   "headlightGlow": "fx_headlight_glow_NW",
+   "taillightGlow": "fx_taillight_glow_NW"
   },
   {
    "name": "road_asphalt_0",
@@ -32403,6 +35219,174 @@
    "metresPerTile": 20,
    "nightOf": "prop_bus_stop_NW",
    "blend": "add"
+  },
+  {
+   "name": "fx_headlight_glow_SE",
+   "file": "vehicles/fx/fx_headlight_glow_SE@2x.png",
+   "size": [
+    62,
+    32
+   ],
+   "anchor": [
+    0.2742,
+    0.2812
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "SE",
+   "placeAt": "headlightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
+  },
+  {
+   "name": "fx_headlight_glow_SW",
+   "file": "vehicles/fx/fx_headlight_glow_SW@2x.png",
+   "size": [
+    62,
+    32
+   ],
+   "anchor": [
+    0.7097,
+    0.2812
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "SW",
+   "placeAt": "headlightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
+  },
+  {
+   "name": "fx_headlight_glow_NE",
+   "file": "vehicles/fx/fx_headlight_glow_NE@2x.png",
+   "size": [
+    62,
+    32
+   ],
+   "anchor": [
+    0.2742,
+    0.6875
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "NE",
+   "placeAt": "headlightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
+  },
+  {
+   "name": "fx_headlight_glow_NW",
+   "file": "vehicles/fx/fx_headlight_glow_NW@2x.png",
+   "size": [
+    62,
+    32
+   ],
+   "anchor": [
+    0.7097,
+    0.6875
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "NW",
+   "placeAt": "headlightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
+  },
+  {
+   "name": "fx_taillight_glow_SE",
+   "file": "vehicles/fx/fx_taillight_glow_SE@2x.png",
+   "size": [
+    28,
+    14
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "SE",
+   "placeAt": "taillightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
+  },
+  {
+   "name": "fx_taillight_glow_SW",
+   "file": "vehicles/fx/fx_taillight_glow_SW@2x.png",
+   "size": [
+    28,
+    14
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "SW",
+   "placeAt": "taillightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
+  },
+  {
+   "name": "fx_taillight_glow_NE",
+   "file": "vehicles/fx/fx_taillight_glow_NE@2x.png",
+   "size": [
+    28,
+    14
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "NE",
+   "placeAt": "taillightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
+  },
+  {
+   "name": "fx_taillight_glow_NW",
+   "file": "vehicles/fx/fx_taillight_glow_NW@2x.png",
+   "size": [
+    28,
+    14
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "blend": "add",
+   "category": "vehicle_fx",
+   "direction": "NW",
+   "placeAt": "taillightOffsetPx",
+   "style": "soft3d",
+   "drawOrder": "underVehicle"
   }
  ],
  "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 \u2014 see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix \u2014 builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas.",
@@ -32410,5 +35394,6 @@
   "manifest": "parts/manifest.json",
   "count": 88
  },
- "revision": "v3-soft3d-k"
+ "revision": "v3-soft3d-l",
+ "vehicleBodyNote": "Vehicle collision/body fields (rev v3-soft3d-l). Travel axis = the vehicle's facing direction on the iso grid. bodyFront/bodyRear: signed distance in TILES (1 tile = 20 m) along the travel axis from the sprite anchor (vehicle ground centre) to the front/rear bumper; front positive, rear negative. lengthTiles = bodyFront - bodyRear (true bumper-to-bumper length, measured from Blender geometry incl. lamps, cross-checked against rendered alpha). Bumper-to-bumper queue: centre distance between follower F and leader L = F.bodyFront - L.bodyRear + gap, i.e. place F anchor at L anchor - (F.bodyFront - L.bodyRear + gap) along the axis. travelAxisPx = screen offset in 2x px for +1 tile along travel (SE [64,32], SW [-64,32], NE [64,-32], NW [-64,-32]); divide by 2 for 1x screen px. headlightOffsetPx/taillightOffsetPx = bodyFront/bodyRear * travelAxisPx, in 2x px from the vehicle anchor: put the anchor of headlightGlow/taillightGlow (fx_*, blend add, layer night) there. Both fx glows are ground light: draw them UNDER the vehicle sprites (drawOrder 'underVehicle'). A taillight glow drawn over the body puts red light on the box/cab side and reads as a reversed vehicle. The sprite canvas is NOT centred on the body (anchor x != 0.5) - never space cars by canvas width."
 }

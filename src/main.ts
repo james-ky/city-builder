@@ -833,11 +833,18 @@ function diamond(g: Graphics, i: number, j: number) {
               cars.push(c); } } }
       } else if (cars.length > target + 5) { dropCar(cars.length - 1); }
     }
+    const lane = new Map<number, number[]>(), segK = (pi: number, pj: number, i: number, j: number) => ((pi * N + pj) * 8 + (i - pi + 1) * 2 + (j - pj + 1 >> 1)) | 0;
+    for (const c of cars) { const k = segK(c.pi, c.pj, c.i, c.j); const l = lane.get(k); if (l) l.push(c.t); else lane.set(k, [c.t]); }
+    const GAP = 0.55; // simple spacing: keep about half a tile behind the car ahead in the same lane
+    const blocked = (k: number, t: number, self: boolean) => { const l = lane.get(k); if (!l) return false; for (const u of l) if (u > t + (self ? 1e-6 : -1) && u - t < GAP && !(self && u === t)) return true; return false; };
     for (let k = cars.length - 1; k >= 0; k--) { const c = cars[k];
       if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj) || !fx.cars || !chunkOf(c.i, c.j).vis) { dropCar(k); continue; }
-      if (sim.speed) c.t += dt * c.sp;
+      const ck = segK(c.pi, c.pj, c.i, c.j);
+      if (sim.speed && !blocked(ck, c.t, true)) { const l = lane.get(ck)!, ix = l.indexOf(c.t); c.t = Math.min(1, c.t + dt * c.sp); if (ix >= 0) l[ix] = c.t; }
       if (c.t >= 1) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); const nx = nb.length ? nb[Math.floor(Math.random() * nb.length)] : [c.pi, c.pj];
-        c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; const ob = chunkOf(c.i, c.j).ob; if (c.s.parent !== ob) { ob.addChild(c.s); if (c.n) ob.addChild(c.n); } }
+        const nk = segK(c.i, c.j, nx[0], nx[1]), nl = lane.get(nk); if (nl && nl.some(u => u < GAP - 0.45)) { c.t = 1; } else {
+        const ol = lane.get(ck); if (ol) { const ix = ol.indexOf(c.t); if (ix >= 0) ol.splice(ix, 1); } if (nl) nl.push(0); else lane.set(nk, [0]);
+        c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; const ob = chunkOf(c.i, c.j).ob; if (c.s.parent !== ob) { ob.addChild(c.s); if (c.n) ob.addChild(c.n); } } }
       const a = toScreen(c.pi, c.pj), b = toScreen(c.i, c.j), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
       const di = c.i - c.pi, dir = di > 0 ? 'SE' : di < 0 ? 'NW' : c.j < c.pj ? 'NE' : 'SW';
       if (c.s instanceof Graphics && !hasArt(c.key + '_NE')) { const ox = -dy / L * 5, oy = dx / L * 5; c.s.position.set(a.x + dx * c.t + ox, a.y + dy * c.t + oy); c.s.rotation = Math.atan2(dy, dx); }

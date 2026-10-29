@@ -1,5 +1,5 @@
 import { Jazz } from './music';
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Container, Graphics, Sprite } from 'pixi.js';
 import { loadManifest, place, hasArt } from './sprites';
 
 const N = 64, TW = 64, TH = 32;
@@ -48,7 +48,10 @@ function diamond(g: Graphics, i: number, j: number) {
 
   await loadManifest();
   const groundL = new Container(), roadL = new Container(), zoneL = new Container(), gridL = new Container(), objL = new Container();
-  world.addChild(groundL, roadL, zoneL, gridL, objL);
+  const pollL = new Container(), carL = new Container(), cloudL = new Container(), nightG = new Graphics(), lightsG = new Graphics(), skyL = new Container();
+  world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, objL, cloudL, nightG, lightsG, skyL);
+  const trees: { s: { skew: { x: number } }; ph: number }[] = [];
+  const blds: { x: number; y: number; z: string; L: number; seed: number }[] = [];
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
   const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
@@ -99,7 +102,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
   const redraw = () => {
-    clear(roadL); clear(zoneL); clear(objL);
+    clear(roadL); clear(zoneL); clear(objL); trees.length = 0; blds.length = 0;
     computeNear();
     for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
       const { x, y } = toScreen(i, j), seed = seedOf(i, j);
@@ -109,8 +112,8 @@ function diamond(g: Graphics, i: number, j: number) {
       } else if (zone[i][j]) {
         if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
         if (consT[i][j]) place(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, objL, seed);
-        else if (bld[i][j]) place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed);
-      } else if (terrain[i][j] === 'forest') place('forest', x, y, objL, seed);
+        else if (bld[i][j]) { place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
+      } else if (terrain[i][j] === 'forest') trees.push({ s: place('forest', x, y, objL, seed), ph: (seed % 628) / 100 });
     }
   };
   redraw();
@@ -193,7 +196,16 @@ function diamond(g: Graphics, i: number, j: number) {
   const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0 };
   let downAt: { x: number; y: number } | null = null;
   const clamp = (v: number) => Math.max(-1, Math.min(1, v));
+  const poll: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  const computePollution = () => { // spreads up to 5 tiles from industry, stronger for higher tiers
+    for (const row of poll) row.fill(0);
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j] === 'I' && bld[i][j]) {
+      const L = bld[i][j];
+      for (let a = -5; a <= 5; a++) for (let b = -5; b <= 5; b++) { const d = Math.hypot(a, b); if (d <= 5 && inb(i + a, j + b)) poll[i + a][j + b] += L * (1 - d / 6); }
+    }
+  };
   const census = () => {
+    computePollution(); drawPollution();
     sim.pop = sim.jobsC = sim.jobsI = 0;
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (bld[i][j]) {
       const v = CAP[zone[i][j]][bld[i][j]];
@@ -205,7 +217,7 @@ function diamond(g: Graphics, i: number, j: number) {
     sim.dI = clamp((60 + sim.day * 0.4 + workers * 0.6 - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); // outside demand + workforce
   };
   const tick = () => {
-    sim.day++; let changed = false;
+    lastTick = performance.now(); sim.day++; let changed = false;
     const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
       const z = zone[i][j]; if (!z) continue;
@@ -215,7 +227,7 @@ function diamond(g: Graphics, i: number, j: number) {
         else if (consD[i][j] % CONS_DAYS === 0) changed = true;
         continue;
       }
-      const dem = d[z], L = bld[i][j];
+      const dem = d[z] - (z === 'R' ? Math.min(0.4, poll[i][j] * 0.04) : 0), L = bld[i][j]; // pollution slightly discourages housing
       if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; changed = true; } continue; } // lost road access
       const before = bld[i][j];
       if (dem > 0 && L < 3) {
@@ -232,7 +244,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
   const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
   const updateStats = () => {
-    stats.querySelector('#nums')!.innerHTML = `<b>${dateStr()}</b> · Population <b>${sim.pop.toLocaleString()}</b> · Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b> <small>(C ${sim.jobsC} / I ${sim.jobsI})</small>`;
+    stats.querySelector('#nums')!.innerHTML = `<b>${dateStr()}</b> <span id="tod"></span> · Population <b>${sim.pop.toLocaleString()}</b> · Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b> <small>(C ${sim.jobsC} / I ${sim.jobsI})</small>`;
     stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
   };
   let timer = 0;
@@ -244,6 +256,16 @@ function diamond(g: Graphics, i: number, j: number) {
   let lastSpeed = 1;
   stats.querySelectorAll('#speed button').forEach(b => (b as HTMLElement).onclick = () => setSpeed(+(b as HTMLElement).dataset.s!));
   window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); if (sim.speed) { lastSpeed = sim.speed; setSpeed(0); } else setSpeed(lastSpeed); } });
+  // ---- "alive" effects (all code-drawn; toggled in the gear menu) ----
+  const FX = ['clouds', 'smoke', 'pollution', 'cars', 'daynight', 'nature', 'ambient'] as const;
+  const FXNAME: Record<string, string> = { clouds: 'Cloud shadows', smoke: 'Factory smoke', pollution: 'Pollution overlay', cars: 'Traffic', daynight: 'Day / night', nature: 'Birds & swaying trees', ambient: 'City ambience (with music)' };
+  const fx: Record<string, boolean> = { clouds: true, smoke: true, pollution: false, cars: true, daynight: true, nature: true, ambient: true, ...JSON.parse(localStorage.getItem('fx') ?? '{}') };
+  let lastTick = performance.now();
+  const drawPollution = () => {
+    clear(pollL); if (!fx.pollution) return;
+    const g = new Graphics(); pollL.addChild(g);
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (poll[i][j] > 0.3) { diamond(g, i, j); g.fill({ color: 0x6b4a1e, alpha: Math.min(0.55, poll[i][j] * 0.07) }); }
+  };
   census(); updateStats(); setSpeed(1);
   // ---- music (procedural, original) ----
   const jazz = new Jazz();
@@ -263,7 +285,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (inb(i, j) && consT[i][j]) { info.innerHTML = `<b>${ZNAME[zone[i][j]]} — under construction</b><br>Building: ${DNAME[consT[i][j]]}<br>Stage ${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))} of 3<br><small>Tile ${i}, ${j}</small>`; info.style.display = 'block'; return; }
     if (!inb(i, j) || !bld[i][j]) { info.style.display = 'none'; return; }
     const z = zone[i][j], v = CAP[z][bld[i][j]];
-    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br><small>Tile ${i}, ${j}</small>`;
+    info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br>Pollution: ${poll[i][j] < 0.5 ? 'none' : poll[i][j] < 3 ? 'low' : poll[i][j] < 6 ? 'medium' : 'high'}<br><small>Tile ${i}, ${j}</small>`;
     info.style.display = 'block';
   };
 
@@ -298,6 +320,95 @@ function diamond(g: Graphics, i: number, j: number) {
   window.addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
   window.addEventListener('blur', () => keys.clear());
 
+  const dot = (() => { const g = new Graphics().circle(16, 16, 16).fill(0xffffff); const t = app.renderer.generateTexture(g); g.destroy(); return t; })();
+  const cloudTex = (() => { const g = new Graphics(); for (let k = 10; k >= 1; k--) g.ellipse(160, 80, 16 * k, 8 * k).fill({ color: 0x000000, alpha: 0.03 }); const t = app.renderer.generateTexture(g); g.destroy(); return t; })();
+  const W0 = toScreen(0, N - 1).x - TW, W1 = toScreen(N - 1, 0).x + TW, H1 = toScreen(N - 1, N - 1).y + TH;
+  const clouds = [...Array(7)].map((_, k) => { const s = new Sprite(cloudTex); s.anchor.set(0.5); s.scale.set(1.5 + (k % 3) * 0.8, 1.2 + (k % 2) * 0.6); s.position.set(W0 + (W1 - W0) * k / 7, H1 * ((k * 37) % 100) / 100); cloudL.addChild(s); return s; });
+  type P = { s: Sprite; vx: number; vy: number; life: number; max: number };
+  const smoke: P[] = []; let smokeAcc = 0;
+  type Car = { s: Graphics; i: number; j: number; pi: number; pj: number; t: number; sp: number };
+  const cars: Car[] = [];
+  const CAR_COLORS = [0xd94040, 0xf0f0f0, 0x3a6fd8, 0xf2c230, 0x333333, 0x40a060];
+  const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => isRoad(a, b));
+  const activity = (i: number, j: number) => { let v = 0; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (inb(i + a, j + b) && bld[i + a][j + b]) v += CAP[zone[i + a][j + b]][bld[i + a][j + b]]; return v; };
+  const roadList = () => { const r: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) r.push([i, j]); return r; };
+  const water: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (terrain[i][j] === 'water' && shoreMask(i, j) === 0) water.push([i, j]);
+  const flocks = [...Array(Math.min(4, water.length))].map((_, k) => {
+    const [i, j] = water[Math.floor(water.length * (k + 0.5) / 4)]; const c = toScreen(i, j);
+    const birds = [...Array(4)].map(() => { const g = new Graphics().moveTo(-4, -1).lineTo(0, 1).lineTo(4, -1).stroke({ width: 1.2, color: 0x222222 }); skyL.addChild(g); return g; });
+    return { cx: c.x, cy: c.y - 40, r: 40 + k * 15, ph: k * 1.7, birds };
+  });
+  const setFxVisibility = () => { cloudL.visible = fx.clouds; carL.visible = fx.cars; skyL.visible = fx.nature || fx.smoke; if (!fx.daynight) { nightG.clear(); lightsG.alpha = 0; app.renderer.background.color = 0x1b2430; } drawPollution(); jazz.setAmbient(fx.ambient); };
+  const menu = document.getElementById('fxMenu')!;
+  menu.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
+  menu.querySelectorAll('input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
+  document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
+  setFxVisibility();
+  let clock = 0, lastLights = '';
+  const drawLights = () => {
+    lightsG.clear();
+    for (const b of blds) {
+      const H = b.L === 3 ? (b.z === 'I' ? 26 : 70) : b.L === 2 ? 34 : 18;
+      const n = 2 + b.L * 3;
+      for (let k = 0; k < n; k++) { const r1 = ((b.seed >>> (k * 3)) & 1023) / 1023, r2 = ((b.seed >>> (k * 2 + 5)) & 1023) / 1023;
+        if (r2 < 0.3) continue;
+        const side = k % 2 ? 1 : -1, ox = side * (4 + r1 * 14), oy = -6 - r2 * (H - 8);
+        lightsG.rect(b.x + ox, b.y + oy, 2.5, 3).fill(0xffe28a); }
+    }
+  };
+  let night = 0;
+  app.ticker.add(t => {
+    const dt = t.deltaMS / 1000; clock += dt;
+    // day/night: one full cycle every 24 game-days, smoothed between ticks
+    const frac = sim.speed ? Math.min(1, (performance.now() - lastTick) * sim.speed / 1000) : 0;
+    const hour = (((sim.day + frac) % 24) + 24) % 24;
+    night = fx.daynight ? Math.max(0, Math.min(1, Math.cos(2 * Math.PI * hour / 24) * 1.3 + 0.15)) : 0;
+    const tod = document.getElementById('tod'); if (tod) tod.textContent = (night > 0.5 ? '🌙 ' : '☀️ ') + String(Math.floor(hour)).padStart(2, '0') + ':00';
+    if (fx.daynight) {
+      nightG.clear().rect(W0 - 2000, -2000, W1 - W0 + 4000, H1 + 4000).fill({ color: 0x0a1030, alpha: night * 0.5 });
+      const sig = blds.length + ':' + sim.pop; if (sig !== lastLights) { drawLights(); lastLights = sig; }
+      lightsG.alpha = night;
+      app.renderer.background.color = night > 0.5 ? 0x0d1220 : 0x1b2430;
+    }
+    if (fx.clouds) for (const c of clouds) { c.x += 12 * dt; c.y += 3 * dt; if (c.x > W1 + 300) { c.x = W0 - 300; c.y = Math.random() * H1; } }
+    if (fx.nature) {
+      for (const tr of trees) tr.s.skew.x = Math.sin(clock * 1.3 + tr.ph) * 0.03;
+      for (const f of flocks) f.birds.forEach((b, k) => { const a = clock * 0.4 + f.ph + k * 0.25; b.position.set(f.cx + Math.cos(a) * f.r + k * 6, f.cy + Math.sin(a) * f.r * 0.5 - k * 3); b.scale.y = 0.6 + Math.abs(Math.sin(clock * 8 + k)) * 0.8; });
+    }
+    for (const f of flocks) for (const b of f.birds) b.visible = fx.nature;
+    if (fx.smoke) {
+      smokeAcc += dt;
+      if (smokeAcc > 0.12) { smokeAcc = 0;
+        for (const b of blds) if (b.z === 'I' && smoke.length < 260 && Math.random() < 0.12 * b.L) {
+          const s = new Sprite(dot); s.anchor.set(0.5); s.tint = 0xcfcac2; s.alpha = 0.5; s.scale.set(0.12);
+          s.position.set(b.x + 10 + (b.seed % 7) - 3, b.y - 22 - b.L * 6); skyL.addChild(s);
+          smoke.push({ s, vx: 4 + Math.random() * 4, vy: -10 - Math.random() * 6, life: 0, max: 3 + Math.random() * 2 });
+        } }
+    }
+    for (let k = smoke.length - 1; k >= 0; k--) { const p = smoke[k]; p.life += dt;
+      if (p.life > p.max || !fx.smoke) { p.s.destroy(); smoke.splice(k, 1); continue; }
+      p.s.x += p.vx * dt; p.s.y += p.vy * dt; p.s.scale.set(0.12 + p.life * 0.12); p.s.alpha = 0.5 * (1 - p.life / p.max); }
+    if (fx.cars) {
+      const target = Math.min(90, Math.floor((sim.pop + sim.jobsC + sim.jobsI) / 18));
+      if (cars.length < target && Math.random() < 0.3) {
+        const rl = roadList();
+        if (rl.length > 1) { const [i, j] = rl[Math.floor(Math.random() * rl.length)];
+          if (Math.random() < Math.min(1, activity(i, j) / 150 + 0.05)) { const nb = roadNbrs(i, j);
+            if (nb.length) { const s = new Graphics().roundRect(-3.5, -2, 7, 4, 1.2).fill(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]); carL.addChild(s);
+              cars.push({ s, pi: i, pj: j, i: nb[0][0], j: nb[0][1], t: Math.random(), sp: 1.2 + Math.random() * 0.6 }); } } }
+      } else if (cars.length > target + 5) { cars.pop()!.s.destroy(); }
+    }
+    for (let k = cars.length - 1; k >= 0; k--) { const c = cars[k];
+      if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj)) { c.s.destroy(); cars.splice(k, 1); continue; }
+      if (sim.speed) c.t += dt * c.sp;
+      if (c.t >= 1) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); const nx = nb.length ? nb[Math.floor(Math.random() * nb.length)] : [c.pi, c.pj];
+        c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; }
+      const a = toScreen(c.pi, c.pj), b = toScreen(c.i, c.j), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
+      const ox = -dy / L * 5, oy = dx / L * 5; // keep right
+      c.s.position.set(a.x + dx * c.t + ox, a.y + dy * c.t + oy); c.s.rotation = Math.atan2(dy, dx);
+    }
+  });
+  (window as any).__fx = { fx, cars, smoke, setDay: (d: number) => { sim.day = d; lastTick = performance.now(); } };
   app.ticker.add(t => {
     const sp = 600 * (t.deltaMS / 1000) / zoom;
     if (keys.has('a') || keys.has('arrowleft')) camX -= sp;

@@ -46,11 +46,11 @@ const GROUND: Record<string, number[]> = { water: [0x2f6fb3, 0x3478bd], sand: [0
 const EDGE: [number, number][] = [[16, -8], [16, 8], [-16, 8], [-16, -8]];
 
 /** Place sprite `key` on the tile centred at (x,y) into `layer`. PNG art if the manifest has it, else code art. */
-export function place(key: string, x: number, y: number, layer: Container, seed = 0) {
+export function place(key: string, x: number, y: number, layer: Container, seed = 0): Sprite | Graphics {
   const a = resolve(key, seed);
   if (a) {
     const s = new Sprite(a.tex); s.anchor.set(a.anchor[0], a.anchor[1]); s.scale.set(a.scale); s.position.set(x, y);
-    layer.addChild(s); return;
+    layer.addChild(s); return s;
   }
   const g = new Graphics(); layer.addChild(g);
   const dia = (k = 1) => g.poly([x, y - TH / 2 * k, x + TW / 2 * k, y, x, y + TH / 2 * k, x - TW / 2 * k, y]);
@@ -85,6 +85,7 @@ export function place(key: string, x: number, y: number, layer: Container, seed 
     if (z === 'I') g.rect(x + 6, y - h - 12 - L * 4, 4, 10 + L * 4).fill(0x6b6460);
     if (L >= 2) for (let f = 1; f < h / 8; f++) g.moveTo(x - TW / 2 * k + 2, y - f * 8 + 1).lineTo(x - 2, y + TH / 2 * k - f * 8 - 1).stroke({ width: 1, color: 0x334455, alpha: 0.35 });
   }
+  return g;
 }
 const shade = (c: number, f: number) => { const ch = (s: number) => Math.min(255, Math.round(((c >> s) & 255) * f)); return (ch(16) << 16) | (ch(8) << 8) | ch(0); };
 function box(g: Graphics, x: number, y: number, a: number, b: number, h: number, wall: number, roof: number) {

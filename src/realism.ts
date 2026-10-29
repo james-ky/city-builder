@@ -70,3 +70,23 @@ export const ECON = {
 
 export const fmtPower = (kw: number) => kw >= 1000 ? (kw / 1000).toFixed(kw >= 100000 ? 0 : 1) + ' MW' : Math.round(kw) + ' kW';
 export const fmtWater = (g: number) => g >= 1e6 ? (g / 1e6).toFixed(2) + ' Mgal/d' : g >= 1000 ? (g / 1000).toFixed(g >= 100000 ? 0 : 1) + 'k gal/d' : Math.round(g) + ' gal/d';
+
+// =====================================================================================
+// ROADS — per-tile (≈20 m of road) build cost, monthly upkeep, and construction time.
+// Real-world rules of thumb (US, 2-lane local road, per lane-mile ≈ 80 tiles of 2-lane road per mile):
+//   - Graded dirt/gravel road: ~$50k–150k per mile to build, but needs re-grading/dust control
+//     several times a year (~$2–5k/mile/yr) — cheap to build, relatively costly to keep up.
+//   - Asphalt 2-lane: ~$1.5–3 M per mile new; mill & overlay every ~12–15 yrs (~$8–15k/mile/yr).
+//   - Jointed concrete: ~1.5–2× asphalt up front, lasts 30–40 yrs with little upkeep (~$2–4k/mile/yr).
+// Game scale: the game economy is ~1/1,000–1/2,000 of real dollars, so a real $30k asphalt tile ≈ $25.
+// Upkeep is per tile per month. Speed/capacity are multipliers on traffic (1 = asphalt).
+// Construction days: marked → graded → gravel base → surface (dirt stops after grading).
+// =====================================================================================
+export type RoadTier = 1 | 2 | 3; // 1 dirt · 2 asphalt · 3 concrete
+export const ROAD_TIERS: Record<RoadTier, { name: string; build: number; upkeep: number; speed: number; capacity: number; days: number[] }> = {
+  1: { name: 'Dirt',     build: 6,   upkeep: 0.6,  speed: 0.6, capacity: 0.4, days: [2, 4] },        // survey 2 d, grade 4 d
+  2: { name: 'Asphalt',  build: 25,  upkeep: 1.0,  speed: 1.0, capacity: 1.0, days: [2, 4, 3, 4] },  // + gravel base 3 d, paving 4 d
+  3: { name: 'Concrete', build: 70,  upkeep: 0.25, speed: 1.1, capacity: 1.2, days: [2, 4, 3, 10] }, // concrete pour + curing ≈ 10 d
+};
+/** Upgrading in place costs the price difference; works start at the gravel stage, old road stays open meanwhile. */
+export const roadUpgradeCost = (from: RoadTier, to: RoadTier) => Math.max(0, ROAD_TIERS[to].build - ROAD_TIERS[from].build);

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "artRevision": "v3-soft3d",
+ "artRevision": "v3-soft3d-e",
  "displayScale": 0.5,
  "baseTile": [
   64,
@@ -338,6 +338,142 @@
    "files": "roads/road_asphalt_<mask>@2x.png",
    "count": 16,
    "rule": "v3 refreshed asphalt; same mask scheme. Legacy road_NN_* set kept."
+  },
+  "street_asphalt": {
+   "bits": {
+    "NE": 1,
+    "SE": 2,
+    "SW": 4,
+    "NW": 8
+   },
+   "neighbourOffsets_di_dj": {
+    "NE": [
+     0,
+     -1
+    ],
+    "SE": [
+     1,
+     0
+    ],
+    "SW": [
+     0,
+     1
+    ],
+    "NW": [
+     -1,
+     0
+    ]
+   },
+   "files": "roads/street_asphalt_<mask>@2x.png",
+   "count": 16,
+   "rule": "20 m per tile. 4 lanes x 3.0 m (12 m asphalt = 0.60 tile), 1.75 m sidewalks, no parking. Lane centres +-0.075 and +-0.225 tile from the centre line (right-hand: inner lane 0.075, outer 0.225)."
+  },
+  "street_concrete": {
+   "bits": {
+    "NE": 1,
+    "SE": 2,
+    "SW": 4,
+    "NW": 8
+   },
+   "neighbourOffsets_di_dj": {
+    "NE": [
+     0,
+     -1
+    ],
+    "SE": [
+     1,
+     0
+    ],
+    "SW": [
+     0,
+     1
+    ],
+    "NW": [
+     -1,
+     0
+    ]
+   },
+   "files": "roads/street_concrete_<mask>@2x.png",
+   "count": 16,
+   "rule": "20 m per tile. 4 lanes x 3.0 m (12 m asphalt = 0.60 tile), 1.75 m sidewalks, no parking. Lane centres +-0.075 and +-0.225 tile from the centre line (right-hand: inner lane 0.075, outer 0.225)."
+  },
+  "avenue_asphalt": {
+   "bits": {
+    "NE": 1,
+    "SE": 2,
+    "SW": 4,
+    "NW": 8
+   },
+   "neighbourOffsets_di_dj": {
+    "NE": [
+     0,
+     -1
+    ],
+    "SE": [
+     1,
+     0
+    ],
+    "SW": [
+     0,
+     1
+    ],
+    "NW": [
+     -1,
+     0
+    ]
+   },
+   "files": "roads/avenue_asphalt_<mask>@2x.png",
+   "count": 16,
+   "rule": "20 m per tile. One carriageway per tile: 2 lanes x 3.3 m, 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.1325 and 0.2975 tile from the median line (shared edge of the two halves). Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
+  },
+  "avenue_concrete": {
+   "bits": {
+    "NE": 1,
+    "SE": 2,
+    "SW": 4,
+    "NW": 8
+   },
+   "neighbourOffsets_di_dj": {
+    "NE": [
+     0,
+     -1
+    ],
+    "SE": [
+     1,
+     0
+    ],
+    "SW": [
+     0,
+     1
+    ],
+    "NW": [
+     -1,
+     0
+    ]
+   },
+   "files": "roads/avenue_concrete_<mask>@2x.png",
+   "count": 16,
+   "rule": "20 m per tile. One carriageway per tile: 2 lanes x 3.3 m, 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.1325 and 0.2975 tile from the median line (shared edge of the two halves). Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
+  },
+  "avenue_extras": {
+   "tiers": [
+    "asphalt",
+    "concrete"
+   ],
+   "files": "roads/avenue_<tier>_<kind>_<key>@2x.png",
+   "metresPerTile": 20,
+   "profile": "a = 0 at the outer edge .. 1 at the partner (median) edge: verge <0.5325 | sidewalk 0.5325-0.62 | lanes 0.62-0.95 (2 x 3.3 m) | half-median 0.95-1.0. Lane centres 0.1325 / 0.2975 tile from the median line.",
+   "LR": "Standing in the tile facing the partner edge P: L = counter-clockwise edge, R = clockwise edge (clockwise order NE->SE->SW->NW). Partner NE: L=NW, R=SE; SE: L=NE, R=SW; SW: L=SE, R=NW; NW: L=SW, R=NE.",
+   "kinds": {
+    "end_<P>_<L|R>": "half enters through edge L/R and ends; median stops, lanes open across P into the partner end tile (U-turn). Pair: end_<P>_<s> with the partner end tile entering from the same edge direction.",
+    "corner_<P>_<L|R>": "INNER half of a 90-degree bend: enters through L/R, leaves through the edge opposite P; medians on P and opposite L/R.",
+    "corner_outer_<N|E|S|W>": "OUTER half of the bend (diagonal tile of the 2x2 bend block). Vertex = tile corner nearest the inner tile. The two other outer tiles of the bend are ordinary halves.",
+    "tee_<P>": "side street joins on the outer edge (opposite P); median break + turn arrows. Put gap_<partner> on the far half.",
+    "gap_<P>": "median break only (far half opposite a tee).",
+    "cross_<P>": "a street crosses the avenue: street on the outer edge, median break, crosswalks + stop bar. Use cross_ on both halves; streets continue on both outer edges."
+   },
+   "example_bend": "avenue along j (i=3 partner SE, i=4 partner NW) turning toward +i: (4,6)=corner_NW_R, (3,7)=corner_outer_E, (3,6)=half mask 7, (4,7)=half mask 11, then (i,6)=mask 14 / (i,7)=mask 11 for i>=5.",
+   "note": "Avenue meets 2-lane roads: the street (12 m) profile is used on the outer edge; legacy road_* tiles are 10 m-era and do not match."
   }
  },
  "assets": [
@@ -6360,12 +6496,12 @@
    "name": "veh_sedan_a_NE",
    "file": "vehicles/veh_sedan_a_NE@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6374,19 +6510,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_a_NE_night",
    "file": "vehicles/veh_sedan_a_NE_night@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6397,19 +6538,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_a_SE",
    "file": "vehicles/veh_sedan_a_SE@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6418,19 +6564,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_a_SE_night",
    "file": "vehicles/veh_sedan_a_SE_night@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6441,19 +6592,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_a_SW",
    "file": "vehicles/veh_sedan_a_SW@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6462,19 +6618,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_a_SW_night",
    "file": "vehicles/veh_sedan_a_SW_night@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6485,19 +6646,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_a_NW",
    "file": "vehicles/veh_sedan_a_NW@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6506,19 +6672,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_a_NW_night",
    "file": "vehicles/veh_sedan_a_NW_night@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6529,19 +6700,24 @@
    "type": "sedan",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_NE",
    "file": "vehicles/veh_sedan_b_NE@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6550,19 +6726,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_NE_night",
    "file": "vehicles/veh_sedan_b_NE_night@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6573,19 +6754,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_SE",
    "file": "vehicles/veh_sedan_b_SE@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6594,19 +6780,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_SE_night",
    "file": "vehicles/veh_sedan_b_SE_night@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6617,19 +6808,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_SW",
    "file": "vehicles/veh_sedan_b_SW@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6638,19 +6834,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_SW_night",
    "file": "vehicles/veh_sedan_b_SW_night@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6661,19 +6862,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_NW",
    "file": "vehicles/veh_sedan_b_NW@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6682,19 +6888,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_b_NW_night",
    "file": "vehicles/veh_sedan_b_NW_night@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6705,19 +6916,24 @@
    "type": "sedan",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_NE",
    "file": "vehicles/veh_sedan_c_NE@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6726,19 +6942,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_NE_night",
    "file": "vehicles/veh_sedan_c_NE_night@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6749,19 +6970,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_SE",
    "file": "vehicles/veh_sedan_c_SE@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6770,19 +6996,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_SE_night",
    "file": "vehicles/veh_sedan_c_SE_night@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6793,19 +7024,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_SW",
    "file": "vehicles/veh_sedan_c_SW@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6814,19 +7050,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_SW_night",
    "file": "vehicles/veh_sedan_c_SW_night@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6837,19 +7078,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_NW",
    "file": "vehicles/veh_sedan_c_NW@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6858,19 +7104,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_sedan_c_NW_night",
    "file": "vehicles/veh_sedan_c_NW_night@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6881,19 +7132,24 @@
    "type": "sedan",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_NE",
    "file": "vehicles/veh_hatchback_a_NE@2x.png",
    "size": [
-    66,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.4061,
-    0.57
+    0.3494,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6902,19 +7158,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_NE_night",
    "file": "vehicles/veh_hatchback_a_NE_night@2x.png",
    "size": [
-    66,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.4061,
-    0.57
+    0.3494,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6925,19 +7186,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_SE",
    "file": "vehicles/veh_hatchback_a_SE@2x.png",
    "size": [
-    66,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.4061,
-    0.5336
+    0.3494,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6946,19 +7212,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_SE_night",
    "file": "vehicles/veh_hatchback_a_SE_night@2x.png",
    "size": [
-    66,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.4061,
-    0.5336
+    0.3494,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6969,19 +7240,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_SW",
    "file": "vehicles/veh_hatchback_a_SW@2x.png",
    "size": [
-    68,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.5707,
-    0.5336
+    0.6358,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -6990,19 +7266,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_SW_night",
    "file": "vehicles/veh_hatchback_a_SW_night@2x.png",
    "size": [
-    68,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.5707,
-    0.5336
+    0.6358,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7013,19 +7294,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_NW",
    "file": "vehicles/veh_hatchback_a_NW@2x.png",
    "size": [
-    68,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.5707,
-    0.57
+    0.6358,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7034,19 +7320,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_a_NW_night",
    "file": "vehicles/veh_hatchback_a_NW_night@2x.png",
    "size": [
-    68,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.5707,
-    0.57
+    0.6358,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7057,19 +7348,24 @@
    "type": "hatchback",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_NE",
    "file": "vehicles/veh_hatchback_b_NE@2x.png",
    "size": [
-    66,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.4061,
-    0.57
+    0.3494,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7078,19 +7374,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_NE_night",
    "file": "vehicles/veh_hatchback_b_NE_night@2x.png",
    "size": [
-    66,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.4061,
-    0.57
+    0.3494,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7101,19 +7402,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_SE",
    "file": "vehicles/veh_hatchback_b_SE@2x.png",
    "size": [
-    66,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.4061,
-    0.5336
+    0.3494,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7122,19 +7428,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_SE_night",
    "file": "vehicles/veh_hatchback_b_SE_night@2x.png",
    "size": [
-    66,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.4061,
-    0.5336
+    0.3494,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7145,19 +7456,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_SW",
    "file": "vehicles/veh_hatchback_b_SW@2x.png",
    "size": [
-    68,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.5707,
-    0.5336
+    0.6358,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7166,19 +7482,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_SW_night",
    "file": "vehicles/veh_hatchback_b_SW_night@2x.png",
    "size": [
-    68,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.5707,
-    0.5336
+    0.6358,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7189,19 +7510,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_NW",
    "file": "vehicles/veh_hatchback_b_NW@2x.png",
    "size": [
-    68,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.5707,
-    0.57
+    0.6358,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7210,19 +7536,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_b_NW_night",
    "file": "vehicles/veh_hatchback_b_NW_night@2x.png",
    "size": [
-    68,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.5707,
-    0.57
+    0.6358,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7233,19 +7564,24 @@
    "type": "hatchback",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_NE",
    "file": "vehicles/veh_hatchback_c_NE@2x.png",
    "size": [
-    66,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.4061,
-    0.57
+    0.3494,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7254,19 +7590,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_NE_night",
    "file": "vehicles/veh_hatchback_c_NE_night@2x.png",
    "size": [
-    66,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.4061,
-    0.57
+    0.3494,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7277,19 +7618,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_SE",
    "file": "vehicles/veh_hatchback_c_SE@2x.png",
    "size": [
-    66,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.4061,
-    0.5336
+    0.3494,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7298,19 +7644,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_SE_night",
    "file": "vehicles/veh_hatchback_c_SE_night@2x.png",
    "size": [
-    66,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.4061,
-    0.5336
+    0.3494,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7321,19 +7672,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_SW",
    "file": "vehicles/veh_hatchback_c_SW@2x.png",
    "size": [
-    68,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.5707,
-    0.5336
+    0.6358,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7342,19 +7698,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_SW_night",
    "file": "vehicles/veh_hatchback_c_SW_night@2x.png",
    "size": [
-    68,
-    50
+    40,
+    30
    ],
    "anchor": [
-    0.5707,
-    0.5336
+    0.6358,
+    0.4357
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7365,19 +7726,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_NW",
    "file": "vehicles/veh_hatchback_c_NW@2x.png",
    "size": [
-    68,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.5707,
-    0.57
+    0.6358,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7386,19 +7752,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_hatchback_c_NW_night",
    "file": "vehicles/veh_hatchback_c_NW_night@2x.png",
    "size": [
-    68,
-    40
+    40,
+    24
    ],
    "anchor": [
-    0.5707,
-    0.57
+    0.6358,
+    0.6381
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7409,19 +7780,24 @@
    "type": "hatchback",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.42,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.2,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_NE",
    "file": "vehicles/veh_pickup_a_NE@2x.png",
    "size": [
-    76,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.42,
-    0.5529
+    0.3543,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7430,19 +7806,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_NE_night",
    "file": "vehicles/veh_pickup_a_NE_night@2x.png",
    "size": [
-    76,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.42,
-    0.5529
+    0.3543,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7453,19 +7834,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_SE",
    "file": "vehicles/veh_pickup_a_SE@2x.png",
    "size": [
-    76,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.42,
-    0.5104
+    0.3543,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7474,19 +7860,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_SE_night",
    "file": "vehicles/veh_pickup_a_SE_night@2x.png",
    "size": [
-    76,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.42,
-    0.5104
+    0.3543,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7497,19 +7888,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_SW",
    "file": "vehicles/veh_pickup_a_SW@2x.png",
    "size": [
-    78,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.5651,
-    0.5104
+    0.6033,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7518,19 +7914,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_SW_night",
    "file": "vehicles/veh_pickup_a_SW_night@2x.png",
    "size": [
-    78,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.5651,
-    0.5104
+    0.6033,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7541,19 +7942,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_NW",
    "file": "vehicles/veh_pickup_a_NW@2x.png",
    "size": [
-    78,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.5651,
-    0.5529
+    0.6033,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7562,19 +7968,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_a_NW_night",
    "file": "vehicles/veh_pickup_a_NW_night@2x.png",
    "size": [
-    78,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.5651,
-    0.5529
+    0.6033,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7585,19 +7996,24 @@
    "type": "pickup",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_NE",
    "file": "vehicles/veh_pickup_b_NE@2x.png",
    "size": [
-    76,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.42,
-    0.5529
+    0.3543,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7606,19 +8022,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_NE_night",
    "file": "vehicles/veh_pickup_b_NE_night@2x.png",
    "size": [
-    76,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.42,
-    0.5529
+    0.3543,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7629,19 +8050,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_SE",
    "file": "vehicles/veh_pickup_b_SE@2x.png",
    "size": [
-    76,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.42,
-    0.5104
+    0.3543,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7650,19 +8076,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_SE_night",
    "file": "vehicles/veh_pickup_b_SE_night@2x.png",
    "size": [
-    76,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.42,
-    0.5104
+    0.3543,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7673,19 +8104,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_SW",
    "file": "vehicles/veh_pickup_b_SW@2x.png",
    "size": [
-    78,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.5651,
-    0.5104
+    0.6033,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7694,19 +8130,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_SW_night",
    "file": "vehicles/veh_pickup_b_SW_night@2x.png",
    "size": [
-    78,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.5651,
-    0.5104
+    0.6033,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7717,19 +8158,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_NW",
    "file": "vehicles/veh_pickup_b_NW@2x.png",
    "size": [
-    78,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.5651,
-    0.5529
+    0.6033,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7738,19 +8184,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_b_NW_night",
    "file": "vehicles/veh_pickup_b_NW_night@2x.png",
    "size": [
-    78,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.5651,
-    0.5529
+    0.6033,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7761,19 +8212,24 @@
    "type": "pickup",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_NE",
    "file": "vehicles/veh_pickup_c_NE@2x.png",
    "size": [
-    76,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.42,
-    0.5529
+    0.3543,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7782,19 +8238,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_NE_night",
    "file": "vehicles/veh_pickup_c_NE_night@2x.png",
    "size": [
-    76,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.42,
-    0.5529
+    0.3543,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7805,19 +8266,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_SE",
    "file": "vehicles/veh_pickup_c_SE@2x.png",
    "size": [
-    76,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.42,
-    0.5104
+    0.3543,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7826,19 +8292,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_SE_night",
    "file": "vehicles/veh_pickup_c_SE_night@2x.png",
    "size": [
-    76,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.42,
-    0.5104
+    0.3543,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7849,19 +8320,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_SW",
    "file": "vehicles/veh_pickup_c_SW@2x.png",
    "size": [
-    78,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.5651,
-    0.5104
+    0.6033,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7870,19 +8346,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_SW_night",
    "file": "vehicles/veh_pickup_c_SW_night@2x.png",
    "size": [
-    78,
-    54
+    46,
+    32
    ],
    "anchor": [
-    0.5651,
-    0.5104
+    0.6033,
+    0.4672
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7893,19 +8374,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_NW",
    "file": "vehicles/veh_pickup_c_NW@2x.png",
    "size": [
-    78,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.5651,
-    0.5529
+    0.6033,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7914,19 +8400,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_pickup_c_NW_night",
    "file": "vehicles/veh_pickup_c_NW_night@2x.png",
    "size": [
-    78,
-    48
+    46,
+    28
    ],
    "anchor": [
-    0.5651,
-    0.5529
+    0.6033,
+    0.5884
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7937,19 +8428,24 @@
    "type": "pickup",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.56,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.265,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_NE",
    "file": "vehicles/veh_van_a_NE@2x.png",
    "size": [
-    74,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.4054,
-    0.5952
+    0.3613,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7958,19 +8454,24 @@
    "type": "van",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_NE_night",
    "file": "vehicles/veh_van_a_NE_night@2x.png",
    "size": [
-    74,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.4054,
-    0.5952
+    0.3613,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -7981,19 +8482,24 @@
    "type": "van",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_SE",
    "file": "vehicles/veh_van_a_SE@2x.png",
    "size": [
-    74,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.4054,
-    0.5517
+    0.3613,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8002,19 +8508,24 @@
    "type": "van",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_SE_night",
    "file": "vehicles/veh_van_a_SE_night@2x.png",
    "size": [
-    74,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.4054,
-    0.5517
+    0.3613,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8025,19 +8536,24 @@
    "type": "van",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_SW",
    "file": "vehicles/veh_van_a_SW@2x.png",
    "size": [
-    76,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.5547,
-    0.5517
+    0.6216,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8046,19 +8562,24 @@
    "type": "van",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_SW_night",
    "file": "vehicles/veh_van_a_SW_night@2x.png",
    "size": [
-    76,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.5547,
-    0.5517
+    0.6216,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8069,19 +8590,24 @@
    "type": "van",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_NW",
    "file": "vehicles/veh_van_a_NW@2x.png",
    "size": [
-    76,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.5547,
-    0.5952
+    0.6216,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8090,19 +8616,24 @@
    "type": "van",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_a_NW_night",
    "file": "vehicles/veh_van_a_NW_night@2x.png",
    "size": [
-    76,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.5547,
-    0.5952
+    0.6216,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8113,19 +8644,24 @@
    "type": "van",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_NE",
    "file": "vehicles/veh_van_b_NE@2x.png",
    "size": [
-    74,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.4054,
-    0.5952
+    0.3613,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8134,19 +8670,24 @@
    "type": "van",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_NE_night",
    "file": "vehicles/veh_van_b_NE_night@2x.png",
    "size": [
-    74,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.4054,
-    0.5952
+    0.3613,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8157,19 +8698,24 @@
    "type": "van",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_SE",
    "file": "vehicles/veh_van_b_SE@2x.png",
    "size": [
-    74,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.4054,
-    0.5517
+    0.3613,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8178,19 +8724,24 @@
    "type": "van",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_SE_night",
    "file": "vehicles/veh_van_b_SE_night@2x.png",
    "size": [
-    74,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.4054,
-    0.5517
+    0.3613,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8201,19 +8752,24 @@
    "type": "van",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_SW",
    "file": "vehicles/veh_van_b_SW@2x.png",
    "size": [
-    76,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.5547,
-    0.5517
+    0.6216,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8222,19 +8778,24 @@
    "type": "van",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_SW_night",
    "file": "vehicles/veh_van_b_SW_night@2x.png",
    "size": [
-    76,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.5547,
-    0.5517
+    0.6216,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8245,19 +8806,24 @@
    "type": "van",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_NW",
    "file": "vehicles/veh_van_b_NW@2x.png",
    "size": [
-    76,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.5547,
-    0.5952
+    0.6216,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8266,19 +8832,24 @@
    "type": "van",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_b_NW_night",
    "file": "vehicles/veh_van_b_NW_night@2x.png",
    "size": [
-    76,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.5547,
-    0.5952
+    0.6216,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8289,19 +8860,24 @@
    "type": "van",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_NE",
    "file": "vehicles/veh_van_c_NE@2x.png",
    "size": [
-    74,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.4054,
-    0.5952
+    0.3613,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8310,19 +8886,24 @@
    "type": "van",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_NE_night",
    "file": "vehicles/veh_van_c_NE_night@2x.png",
    "size": [
-    74,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.4054,
-    0.5952
+    0.3613,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8333,19 +8914,24 @@
    "type": "van",
    "variant": "c",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_SE",
    "file": "vehicles/veh_van_c_SE@2x.png",
    "size": [
-    74,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.4054,
-    0.5517
+    0.3613,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8354,19 +8940,24 @@
    "type": "van",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_SE_night",
    "file": "vehicles/veh_van_c_SE_night@2x.png",
    "size": [
-    74,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.4054,
-    0.5517
+    0.3613,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8377,19 +8968,24 @@
    "type": "van",
    "variant": "c",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_SW",
    "file": "vehicles/veh_van_c_SW@2x.png",
    "size": [
-    76,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.5547,
-    0.5517
+    0.6216,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8398,19 +8994,24 @@
    "type": "van",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_SW_night",
    "file": "vehicles/veh_van_c_SW_night@2x.png",
    "size": [
-    76,
-    58
+    44,
+    36
    ],
    "anchor": [
-    0.5547,
-    0.5517
+    0.6216,
+    0.5021
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8421,19 +9022,24 @@
    "type": "van",
    "variant": "c",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_NW",
    "file": "vehicles/veh_van_c_NW@2x.png",
    "size": [
-    76,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.5547,
-    0.5952
+    0.6216,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8442,19 +9048,24 @@
    "type": "van",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_van_c_NW_night",
    "file": "vehicles/veh_van_c_NW_night@2x.png",
    "size": [
-    76,
-    50
+    44,
+    28
    ],
    "anchor": [
-    0.5547,
-    0.5952
+    0.6216,
+    0.6456
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8465,19 +9076,24 @@
    "type": "van",
    "variant": "c",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.25,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_NE",
    "file": "vehicles/veh_taxi_a_NE@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8486,19 +9102,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_NE_night",
    "file": "vehicles/veh_taxi_a_NE_night@2x.png",
    "size": [
-    72,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.4122,
-    0.5509
+    0.3613,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8509,19 +9130,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_SE",
    "file": "vehicles/veh_taxi_a_SE@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8530,19 +9156,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_SE_night",
    "file": "vehicles/veh_taxi_a_SE_night@2x.png",
    "size": [
-    72,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.4122,
-    0.4848
+    0.3613,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8553,19 +9184,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_SW",
    "file": "vehicles/veh_taxi_a_SW@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8574,19 +9210,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_SW_night",
    "file": "vehicles/veh_taxi_a_SW_night@2x.png",
    "size": [
-    74,
-    50
+    42,
+    30
    ],
    "anchor": [
-    0.5644,
-    0.4848
+    0.6341,
+    0.452
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8597,19 +9238,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_NW",
    "file": "vehicles/veh_taxi_a_NW@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8618,19 +9264,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_taxi_a_NW_night",
    "file": "vehicles/veh_taxi_a_NW_night@2x.png",
    "size": [
-    74,
-    44
+    42,
+    26
    ],
    "anchor": [
-    0.5644,
-    0.5509
+    0.6341,
+    0.6121
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8641,19 +9292,24 @@
    "type": "taxi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.5,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.235,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_NE",
    "file": "vehicles/veh_bus_a_NE@2x.png",
    "size": [
-    108,
-    72
+    68,
+    44
    ],
    "anchor": [
-    0.42,
-    0.6067
+    0.4119,
+    0.6424
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8662,19 +9318,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_NE_night",
    "file": "vehicles/veh_bus_a_NE_night@2x.png",
    "size": [
-    108,
-    72
+    68,
+    44
    ],
    "anchor": [
-    0.42,
-    0.6067
+    0.4119,
+    0.6424
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8685,19 +9346,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_SE",
    "file": "vehicles/veh_bus_a_SE@2x.png",
    "size": [
-    108,
-    78
+    68,
+    52
    ],
    "anchor": [
-    0.42,
-    0.56
+    0.4119,
+    0.5436
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8706,19 +9372,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_SE_night",
    "file": "vehicles/veh_bus_a_SE_night@2x.png",
    "size": [
-    108,
-    78
+    68,
+    52
    ],
    "anchor": [
-    0.42,
-    0.56
+    0.4119,
+    0.5436
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8729,19 +9400,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_SW",
    "file": "vehicles/veh_bus_a_SW@2x.png",
    "size": [
-    110,
-    78
+    68,
+    52
    ],
    "anchor": [
-    0.5599,
-    0.56
+    0.5804,
+    0.5436
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8750,19 +9426,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_SW_night",
    "file": "vehicles/veh_bus_a_SW_night@2x.png",
    "size": [
-    110,
-    78
+    68,
+    52
    ],
    "anchor": [
-    0.5599,
-    0.56
+    0.5804,
+    0.5436
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8773,19 +9454,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_NW",
    "file": "vehicles/veh_bus_a_NW@2x.png",
    "size": [
-    110,
-    72
+    68,
+    44
    ],
    "anchor": [
-    0.5599,
-    0.6067
+    0.5804,
+    0.6424
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8794,19 +9480,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_bus_a_NW_night",
    "file": "vehicles/veh_bus_a_NW_night@2x.png",
    "size": [
-    110,
-    72
+    68,
+    44
    ],
    "anchor": [
-    0.5599,
-    0.6067
+    0.5804,
+    0.6424
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8817,19 +9508,24 @@
    "type": "bus",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.95,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.6,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_NE",
    "file": "vehicles/veh_delivery_truck_a_NE@2x.png",
    "size": [
-    92,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.4096,
-    0.5943
+    0.38,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8838,19 +9534,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_NE_night",
    "file": "vehicles/veh_delivery_truck_a_NE_night@2x.png",
    "size": [
-    92,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.4096,
-    0.5943
+    0.38,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8861,19 +9562,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_SE",
    "file": "vehicles/veh_delivery_truck_a_SE@2x.png",
    "size": [
-    92,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.4096,
-    0.5672
+    0.38,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8882,19 +9588,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_SE_night",
    "file": "vehicles/veh_delivery_truck_a_SE_night@2x.png",
    "size": [
-    92,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.4096,
-    0.5672
+    0.38,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8905,19 +9616,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_SW",
    "file": "vehicles/veh_delivery_truck_a_SW@2x.png",
    "size": [
-    96,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.5608,
-    0.5672
+    0.6014,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8926,19 +9642,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_SW_night",
    "file": "vehicles/veh_delivery_truck_a_SW_night@2x.png",
    "size": [
-    96,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.5608,
-    0.5672
+    0.6014,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8949,19 +9670,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_NW",
    "file": "vehicles/veh_delivery_truck_a_NW@2x.png",
    "size": [
-    96,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.5608,
-    0.5943
+    0.6014,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8970,19 +9696,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_a_NW_night",
    "file": "vehicles/veh_delivery_truck_a_NW_night@2x.png",
    "size": [
-    96,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.5608,
-    0.5943
+    0.6014,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -8993,19 +9724,24 @@
    "type": "delivery_truck",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_NE",
    "file": "vehicles/veh_delivery_truck_b_NE@2x.png",
    "size": [
-    92,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.4096,
-    0.5943
+    0.38,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9014,19 +9750,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_NE_night",
    "file": "vehicles/veh_delivery_truck_b_NE_night@2x.png",
    "size": [
-    92,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.4096,
-    0.5943
+    0.38,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9037,19 +9778,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_SE",
    "file": "vehicles/veh_delivery_truck_b_SE@2x.png",
    "size": [
-    92,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.4096,
-    0.5672
+    0.38,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9058,19 +9804,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_SE_night",
    "file": "vehicles/veh_delivery_truck_b_SE_night@2x.png",
    "size": [
-    92,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.4096,
-    0.5672
+    0.38,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9081,19 +9832,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_SW",
    "file": "vehicles/veh_delivery_truck_b_SW@2x.png",
    "size": [
-    96,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.5608,
-    0.5672
+    0.6014,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9102,19 +9858,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_SW_night",
    "file": "vehicles/veh_delivery_truck_b_SW_night@2x.png",
    "size": [
-    96,
-    72
+    52,
+    44
    ],
    "anchor": [
-    0.5608,
-    0.5672
+    0.6014,
+    0.5508
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9125,19 +9886,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_NW",
    "file": "vehicles/veh_delivery_truck_b_NW@2x.png",
    "size": [
-    96,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.5608,
-    0.5943
+    0.6014,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9146,19 +9912,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_delivery_truck_b_NW_night",
    "file": "vehicles/veh_delivery_truck_b_NW_night@2x.png",
    "size": [
-    96,
-    58
+    52,
+    34
    ],
    "anchor": [
-    0.5608,
-    0.5943
+    0.6014,
+    0.6723
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9169,19 +9940,24 @@
    "type": "delivery_truck",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 0.72,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.35,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_NE",
    "file": "vehicles/veh_semi_a_NE@2x.png",
    "size": [
-    122,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.4321,
-    0.588
+    0.4281,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9190,19 +9966,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_NE_night",
    "file": "vehicles/veh_semi_a_NE_night@2x.png",
    "size": [
-    122,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.4321,
-    0.588
+    0.4281,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9213,19 +9994,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "NE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_SE",
    "file": "vehicles/veh_semi_a_SE@2x.png",
    "size": [
-    122,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.4321,
-    0.5609
+    0.4281,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9234,19 +10020,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_SE_night",
    "file": "vehicles/veh_semi_a_SE_night@2x.png",
    "size": [
-    122,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.4321,
-    0.5609
+    0.4281,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9257,19 +10048,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "SE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_SW",
    "file": "vehicles/veh_semi_a_SW@2x.png",
    "size": [
-    126,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.5472,
-    0.5609
+    0.5669,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9278,19 +10074,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_SW_night",
    "file": "vehicles/veh_semi_a_SW_night@2x.png",
    "size": [
-    126,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.5472,
-    0.5609
+    0.5669,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9301,19 +10102,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "SW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_NW",
    "file": "vehicles/veh_semi_a_NW@2x.png",
    "size": [
-    126,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.5472,
-    0.588
+    0.5669,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9322,19 +10128,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_a_NW_night",
    "file": "vehicles/veh_semi_a_NW_night@2x.png",
    "size": [
-    126,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.5472,
-    0.588
+    0.5669,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9345,19 +10156,24 @@
    "type": "semi",
    "variant": "a",
    "direction": "NW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_NE",
    "file": "vehicles/veh_semi_b_NE@2x.png",
    "size": [
-    122,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.4321,
-    0.588
+    0.4281,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9366,19 +10182,24 @@
    "type": "semi",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_NE_night",
    "file": "vehicles/veh_semi_b_NE_night@2x.png",
    "size": [
-    122,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.4321,
-    0.588
+    0.4281,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9389,19 +10210,24 @@
    "type": "semi",
    "variant": "b",
    "direction": "NE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_SE",
    "file": "vehicles/veh_semi_b_SE@2x.png",
    "size": [
-    122,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.4321,
-    0.5609
+    0.4281,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9410,19 +10236,24 @@
    "type": "semi",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_SE_night",
    "file": "vehicles/veh_semi_b_SE_night@2x.png",
    "size": [
-    122,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.4321,
-    0.5609
+    0.4281,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9433,19 +10264,24 @@
    "type": "semi",
    "variant": "b",
    "direction": "SE",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_SW",
    "file": "vehicles/veh_semi_b_SW@2x.png",
    "size": [
-    126,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.5472,
-    0.5609
+    0.5669,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9454,19 +10290,24 @@
    "type": "semi",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_SW_night",
    "file": "vehicles/veh_semi_b_SW_night@2x.png",
    "size": [
-    126,
-    88
+    80,
+    62
    ],
    "anchor": [
-    0.5472,
-    0.5609
+    0.5669,
+    0.5671
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9477,19 +10318,24 @@
    "type": "semi",
    "variant": "b",
    "direction": "SW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_NW",
    "file": "vehicles/veh_semi_b_NW@2x.png",
    "size": [
-    126,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.5472,
-    0.588
+    0.5669,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9498,19 +10344,24 @@
    "type": "semi",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "veh_semi_b_NW_night",
    "file": "vehicles/veh_semi_b_NW_night@2x.png",
    "size": [
-    126,
-    76
+    80,
+    52
    ],
    "anchor": [
-    0.5472,
-    0.588
+    0.5669,
+    0.6005
    ],
    "footprint": null,
    "scale": 0.5,
@@ -9521,8 +10372,13 @@
    "type": "semi",
    "variant": "b",
    "direction": "NW",
-   "lengthTiles": 1.18,
-   "laneOffsetTiles": 0.15
+   "lengthTiles": 0.8,
+   "laneOffsetTiles": [
+    0.075,
+    0.225
+   ],
+   "style": "soft3d",
+   "metresPerTile": 20
   },
   {
    "name": "util_coal",
@@ -18340,19 +19196,20 @@
    "file": "vehicles/work/work_truck_grader_NE@2x.png",
    "layer": "vehicle",
    "size": [
-    34,
-    22
+    54,
+    32
    ],
    "anchor": [
-    0.4152,
-    0.5186
+    0.3924,
+    0.5878
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_grader_NE_night",
@@ -18361,38 +19218,40 @@
    "nightOf": "work_truck_grader_NE",
    "blend": "add",
    "size": [
-    34,
-    22
+    54,
+    32
    ],
    "anchor": [
-    0.4152,
-    0.5186
+    0.3924,
+    0.5878
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_grader_SE",
    "file": "vehicles/work/work_truck_grader_SE@2x.png",
    "layer": "vehicle",
    "size": [
-    34,
-    26
+    54,
+    44
    ],
    "anchor": [
-    0.4152,
-    0.4884
+    0.3924,
+    0.5368
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_grader_SE_night",
@@ -18401,38 +19260,40 @@
    "nightOf": "work_truck_grader_SE",
    "blend": "add",
    "size": [
-    34,
-    26
+    54,
+    44
    ],
    "anchor": [
-    0.4152,
-    0.4884
+    0.3924,
+    0.5368
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_grader_SW",
    "file": "vehicles/work/work_truck_grader_SW@2x.png",
    "layer": "vehicle",
    "size": [
-    34,
-    26
+    54,
+    44
    ],
    "anchor": [
-    0.5535,
-    0.4884
+    0.6004,
+    0.5368
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_grader_SW_night",
@@ -18441,38 +19302,40 @@
    "nightOf": "work_truck_grader_SW",
    "blend": "add",
    "size": [
-    34,
-    26
+    54,
+    44
    ],
    "anchor": [
-    0.5535,
-    0.4884
+    0.6004,
+    0.5368
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_grader_NW",
    "file": "vehicles/work/work_truck_grader_NW@2x.png",
    "layer": "vehicle",
    "size": [
-    34,
-    22
+    54,
+    32
    ],
    "anchor": [
-    0.5535,
-    0.5186
+    0.6004,
+    0.5878
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_grader_NW_night",
@@ -18481,38 +19344,40 @@
    "nightOf": "work_truck_grader_NW",
    "blend": "add",
    "size": [
-    34,
-    22
+    54,
+    32
    ],
    "anchor": [
-    0.5535,
-    0.5186
+    0.6004,
+    0.5878
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_grader",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_NE",
    "file": "vehicles/work/work_truck_dump_NE@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    24
+    52,
+    38
    ],
    "anchor": [
-    0.4067,
-    0.5732
+    0.3798,
+    0.647
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_NE_night",
@@ -18521,38 +19386,40 @@
    "nightOf": "work_truck_dump_NE",
    "blend": "add",
    "size": [
-    36,
-    24
+    52,
+    38
    ],
    "anchor": [
-    0.4067,
-    0.5732
+    0.3798,
+    0.647
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_SE",
    "file": "vehicles/work/work_truck_dump_SE@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    26
+    52,
+    42
    ],
    "anchor": [
-    0.4067,
-    0.5167
+    0.3798,
+    0.5499
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_SE_night",
@@ -18561,38 +19428,40 @@
    "nightOf": "work_truck_dump_SE",
    "blend": "add",
    "size": [
-    36,
-    26
+    52,
+    42
    ],
    "anchor": [
-    0.4067,
-    0.5167
+    0.3798,
+    0.5499
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_SW",
    "file": "vehicles/work/work_truck_dump_SW@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    26
+    52,
+    42
    ],
    "anchor": [
-    0.5606,
-    0.5167
+    0.6112,
+    0.5499
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_SW_night",
@@ -18601,38 +19470,40 @@
    "nightOf": "work_truck_dump_SW",
    "blend": "add",
    "size": [
-    36,
-    26
+    52,
+    42
    ],
    "anchor": [
-    0.5606,
-    0.5167
+    0.6112,
+    0.5499
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_NW",
    "file": "vehicles/work/work_truck_dump_NW@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    24
+    52,
+    38
    ],
    "anchor": [
-    0.5606,
-    0.5732
+    0.6112,
+    0.647
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_dump_NW_night",
@@ -18641,38 +19512,40 @@
    "nightOf": "work_truck_dump_NW",
    "blend": "add",
    "size": [
-    36,
-    24
+    52,
+    38
    ],
    "anchor": [
-    0.5606,
-    0.5732
+    0.6112,
+    0.647
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_dump",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.36,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_NE",
    "file": "vehicles/work/work_truck_paver_NE@2x.png",
    "layer": "vehicle",
    "size": [
-    38,
-    24
+    50,
+    30
    ],
    "anchor": [
-    0.4208,
-    0.5362
+    0.3864,
+    0.587
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_NE_night",
@@ -18681,38 +19554,40 @@
    "nightOf": "work_truck_paver_NE",
    "blend": "add",
    "size": [
-    38,
-    24
+    50,
+    30
    ],
    "anchor": [
-    0.4208,
-    0.5362
+    0.3864,
+    0.587
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_SE",
    "file": "vehicles/work/work_truck_paver_SE@2x.png",
    "layer": "vehicle",
    "size": [
-    38,
-    26
+    50,
+    38
    ],
    "anchor": [
-    0.4208,
-    0.4623
+    0.3864,
+    0.5128
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_SE_night",
@@ -18721,38 +19596,40 @@
    "nightOf": "work_truck_paver_SE",
    "blend": "add",
    "size": [
-    38,
-    26
+    50,
+    38
    ],
    "anchor": [
-    0.4208,
-    0.4623
+    0.3864,
+    0.5128
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_SW",
    "file": "vehicles/work/work_truck_paver_SW@2x.png",
    "layer": "vehicle",
    "size": [
-    38,
-    26
+    50,
+    38
    ],
    "anchor": [
-    0.5721,
-    0.4623
+    0.6005,
+    0.5128
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_SW_night",
@@ -18761,38 +19638,40 @@
    "nightOf": "work_truck_paver_SW",
    "blend": "add",
    "size": [
-    38,
-    26
+    50,
+    38
    ],
    "anchor": [
-    0.5721,
-    0.4623
+    0.6005,
+    0.5128
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_NW",
    "file": "vehicles/work/work_truck_paver_NW@2x.png",
    "layer": "vehicle",
    "size": [
-    38,
-    24
+    50,
+    30
    ],
    "anchor": [
-    0.5721,
-    0.5362
+    0.6005,
+    0.587
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_paver_NW_night",
@@ -18801,38 +19680,40 @@
    "nightOf": "work_truck_paver_NW",
    "blend": "add",
    "size": [
-    38,
-    24
+    50,
+    30
    ],
    "anchor": [
-    0.5721,
-    0.5362
+    0.6005,
+    0.587
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_paver",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.28,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_NE",
    "file": "vehicles/work/work_truck_mixer_NE@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    24
+    54,
+    38
    ],
    "anchor": [
-    0.4044,
-    0.5608
+    0.3883,
+    0.6597
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_NE_night",
@@ -18841,38 +19722,40 @@
    "nightOf": "work_truck_mixer_NE",
    "blend": "add",
    "size": [
-    36,
-    24
+    54,
+    38
    ],
    "anchor": [
-    0.4044,
-    0.5608
+    0.3883,
+    0.6597
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_SE",
    "file": "vehicles/work/work_truck_mixer_SE@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    26
+    54,
+    40
    ],
    "anchor": [
-    0.4044,
-    0.5157
+    0.3883,
+    0.4938
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_SE_night",
@@ -18881,38 +19764,40 @@
    "nightOf": "work_truck_mixer_SE",
    "blend": "add",
    "size": [
-    36,
-    26
+    54,
+    40
    ],
    "anchor": [
-    0.4044,
-    0.5157
+    0.3883,
+    0.4938
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SE",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_SW",
    "file": "vehicles/work/work_truck_mixer_SW@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    26
+    54,
+    40
    ],
    "anchor": [
-    0.554,
-    0.5157
+    0.6064,
+    0.4938
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_SW_night",
@@ -18921,38 +19806,40 @@
    "nightOf": "work_truck_mixer_SW",
    "blend": "add",
    "size": [
-    36,
-    26
+    54,
+    40
    ],
    "anchor": [
-    0.554,
-    0.5157
+    0.6064,
+    0.4938
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "SW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_NW",
    "file": "vehicles/work/work_truck_mixer_NW@2x.png",
    "layer": "vehicle",
    "size": [
-    36,
-    24
+    54,
+    38
    ],
    "anchor": [
-    0.554,
-    0.5608
+    0.6064,
+    0.6597
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "work_truck_mixer_NW_night",
@@ -18961,19 +19848,20 @@
    "nightOf": "work_truck_mixer_NW",
    "blend": "add",
    "size": [
-    36,
-    24
+    54,
+    38
    ],
    "anchor": [
-    0.554,
-    0.5608
+    0.6064,
+    0.6597
    ],
    "footprint": null,
    "scale": 0.5,
    "category": "vehicle",
    "type": "work_mixer",
    "direction": "NW",
-   "lengthTiles": 0.24
+   "lengthTiles": 0.38,
+   "style": "soft3d"
   },
   {
    "name": "road_asphalt_0",
@@ -19405,7 +20293,3819 @@
     ]
    },
    "shape": "cross"
+  },
+  {
+   "name": "street_asphalt_0",
+   "file": "roads/street_asphalt_0@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 0,
+    "connects": []
+   },
+   "shape": "isolated",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_1",
+   "file": "roads/street_asphalt_1@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 1,
+    "connects": [
+     "NE"
+    ]
+   },
+   "shape": "deadend_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_2",
+   "file": "roads/street_asphalt_2@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 2,
+    "connects": [
+     "SE"
+    ]
+   },
+   "shape": "deadend_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_3",
+   "file": "roads/street_asphalt_3@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 3,
+    "connects": [
+     "NE",
+     "SE"
+    ]
+   },
+   "shape": "corner_ne_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_4",
+   "file": "roads/street_asphalt_4@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 4,
+    "connects": [
+     "SW"
+    ]
+   },
+   "shape": "deadend_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_5",
+   "file": "roads/street_asphalt_5@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 5,
+    "connects": [
+     "NE",
+     "SW"
+    ]
+   },
+   "shape": "straight_ne_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_6",
+   "file": "roads/street_asphalt_6@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 6,
+    "connects": [
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "corner_se_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_7",
+   "file": "roads/street_asphalt_7@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 7,
+    "connects": [
+     "NE",
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "t_no_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_8",
+   "file": "roads/street_asphalt_8@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 8,
+    "connects": [
+     "NW"
+    ]
+   },
+   "shape": "deadend_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_9",
+   "file": "roads/street_asphalt_9@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 9,
+    "connects": [
+     "NE",
+     "NW"
+    ]
+   },
+   "shape": "corner_nw_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_10",
+   "file": "roads/street_asphalt_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 10,
+    "connects": [
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "straight_nw_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_11",
+   "file": "roads/street_asphalt_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 11,
+    "connects": [
+     "NE",
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "t_no_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_12",
+   "file": "roads/street_asphalt_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 12,
+    "connects": [
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "corner_sw_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_13",
+   "file": "roads/street_asphalt_13@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 13,
+    "connects": [
+     "NE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_14",
+   "file": "roads/street_asphalt_14@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 14,
+    "connects": [
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_asphalt_15",
+   "file": "roads/street_asphalt_15@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_asphalt",
+    "mask": 15,
+    "connects": [
+     "NE",
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "cross",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_0",
+   "file": "roads/street_concrete_0@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 0,
+    "connects": []
+   },
+   "shape": "isolated",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_1",
+   "file": "roads/street_concrete_1@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 1,
+    "connects": [
+     "NE"
+    ]
+   },
+   "shape": "deadend_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_2",
+   "file": "roads/street_concrete_2@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 2,
+    "connects": [
+     "SE"
+    ]
+   },
+   "shape": "deadend_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_3",
+   "file": "roads/street_concrete_3@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 3,
+    "connects": [
+     "NE",
+     "SE"
+    ]
+   },
+   "shape": "corner_ne_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_4",
+   "file": "roads/street_concrete_4@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 4,
+    "connects": [
+     "SW"
+    ]
+   },
+   "shape": "deadend_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_5",
+   "file": "roads/street_concrete_5@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 5,
+    "connects": [
+     "NE",
+     "SW"
+    ]
+   },
+   "shape": "straight_ne_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_6",
+   "file": "roads/street_concrete_6@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 6,
+    "connects": [
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "corner_se_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_7",
+   "file": "roads/street_concrete_7@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 7,
+    "connects": [
+     "NE",
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "t_no_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_8",
+   "file": "roads/street_concrete_8@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 8,
+    "connects": [
+     "NW"
+    ]
+   },
+   "shape": "deadend_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_9",
+   "file": "roads/street_concrete_9@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 9,
+    "connects": [
+     "NE",
+     "NW"
+    ]
+   },
+   "shape": "corner_nw_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_10",
+   "file": "roads/street_concrete_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 10,
+    "connects": [
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "straight_nw_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_11",
+   "file": "roads/street_concrete_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 11,
+    "connects": [
+     "NE",
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "t_no_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_12",
+   "file": "roads/street_concrete_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 12,
+    "connects": [
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "corner_sw_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_13",
+   "file": "roads/street_concrete_13@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 13,
+    "connects": [
+     "NE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_14",
+   "file": "roads/street_concrete_14@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 14,
+    "connects": [
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "street_concrete_15",
+   "file": "roads/street_concrete_15@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "street_concrete",
+    "mask": 15,
+    "connects": [
+     "NE",
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "cross",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_0",
+   "file": "roads/avenue_asphalt_0@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 0,
+    "connects": []
+   },
+   "shape": "isolated",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_1",
+   "file": "roads/avenue_asphalt_1@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 1,
+    "connects": [
+     "NE"
+    ]
+   },
+   "shape": "deadend_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_2",
+   "file": "roads/avenue_asphalt_2@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 2,
+    "connects": [
+     "SE"
+    ]
+   },
+   "shape": "deadend_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_3",
+   "file": "roads/avenue_asphalt_3@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 3,
+    "connects": [
+     "NE",
+     "SE"
+    ]
+   },
+   "shape": "corner_ne_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_4",
+   "file": "roads/avenue_asphalt_4@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 4,
+    "connects": [
+     "SW"
+    ]
+   },
+   "shape": "deadend_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_5",
+   "file": "roads/avenue_asphalt_5@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 5,
+    "connects": [
+     "NE",
+     "SW"
+    ]
+   },
+   "shape": "straight_ne_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_6",
+   "file": "roads/avenue_asphalt_6@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 6,
+    "connects": [
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "corner_se_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_7",
+   "file": "roads/avenue_asphalt_7@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 7,
+    "connects": [
+     "NE",
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "t_no_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_8",
+   "file": "roads/avenue_asphalt_8@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 8,
+    "connects": [
+     "NW"
+    ]
+   },
+   "shape": "deadend_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_9",
+   "file": "roads/avenue_asphalt_9@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 9,
+    "connects": [
+     "NE",
+     "NW"
+    ]
+   },
+   "shape": "corner_nw_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_10",
+   "file": "roads/avenue_asphalt_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 10,
+    "connects": [
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "straight_nw_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_11",
+   "file": "roads/avenue_asphalt_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 11,
+    "connects": [
+     "NE",
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "t_no_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_12",
+   "file": "roads/avenue_asphalt_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 12,
+    "connects": [
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "corner_sw_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_13",
+   "file": "roads/avenue_asphalt_13@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 13,
+    "connects": [
+     "NE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_14",
+   "file": "roads/avenue_asphalt_14@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 14,
+    "connects": [
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_15",
+   "file": "roads/avenue_asphalt_15@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_asphalt",
+    "mask": 15,
+    "connects": [
+     "NE",
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "cross",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_0",
+   "file": "roads/avenue_concrete_0@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 0,
+    "connects": []
+   },
+   "shape": "isolated",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_1",
+   "file": "roads/avenue_concrete_1@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 1,
+    "connects": [
+     "NE"
+    ]
+   },
+   "shape": "deadend_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_2",
+   "file": "roads/avenue_concrete_2@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 2,
+    "connects": [
+     "SE"
+    ]
+   },
+   "shape": "deadend_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_3",
+   "file": "roads/avenue_concrete_3@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 3,
+    "connects": [
+     "NE",
+     "SE"
+    ]
+   },
+   "shape": "corner_ne_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_4",
+   "file": "roads/avenue_concrete_4@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 4,
+    "connects": [
+     "SW"
+    ]
+   },
+   "shape": "deadend_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_5",
+   "file": "roads/avenue_concrete_5@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 5,
+    "connects": [
+     "NE",
+     "SW"
+    ]
+   },
+   "shape": "straight_ne_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_6",
+   "file": "roads/avenue_concrete_6@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 6,
+    "connects": [
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "corner_se_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_7",
+   "file": "roads/avenue_concrete_7@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 7,
+    "connects": [
+     "NE",
+     "SE",
+     "SW"
+    ]
+   },
+   "shape": "t_no_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_8",
+   "file": "roads/avenue_concrete_8@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 8,
+    "connects": [
+     "NW"
+    ]
+   },
+   "shape": "deadend_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_9",
+   "file": "roads/avenue_concrete_9@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 9,
+    "connects": [
+     "NE",
+     "NW"
+    ]
+   },
+   "shape": "corner_nw_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_10",
+   "file": "roads/avenue_concrete_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 10,
+    "connects": [
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "straight_nw_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_11",
+   "file": "roads/avenue_concrete_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 11,
+    "connects": [
+     "NE",
+     "SE",
+     "NW"
+    ]
+   },
+   "shape": "t_no_sw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_12",
+   "file": "roads/avenue_concrete_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 12,
+    "connects": [
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "corner_sw_nw",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_13",
+   "file": "roads/avenue_concrete_13@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 13,
+    "connects": [
+     "NE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_se",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_14",
+   "file": "roads/avenue_concrete_14@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 14,
+    "connects": [
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "t_no_ne",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_concrete_15",
+   "file": "roads/avenue_concrete_15@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "autotile": {
+    "set": "avenue_concrete",
+    "mask": 15,
+    "connects": [
+     "NE",
+     "SE",
+     "SW",
+     "NW"
+    ]
+   },
+   "shape": "cross",
+   "category": "road",
+   "metresPerTile": 20
+  },
+  {
+   "name": "avenue_asphalt_end_NE_L",
+   "file": "roads/avenue_asphalt_end_NE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NE",
+    "side": "L",
+    "entersFrom": "NW",
+    "opensTo": [
+     "NW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_NE_L",
+   "file": "roads/avenue_asphalt_corner_NE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NE",
+    "side": "L",
+    "connects": [
+     "NW",
+     "SW"
+    ],
+    "medianEdges": [
+     "NE",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_end_NE_R",
+   "file": "roads/avenue_asphalt_end_NE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NE",
+    "side": "R",
+    "entersFrom": "SE",
+    "opensTo": [
+     "SE",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_NE_R",
+   "file": "roads/avenue_asphalt_corner_NE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NE",
+    "side": "R",
+    "connects": [
+     "SE",
+     "SW"
+    ],
+    "medianEdges": [
+     "NE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_tee_NE",
+   "file": "roads/avenue_asphalt_tee_NE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "NE",
+    "streetEdge": "SW",
+    "connects": [
+     "NW",
+     "SE",
+     "SW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_gap_NE",
+   "file": "roads/avenue_asphalt_gap_NE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "NE",
+    "connects": [
+     "NW",
+     "SE",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_cross_NE",
+   "file": "roads/avenue_asphalt_cross_NE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "NE",
+    "streetEdge": "SW",
+    "connects": [
+     "NW",
+     "SE",
+     "SW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_end_SE_L",
+   "file": "roads/avenue_asphalt_end_SE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SE",
+    "side": "L",
+    "entersFrom": "NE",
+    "opensTo": [
+     "NE",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_SE_L",
+   "file": "roads/avenue_asphalt_corner_SE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SE",
+    "side": "L",
+    "connects": [
+     "NE",
+     "NW"
+    ],
+    "medianEdges": [
+     "SE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_end_SE_R",
+   "file": "roads/avenue_asphalt_end_SE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SE",
+    "side": "R",
+    "entersFrom": "SW",
+    "opensTo": [
+     "SW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_SE_R",
+   "file": "roads/avenue_asphalt_corner_SE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SE",
+    "side": "R",
+    "connects": [
+     "SW",
+     "NW"
+    ],
+    "medianEdges": [
+     "SE",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_tee_SE",
+   "file": "roads/avenue_asphalt_tee_SE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "SE",
+    "streetEdge": "NW",
+    "connects": [
+     "NE",
+     "SW",
+     "NW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_gap_SE",
+   "file": "roads/avenue_asphalt_gap_SE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "SE",
+    "connects": [
+     "NE",
+     "SW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_cross_SE",
+   "file": "roads/avenue_asphalt_cross_SE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "SE",
+    "streetEdge": "NW",
+    "connects": [
+     "NE",
+     "SW",
+     "NW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_end_SW_L",
+   "file": "roads/avenue_asphalt_end_SW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SW",
+    "side": "L",
+    "entersFrom": "SE",
+    "opensTo": [
+     "SE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_SW_L",
+   "file": "roads/avenue_asphalt_corner_SW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SW",
+    "side": "L",
+    "connects": [
+     "SE",
+     "NE"
+    ],
+    "medianEdges": [
+     "SW",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_end_SW_R",
+   "file": "roads/avenue_asphalt_end_SW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SW",
+    "side": "R",
+    "entersFrom": "NW",
+    "opensTo": [
+     "NW",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_SW_R",
+   "file": "roads/avenue_asphalt_corner_SW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SW",
+    "side": "R",
+    "connects": [
+     "NW",
+     "NE"
+    ],
+    "medianEdges": [
+     "SW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_tee_SW",
+   "file": "roads/avenue_asphalt_tee_SW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "SW",
+    "streetEdge": "NE",
+    "connects": [
+     "SE",
+     "NW",
+     "NE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_gap_SW",
+   "file": "roads/avenue_asphalt_gap_SW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "SW",
+    "connects": [
+     "SE",
+     "NW",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_cross_SW",
+   "file": "roads/avenue_asphalt_cross_SW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "SW",
+    "streetEdge": "NE",
+    "connects": [
+     "SE",
+     "NW",
+     "NE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_end_NW_L",
+   "file": "roads/avenue_asphalt_end_NW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NW",
+    "side": "L",
+    "entersFrom": "SW",
+    "opensTo": [
+     "SW",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_NW_L",
+   "file": "roads/avenue_asphalt_corner_NW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NW",
+    "side": "L",
+    "connects": [
+     "SW",
+     "SE"
+    ],
+    "medianEdges": [
+     "NW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_end_NW_R",
+   "file": "roads/avenue_asphalt_end_NW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NW",
+    "side": "R",
+    "entersFrom": "NE",
+    "opensTo": [
+     "NE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_NW_R",
+   "file": "roads/avenue_asphalt_corner_NW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NW",
+    "side": "R",
+    "connects": [
+     "NE",
+     "SE"
+    ],
+    "medianEdges": [
+     "NW",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_tee_NW",
+   "file": "roads/avenue_asphalt_tee_NW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "NW",
+    "streetEdge": "SE",
+    "connects": [
+     "SW",
+     "NE",
+     "SE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_gap_NW",
+   "file": "roads/avenue_asphalt_gap_NW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "NW",
+    "connects": [
+     "SW",
+     "NE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_cross_NW",
+   "file": "roads/avenue_asphalt_cross_NW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "NW",
+    "streetEdge": "SE",
+    "connects": [
+     "SW",
+     "NE",
+     "SE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_outer_N",
+   "file": "roads/avenue_asphalt_corner_outer_N@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "N",
+    "connects": [
+     "NW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_outer_E",
+   "file": "roads/avenue_asphalt_corner_outer_E@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "E",
+    "connects": [
+     "NE",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_outer_S",
+   "file": "roads/avenue_asphalt_corner_outer_S@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "S",
+    "connects": [
+     "SE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_asphalt_corner_outer_W",
+   "file": "roads/avenue_asphalt_corner_outer_W@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "W",
+    "connects": [
+     "SW",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_NE_L",
+   "file": "roads/avenue_concrete_end_NE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NE",
+    "side": "L",
+    "entersFrom": "NW",
+    "opensTo": [
+     "NW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_NE_L",
+   "file": "roads/avenue_concrete_corner_NE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NE",
+    "side": "L",
+    "connects": [
+     "NW",
+     "SW"
+    ],
+    "medianEdges": [
+     "NE",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_NE_R",
+   "file": "roads/avenue_concrete_end_NE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NE",
+    "side": "R",
+    "entersFrom": "SE",
+    "opensTo": [
+     "SE",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_NE_R",
+   "file": "roads/avenue_concrete_corner_NE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NE",
+    "side": "R",
+    "connects": [
+     "SE",
+     "SW"
+    ],
+    "medianEdges": [
+     "NE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_tee_NE",
+   "file": "roads/avenue_concrete_tee_NE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "NE",
+    "streetEdge": "SW",
+    "connects": [
+     "NW",
+     "SE",
+     "SW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_gap_NE",
+   "file": "roads/avenue_concrete_gap_NE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "NE",
+    "connects": [
+     "NW",
+     "SE",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_cross_NE",
+   "file": "roads/avenue_concrete_cross_NE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "NE",
+    "streetEdge": "SW",
+    "connects": [
+     "NW",
+     "SE",
+     "SW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_SE_L",
+   "file": "roads/avenue_concrete_end_SE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SE",
+    "side": "L",
+    "entersFrom": "NE",
+    "opensTo": [
+     "NE",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_SE_L",
+   "file": "roads/avenue_concrete_corner_SE_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SE",
+    "side": "L",
+    "connects": [
+     "NE",
+     "NW"
+    ],
+    "medianEdges": [
+     "SE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_SE_R",
+   "file": "roads/avenue_concrete_end_SE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SE",
+    "side": "R",
+    "entersFrom": "SW",
+    "opensTo": [
+     "SW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_SE_R",
+   "file": "roads/avenue_concrete_corner_SE_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SE",
+    "side": "R",
+    "connects": [
+     "SW",
+     "NW"
+    ],
+    "medianEdges": [
+     "SE",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_tee_SE",
+   "file": "roads/avenue_concrete_tee_SE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "SE",
+    "streetEdge": "NW",
+    "connects": [
+     "NE",
+     "SW",
+     "NW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_gap_SE",
+   "file": "roads/avenue_concrete_gap_SE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "SE",
+    "connects": [
+     "NE",
+     "SW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_cross_SE",
+   "file": "roads/avenue_concrete_cross_SE@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "SE",
+    "streetEdge": "NW",
+    "connects": [
+     "NE",
+     "SW",
+     "NW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_SW_L",
+   "file": "roads/avenue_concrete_end_SW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SW",
+    "side": "L",
+    "entersFrom": "SE",
+    "opensTo": [
+     "SE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_SW_L",
+   "file": "roads/avenue_concrete_corner_SW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SW",
+    "side": "L",
+    "connects": [
+     "SE",
+     "NE"
+    ],
+    "medianEdges": [
+     "SW",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_SW_R",
+   "file": "roads/avenue_concrete_end_SW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "SW",
+    "side": "R",
+    "entersFrom": "NW",
+    "opensTo": [
+     "NW",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_SW_R",
+   "file": "roads/avenue_concrete_corner_SW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "SW",
+    "side": "R",
+    "connects": [
+     "NW",
+     "NE"
+    ],
+    "medianEdges": [
+     "SW",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_tee_SW",
+   "file": "roads/avenue_concrete_tee_SW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "SW",
+    "streetEdge": "NE",
+    "connects": [
+     "SE",
+     "NW",
+     "NE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_gap_SW",
+   "file": "roads/avenue_concrete_gap_SW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "SW",
+    "connects": [
+     "SE",
+     "NW",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_cross_SW",
+   "file": "roads/avenue_concrete_cross_SW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "SW",
+    "streetEdge": "NE",
+    "connects": [
+     "SE",
+     "NW",
+     "NE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_NW_L",
+   "file": "roads/avenue_concrete_end_NW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NW",
+    "side": "L",
+    "entersFrom": "SW",
+    "opensTo": [
+     "SW",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_NW_L",
+   "file": "roads/avenue_concrete_corner_NW_L@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NW",
+    "side": "L",
+    "connects": [
+     "SW",
+     "SE"
+    ],
+    "medianEdges": [
+     "NW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_end_NW_R",
+   "file": "roads/avenue_concrete_end_NW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "end",
+    "partner": "NW",
+    "side": "R",
+    "entersFrom": "NE",
+    "opensTo": [
+     "NE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_NW_R",
+   "file": "roads/avenue_concrete_corner_NW_R@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_inner",
+    "partner": "NW",
+    "side": "R",
+    "connects": [
+     "NE",
+     "SE"
+    ],
+    "medianEdges": [
+     "NW",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_tee_NW",
+   "file": "roads/avenue_concrete_tee_NW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "tee",
+    "partner": "NW",
+    "streetEdge": "SE",
+    "connects": [
+     "SW",
+     "NE",
+     "SE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_gap_NW",
+   "file": "roads/avenue_concrete_gap_NW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "median_gap",
+    "partner": "NW",
+    "connects": [
+     "SW",
+     "NE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_cross_NW",
+   "file": "roads/avenue_concrete_cross_NW@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "cross",
+    "partner": "NW",
+    "streetEdge": "SE",
+    "connects": [
+     "SW",
+     "NE",
+     "SE",
+     "NW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_outer_N",
+   "file": "roads/avenue_concrete_corner_outer_N@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "N",
+    "connects": [
+     "NW",
+     "NE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_outer_E",
+   "file": "roads/avenue_concrete_corner_outer_E@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "E",
+    "connects": [
+     "NE",
+     "SE"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_outer_S",
+   "file": "roads/avenue_concrete_corner_outer_S@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "S",
+    "connects": [
+     "SE",
+     "SW"
+    ]
+   }
+  },
+  {
+   "name": "avenue_concrete_corner_outer_W",
+   "file": "roads/avenue_concrete_corner_outer_W@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "corner_outer",
+    "vertex": "W",
+    "connects": [
+     "SW",
+     "NW"
+    ]
+   }
   }
  ],
- "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 \u2014 see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29."
+ "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 \u2014 see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete."
 }

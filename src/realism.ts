@@ -137,3 +137,27 @@ export const TRIPS = {
   out: { work: { 6: 0.25, 7: 0.45, 8: 0.25, 9: 0.05 }, school: { 7: 0.7, 8: 0.3 }, errand: { 10: 0.12, 11: 0.12, 12: 0.18, 13: 0.12, 14: 0.08, 15: 0.08, 17: 0.1, 18: 0.1, 19: 0.06, 21: 0.03, 22: 0.01 } } as Record<string, Record<number, number>>,
   back: { work: { 16: 0.2, 17: 0.45, 18: 0.3, 19: 0.05 }, school: { 15: 0.8, 16: 0.2 }, errand: { 11: 0.1, 12: 0.12, 13: 0.18, 14: 0.12, 15: 0.1, 16: 0.08, 18: 0.1, 19: 0.1, 20: 0.06, 22: 0.03, 23: 0.01 } } as Record<string, Record<number, number>>,
 };
+
+// =====================================================================================
+// PARKING — one tile ≈ 400 m²; a parking space incl. aisles takes ≈ 30 m² → ≈ 13 spaces per level per tile.
+//   - Surface lot: ≈ 13–14 spaces/tile; ≈ $5k per space to build (US).
+//   - Structured garage: ≈ $25–30k per above-ground space (WGI/Carl Walker cost reports), O&M ≈ $700/space/yr.
+//   - Downtown fees: commuters ≈ $10–15/day, short visits ≈ $2–4; a garage space earns ≈ $2–3k/yr.
+//   - Street parking: ≈ 3 cars per 20 m kerb per side → ~6 per 2-lane tile; 4-lane streets have none; avenues ~2.
+//   - Shops on low-density (C1) and industry have their own lots; dense commercial (C2/C3), hospitals and
+//     high schools need shared parking within a short walk (≈ 4 tiles ≈ 400 m; up to 8 if desperate).
+// Game money ≈ 1/1,000 of real dollars (same as roads).
+// =====================================================================================
+export const PARKING = {
+  privateLot: { spaces: 14 },          // grows by itself on a C tile when parking demand is high
+  privateGarage: { spaces: 65 },       // 5 levels, grows next to C3
+  garage:  { name: 'Parking Garage',       size: 1, spaces: 50,  cost: 1350, upkeep: 3 },   // 4 levels × ~13 = 50 spaces × $27k
+  garage2: { name: 'Parking Garage (big)', size: 2, spaces: 260, cost: 7000, upkeep: 15 },  // 5 levels × 4 tiles × 13
+  feeCommuterPerDay: 0.012,            // $12/day real
+  feeVisit: 0.003,                     // $3 per visit real
+  visitTurnover: 3,                    // shoppers per space per day
+  shopperStay: 0.25,                   // share of a day a shopper's car sits there (≈ 2 h of the 8 h day)
+  streetSpaces: [6, 0, 2],             // per road tile: 2-lane, 4-lane street, avenue half
+  walkTiles: 4, maxWalkTiles: 8,
+  circleMinutes: 8,                    // extra driving when the driver has to hunt for a space
+};

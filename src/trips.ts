@@ -2,10 +2,10 @@
 // (workers / kids / others); each group has real destinations (a job tile, a school, shops) reachable on
 // the road network. Routes are A* over drivable road tiles weighted by speed and congestion and cached per
 // origin/destination road tile. Visible cars are sampled from these trips by the renderer.
-import { TRIPS } from './realism';
+import { TRIPS, PARKING } from './realism';
 
 export type Kind = 'work' | 'school' | 'errand';
-export type Flow = { home: number; dest: number; kind: Kind; people: number }; // people making this trip each day (one way)
+export type Flow = { home: number; dest: number; kind: Kind; people: number; park?: number; walk?: number; extraMin?: number }; // park: tile where the car ends (walk tiles from there) // people making this trip each day (one way)
 export type World = {
   N: number;
   drivable: (i: number, j: number) => boolean;
@@ -16,6 +16,8 @@ export type World = {
   jobs: (i: number, j: number) => number;       // 0 if no jobs
   shop: (i: number, j: number) => boolean;
   schools: () => { k: number; seats: number }[];
+  parkSpaces: (i: number, j: number) => number;   // spaces at this tile (garages, lots, kerb)
+  needsParking: (i: number, j: number) => boolean; // destination with no own parking (dense commercial, big civic)
   seed: number;
 };
 const D4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
@@ -29,9 +31,10 @@ export class TripSim {
   homeFlows = new Map<number, Flow[]>();
   volume: Float32Array; // vehicles/day per tile (smoothed)
   private volSamples = 0; private volCursor = 0;
-  stats = { residents: 0, workers: 0, employed: 0, noJobReachable: 0, jobless: 0, kids: 0, schooled: 0, noSchoolReachable: 0, assignMs: 0, routes: 0, cacheHits: 0, routeMs: 0 };
+  occ: Float32Array; spaces: Float32Array; unmet: Float32Array; parkKind: Uint8Array; // peak cars parked / capacity per tile; unmet demand at destinations
+  stats = { parkedCars: 0, unparkedCars: 0, lostShoppers: 0, residents: 0, workers: 0, employed: 0, noJobReachable: 0, jobless: 0, kids: 0, schooled: 0, noSchoolReachable: 0, assignMs: 0, routes: 0, cacheHits: 0, routeMs: 0 };
   private cache = new Map<number, number[] | null>(); version = 0;
-  constructor(w: World) { this.w = w; this.N = w.N; const n = w.N * w.N; this.access = new Int32Array(n).fill(-1); this.comp = new Int32Array(n).fill(-1); this.volume = new Float32Array(n); }
+  constructor(w: World) { this.w = w; this.N = w.N; const n = w.N * w.N; this.access = new Int32Array(n).fill(-1); this.comp = new Int32Array(n).fill(-1); this.volume = new Float32Array(n); this.occ = new Float32Array(n); this.spaces = new Float32Array(n); this.unmet = new Float32Array(n); this.parkKind = new Uint8Array(n); }
 
   /** recompute access, components and everybody's destinations (call monthly or after road edits) */
   assign(month = 0) {
@@ -74,9 +77,25 @@ export class TripSim {
       // errands: a nearby shop (best of 4 samples)
       const sh = shopTiles[c]; if (sh.length) { let best = -1, bd = 1e9; for (let s = 0; s < 4; s++) { const d = sh[(R() * sh.length) | 0], dd = md(hk, d); if (dd < bd) { bd = dd; best = d; } } fl.push({ home: hk, dest: best, kind: 'errand', people: res * TRIPS.errandsPerPersonPerDay * (others / res + 0.3) }); }
       for (const f of fl) this.flows.push(f); if (fl.length) this.homeFlows.set(hk, fl); }
-    st.assignMs = performance.now() - t0;
+    this.parkAll(); st.assignMs = performance.now() - t0;
   }
 
+  /** where the car stops: a parking tile near the destination (or the destination itself) */
+  end(f: Flow) { return this.access[f.park ?? f.dest]; }
+  /** give every car trip to a parking-short destination a space within walking distance; shoppers who can't park go elsewhere/home */
+  private parkAll() { const { N, w } = this, n = N * N, st = this.stats; st.parkedCars = st.unparkedCars = st.lostShoppers = 0;
+    this.occ.fill(0); this.unmet.fill(0); for (let k = 0; k < n; k++) this.spaces[k] = w.parkSpaces((k / N) | 0, k % N);
+    const order = this.flows.filter(f => f.kind !== 'school' && this.md(f.home, f.dest) > TRIPS.walkTiles && w.needsParking((f.dest / N) | 0, f.dest % N));
+    order.sort((a, b) => (a.kind === 'work' ? 0 : 1) - (b.kind === 'work' ? 0 : 1)); // commuters arrive first and take the close spaces
+    for (const f of order) { const cars = f.people * TRIPS.carShare[f.kind] / TRIPS.peoplePerCar, need = f.kind === 'work' ? cars : cars * PARKING.shopperStay; let left = need;
+      const di = (f.dest / N) | 0, dj = f.dest % N;
+      for (let r = 0; r <= PARKING.maxWalkTiles && left > 1e-3; r++) for (let a = -r; a <= r && left > 1e-3; a++) for (const b of r - Math.abs(a) ? [r - Math.abs(a), -(r - Math.abs(a))] : [0]) {
+        const i = di + a, j = dj + b; if (i < 0 || j < 0 || i >= N || j >= N) continue; const k = i * N + j, free = this.spaces[k] - this.occ[k]; if (free <= 1e-3 || this.access[k] < 0) continue;
+        const take = Math.min(free, left); this.occ[k] += take; left -= take; if (f.park === undefined || r < (f.walk ?? 99)) { f.park = k; f.walk = r; }
+        if (r > PARKING.walkTiles) f.extraMin = PARKING.circleMinutes; if (left <= 1e-3) break; }
+      st.parkedCars += need - left;
+      if (left > 1e-3) { this.unmet[f.dest] += left; st.unparkedCars += left;
+        if (f.kind === 'errand') { const lost = f.people * (left / need); f.people -= lost; st.lostShoppers += lost; } else f.extraMin = PARKING.circleMinutes * 2; } } }
   /** seconds to drive across a tile right now (free flow × BPR congestion) */
   tileCost(k: number) { const N = this.N, i = (k / N) | 0, j = k - i * N, vc = this.volume[k] / Math.max(1, this.w.capacity(i, j)); return this.w.tileSecs(i, j) * (1 + 0.15 * vc ** 4); }
 
@@ -101,7 +120,7 @@ export class TripSim {
   /** traffic volume: route a few sampled flows per call and blend into the daily volume map */
   sampleVolume(n = 25) { const fl = this.flows; if (!fl.length) return; const N = this.N, A = 0.05, w = fl.length / n * A; // running estimate: decay, then add this sample scaled up to the whole city
     if (this.volSamples % 10 === 0) { const f = (1 - A) ** 10; for (let k = 0; k < N * N; k++) if (this.volume[k]) this.volume[k] *= f; } // decay in batches (cheaper)
-    for (let s = 0; s < n; s++) { const f = fl[this.volCursor++ % fl.length]; if (this.md(f.home, f.dest) <= TRIPS.walkTiles) continue; const p = this.route(this.access[f.home], this.access[f.dest]); if (!p) continue;
+    for (let s = 0; s < n; s++) { const f = fl[this.volCursor++ % fl.length]; if (this.md(f.home, f.dest) <= TRIPS.walkTiles) continue; const p = this.route(this.access[f.home], this.end(f)); if (!p) continue;
       const cars = f.people * TRIPS.carShare[f.kind] / TRIPS.peoplePerCar * 2 * w; for (const k of p) this.volume[k] += cars; }
     if (++this.volSamples % 240 === 0) this.cache.clear(); } // re-route with fresh congestion now and then
   md(x: number, y: number) { const N = this.N; return Math.abs(((x / N) | 0) - ((y / N) | 0)) + Math.abs((x % N) - (y % N)); }

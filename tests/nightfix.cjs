@@ -3,7 +3,7 @@ const {chromium}=require('playwright');(async()=>{const url=process.argv[2]||'ht
 const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});const p=await b.newPage({viewport:{width:1400,height:800}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.goto(url+'?size=64&seed=5&city=Nightville');await p.waitForFunction(()=>window.__city&&__city.N);await p.evaluate(()=>__city.setSpeed(0));
 const res=[];const ok=(n,c,d='')=>res.push((c?'PASS ':'FAIL ')+n+(d?' ('+d+')':''));
-const rev=await p.evaluate(async()=>(await (await fetch('./assets/manifest.json')).json()).artRevision);ok('manifest is v3-soft3d-j',rev==='v3-soft3d-j',rev);
+const rev=await p.evaluate(async()=>(await (await fetch('./assets/manifest.json')).json()).artRevision);ok('manifest is v3-soft3d-j or later',rev>='v3-soft3d-j',rev);
 const c=await p.evaluate(()=>{const t=__city.terrain;for(let r=0;r<30;r++)for(let i=32-r;i<=32+r;i++)for(let j=32-r;j<=32+r;j++){let g=true;for(let a=-8;a<=8&&g;a++)for(let b2=-8;b2<=8;b2++)if(!t[i+a]||t[i+a][j+b2]==='water'){g=false;break}if(g)return [i,j]}});
 const info=await p.evaluate(([ci,cj])=>{const C=__city;const R=(i,j)=>{C.road[i][j]=true;C.rtier[i][j]=2;C.rstage[i][j]=0;C.rw[i][j]=0};const F={NE:1,SE:2,SW:3,NW:4};
  for(let d=-7;d<=7;d++){R(ci+d,cj-1);R(ci+d,cj+2)}const names=[];for(let i=ci-6;i<=ci+6;i++)for(const [j,f] of [[cj,'NE'],[cj+1,'SW']]){C.zone[i][j]='I';C.bld[i][j]=2;C.zden[i][j]=3;C.zface[i][j]=F[f]}

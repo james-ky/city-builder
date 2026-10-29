@@ -22,13 +22,13 @@ Drawn above the night shading with additive blending and faded in with darkness.
 Game keys `civic_school|highschool|police|fire|clinic|hospital` map (ALIAS in src/sprites.ts) to `school_elem`, `school_high`, `police`, `fire_station`, `clinic`, `hospital` (+ `_night`).
 Placed at the footprint centre toScreen(i0+(N-1)/2, j0+(N-1)/2), depth key i0+j0+N-1. Toolbar icons: `ui/icons/icon_<name>@2x.png`.
 
-## Power & water (milestone 4) — art needed
-Code placeholders are drawn until these exist; drop them into the manifest and they are picked up automatically.
+## Power & water (milestone 4)
+Art delivered in manifest v358 and wired in. Pump rule: the tiles along its SE edge (i0+N, j0..j0+N-1) must be water (`placeTouchingWater`). Wind turbines animate util_wind_f0..f3 at 8 fps with one shared util_wind_night. Status bubbles (status_no_power / status_no_water) sit above the roof.
 
 Buildings (same style and anchor rules as civic buildings; footprint in tiles):
 - `util_coal` 3x3: coal power plant (stacks, coal pile). Also `util_coal_night`.
 - `util_wind` 1x1: wind turbine. Optional `util_wind_night` (red aviation light).
-- `util_pump` 2x2: water pump house (always placed touching water). Also `util_pump_night`.
+- `util_pump` 2x2: water pump house (SE edge on water). Also `util_pump_night`.
 - `util_tower` 1x1: elevated water tower. Optional `util_tower_night`.
 
 Networks (16 autotile masks each, same bits as roads: NE=1, SE=2, SW=4, NW=8):

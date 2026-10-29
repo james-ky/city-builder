@@ -7015,6 +7015,1275 @@
       "laneOffsetTiles": 0.15
     },
     {
+      "name": "util_coal",
+      "file": "buildings/utility/util_coal@2x.png",
+      "size": [
+        384,
+        324
+      ],
+      "anchor": [
+        0.5,
+        0.7037
+      ],
+      "footprint": [
+        3,
+        3
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          32
+        ],
+        "equivalent": "toScreen(i0+1.0, j0+1.0)",
+        "depthKey": "i0+j0+2"
+      }
+    },
+    {
+      "name": "util_coal_night",
+      "file": "buildings/utility/util_coal_night@2x.png",
+      "size": [
+        384,
+        324
+      ],
+      "anchor": [
+        0.5,
+        0.7037
+      ],
+      "footprint": [
+        3,
+        3
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "util_coal",
+      "category": "utility",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          32
+        ],
+        "equivalent": "toScreen(i0+1.0, j0+1.0)",
+        "depthKey": "i0+j0+2"
+      }
+    },
+    {
+      "name": "util_pump",
+      "file": "buildings/utility/util_pump@2x.png",
+      "size": [
+        256,
+        188
+      ],
+      "anchor": [
+        0.5,
+        0.6596
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      },
+      "placeTouchingWater": "SE edge (tiles i0+N, j0..j0+N-1) must be water; intake pipes reach that edge"
+    },
+    {
+      "name": "util_pump_night",
+      "file": "buildings/utility/util_pump_night@2x.png",
+      "size": [
+        256,
+        188
+      ],
+      "anchor": [
+        0.5,
+        0.6596
+      ],
+      "footprint": [
+        2,
+        2
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "util_pump",
+      "category": "utility",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          16
+        ],
+        "equivalent": "toScreen(i0+0.5, j0+0.5)",
+        "depthKey": "i0+j0+1"
+      }
+    },
+    {
+      "name": "util_tower",
+      "file": "buildings/utility/util_tower@2x.png",
+      "size": [
+        128,
+        164
+      ],
+      "anchor": [
+        0.5,
+        0.8049
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      }
+    },
+    {
+      "name": "util_tower_night",
+      "file": "buildings/utility/util_tower_night@2x.png",
+      "size": [
+        128,
+        164
+      ],
+      "anchor": [
+        0.5,
+        0.8049
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "util_tower",
+      "category": "utility",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      }
+    },
+    {
+      "name": "util_wind_f0",
+      "file": "buildings/utility/util_wind_f0@2x.png",
+      "size": [
+        128,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.8462
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      },
+      "animation": "util_wind",
+      "frame": 0
+    },
+    {
+      "name": "util_wind",
+      "file": "buildings/utility/util_wind@2x.png",
+      "size": [
+        128,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.8462
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      },
+      "aliasOf": "util_wind_f0",
+      "frames": [
+        "util_wind_f0",
+        "util_wind_f1",
+        "util_wind_f2",
+        "util_wind_f3"
+      ],
+      "fps": 8
+    },
+    {
+      "name": "util_wind_f1",
+      "file": "buildings/utility/util_wind_f1@2x.png",
+      "size": [
+        128,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.8462
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      },
+      "animation": "util_wind",
+      "frame": 1
+    },
+    {
+      "name": "util_wind_f2",
+      "file": "buildings/utility/util_wind_f2@2x.png",
+      "size": [
+        128,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.8462
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      },
+      "animation": "util_wind",
+      "frame": 2
+    },
+    {
+      "name": "util_wind_f3",
+      "file": "buildings/utility/util_wind_f3@2x.png",
+      "size": [
+        128,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.8462
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "category": "utility",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      },
+      "animation": "util_wind",
+      "frame": 3
+    },
+    {
+      "name": "util_wind_night",
+      "file": "buildings/utility/util_wind_night@2x.png",
+      "size": [
+        128,
+        208
+      ],
+      "anchor": [
+        0.5,
+        0.8462
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "night",
+      "nightOf": "util_wind",
+      "category": "utility",
+      "blend": "add",
+      "placement": {
+        "tile": "(i0, j0) = footprint tile with smallest i and j",
+        "screenOffsetGamePx": [
+          0,
+          0
+        ],
+        "equivalent": "toScreen(i0+0.0, j0+0.0)",
+        "depthKey": "i0+j0+0"
+      },
+      "note": "beacon is on the nacelle, identical for all frames"
+    },
+    {
+      "name": "power_line_0",
+      "file": "networks/power_line_0@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 0
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_0",
+      "file": "networks/pipe_0@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 0
+      }
+    },
+    {
+      "name": "power_line_1",
+      "file": "networks/power_line_1@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 1
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_1",
+      "file": "networks/pipe_1@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 1
+      }
+    },
+    {
+      "name": "power_line_2",
+      "file": "networks/power_line_2@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 2
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_2",
+      "file": "networks/pipe_2@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 2
+      }
+    },
+    {
+      "name": "power_line_3",
+      "file": "networks/power_line_3@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 3
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_3",
+      "file": "networks/pipe_3@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 3
+      }
+    },
+    {
+      "name": "power_line_4",
+      "file": "networks/power_line_4@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 4
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_4",
+      "file": "networks/pipe_4@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 4
+      }
+    },
+    {
+      "name": "power_line_5",
+      "file": "networks/power_line_5@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 5
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_5",
+      "file": "networks/pipe_5@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 5
+      }
+    },
+    {
+      "name": "power_line_6",
+      "file": "networks/power_line_6@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 6
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_6",
+      "file": "networks/pipe_6@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 6
+      }
+    },
+    {
+      "name": "power_line_7",
+      "file": "networks/power_line_7@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 7
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_7",
+      "file": "networks/pipe_7@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 7
+      }
+    },
+    {
+      "name": "power_line_8",
+      "file": "networks/power_line_8@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 8
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_8",
+      "file": "networks/pipe_8@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 8
+      }
+    },
+    {
+      "name": "power_line_9",
+      "file": "networks/power_line_9@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 9
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_9",
+      "file": "networks/pipe_9@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 9
+      }
+    },
+    {
+      "name": "power_line_10",
+      "file": "networks/power_line_10@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 10
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_10",
+      "file": "networks/pipe_10@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 10
+      }
+    },
+    {
+      "name": "power_line_11",
+      "file": "networks/power_line_11@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 11
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_11",
+      "file": "networks/pipe_11@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 11
+      }
+    },
+    {
+      "name": "power_line_12",
+      "file": "networks/power_line_12@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 12
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_12",
+      "file": "networks/pipe_12@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 12
+      }
+    },
+    {
+      "name": "power_line_13",
+      "file": "networks/power_line_13@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 13
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_13",
+      "file": "networks/pipe_13@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 13
+      }
+    },
+    {
+      "name": "power_line_14",
+      "file": "networks/power_line_14@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 14
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_14",
+      "file": "networks/pipe_14@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 14
+      }
+    },
+    {
+      "name": "power_line_15",
+      "file": "networks/power_line_15@2x.png",
+      "size": [
+        128,
+        116
+      ],
+      "anchor": [
+        0.5,
+        0.7241
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "power",
+      "category": "network",
+      "autotile": {
+        "set": "power",
+        "mask": 15
+      },
+      "depthKey": "i+j (sorted with buildings)"
+    },
+    {
+      "name": "pipe_15",
+      "file": "networks/pipe_15@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "underground",
+      "category": "network",
+      "autotile": {
+        "set": "pipe",
+        "mask": 15
+      }
+    },
+    {
+      "name": "icon_coal",
+      "file": "ui/icons/icon_coal@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "iconFor": "coal"
+    },
+    {
+      "name": "icon_wind",
+      "file": "ui/icons/icon_wind@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "iconFor": "wind"
+    },
+    {
+      "name": "icon_pump",
+      "file": "ui/icons/icon_pump@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "iconFor": "pump"
+    },
+    {
+      "name": "icon_tower",
+      "file": "ui/icons/icon_tower@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "iconFor": "tower"
+    },
+    {
+      "name": "icon_power_line",
+      "file": "ui/icons/icon_power_line@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "iconFor": "power_line"
+    },
+    {
+      "name": "icon_pipe",
+      "file": "ui/icons/icon_pipe@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "iconFor": "pipe"
+    },
+    {
+      "name": "icon_underground",
+      "file": "ui/icons/icon_underground@2x.png",
+      "size": [
+        64,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "iconFor": "underground"
+    },
+    {
+      "name": "status_no_power",
+      "file": "ui/icons/status_no_power@2x.png",
+      "size": [
+        48,
+        48
+      ],
+      "anchor": [
+        0.5,
+        0.8917
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "status": "no_power",
+      "note": "anchor = bubble tail tip; place a few px above the building's top"
+    },
+    {
+      "name": "status_no_water",
+      "file": "ui/icons/status_no_water@2x.png",
+      "size": [
+        48,
+        48
+      ],
+      "anchor": [
+        0.5,
+        0.8917
+      ],
+      "footprint": null,
+      "scale": 0.5,
+      "layer": "ui",
+      "category": "ui",
+      "status": "no_water",
+      "note": "anchor = bubble tail tip; place a few px above the building's top"
+    },
+    {
       "name": "construction_1x1_stage1",
       "file": "buildings/construction_1x1_stage1@2x.png",
       "size": [

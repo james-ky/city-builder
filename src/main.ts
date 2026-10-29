@@ -1,6 +1,6 @@
 import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
-import { loadManifest, place, placeNight, hasArt } from './sprites';
+import { loadManifest, place, placeNight, hasArt, artTex } from './sprites';
 
 const TW = 64, TH = 32;
 const hud = document.getElementById('hud')!;
@@ -186,7 +186,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const CH = 16, NCH = Math.ceil(N / CH);
   type Bld = { x: number; y: number; z: string; L: number; seed: number };
   type Chunk = { ci: number; cj: number; g: Container; gr: Container; rd: Container; zn: Container; ob: Container; pp: Container; ic: Container;
-    ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][];
+    ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; winds: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][];
     tint: number; la: number; x0: number; x1: number; y0: number; y1: number };
   const chunks: Chunk[] = [];
   objL.sortableChildren = true;
@@ -195,7 +195,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const ob = mk(objL); ob.sortableChildren = true; ob.zIndex = ci + cj; // chunks drawn back to front; inside a chunk sprites sort by screen y
     const i0 = ci * CH, j0 = cj * CH, i1 = Math.min(N, i0 + CH) - 1, j1 = Math.min(N, j0 + CH) - 1;
     chunks.push({ ci, cj, g: mk(groundL), gr: mk(gridL), rd: mk(roadL), zn: mk(zoneL), ob, pp: mk(pipeL), ic: mk(iconL), ground: false, built: false, dirty: true, iconDirty: true, vis: false, seen: 0,
-      lights: [], trees: [], blds: [], roads: [], tint: -1, la: -1, x0: (i0 - j1) * 32 - 96, x1: (i1 - j0) * 32 + 96, y0: (i0 + j0) * 16 - 240, y1: (i1 + j1) * 16 + 48 });
+      lights: [], winds: [], trees: [], blds: [], roads: [], tint: -1, la: -1, x0: (i0 - j1) * 32 - 96, x1: (i1 - j0) * 32 + 96, y0: (i0 + j0) * 16 - 240, y1: (i1 + j1) * 16 + 48 });
   }
   const chunkOf = (i: number, j: number) => chunks[Math.min(NCH - 1, Math.max(0, Math.floor(i / CH))) * NCH + Math.min(NCH - 1, Math.max(0, Math.floor(j / CH)))];
   let ovDirty = true;
@@ -218,7 +218,7 @@ function diamond(g: Graphics, i: number, j: number) {
     g.stroke({ width: 1, color: 0xffffff, alpha: 0.16 }); ch.gr.addChild(g); ch.ground = true; };
   const drawChunk = (ch: Chunk) => {
     for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); }
-    clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tint = -1; ch.la = -1;
+    clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.winds = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tint = -1; ch.la = -1;
     const P = (key: string, x: number, y: number, seed: number, z: number) => { const o = place(key, x, y, ch.ob, seed); o.zIndex = z; return o; };
     const PN = (key: string, x: number, y: number, seed: number, z: number) => { const l = placeNight(key, x, y, ch.ob, seed); if (l) { l.zIndex = z; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } };
     chunkTiles(ch, (i, j) => {
@@ -228,7 +228,7 @@ function diamond(g: Graphics, i: number, j: number) {
         place('civic_lot', x, y, ch.zn, seed);
         if (i === cv.i + cv.s - 1 && j === cv.j) { // depth key i0+j0+size-1 (manifest placement); anchor = footprint centre
           const c = toScreen(cv.i + (cv.s - 1) / 2, cv.j + (cv.s - 1) / 2), key = SERV[cv.type].key ?? 'civic_' + cv.type;
-          P(key, c.x, c.y, seed, y); PN(key, c.x, c.y, seed, y);
+          const o = P(key, c.x, c.y, seed, y); PN(key, c.x, c.y, seed, y); if (cv.type === 'wind' && o instanceof Sprite) { (o as any).__ph = seed % 4; ch.winds.push(o); }
         }
       } else if (pline[i][j] && !road[i][j]) {
         const pl = (a: number, b: number) => inb(a, b) && (pline[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'power'));
@@ -247,8 +247,11 @@ function diamond(g: Graphics, i: number, j: number) {
     });
     ch.dirty = false; ch.built = true; ch.iconDirty = true;
   };
-  const drawChunkIcons = (ch: Chunk) => { clear(ch.ic); ch.iconDirty = false; const g = new Graphics(); ch.ic.addChild(g);
+  const STATUS_H = [0, 34, 52, 86]; // bubble sits a few px above each density's roof
+  const drawChunkIcons = (ch: Chunk) => { clear(ch.ic); ch.iconDirty = false; const g = new Graphics(); ch.ic.addChild(g); const art = hasArt('status_no_power');
     chunkTiles(ch, (i, j) => { if (!(zone[i][j] && bld[i][j] && (!powered[i][j] || !watered[i][j]))) return;
+      if (art) { const { x, y } = toScreen(i, j), yy = y - STATUS_H[bld[i][j]], two = !powered[i][j] && !watered[i][j];
+        if (!powered[i][j]) place('status_no_power', x - (two ? 7 : 0), yy, ch.ic); if (!watered[i][j]) place('status_no_water', x + (two ? 7 : 0), yy, ch.ic); return; }
       const { x, y } = toScreen(i, j), yy = y - 26 - bld[i][j] * 6; let xx = x - (!powered[i][j] && !watered[i][j] ? 6 : 0);
       if (!powered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx + 1, yy - 4, xx - 2, yy + 0.5, xx + 0.3, yy + 0.5, xx - 1, yy + 4, xx + 2.5, yy - 1, xx + 0.3, yy - 1]).fill(0xffe14d); xx += 12; }
       if (!watered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx, yy - 3.8, xx + 2.4, yy + 0.8, xx, yy + 3, xx - 2.4, yy + 0.8]).fill(0x7cc8ff); } }); };
@@ -298,12 +301,12 @@ function diamond(g: Graphics, i: number, j: number) {
   let toolHook: ((t: string) => void) | undefined;
   const bar = document.getElementById('toolbar')!;
   const setTool = (t: Tool) => { tool = t; syncZones(); toolHook?.(t); if (t.startsWith('svc:')) setCovView(SERV[t.slice(4)].kind); document.querySelectorAll<HTMLElement>('#toolbar button, #services button[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
-  tools.forEach(([t, label], k) => { const b = document.createElement('button'); b.dataset.t = t; b.innerHTML = `<b>${k+1}</b> ${label}`; b.onclick = () => setTool(t); bar.appendChild(b); });
+  tools.forEach(([t, label], k) => { const b = document.createElement('button'); b.dataset.t = t; b.innerHTML = `<b>${k+1}</b> ${t === 'pline' ? '<img src="./assets/ui/icons/icon_power_line@2x.png" alt="">' : t === 'pipe' ? '<img src="./assets/ui/icons/icon_pipe@2x.png" alt="">' : ''}${label}`; b.onclick = () => setTool(t); bar.appendChild(b); });
   // Services toolbar group
   const svcBar = document.getElementById('services')!;
   const ICON: Record<string, string> = { school: 'school_elem', highschool: 'school_high', police: 'police', fire: 'fire_station', clinic: 'clinic', hospital: 'hospital' };
   svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}"><img src="./assets/ui/icons/icon_${ICON[k]}@2x.png" alt="">${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
-    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.out}${v.needsWater ? ', must touch water' : ''}">${{ coal: '🏭', wind: '🌬', pump: '⛲', tower: '🗼' }[k]} ${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
+    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.out}${v.needsWater ? ', its south-east side must be on water' : ''}"><img src="./assets/ui/icons/icon_${k}@2x.png" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
     + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option><option value="power">Powered</option><option value="water">Water served</option></select>';
   svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => setTool((b as HTMLElement).dataset.t!));
   setTool('select');
@@ -327,9 +330,10 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let a = 0; a < S.size; a++) for (let b = 0; b < S.size; b++) out.push([i0 + a, j0 + b]); return { i0, j0, s: S.size, tiles: out }; };
   const tileFree = (i: number, j: number) => inb(i, j) && terrain[i][j] !== 'water' && !road[i][j] && !zone[i][j] && !civAt[i][j];
   const touchesRoad = (i0: number, j0: number, s: number) => { for (let k = 0; k < s; k++) if (isRoad(i0 - 1, j0 + k) || isRoad(i0 + s, j0 + k) || isRoad(i0 + k, j0 - 1) || isRoad(i0 + k, j0 + s)) return true; return false; };
+  const seWater = (i0: number, j0: number, s: number) => { for (let k = 0; k < s; k++) if (!inb(i0 + s, j0 + k) || terrain[i0 + s][j0 + k] !== 'water') return false; return true; }; // pump intake faces SE
   const touchesWater = (i0: number, j0: number, s: number) => { const w = (i: number, j: number) => inb(i, j) && terrain[i][j] === 'water'; for (let k = 0; k < s; k++) if (w(i0 - 1, j0 + k) || w(i0 + s, j0 + k) || w(i0 + k, j0 - 1) || w(i0 + k, j0 + s)) return true; return false; };
   const canPlop = (t: string, hi: number, hj: number) => { const f = svcFoot(t, hi, hj), S = SERV[t];
-    return f.tiles.every(([i, j]) => tileFree(i, j) && !pline[i][j]) && (S.util ? true : touchesRoad(f.i0, f.j0, f.s)) && (!S.needsWater || touchesWater(f.i0, f.j0, f.s)); };
+    return f.tiles.every(([i, j]) => tileFree(i, j) && !pline[i][j]) && (S.util ? true : touchesRoad(f.i0, f.j0, f.s)) && (!S.needsWater || seWater(f.i0, f.j0, f.s)); };
   const plop = (t: string, hi: number, hj: number) => {
     if (!canPlop(t, hi, hj)) return false; if (!spend(SERV[t].cost)) return false; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s };
     civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; markDirty(f.i0, f.j0, f.i0 + f.s, f.j0 + f.s); census(); updateStats(); return true;
@@ -731,7 +735,7 @@ function diamond(g: Graphics, i: number, j: number) {
   menu.querySelectorAll<HTMLInputElement>('#fxList input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
   document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
   setFxVisibility();
-  let clock = 0;
+  let clock = 0, windF = -1;
   let night = 0;
   const applyNight = (n: number) => { // objects are tinted to match the shading (per visible chunk, lazily); lights fade in additively
     if (Math.abs(n - lastNightTint) < 0.01) return; lastNightTint = n;
@@ -754,6 +758,7 @@ function diamond(g: Graphics, i: number, j: number) {
       app.renderer.background.color = night > 0.5 ? 0x0d1220 : 0x1b2430;
     }
     updateChunks(); syncChunkNight();
+    { const f = Math.floor(clock * 8); if (f !== windF) { windF = f; const fr = [0, 1, 2, 3].map(k => artTex('util_wind_f' + k)); if (fr[0]) for (const ch of chunks) if (ch.vis) for (const w of ch.winds) w.texture = fr[(f + (w as any).__ph) % 4]!; } } // turbines spin at 8 fps
     if (fx.clouds) for (const c of clouds) { c.x += 12 * dt; c.y += 3 * dt; if (c.x > W1 + 300) { c.x = W0 - 300; c.y = Math.random() * H1; } }
     if (fx.nature) {
       for (const ch of chunks) if (ch.vis) for (const tr of ch.trees) tr.s.skew.x = Math.sin(clock * 1.3 + tr.ph) * 0.03;

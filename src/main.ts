@@ -77,6 +77,13 @@ function diamond(g: Graphics, i: number, j: number) {
   const setGrid = (v: boolean) => { gridL.visible = v; gridBtn.classList.toggle('on', v); localStorage.setItem('grid', v ? 'on' : 'off'); };
   gridBtn.onclick = () => setGrid(!gridL.visible); setGrid(gridL.visible);
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'g') setGrid(!gridL.visible); });
+  let zonesOn = localStorage.getItem('zones') !== 'off';
+  let tool = 'select' as string;
+  const zoneBtn = document.getElementById('zoneBtn')!;
+  const syncZones = () => { zoneL.visible = zonesOn || ['R', 'C', 'I'].includes(tool); zoneBtn.classList.toggle('on', zonesOn); };
+  const setZones = (v: boolean) => { zonesOn = v; localStorage.setItem('zones', v ? 'on' : 'off'); syncZones(); };
+  zoneBtn.onclick = () => setZones(!zonesOn);
+  window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'z') setZones(!zonesOn); });
   let near: number[][] = [];
   const computeNear = () => { // BFS distance from nearest road (4-neighbour steps)
     near = [...Array(N)].map(() => Array(N).fill(99)); const q: [number, number][] = [];
@@ -95,7 +102,7 @@ function diamond(g: Graphics, i: number, j: number) {
         const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
         place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, roadL, seed);
       } else if (zone[i][j]) {
-        place('zone_' + zone[i][j], x, y, zoneL, seed);
+        if (!bld[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
         if (bld[i][j]) place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed);
       } else if (terrain[i][j] === 'forest') place('forest', x, y, objL, seed);
     }
@@ -107,9 +114,8 @@ function diamond(g: Graphics, i: number, j: number) {
   // ---- tools ----
   type Tool = 'select' | 'road' | 'R' | 'C' | 'I' | 'bulldoze';
   const tools: [Tool, string][] = [['select','Select / Pan'],['road','Road'],['R','Residential'],['C','Commercial'],['I','Industrial'],['bulldoze','Bulldoze']];
-  let tool: Tool = 'select';
   const bar = document.getElementById('toolbar')!;
-  const setTool = (t: Tool) => { tool = t; bar.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
+  const setTool = (t: Tool) => { tool = t; syncZones(); bar.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === t)); };
   tools.forEach(([t, label], k) => { const b = document.createElement('button'); b.dataset.t = t; b.innerHTML = `<b>${k+1}</b> ${label}`; b.onclick = () => setTool(t); bar.appendChild(b); });
   setTool('select');
   window.addEventListener('keydown', e => { const k = +e.key; if (k >= 1 && k <= 6) setTool(tools[k-1][0]); if (e.key === 'Escape') { drag = null; preview.clear(); } });
@@ -146,7 +152,7 @@ function diamond(g: Graphics, i: number, j: number) {
     drag = null; preview.clear(); redraw();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, terrain, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, terrain, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -188,9 +194,9 @@ function diamond(g: Graphics, i: number, j: number) {
       if (zone[i][j] === 'R') sim.pop += v; else if (zone[i][j] === 'C') sim.jobsC += v; else sim.jobsI += v;
     }
     const jobs = sim.jobsC + sim.jobsI, workers = sim.pop * 0.6;
-    sim.dR = clamp((jobs * 1.3 + 40 - sim.pop) / Math.max(60, sim.pop * 0.5));      // people come for jobs
-    sim.dC = clamp((sim.pop * 0.25 + 5 - sim.jobsC) / Math.max(15, sim.pop * 0.15));  // shops follow residents
-    sim.dI = clamp((40 + workers * 0.5 - sim.jobsI) / Math.max(30, sim.jobsI * 0.5)); // outside demand + workforce
+    sim.dR = clamp((jobs * 1.6 + 60 - sim.pop) / Math.max(60, sim.pop * 0.4));      // people come for jobs
+    sim.dC = clamp((sim.pop * 0.35 + 10 - sim.jobsC) / Math.max(15, sim.pop * 0.12));  // shops follow residents
+    sim.dI = clamp((60 + sim.day * 0.4 + workers * 0.6 - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); // outside demand + workforce
   };
   const tick = () => {
     sim.day++; let changed = false;
@@ -201,8 +207,8 @@ function diamond(g: Graphics, i: number, j: number) {
       if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; changed = true; } continue; } // lost road access
       const before = bld[i][j];
       if (dem > 0 && L < 3) {
-        const need = [0, 0, 0.25, 0.5][L + 1]; // higher density needs sustained strong demand
-        if (dem > need && Math.random() < (L === 0 ? 0.06 : 0.012) * dem) bld[i][j]++;
+        const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
+        if (dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) bld[i][j]++;
       } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) bld[i][j]--;
       if (bld[i][j] !== before) changed = true;
     }

@@ -7,5 +7,5 @@ Game keys the code asks for (missing ones are drawn in code):
 - `grass`, `water`, `sand` (variants via `variantOf`), `forest` (object over grass)
 - `shore_<mask>` on water tiles: NE=1 SE=2 SW=4 NW=8, corners N=16 E=32 S=64 W=128 (corner only if both adjacent sides are water)
 - `road_<mask>`: NE=1 SE=2 SW=4 NW=8; isolated road uses the NE dead-end
-- `zone_R|C|I`, `grid`
-- `bld_<R|C|I>_<1..3>` buildings (1 low, 2 medium, 3 high density). Map art names to these in `ALIAS` in `src/sprites.ts` (currently `bld_R_1` -> `house_lowdensity_1x1`).
+- `zone_R|C|I` (zone layer, shown only on empty zoned tiles), `grid` (alias of grid_overlay)
+- `bld_<R|C|I>_<1..3>` buildings (1 low, 2 medium, 3 high density). Map art names to these in `ALIAS` in `src/sprites.ts` (v2 ships all nine bld_* names directly; R_3 and C_3 are 128x192 anchored 0.5,0.8333).

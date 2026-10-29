@@ -1830,6 +1830,268 @@
       "layer": "object"
     },
     {
+      "name": "sand_a",
+      "file": "terrain/sand_a@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "ground",
+      "variantOf": "sand"
+    },
+    {
+      "name": "zone_R",
+      "file": "overlays/zone_R@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "zone"
+    },
+    {
+      "name": "zone_C",
+      "file": "overlays/zone_C@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "zone"
+    },
+    {
+      "name": "zone_I",
+      "file": "overlays/zone_I@2x.png",
+      "size": [
+        128,
+        64
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "zone"
+    },
+    {
+      "name": "bld_R_1",
+      "file": "buildings/bld_R_1@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 1,
+      "description": "low-density house (copy of house_lowdensity_1x1)"
+    },
+    {
+      "name": "bld_R_2",
+      "file": "buildings/bld_R_2@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 2,
+      "description": "3-storey brick walk-up"
+    },
+    {
+      "name": "bld_R_3",
+      "file": "buildings/bld_R_3@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 3,
+      "description": "residential tower"
+    },
+    {
+      "name": "bld_C_1",
+      "file": "buildings/bld_C_1@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 1,
+      "description": "corner shop"
+    },
+    {
+      "name": "bld_C_2",
+      "file": "buildings/bld_C_2@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 2,
+      "description": "mid-rise office"
+    },
+    {
+      "name": "bld_C_3",
+      "file": "buildings/bld_C_3@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 3,
+      "description": "glass office tower"
+    },
+    {
+      "name": "bld_I_1",
+      "file": "buildings/bld_I_1@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 1,
+      "description": "small workshop"
+    },
+    {
+      "name": "bld_I_2",
+      "file": "buildings/bld_I_2@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 2,
+      "description": "warehouse with loading door"
+    },
+    {
+      "name": "bld_I_3",
+      "file": "buildings/bld_I_3@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 3,
+      "description": "factory with smokestacks"
+    },
+    {
       "name": "grid_overlay",
       "file": "overlays/grid_overlay@2x.png",
       "size": [

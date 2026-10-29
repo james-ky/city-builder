@@ -307,7 +307,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const dateStr = () => `${MONTHS[Math.floor(sim.day / 30) % 12]} ${sim.day % 30 + 1}, Year ${Math.floor(sim.day / 360) + 1}`;
   const rbar = (k: string, v: number, c: string) => `<div class="rci"><div class="half"><div style="height:${Math.max(0, v) * 100}%;background:${c}"></div></div><div class="half neg"><div style="height:${Math.max(0, -v) * 100}%;background:${c}"></div></div><span>${k}</span></div>`;
   const updateStats = () => {
-    stats.querySelector('#nums')!.innerHTML = `<b>${dateStr()}</b> <span id="tod"></span> · Population <b>${sim.pop.toLocaleString()}</b> · Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b> <small>(C ${sim.jobsC} / I ${sim.jobsI})</small> · Spent <b>$${sim.spent.toLocaleString()}</b>`;
+    stats.querySelector('#nums')!.innerHTML = `<span class="it"><b>${dateStr()}</b> <span id="tod"></span></span><span class="it">Pop <b>${sim.pop.toLocaleString()}</b></span><span class="it" title="Commercial ${sim.jobsC} / Industrial ${sim.jobsI}">Jobs <b>${(sim.jobsC + sim.jobsI).toLocaleString()}</b></span><span class="it">Spent <b>$${sim.spent.toLocaleString()}</b></span>`;
     stats.querySelector('#rci')!.innerHTML = rbar('R', sim.dR, '#3ecf4a') + rbar('C', sim.dC, '#3b8cff') + rbar('I', sim.dI, '#f2c230');
   };
   let timer = 0;
@@ -351,7 +351,7 @@ function diamond(g: Graphics, i: number, j: number) {
   amb.volume = ambVol.valueAsNumber = +(localStorage.getItem('ambVolume') ?? 0.15);
   jazz.onTrack = t => { credit.innerHTML = t ? `♪ “${t.title}” — ${t.artist} · <a href="${t.url}" target="_blank" rel="noopener">${t.license}</a>` : '♪ procedural jazz (fallback)'; };
   const syncMusic = () => {
-    musicBtn.classList.toggle('on', musicOn); musicBtn.textContent = musicOn ? '♪ Music' : '♪ Off';
+    musicBtn.classList.toggle('on', musicOn); musicBtn.title = musicOn ? 'Music on (click to mute)' : 'Music off';
     ambBtn.classList.toggle('on', ambOn); ambBtn.textContent = ambOn ? '🏙 Ambience' : '🏙 Off';
     credit.style.display = musicOn && started ? 'block' : 'none';
     if (started) { musicOn ? jazz.start() : jazz.stop(); ambOn ? amb.start() : amb.stop(); }
@@ -429,8 +429,9 @@ function diamond(g: Graphics, i: number, j: number) {
   });
   const setFxVisibility = () => { cloudL.visible = fx.clouds; carL.visible = fx.cars; skyL.visible = fx.nature; smokeL.visible = fx.smoke; if (!fx.daynight) { nightG.clear(); applyNight(0); app.renderer.background.color = 0x1b2430; } drawPollution(); };
   const menu = document.getElementById('fxMenu')!;
-  menu.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
-  menu.querySelectorAll('input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
+  menu.addEventListener('pointerdown', e => e.stopPropagation());
+  document.getElementById('fxList')!.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
+  menu.querySelectorAll<HTMLInputElement>('#fxList input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
   document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
   setFxVisibility();
   let clock = 0;

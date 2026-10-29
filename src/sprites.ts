@@ -6,7 +6,7 @@ const art = new Map<string, Art>();          // asset name -> texture
 const keyed = new Map<string, string>();     // lookup key (road_3, shore_16) -> asset name
 const variants = new Map<string, string[]>(); // grass -> [grass_a, grass_b, ...]
 /** Game keys that map onto differently-named art. Add entries here as new art arrives. */
-const ALIAS: Record<string, string> = { bld_R_1: 'house_lowdensity_1x1', grid: 'grid_overlay' };
+const ALIAS: Record<string, string> = { grid: 'grid_overlay' };
 
 /** Loads assets/manifest.json (art set format: version/assets[]/autotile). Missing art falls back to code drawing. */
 export async function loadManifest() {

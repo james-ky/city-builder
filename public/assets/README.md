@@ -9,3 +9,7 @@ Game keys the code asks for (missing ones are drawn in code):
 - `road_<mask>`: NE=1 SE=2 SW=4 NW=8; isolated road uses the NE dead-end
 - `zone_R|C|I` (zone layer, shown only on empty zoned tiles), `grid` (alias of grid_overlay)
 - `bld_<R|C|I>_<1..3>` buildings (1 low, 2 medium, 3 high density). Map art names to these in `ALIAS` in `src/sprites.ts` (v2 ships all nine bld_* names directly; R_3 and C_3 are 128x192 anchored 0.5,0.8333).
+
+## v3: variants and construction
+- Variants: `bld_<Z>_<T>_a|b|c` (variantOf `bld_<Z>_<T>`). Each tile picks one stably from its coordinates; if no variants exist the base name is used.
+- Construction: `construction_1x1_stage1..3` (128x128) and `construction_1x1_tall_stage1..3` (128x192, anchor 0.5,0.8333) for tall targets (R/C tier 3). Each stage lasts 2 game-days.

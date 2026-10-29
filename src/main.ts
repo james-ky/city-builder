@@ -1,3 +1,4 @@
+import { Jazz } from './music';
 import { Application, Container, Graphics } from 'pixi.js';
 import { loadManifest, place, hasArt } from './sprites';
 
@@ -51,6 +52,10 @@ function diamond(g: Graphics, i: number, j: number) {
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
   const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
+  const consT: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // construction target level (0 = none)
+  const consD: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // days under construction
+  const CONS_DAYS = 2; // days per construction stage (3 stages)
+  const isTall = (z: string, L: number) => L === 3 && (z === 'R' || z === 'C');
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
   const seedOf = (i: number, j: number) => ((i * 73856093) ^ (j * 19349663)) >>> 0;
   // manifest directions: NE=(0,-1) SE=(1,0) SW=(0,1) NW=(-1,0); corners N=(-1,-1) E=(1,-1) S=(1,1) W=(-1,1)
@@ -102,8 +107,9 @@ function diamond(g: Graphics, i: number, j: number) {
         const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
         place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, roadL, seed);
       } else if (zone[i][j]) {
-        if (!bld[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
-        if (bld[i][j]) place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed);
+        if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
+        if (consT[i][j]) place(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, objL, seed);
+        else if (bld[i][j]) place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed);
       } else if (terrain[i][j] === 'forest') place('forest', x, y, objL, seed);
     }
   };
@@ -136,7 +142,7 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const valid = (i: number, j: number) => {
     if (tool === 'road') return terrain[i][j] !== 'water';
-    if (tool === 'bulldoze') return road[i][j] || !!zone[i][j] || bld[i][j] > 0;
+    if (tool === 'bulldoze') return road[i][j] || !!zone[i][j] || bld[i][j] > 0 || consT[i][j] > 0;
     return terrain[i][j] !== 'water' && !road[i][j] && near[i][j] <= 3;
   };
   const showPreview = () => {
@@ -146,13 +152,13 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const commit = () => {
     for (const [i, j] of dragTiles()) { if (!valid(i, j)) continue;
-      if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; }
-      else if (tool === 'bulldoze') { road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; }
-      else { if (zone[i][j] !== tool) bld[i][j] = 0; zone[i][j] = tool; } }
+      if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
+      else if (tool === 'bulldoze') { road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
+      else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; } zone[i][j] = tool; } }
     drag = null; preview.clear(); redraw();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, terrain, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, consT, terrain, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -203,12 +209,18 @@ function diamond(g: Graphics, i: number, j: number) {
     const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
       const z = zone[i][j]; if (!z) continue;
+      if (consT[i][j]) { // advance construction
+        consD[i][j]++;
+        if (consD[i][j] >= CONS_DAYS * 3) { bld[i][j] = consT[i][j]; consT[i][j] = 0; changed = true; }
+        else if (consD[i][j] % CONS_DAYS === 0) changed = true;
+        continue;
+      }
       const dem = d[z], L = bld[i][j];
       if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; changed = true; } continue; } // lost road access
       const before = bld[i][j];
       if (dem > 0 && L < 3) {
         const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
-        if (dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) bld[i][j]++;
+        if (dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) { consT[i][j] = L + 1; consD[i][j] = 0; changed = true; }
       } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) bld[i][j]--;
       if (bld[i][j] !== before) changed = true;
     }
@@ -233,9 +245,22 @@ function diamond(g: Graphics, i: number, j: number) {
   stats.querySelectorAll('#speed button').forEach(b => (b as HTMLElement).onclick = () => setSpeed(+(b as HTMLElement).dataset.s!));
   window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); if (sim.speed) { lastSpeed = sim.speed; setSpeed(0); } else setSpeed(lastSpeed); } });
   census(); updateStats(); setSpeed(1);
+  // ---- music (procedural, original) ----
+  const jazz = new Jazz();
+  const musicBtn = document.getElementById('musicBtn')!, vol = document.getElementById('vol') as HTMLInputElement;
+  let musicOn = localStorage.getItem('music') !== 'off', started = false;
+  jazz.volume = vol.valueAsNumber = +(localStorage.getItem('volume') ?? 0.5);
+  const syncMusic = () => { musicBtn.classList.toggle('on', musicOn); musicBtn.textContent = musicOn ? '♪ Music' : '♪ Off'; if (started) musicOn ? jazz.start() : jazz.stop(); };
+  musicBtn.onclick = e => { e.stopPropagation(); musicOn = !musicOn; localStorage.setItem('music', musicOn ? 'on' : 'off'); started = true; syncMusic(); };
+  vol.oninput = () => { jazz.setVolume(vol.valueAsNumber); localStorage.setItem('volume', String(vol.valueAsNumber)); };
+  const firstGesture = () => { if (!started) { started = true; syncMusic(); } };
+  window.addEventListener('pointerdown', firstGesture); window.addEventListener('keydown', firstGesture);
+  syncMusic();
+  (window as any).__jazz = jazz;
   // info panel
   const info = document.getElementById('info')!;
   const inspect = ({ i, j }: { i: number; j: number }) => {
+    if (inb(i, j) && consT[i][j]) { info.innerHTML = `<b>${ZNAME[zone[i][j]]} — under construction</b><br>Building: ${DNAME[consT[i][j]]}<br>Stage ${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))} of 3<br><small>Tile ${i}, ${j}</small>`; info.style.display = 'block'; return; }
     if (!inb(i, j) || !bld[i][j]) { info.style.display = 'none'; return; }
     const z = zone[i][j], v = CAP[z][bld[i][j]];
     info.innerHTML = `<b>${ZNAME[z]} building</b><br>${DNAME[bld[i][j]]} (level ${bld[i][j]})<br>${z === 'R' ? 'Residents' : 'Jobs'}: <b>${v}</b><br><small>Tile ${i}, ${j}</small>`;

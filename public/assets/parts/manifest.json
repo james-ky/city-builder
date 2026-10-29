@@ -1,0 +1,1691 @@
+{
+ "version": 1,
+ "artRevision": "parts-v1",
+ "baseTile": [
+  128,
+  64
+ ],
+ "resolution": "@2x (scale 0.5)",
+ "metresPerTile": 20,
+ "anchorRule": "anchor = ground point under the part centre (sprite-space fractions). Place with toScreen(i,j) of that ground point; depth-sort by i+j of the ground point.",
+ "stacking": "roof_* sprites share the anchor of the matching house_body_* (pairsWith) and draw after it; roofs cast no ground shadow, the body does.",
+ "axes": "NE axis = runs along screen up-right (game j); NW axis = runs along screen up-left (game i).",
+ "scaleNote": "Buildings and house modules use the zone-building scale; cars are the traffic sprites at 20 m per tile. footprintMetres = footprintTiles x 20.",
+ "parts": [
+  {
+   "name": "house_body_s",
+   "file": "house/house_body_s@2x.png",
+   "size": [
+    66,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6452
+   ],
+   "category": "house",
+   "footprintTiles": [
+    0.4,
+    0.4
+   ],
+   "footprintMetres": [
+    8.0,
+    8.0
+   ],
+   "scale": 0.5,
+   "heightTiles": 0.29,
+   "night": "house/house_body_s_night@2x.png"
+  },
+  {
+   "name": "roof_gable_s",
+   "file": "roof/roof_gable_s@2x.png",
+   "size": [
+    74,
+    54
+   ],
+   "anchor": [
+    0.5,
+    0.9705
+   ],
+   "category": "roof",
+   "footprintTiles": [
+    0.4,
+    0.4
+   ],
+   "footprintMetres": [
+    8.0,
+    8.0
+   ],
+   "scale": 0.5,
+   "pairsWith": "house_body_s",
+   "heightTiles": 0.29
+  },
+  {
+   "name": "roof_hip_s",
+   "file": "roof/roof_hip_s@2x.png",
+   "size": [
+    74,
+    46
+   ],
+   "anchor": [
+    0.5,
+    0.9346
+   ],
+   "category": "roof",
+   "footprintTiles": [
+    0.4,
+    0.4
+   ],
+   "footprintMetres": [
+    8.0,
+    8.0
+   ],
+   "scale": 0.5,
+   "pairsWith": "house_body_s",
+   "heightTiles": 0.29
+  },
+  {
+   "name": "house_body_m",
+   "file": "house/house_body_m@2x.png",
+   "size": [
+    86,
+    74
+   ],
+   "anchor": [
+    0.5,
+    0.6229
+   ],
+   "category": "house",
+   "footprintTiles": [
+    0.6,
+    0.5
+   ],
+   "footprintMetres": [
+    12.0,
+    10.0
+   ],
+   "scale": 0.5,
+   "heightTiles": 0.29,
+   "night": "house/house_body_m_night@2x.png"
+  },
+  {
+   "name": "roof_gable_m",
+   "file": "roof/roof_gable_m@2x.png",
+   "size": [
+    92,
+    60
+   ],
+   "anchor": [
+    0.5,
+    0.9001
+   ],
+   "category": "roof",
+   "footprintTiles": [
+    0.6,
+    0.5
+   ],
+   "footprintMetres": [
+    12.0,
+    10.0
+   ],
+   "scale": 0.5,
+   "pairsWith": "house_body_m",
+   "heightTiles": 0.29
+  },
+  {
+   "name": "roof_hip_m",
+   "file": "roof/roof_hip_m@2x.png",
+   "size": [
+    92,
+    56
+   ],
+   "anchor": [
+    0.5,
+    0.8534
+   ],
+   "category": "roof",
+   "footprintTiles": [
+    0.6,
+    0.5
+   ],
+   "footprintMetres": [
+    12.0,
+    10.0
+   ],
+   "scale": 0.5,
+   "pairsWith": "house_body_m",
+   "heightTiles": 0.29
+  },
+  {
+   "name": "house_body_l",
+   "file": "house/house_body_l@2x.png",
+   "size": [
+    98,
+    102
+   ],
+   "anchor": [
+    0.5,
+    0.7062
+   ],
+   "category": "house",
+   "footprintTiles": [
+    0.7,
+    0.6
+   ],
+   "footprintMetres": [
+    14.0,
+    12.0
+   ],
+   "scale": 0.5,
+   "heightTiles": 0.58,
+   "night": "house/house_body_l_night@2x.png"
+  },
+  {
+   "name": "roof_gable_l",
+   "file": "roof/roof_gable_l@2x.png",
+   "size": [
+    106,
+    66
+   ],
+   "anchor": [
+    0.5,
+    1.187
+   ],
+   "category": "roof",
+   "footprintTiles": [
+    0.7,
+    0.6
+   ],
+   "footprintMetres": [
+    14.0,
+    12.0
+   ],
+   "scale": 0.5,
+   "pairsWith": "house_body_l",
+   "heightTiles": 0.58
+  },
+  {
+   "name": "roof_hip_l",
+   "file": "roof/roof_hip_l@2x.png",
+   "size": [
+    106,
+    62
+   ],
+   "anchor": [
+    0.5,
+    1.1892
+   ],
+   "category": "roof",
+   "footprintTiles": [
+    0.7,
+    0.6
+   ],
+   "footprintMetres": [
+    14.0,
+    12.0
+   ],
+   "scale": 0.5,
+   "pairsWith": "house_body_l",
+   "heightTiles": 0.58
+  },
+  {
+   "name": "garage_single",
+   "file": "house/garage_single@2x.png",
+   "size": [
+    80,
+    70
+   ],
+   "anchor": [
+    0.5,
+    0.6643
+   ],
+   "category": "house",
+   "footprintTiles": [
+    0.6,
+    0.35
+   ],
+   "footprintMetres": [
+    12.0,
+    7.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "porch",
+   "file": "house/porch@2x.png",
+   "size": [
+    48,
+    52
+   ],
+   "anchor": [
+    0.5,
+    0.691
+   ],
+   "category": "house",
+   "footprintTiles": [
+    0.2,
+    0.3
+   ],
+   "footprintMetres": [
+    4.0,
+    6.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "fence_picket_NE",
+   "file": "fence/fence_picket_NE@2x.png",
+   "size": [
+    30,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5695
+   ],
+   "category": "fence",
+   "footprintTiles": [
+    0.02,
+    0.25
+   ],
+   "footprintMetres": [
+    0.4,
+    5.0
+   ],
+   "scale": 0.5,
+   "axis": "NE"
+  },
+  {
+   "name": "hedge_NE",
+   "file": "fence/hedge_NE@2x.png",
+   "size": [
+    32,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.6133
+   ],
+   "category": "fence",
+   "footprintTiles": [
+    0.07,
+    0.25
+   ],
+   "footprintMetres": [
+    1.4,
+    5.0
+   ],
+   "scale": 0.5,
+   "axis": "NE"
+  },
+  {
+   "name": "driveway_NE",
+   "file": "driveway/driveway_NE@2x.png",
+   "size": [
+    66,
+    42
+   ],
+   "anchor": [
+    0.5,
+    0.4778
+   ],
+   "category": "driveway",
+   "footprintTiles": [
+    0.24,
+    0.6
+   ],
+   "footprintMetres": [
+    4.8,
+    12.0
+   ],
+   "scale": 0.5,
+   "axis": "NE"
+  },
+  {
+   "name": "path_NE",
+   "file": "driveway/path_NE@2x.png",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4482
+   ],
+   "category": "driveway",
+   "footprintTiles": [
+    0.08,
+    0.3
+   ],
+   "footprintMetres": [
+    1.6,
+    6.0
+   ],
+   "scale": 0.5,
+   "axis": "NE"
+  },
+  {
+   "name": "fence_picket_NW",
+   "file": "fence/fence_picket_NW@2x.png",
+   "size": [
+    30,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5695
+   ],
+   "category": "fence",
+   "footprintTiles": [
+    0.25,
+    0.02
+   ],
+   "footprintMetres": [
+    5.0,
+    0.4
+   ],
+   "scale": 0.5,
+   "axis": "NW"
+  },
+  {
+   "name": "hedge_NW",
+   "file": "fence/hedge_NW@2x.png",
+   "size": [
+    32,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.6133
+   ],
+   "category": "fence",
+   "footprintTiles": [
+    0.25,
+    0.07
+   ],
+   "footprintMetres": [
+    5.0,
+    1.4
+   ],
+   "scale": 0.5,
+   "axis": "NW"
+  },
+  {
+   "name": "driveway_NW",
+   "file": "driveway/driveway_NW@2x.png",
+   "size": [
+    66,
+    42
+   ],
+   "anchor": [
+    0.5,
+    0.4778
+   ],
+   "category": "driveway",
+   "footprintTiles": [
+    0.6,
+    0.24
+   ],
+   "footprintMetres": [
+    12.0,
+    4.8
+   ],
+   "scale": 0.5,
+   "axis": "NW"
+  },
+  {
+   "name": "path_NW",
+   "file": "driveway/path_NW@2x.png",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4482
+   ],
+   "category": "driveway",
+   "footprintTiles": [
+    0.3,
+    0.08
+   ],
+   "footprintMetres": [
+    6.0,
+    1.6
+   ],
+   "scale": 0.5,
+   "axis": "NW"
+  },
+  {
+   "name": "patio",
+   "file": "driveway/patio@2x.png",
+   "size": [
+    30,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.4759
+   ],
+   "category": "driveway",
+   "footprintTiles": [
+    0.14,
+    0.14
+   ],
+   "footprintMetres": [
+    2.8,
+    2.8
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "tree_round_s",
+   "file": "tree/tree_round_s@2x.png",
+   "size": [
+    30,
+    34
+   ],
+   "anchor": [
+    0.5,
+    0.7259
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "tree_round_m",
+   "file": "tree/tree_round_m@2x.png",
+   "size": [
+    34,
+    40
+   ],
+   "anchor": [
+    0.5,
+    0.7607
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "tree_round_l",
+   "file": "tree/tree_round_l@2x.png",
+   "size": [
+    42,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.7836
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "tree_conifer_s",
+   "file": "tree/tree_conifer_s@2x.png",
+   "size": [
+    26,
+    36
+   ],
+   "anchor": [
+    0.5,
+    0.7293
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "tree_conifer_m",
+   "file": "tree/tree_conifer_m@2x.png",
+   "size": [
+    32,
+    44
+   ],
+   "anchor": [
+    0.5,
+    0.7918
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "tree_poplar",
+   "file": "tree/tree_poplar@2x.png",
+   "size": [
+    28,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.8099
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "shrub_s",
+   "file": "tree/shrub_s@2x.png",
+   "size": [
+    18,
+    20
+   ],
+   "anchor": [
+    0.5,
+    0.5336
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "shrub_m",
+   "file": "tree/shrub_m@2x.png",
+   "size": [
+    22,
+    22
+   ],
+   "anchor": [
+    0.5,
+    0.5761
+   ],
+   "category": "tree",
+   "footprintTiles": [
+    0.2,
+    0.2
+   ],
+   "footprintMetres": [
+    4.0,
+    4.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "mailbox",
+   "file": "prop/mailbox@2x.png",
+   "size": [
+    18,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.6583
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "ac_unit",
+   "file": "prop/ac_unit@2x.png",
+   "size": [
+    22,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.562
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "grill",
+   "file": "prop/grill@2x.png",
+   "size": [
+    20,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.6115
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "planter",
+   "file": "prop/planter@2x.png",
+   "size": [
+    20,
+    22
+   ],
+   "anchor": [
+    0.5,
+    0.4916
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "bench",
+   "file": "prop/bench@2x.png",
+   "size": [
+    26,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5737
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "streetlamp",
+   "file": "prop/streetlamp@2x.png",
+   "size": [
+    22,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.7981
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5,
+   "night": "prop/streetlamp_night@2x.png"
+  },
+  {
+   "name": "trash_bin",
+   "file": "prop/trash_bin@2x.png",
+   "size": [
+    18,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.6002
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "bike",
+   "file": "prop/bike@2x.png",
+   "size": [
+    24,
+    22
+   ],
+   "anchor": [
+    0.5,
+    0.5467
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "swingset",
+   "file": "prop/swingset@2x.png",
+   "size": [
+    34,
+    40
+   ],
+   "anchor": [
+    0.5,
+    0.6684
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "flagpole",
+   "file": "prop/flagpole@2x.png",
+   "size": [
+    28,
+    62
+   ],
+   "anchor": [
+    0.5,
+    0.8599
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "sandbox",
+   "file": "prop/sandbox@2x.png",
+   "size": [
+    34,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4657
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "pool",
+   "file": "prop/pool@2x.png",
+   "size": [
+    56,
+    38
+   ],
+   "anchor": [
+    0.5,
+    0.4771
+   ],
+   "category": "prop",
+   "footprintTiles": [
+    0.1,
+    0.1
+   ],
+   "footprintMetres": [
+    2.0,
+    2.0
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "car_sedan_a_NE",
+   "file": "../vehicles/veh_sedan_a_NE@2x.png",
+   "size": [
+    42,
+    26
+   ],
+   "anchor": [
+    0.3613,
+    0.6121
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_a_SE",
+   "file": "../vehicles/veh_sedan_a_SE@2x.png",
+   "size": [
+    42,
+    30
+   ],
+   "anchor": [
+    0.3613,
+    0.452
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_a_SW",
+   "file": "../vehicles/veh_sedan_a_SW@2x.png",
+   "size": [
+    42,
+    30
+   ],
+   "anchor": [
+    0.6341,
+    0.452
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_a_NW",
+   "file": "../vehicles/veh_sedan_a_NW@2x.png",
+   "size": [
+    42,
+    26
+   ],
+   "anchor": [
+    0.6341,
+    0.6121
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_b_NE",
+   "file": "../vehicles/veh_sedan_b_NE@2x.png",
+   "size": [
+    42,
+    26
+   ],
+   "anchor": [
+    0.3613,
+    0.6121
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_b_SE",
+   "file": "../vehicles/veh_sedan_b_SE@2x.png",
+   "size": [
+    42,
+    30
+   ],
+   "anchor": [
+    0.3613,
+    0.452
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_b_SW",
+   "file": "../vehicles/veh_sedan_b_SW@2x.png",
+   "size": [
+    42,
+    30
+   ],
+   "anchor": [
+    0.6341,
+    0.452
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_b_NW",
+   "file": "../vehicles/veh_sedan_b_NW@2x.png",
+   "size": [
+    42,
+    26
+   ],
+   "anchor": [
+    0.6341,
+    0.6121
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_c_NE",
+   "file": "../vehicles/veh_sedan_c_NE@2x.png",
+   "size": [
+    42,
+    26
+   ],
+   "anchor": [
+    0.3613,
+    0.6121
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_c_SE",
+   "file": "../vehicles/veh_sedan_c_SE@2x.png",
+   "size": [
+    42,
+    30
+   ],
+   "anchor": [
+    0.3613,
+    0.452
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_c_SW",
+   "file": "../vehicles/veh_sedan_c_SW@2x.png",
+   "size": [
+    42,
+    30
+   ],
+   "anchor": [
+    0.6341,
+    0.452
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_sedan_c_NW",
+   "file": "../vehicles/veh_sedan_c_NW@2x.png",
+   "size": [
+    42,
+    26
+   ],
+   "anchor": [
+    0.6341,
+    0.6121
+   ],
+   "category": "car",
+   "lengthTiles": 0.235,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_a_NE",
+   "file": "../vehicles/veh_hatchback_a_NE@2x.png",
+   "size": [
+    40,
+    24
+   ],
+   "anchor": [
+    0.3494,
+    0.6381
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_a_SE",
+   "file": "../vehicles/veh_hatchback_a_SE@2x.png",
+   "size": [
+    40,
+    30
+   ],
+   "anchor": [
+    0.3494,
+    0.4357
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_a_SW",
+   "file": "../vehicles/veh_hatchback_a_SW@2x.png",
+   "size": [
+    40,
+    30
+   ],
+   "anchor": [
+    0.6358,
+    0.4357
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_a_NW",
+   "file": "../vehicles/veh_hatchback_a_NW@2x.png",
+   "size": [
+    40,
+    24
+   ],
+   "anchor": [
+    0.6358,
+    0.6381
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_b_NE",
+   "file": "../vehicles/veh_hatchback_b_NE@2x.png",
+   "size": [
+    40,
+    24
+   ],
+   "anchor": [
+    0.3494,
+    0.6381
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_b_SE",
+   "file": "../vehicles/veh_hatchback_b_SE@2x.png",
+   "size": [
+    40,
+    30
+   ],
+   "anchor": [
+    0.3494,
+    0.4357
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_b_SW",
+   "file": "../vehicles/veh_hatchback_b_SW@2x.png",
+   "size": [
+    40,
+    30
+   ],
+   "anchor": [
+    0.6358,
+    0.4357
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_b_NW",
+   "file": "../vehicles/veh_hatchback_b_NW@2x.png",
+   "size": [
+    40,
+    24
+   ],
+   "anchor": [
+    0.6358,
+    0.6381
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_c_NE",
+   "file": "../vehicles/veh_hatchback_c_NE@2x.png",
+   "size": [
+    40,
+    24
+   ],
+   "anchor": [
+    0.3494,
+    0.6381
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_c_SE",
+   "file": "../vehicles/veh_hatchback_c_SE@2x.png",
+   "size": [
+    40,
+    30
+   ],
+   "anchor": [
+    0.3494,
+    0.4357
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_c_SW",
+   "file": "../vehicles/veh_hatchback_c_SW@2x.png",
+   "size": [
+    40,
+    30
+   ],
+   "anchor": [
+    0.6358,
+    0.4357
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_hatchback_c_NW",
+   "file": "../vehicles/veh_hatchback_c_NW@2x.png",
+   "size": [
+    40,
+    24
+   ],
+   "anchor": [
+    0.6358,
+    0.6381
+   ],
+   "category": "car",
+   "lengthTiles": 0.2,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_a_NE",
+   "file": "../vehicles/veh_pickup_a_NE@2x.png",
+   "size": [
+    46,
+    28
+   ],
+   "anchor": [
+    0.3543,
+    0.5884
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_a_SE",
+   "file": "../vehicles/veh_pickup_a_SE@2x.png",
+   "size": [
+    46,
+    32
+   ],
+   "anchor": [
+    0.3543,
+    0.4672
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_a_SW",
+   "file": "../vehicles/veh_pickup_a_SW@2x.png",
+   "size": [
+    46,
+    32
+   ],
+   "anchor": [
+    0.6033,
+    0.4672
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_a_NW",
+   "file": "../vehicles/veh_pickup_a_NW@2x.png",
+   "size": [
+    46,
+    28
+   ],
+   "anchor": [
+    0.6033,
+    0.5884
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_b_NE",
+   "file": "../vehicles/veh_pickup_b_NE@2x.png",
+   "size": [
+    46,
+    28
+   ],
+   "anchor": [
+    0.3543,
+    0.5884
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_b_SE",
+   "file": "../vehicles/veh_pickup_b_SE@2x.png",
+   "size": [
+    46,
+    32
+   ],
+   "anchor": [
+    0.3543,
+    0.4672
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_b_SW",
+   "file": "../vehicles/veh_pickup_b_SW@2x.png",
+   "size": [
+    46,
+    32
+   ],
+   "anchor": [
+    0.6033,
+    0.4672
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_b_NW",
+   "file": "../vehicles/veh_pickup_b_NW@2x.png",
+   "size": [
+    46,
+    28
+   ],
+   "anchor": [
+    0.6033,
+    0.5884
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_c_NE",
+   "file": "../vehicles/veh_pickup_c_NE@2x.png",
+   "size": [
+    46,
+    28
+   ],
+   "anchor": [
+    0.3543,
+    0.5884
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_c_SE",
+   "file": "../vehicles/veh_pickup_c_SE@2x.png",
+   "size": [
+    46,
+    32
+   ],
+   "anchor": [
+    0.3543,
+    0.4672
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_c_SW",
+   "file": "../vehicles/veh_pickup_c_SW@2x.png",
+   "size": [
+    46,
+    32
+   ],
+   "anchor": [
+    0.6033,
+    0.4672
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_pickup_c_NW",
+   "file": "../vehicles/veh_pickup_c_NW@2x.png",
+   "size": [
+    46,
+    28
+   ],
+   "anchor": [
+    0.6033,
+    0.5884
+   ],
+   "category": "car",
+   "lengthTiles": 0.265,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_a_NE",
+   "file": "../vehicles/veh_van_a_NE@2x.png",
+   "size": [
+    44,
+    28
+   ],
+   "anchor": [
+    0.3613,
+    0.6456
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_a_SE",
+   "file": "../vehicles/veh_van_a_SE@2x.png",
+   "size": [
+    44,
+    36
+   ],
+   "anchor": [
+    0.3613,
+    0.5021
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_a_SW",
+   "file": "../vehicles/veh_van_a_SW@2x.png",
+   "size": [
+    44,
+    36
+   ],
+   "anchor": [
+    0.6216,
+    0.5021
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_a_NW",
+   "file": "../vehicles/veh_van_a_NW@2x.png",
+   "size": [
+    44,
+    28
+   ],
+   "anchor": [
+    0.6216,
+    0.6456
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_b_NE",
+   "file": "../vehicles/veh_van_b_NE@2x.png",
+   "size": [
+    44,
+    28
+   ],
+   "anchor": [
+    0.3613,
+    0.6456
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_b_SE",
+   "file": "../vehicles/veh_van_b_SE@2x.png",
+   "size": [
+    44,
+    36
+   ],
+   "anchor": [
+    0.3613,
+    0.5021
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_b_SW",
+   "file": "../vehicles/veh_van_b_SW@2x.png",
+   "size": [
+    44,
+    36
+   ],
+   "anchor": [
+    0.6216,
+    0.5021
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_b_NW",
+   "file": "../vehicles/veh_van_b_NW@2x.png",
+   "size": [
+    44,
+    28
+   ],
+   "anchor": [
+    0.6216,
+    0.6456
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_c_NE",
+   "file": "../vehicles/veh_van_c_NE@2x.png",
+   "size": [
+    44,
+    28
+   ],
+   "anchor": [
+    0.3613,
+    0.6456
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "NE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_c_SE",
+   "file": "../vehicles/veh_van_c_SE@2x.png",
+   "size": [
+    44,
+    36
+   ],
+   "anchor": [
+    0.3613,
+    0.5021
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "SE",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_c_SW",
+   "file": "../vehicles/veh_van_c_SW@2x.png",
+   "size": [
+    44,
+    36
+   ],
+   "anchor": [
+    0.6216,
+    0.5021
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "SW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  },
+  {
+   "name": "car_van_c_NW",
+   "file": "../vehicles/veh_van_c_NW@2x.png",
+   "size": [
+    44,
+    28
+   ],
+   "anchor": [
+    0.6216,
+    0.6456
+   ],
+   "category": "car",
+   "lengthTiles": 0.25,
+   "direction": "NW",
+   "note": "same file as the traffic sprite (no copy); parked cars use it unchanged"
+  }
+ ]
+}

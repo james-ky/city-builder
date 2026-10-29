@@ -1,5 +1,5 @@
 import { Playlist, Ambience } from './audio';
-import { Application, Container, Graphics, Sprite } from 'pixi.js';
+import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { loadManifest, place, placeNight, hasArt } from './sprites';
 
 const TW = 64, TH = 32;
@@ -27,7 +27,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const boot = await chooseCity(); city = boot.cfg; N = city.size; terrain = boot.terrain;
   document.title = city.name + ' — City Builder';
   const app = new Application();
-  await app.init({ resizeTo: window, background: 0x1b2430, antialias: true });
+  await app.init({ resizeTo: window, background: 0x1b2430, antialias: false });
   document.body.appendChild(app.canvas);
   const world = new Container();
   app.stage.addChild(world);
@@ -39,11 +39,9 @@ function diamond(g: Graphics, i: number, j: number) {
   // overlay can sit right after it in the same depth-sorted container (correct occlusion).
   const pipeL = new Container(), iconL = new Container();
   world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, objL, smokeL, cloudL, skyL, iconL);
-  const lights: Sprite[] = []; let lastNightTint = -1, curTint = 0xffffff;
+  let lastNightTint = -1, curTint = 0xffffff;
   type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string };
   const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
-  const trees: { s: { skew: { x: number } }; ph: number }[] = [];
-  const blds: { x: number; y: number; z: string; L: number; seed: number }[] = [];
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
   const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
@@ -79,36 +77,37 @@ function diamond(g: Graphics, i: number, j: number) {
   const util = { pCap: 0, pUse: 0, pWant: 0, wCap: 0, wUse: 0, wWant: 0 };
   const consumerDemand = (i: number, j: number, D: Record<string, number[]>) => { const c = civAt[i][j]; if (c) return SERV[c.type].util ? 0 : (i === c.i && j === c.j ? 10 : 0); return bld[i][j] && zone[i][j] ? D[zone[i][j]][bld[i][j]] : 0; };
   const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-  const computeUtilities = () => {
+  const seenA = new Uint8Array(N * N), wseenA = new Uint8Array(N * N), asgA = new Uint8Array(N * N), dstamp = new Int32Array(N * N), dval = new Uint8Array(N * N);
+  const qA = new Int32Array(N * N), q2 = new Int32Array(N * N), prevPW = new Uint8Array(N * N); let stamp = 0;
+  const computeUtilities = () => { // flood fills on flat typed arrays (no per-call allocation)
     for (const r of powered) r.fill(false); for (const r of watered) r.fill(false);
     Object.assign(util, { pCap: 0, pUse: 0, pWant: 0, wCap: 0, wUse: 0, wWant: 0 });
     // power: conductors are power lines, zoned tiles (built or not), service and utility buildings
-    const conducts = (i: number, j: number) => inb(i, j) && (pline[i][j] || !!zone[i][j] || !!civAt[i][j]);
-    const seen: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
+    const conducts = (i: number, j: number) => pline[i][j] || !!zone[i][j] || !!civAt[i][j];
+    seenA.fill(0);
     for (let si = 0; si < N; si++) for (let sj = 0; sj < N; sj++) {
-      if (seen[si][sj] || !conducts(si, sj)) continue;
-      const comp: [number, number][] = [[si, sj]]; seen[si][sj] = true; const plants = new Set<Civ>();
-      for (let h = 0; h < comp.length; h++) { const [i, j] = comp[h]; const c = civAt[i][j]; if (c && SERV[c.type].kind === 'power') plants.add(c);
-        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (conducts(ni, nj) && !seen[ni][nj]) { seen[ni][nj] = true; comp.push([ni, nj]); } } }
-      let cap = 0; for (const p of plants) cap += SERV[p.type].out!; util.pCap += cap;
-      for (const [i, j] of comp) { const d = consumerDemand(i, j, PDEM); if (!d) continue; util.pWant += d; if (cap >= d) { cap -= d; util.pUse += d; markCiv(powered, i, j); } }
+      const k0 = si * N + sj; if (seenA[k0] || !conducts(si, sj)) continue;
+      let tl = 0; qA[tl++] = k0; seenA[k0] = 1; let cap = 0; const plants = new Set<Civ>();
+      for (let h = 0; h < tl; h++) { const k = qA[h], i = (k / N) | 0, j = k - i * N; const c = civAt[i][j]; if (c && SERV[c.type].kind === 'power' && !plants.has(c)) { plants.add(c); cap += SERV[c.type].out!; }
+        if (i > 0 && !seenA[k - N] && conducts(i - 1, j)) { seenA[k - N] = 1; qA[tl++] = k - N; } if (i < N - 1 && !seenA[k + N] && conducts(i + 1, j)) { seenA[k + N] = 1; qA[tl++] = k + N; }
+        if (j > 0 && !seenA[k - 1] && conducts(i, j - 1)) { seenA[k - 1] = 1; qA[tl++] = k - 1; } if (j < N - 1 && !seenA[k + 1] && conducts(i, j + 1)) { seenA[k + 1] = 1; qA[tl++] = k + 1; } }
+      util.pCap += cap;
+      for (let h = 0; h < tl; h++) { const k = qA[h], i = (k / N) | 0, j = k - i * N; const d = consumerDemand(i, j, PDEM); if (!d) continue; util.pWant += d; if (cap >= d) { cap -= d; util.pUse += d; markCiv(powered, i, j); } }
     }
     // water: pipes connect to pumps/towers; anything within 3 tiles of a connected pipe (or the facility) is served
-    const wseen: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
-    const assigned: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
-    for (const src of civs) { if (SERV[src.type].kind !== 'water' || wseen[src.i][src.j]) continue;
-      const net: [number, number][] = []; const facs = new Set<Civ>();
-      const isNet = (i: number, j: number) => inb(i, j) && (pipe[i][j] || (!!civAt[i][j] && SERV[civAt[i][j]!.type].kind === 'water'));
-      net.push([src.i, src.j]); wseen[src.i][src.j] = true;
-      for (let h = 0; h < net.length; h++) { const [i, j] = net[h]; const c = civAt[i][j]; if (c && SERV[c.type].kind === 'water') facs.add(c);
-        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (isNet(ni, nj) && !wseen[ni][nj]) { wseen[ni][nj] = true; net.push([ni, nj]); } } }
-      let cap = 0; for (const f of facs) cap += SERV[f.type].out!; util.wCap += cap;
-      const dist: number[][] = [...Array(N)].map(() => Array(N).fill(99)); const q: [number, number][] = [];
-      for (const [i, j] of net) { dist[i][j] = 0; q.push([i, j]); }
-      for (let h = 0; h < q.length; h++) { const [i, j] = q[h]; if (dist[i][j] >= 3) continue;
-        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (inb(ni, nj) && dist[ni][nj] > dist[i][j] + 1) { dist[ni][nj] = dist[i][j] + 1; q.push([ni, nj]); } } }
-      for (const [i, j] of q) { if (assigned[i][j]) continue; assigned[i][j] = true; const d = consumerDemand(i, j, WDEM); if (!d) continue; util.wWant += d; if (cap >= d) { cap -= d; util.wUse += d; markCiv(watered, i, j); } }
+    wseenA.fill(0); asgA.fill(0);
+    const isNet = (i: number, j: number) => pipe[i][j] || (!!civAt[i][j] && SERV[civAt[i][j]!.type].kind === 'water');
+    for (const src of civs) { const k0 = src.i * N + src.j; if (SERV[src.type].kind !== 'water' || wseenA[k0]) continue;
+      let tl = 0; qA[tl++] = k0; wseenA[k0] = 1; let cap = 0; const facs = new Set<Civ>();
+      for (let h = 0; h < tl; h++) { const k = qA[h], i = (k / N) | 0, j = k - i * N; const c = civAt[i][j]; if (c && SERV[c.type].kind === 'water' && !facs.has(c)) { facs.add(c); cap += SERV[c.type].out!; }
+        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (inb(ni, nj) && !wseenA[ni * N + nj] && isNet(ni, nj)) { wseenA[ni * N + nj] = 1; qA[tl++] = ni * N + nj; } } }
+      util.wCap += cap; stamp++; let t2 = 0;
+      for (let h = 0; h < tl; h++) { dstamp[qA[h]] = stamp; dval[qA[h]] = 0; q2[t2++] = qA[h]; }
+      for (let h = 0; h < t2; h++) { const k = q2[h], i = (k / N) | 0, j = k - i * N; if (dval[k] >= 3) continue;
+        for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (!inb(ni, nj)) continue; const nk = ni * N + nj; if (dstamp[nk] !== stamp) { dstamp[nk] = stamp; dval[nk] = dval[k] + 1; q2[t2++] = nk; } } }
+      for (let h = 0; h < t2; h++) { const k = q2[h]; if (asgA[k]) continue; asgA[k] = 1; const i = (k / N) | 0, j = k - i * N; const d = consumerDemand(i, j, WDEM); if (!d) continue; util.wWant += d; if (cap >= d) { cap -= d; util.wUse += d; markCiv(watered, i, j); } }
     }
+    for (const k of zlist) { const i = (k / N) | 0, j = k - i * N, v = (powered[i][j] ? 1 : 0) | (watered[i][j] ? 2 : 0); if (v !== prevPW[k]) { prevPW[k] = v; chunkOf(i, j).iconDirty = true; } }
   };
   const markCiv = (m: boolean[][], i: number, j: number) => { const c = civAt[i][j]; if (c) { for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) m[c.i + a][c.j + b] = true; } else m[i][j] = true; };
   const cov: Record<Kind, number[][]> = Object.fromEntries(KINDS.map(k => [k, [...Array(N)].map(() => Array(N).fill(0))])) as any;
@@ -119,9 +118,13 @@ function diamond(g: Graphics, i: number, j: number) {
         const v = 1 - Math.hypot(i - ci, j - cj) / r; if (v > cov[S.kind][i][j]) cov[S.kind][i][j] = v; } }
   };
   const crime: number[][] = [...Array(N)].map(() => Array(N).fill(0)), fireRisk: number[][] = [...Array(N)].map(() => Array(N).fill(0));
-  const computeRisks = () => { // crime grows with density nearby, police coverage suppresses it; fire risk likewise (used by disasters later)
+  const pre = new Float64Array((N + 1) * (N + 1));
+  const computeRisks = () => { // crime grows with density nearby (5x5 window via prefix sums), police coverage suppresses it; fire risk likewise
+    const W = N + 1;
+    for (let i = 0; i < N; i++) { let row = 0; for (let j = 0; j < N; j++) { row += bld[i][j] ** 2; pre[(i + 1) * W + j + 1] = pre[i * W + j + 1] + row; } }
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-      let dens = 0; for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (inb(i + a, j + b)) dens += bld[i + a][j + b] ** 2;
+      const a = Math.max(0, i - 2), b = Math.max(0, j - 2), c = Math.min(N, i + 3), d = Math.min(N, j + 3);
+      const dens = pre[c * W + d] - pre[a * W + d] - pre[c * W + b] + pre[a * W + b];
       crime[i][j] = dens * 0.08 * (1 - 0.85 * cov.police[i][j]);
       fireRisk[i][j] = bld[i][j] ? (zone[i][j] === 'I' ? 2 : 1) * bld[i][j] * (1 - 0.85 * cov.fire[i][j]) : 0;
     }
@@ -140,13 +143,6 @@ function diamond(g: Graphics, i: number, j: number) {
     return m;
   };
   const sandKey = hasArt('sand') ? 'sand' : hasArt('grass') ? 'grass' : 'sand';
-  for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
-    const { x, y } = toScreen(i, j), t = terrain[i][j];
-    let key: string = t === 'sand' ? sandKey : t === 'forest' ? 'grass' : t;
-    if (t === 'water') { const m = shoreMask(i, j); if (m && hasArt('shore_' + m)) key = 'shore_' + m; }
-    place(key, x, y, groundL, seedOf(i, j));
-    place('grid', x, y, gridL);
-  }
   gridL.visible = localStorage.getItem('grid') !== 'off';
   const gridBtn = document.getElementById('gridBtn')!;
   const setGrid = (v: boolean) => { gridL.visible = v; gridBtn.classList.toggle('on', v); localStorage.setItem('grid', v ? 'on' : 'off'); };
@@ -168,37 +164,113 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
-  let curZ = 0; objL.sortableChildren = true; // buildings take their tile's screen y; vehicles use theirs, so they sort together
-  objL.on('childAdded', (c: any) => { if (!c.__veh) c.zIndex = curZ; });
-  const redraw = () => {
-    computeCoverage(); clear(roadL); clear(zoneL); objL.removeChildren().forEach(o => { if (!(o as any).__veh) o.destroy(); }); for (const c of cars) { objL.addChild(c.s); if (c.n) objL.addChild(c.n); } clear(pipeL); clear(iconL); lights.length = 0; lastNightTint = -1; trees.length = 0; blds.length = 0;
-    computeNear();
-    for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
-      const { x, y } = toScreen(i, j), seed = seedOf(i, j); curZ = y;
+  // ---- chunked rendering: 16x16-tile chunks per layer, built lazily when visible, rebuilt only when dirty ----
+  const CH = 16, NCH = Math.ceil(N / CH);
+  type Bld = { x: number; y: number; z: string; L: number; seed: number };
+  type Chunk = { ci: number; cj: number; g: Container; gr: Container; rd: Container; zn: Container; ob: Container; pp: Container; ic: Container;
+    ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][];
+    tint: number; la: number; x0: number; x1: number; y0: number; y1: number };
+  const chunks: Chunk[] = [];
+  objL.sortableChildren = true;
+  for (let ci = 0; ci < NCH; ci++) for (let cj = 0; cj < NCH; cj++) {
+    const mk = (L: Container) => { const c = new Container({ isRenderGroup: true }); c.visible = false; L.addChild(c); return c; }; // render groups: static chunk content is not re-walked every frame
+    const ob = mk(objL); ob.sortableChildren = true; ob.zIndex = ci + cj; // chunks drawn back to front; inside a chunk sprites sort by screen y
+    const i0 = ci * CH, j0 = cj * CH, i1 = Math.min(N, i0 + CH) - 1, j1 = Math.min(N, j0 + CH) - 1;
+    chunks.push({ ci, cj, g: mk(groundL), gr: mk(gridL), rd: mk(roadL), zn: mk(zoneL), ob, pp: mk(pipeL), ic: mk(iconL), ground: false, built: false, dirty: true, iconDirty: true, vis: false, seen: 0,
+      lights: [], trees: [], blds: [], roads: [], tint: -1, la: -1, x0: (i0 - j1) * 32 - 96, x1: (i1 - j0) * 32 + 96, y0: (i0 + j0) * 16 - 240, y1: (i1 + j1) * 16 + 48 });
+  }
+  const chunkOf = (i: number, j: number) => chunks[Math.min(NCH - 1, Math.max(0, Math.floor(i / CH))) * NCH + Math.min(NCH - 1, Math.max(0, Math.floor(j / CH)))];
+  let ovDirty = true;
+  const markDirty = (ia: number, ja: number, ib: number, jb: number) => { ovDirty = true;
+    const c0 = Math.max(0, Math.floor((Math.min(ia, ib) - 1) / CH)), c1 = Math.min(NCH - 1, Math.floor((Math.max(ia, ib) + 1) / CH));
+    const d0 = Math.max(0, Math.floor((Math.min(ja, jb) - 1) / CH)), d1 = Math.min(NCH - 1, Math.floor((Math.max(ja, jb) + 1) / CH));
+    for (let a = c0; a <= c1; a++) for (let b = d0; b <= d1; b++) chunks[a * NCH + b].dirty = true; };
+  const markAll = () => { ovDirty = true; for (const c of chunks) { c.dirty = true; c.iconDirty = true; } };
+  const chunkTiles = (ch: Chunk, f: (i: number, j: number) => void) => { const i0 = ch.ci * CH, j0 = ch.cj * CH, i1 = Math.min(N, i0 + CH) - 1, j1 = Math.min(N, j0 + CH) - 1;
+    for (let s = i0 + j0; s <= i1 + j1; s++) for (let i = Math.max(i0, s - j1); i <= Math.min(i1, s - j0); i++) f(i, s - i); };
+  const buildGround = (ch: Chunk) => { chunkTiles(ch, (i, j) => {
+    const { x, y } = toScreen(i, j), t = terrain[i][j];
+    let key: string = t === 'sand' ? sandKey : t === 'forest' ? 'grass' : t;
+    if (t === 'water') { const m = shoreMask(i, j); if (m && hasArt('shore_' + m)) key = 'shore_' + m; }
+    place(key, x, y, ch.g, seedOf(i, j)); }); 
+    // grid: one Graphics of lines per chunk (much cheaper to fill than a sprite per tile)
+    const g = new Graphics(), i0 = ch.ci * CH, j0 = ch.cj * CH, i1 = Math.min(N, i0 + CH), j1 = Math.min(N, j0 + CH), pt = (i: number, j: number) => toScreen(i - 0.5, j - 0.5);
+    for (let i = i0; i <= i1; i++) { const a = pt(i, j0), b = pt(i, j1); g.moveTo(a.x, a.y).lineTo(b.x, b.y); }
+    for (let j = j0; j <= j1; j++) { const a = pt(i0, j), b = pt(i1, j); g.moveTo(a.x, a.y).lineTo(b.x, b.y); }
+    g.stroke({ width: 1, color: 0xffffff, alpha: 0.16 }); ch.gr.addChild(g); ch.ground = true; };
+  const drawChunk = (ch: Chunk) => {
+    for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); }
+    clear(ch.rd); clear(ch.zn); clear(ch.pp); ch.lights = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.tint = -1; ch.la = -1;
+    const P = (key: string, x: number, y: number, seed: number, z: number) => { const o = place(key, x, y, ch.ob, seed); o.zIndex = z; return o; };
+    const PN = (key: string, x: number, y: number, seed: number, z: number) => { const l = placeNight(key, x, y, ch.ob, seed); if (l) { l.zIndex = z; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } };
+    chunkTiles(ch, (i, j) => {
+      const { x, y } = toScreen(i, j), seed = seedOf(i, j);
       const cv = civAt[i][j];
       if (cv) {
-        place('civic_lot', x, y, zoneL, seed);
+        place('civic_lot', x, y, ch.zn, seed);
         if (i === cv.i + cv.s - 1 && j === cv.j) { // depth key i0+j0+size-1 (manifest placement); anchor = footprint centre
           const c = toScreen(cv.i + (cv.s - 1) / 2, cv.j + (cv.s - 1) / 2), key = SERV[cv.type].key ?? 'civic_' + cv.type;
-          place(key, c.x, c.y, objL, seed); const l = placeNight(key, c.x, c.y, objL, seed); if (l) { l.alpha = 0; lights.push(l); }
+          P(key, c.x, c.y, seed, y); PN(key, c.x, c.y, seed, y);
         }
       } else if (pline[i][j] && !road[i][j]) {
         const pl = (a: number, b: number) => inb(a, b) && (pline[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'power'));
-        place('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, objL, seed);
+        P('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, seed, y);
       } else if (road[i][j]) {
         const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
-        place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, roadL, seed);
+        place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, ch.rd, seed); ch.roads.push([i, j]);
       } else if (zone[i][j]) {
-        if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, zoneL, seed);
-        if (consT[i][j]) place(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, objL, seed);
-        else if (bld[i][j]) { place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); { const l = placeNight(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed); if (l) { l.alpha = 0; lights.push(l); } } blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
+        if (!bld[i][j] && !consT[i][j]) place('zone_' + zone[i][j], x, y, ch.zn, seed);
+        if (consT[i][j]) P(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, x, y, seed, y);
+        else if (bld[i][j]) { const k = `bld_${zone[i][j]}_${bld[i][j]}`; P(k, x, y, seed, y); PN(k, x, y, seed, y); ch.blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
       }
-      if (road[i][j] && pline[i][j]) { const pl = (a: number, b: number) => inb(a, b) && pline[a][b]; place('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, objL, seed); }
-      if (pipe[i][j]) { const pp = (a: number, b: number) => inb(a, b) && (pipe[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'water')); place('pipe_' + ((pp(i, j - 1) ? 1 : 0) | (pp(i + 1, j) ? 2 : 0) | (pp(i, j + 1) ? 4 : 0) | (pp(i - 1, j) ? 8 : 0)), x, y, pipeL, seed); }
-      if (!zone[i][j] && !road[i][j] && !civAt[i][j] && !pline[i][j] && terrain[i][j] === 'forest') trees.push({ s: place('forest', x, y, objL, seed), ph: (seed % 628) / 100 });
+      if (road[i][j] && pline[i][j]) { const pl = (a: number, b: number) => inb(a, b) && pline[a][b]; P('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, seed, y); }
+      if (pipe[i][j]) { const pp = (a: number, b: number) => inb(a, b) && (pipe[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'water')); place('pipe_' + ((pp(i, j - 1) ? 1 : 0) | (pp(i + 1, j) ? 2 : 0) | (pp(i, j + 1) ? 4 : 0) | (pp(i - 1, j) ? 8 : 0)), x, y, ch.pp, seed); }
+      if (!zone[i][j] && !road[i][j] && !civAt[i][j] && !pline[i][j] && terrain[i][j] === 'forest') ch.trees.push({ s: P('forest', x, y, seed, y), ph: (seed % 628) / 100 });
+    });
+    ch.dirty = false; ch.built = true; ch.iconDirty = true;
+  };
+  const drawChunkIcons = (ch: Chunk) => { clear(ch.ic); ch.iconDirty = false; const g = new Graphics(); ch.ic.addChild(g);
+    chunkTiles(ch, (i, j) => { if (!(zone[i][j] && bld[i][j] && (!powered[i][j] || !watered[i][j]))) return;
+      const { x, y } = toScreen(i, j), yy = y - 26 - bld[i][j] * 6; let xx = x - (!powered[i][j] && !watered[i][j] ? 6 : 0);
+      if (!powered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx + 1, yy - 4, xx - 2, yy + 0.5, xx + 0.3, yy + 0.5, xx - 1, yy + 4, xx + 2.5, yy - 1, xx + 0.3, yy - 1]).fill(0xffe14d); xx += 12; }
+      if (!watered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx, yy - 3.8, xx + 2.4, yy + 0.8, xx, yy + 3, xx - 2.4, yy + 0.8]).fill(0x7cc8ff); } }); };
+  // ---- tile textures: one pixel-diamond per tile (8x4 px), shown scaled x8; used for the far-zoom overview and data overlays ----
+  const tileTex = (parent: Container) => {
+    const cv = document.createElement('canvas'); cv.width = 8 * N; cv.height = 4 * N; const ctx = cv.getContext('2d')!; const img = ctx.createImageData(cv.width, cv.height);
+    const tex = Texture.from(cv); tex.source.scaleMode = 'nearest'; const sp = new Sprite(tex); sp.scale.set(8); sp.position.set(-32 * N, -16); parent.addChild(sp);
+    const d32 = new Uint32Array(img.data.buffer), W = cv.width;
+    const paint = (fn: (i: number, j: number) => number) => { // fn returns 0xAABBGGRR (little-endian RGBA) or 0 for none
+      d32.fill(0);
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const v = fn(i, j); if (!v) continue; const cx = (i - j) * 4 + 4 * N, ty = (i + j) * 2;
+        let o = ty * W; d32.fill(v, o + cx - 2, o + cx + 2); o += W; d32.fill(v, o + cx - 4, o + cx + 4); o += W; d32.fill(v, o + cx - 4, o + cx + 4); o += W; d32.fill(v, o + cx - 2, o + cx + 2); }
+      ctx.putImageData(img, 0, 0); tex.source.update(); };
+    return { sp, paint };
+  };
+  const rgba = (c: number, a = 1) => ((Math.round(a * 255) << 24) | ((c & 0xff) << 16) | (c & 0xff00) | ((c >> 16) & 0xff)) >>> 0;
+  const OVC = { water: rgba(0x3478bd), sand: rgba(0xdccb92), grass: rgba(0x5ea849), forest: rgba(0x2f6a2a), road: rgba(0x6b6f76), civ: rgba(0xe8e2d6), line: rgba(0xc9b26a),
+    R: [rgba(0x7fd08a), rgba(0xd8b48a), rgba(0xc77f5e), rgba(0xa7b4c4)], C: [rgba(0x86b6f0), rgba(0x9fc3e8), rgba(0x6f9fd6), rgba(0x8fb0d0)], I: [rgba(0xe8d47a), rgba(0xb8b2a8), rgba(0x9a948c), rgba(0x86807a)] } as any;
+  const overviewL = new Container(); world.addChildAt(overviewL, world.getChildIndex(groundL) + 1);
+  const overview = tileTex(overviewL); overviewL.visible = false;
+  const paintOverview = () => { ovDirty = false; overview.paint((i, j) => civAt[i][j] ? OVC.civ : road[i][j] ? OVC.road : zone[i][j] ? OVC[zone[i][j]][bld[i][j]] : pline[i][j] ? OVC.line : OVC[terrain[i][j]]); };
+  const FAR = 0.2; let far = false, lastOv = 0, visRoads: [number, number][] = [];
+  const updateChunks = () => {
+    const vx0 = -world.position.x / zoom, vy0 = -world.position.y / zoom, vx1 = vx0 + app.screen.width / zoom, vy1 = vy0 + app.screen.height / zoom, now = performance.now();
+    far = zoom < FAR; overviewL.visible = far;
+    if (far && ovDirty && now - lastOv > 700) { lastOv = now; paintOverview(); }
+    const t0 = now, showGrid = zoom > 0.3; visRoads = [];
+    for (const ch of chunks) {
+      const v = !far && ch.x1 > vx0 && ch.x0 < vx1 && ch.y1 > vy0 && ch.y0 < vy1;
+      if (v) { ch.seen = now;
+        if (performance.now() - t0 < 8 || !ch.ground) { if (!ch.ground) buildGround(ch); if (ch.dirty) drawChunk(ch); if (ch.iconDirty) drawChunkIcons(ch); }
+        for (const r of ch.roads) visRoads.push(r);
+      } else if (ch.ground && now - ch.seen > 20000) { clear(ch.g); clear(ch.gr); ch.ground = false; // free far-away chunks
+        for (const o of [...ch.ob.children]) if (!(o as any).__veh) { ch.ob.removeChild(o); o.destroy(); } clear(ch.rd); clear(ch.zn); clear(ch.pp); clear(ch.ic); ch.lights = []; ch.trees = []; ch.blds = []; ch.roads = []; ch.dirty = true; ch.iconDirty = true; }
+      ch.vis = v; ch.g.visible = ch.rd.visible = ch.zn.visible = ch.ob.visible = ch.pp.visible = ch.ic.visible = v; ch.gr.visible = v && showGrid;
     }
   };
-  redraw();
+  let zlist: number[] = [];
+  const rebuildZ = () => { zlist = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j]) zlist.push(i * N + j); };
+  computeNear(); rebuildZ();
   const preview = new Graphics(), hl = new Graphics();
   world.addChild(preview, hl);
 
@@ -242,9 +314,9 @@ function diamond(g: Graphics, i: number, j: number) {
     return f.tiles.every(([i, j]) => tileFree(i, j) && !pline[i][j]) && (S.util ? true : touchesRoad(f.i0, f.j0, f.s)) && (!S.needsWater || touchesWater(f.i0, f.j0, f.s)); };
   const plop = (t: string, hi: number, hj: number) => {
     if (!canPlop(t, hi, hj)) return false; if (!spend(SERV[t].cost)) return false; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s };
-    civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; redraw(); census(); updateStats(); return true;
+    civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; markDirty(f.i0, f.j0, f.i0 + f.s, f.j0 + f.s); census(); updateStats(); return true;
   };
-  const removeCiv = (c: Civ) => { civs.splice(civs.indexOf(c), 1); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = null; };
+  const removeCiv = (c: Civ) => { markDirty(c.i, c.j, c.i + c.s, c.j + c.s); civs.splice(civs.indexOf(c), 1); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = null; };
   const valid = (i: number, j: number) => {
     if (tool === 'road') return terrain[i][j] !== 'water' && !civAt[i][j] && !pline[i][j];
     if (tool === 'pline') return !civAt[i][j] && !zone[i][j] && !pline[i][j]; // lines can span water and cross roads
@@ -281,7 +353,9 @@ function diamond(g: Graphics, i: number, j: number) {
       if (tool === 'road') { road[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
       else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; }
       else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; } zone[i][j] = tool; } }
-    drag = null; preview.clear(); redraw(); census(); updateStats();
+    if (tiles.length) { let a = N, b = N, c2 = 0, d = 0; for (const [i, j] of tiles) { a = Math.min(a, i); b = Math.min(b, j); c2 = Math.max(c2, i); d = Math.max(d, j); } markDirty(a, b, c2, d); }
+    if (tool === 'road' || tool === 'bulldoze') computeNear(); if (tool !== 'pline' && tool !== 'pipe') rebuildZ();
+    drag = null; preview.clear(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
   (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, zone, bld, consT, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
@@ -358,15 +432,19 @@ function diamond(g: Graphics, i: number, j: number) {
   const computePollution = () => { // spreads up to 5 tiles from industry, stronger for higher tiers
     for (const row of poll) row.fill(0);
     for (const c of civs) if (c.type === 'coal') { const ci = c.i + 1, cj = c.j + 1; for (let a = -7; a <= 7; a++) for (let b = -7; b <= 7; b++) { const d = Math.hypot(a, b); if (d <= 7 && inb(ci + a, cj + b)) poll[ci + a][cj + b] += 6 * (1 - d / 8); } }
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j] === 'I' && bld[i][j]) {
+    for (const k of zlist) { const i = (k / N) | 0, j = k - i * N; if (zone[i][j] !== 'I' || !bld[i][j]) continue;
       const L = bld[i][j];
       for (let a = -5; a <= 5; a++) for (let b = -5; b <= 5; b++) { const d = Math.hypot(a, b); if (d <= 5 && inb(i + a, j + b)) poll[i + a][j + b] += L * (1 - d / 6); }
     }
   };
-  const census = () => {
-    computeUtilities(); drawIcons(); computePollution(); drawPollution(); computeRisks(); drawCoverage();
+  let phase = 0; const perf = { tick: 0, tickMax: 0, census: 0, n: 0 };
+  const census = (full = true) => { // after edits everything is recomputed; during play the heavy passes take turns, one per tick
+    const t0 = performance.now(), ph = phase++ % 3;
+    if (full || ph === 0) computeUtilities();
+    if (full || ph === 1) { computePollution(); drawPollution(); }
+    if (full || ph === 2) { computeCoverage(); computeRisks(); drawCoverage(); }
     sim.pop = sim.jobsC = sim.jobsI = 0;
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (bld[i][j]) {
+    for (const k of zlist) { const i = (k / N) | 0, j = k - i * N; if (!bld[i][j]) continue;
       const v = zone[i][j] === 'R' ? resCap(i, j) : CAP[zone[i][j]][bld[i][j]];
       if (zone[i][j] === 'R') sim.pop += v; else if (zone[i][j] === 'C') sim.jobsC += v; else sim.jobsI += v;
     }
@@ -376,32 +454,33 @@ function diamond(g: Graphics, i: number, j: number) {
     sim.dI = clamp((60 + sim.day * 0.4 + workers * 0.6 - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); // outside demand + workforce
     // taxes: each point below the 9% default boosts that zone's demand, each point above lowers it
     sim.dR = clamp(sim.dR + (9 - tax.R) * 0.05); sim.dC = clamp(sim.dC + (9 - tax.C) * 0.05); sim.dI = clamp(sim.dI + (9 - tax.I) * 0.05);
+    perf.census = performance.now() - t0;
   };
   const tick = () => {
-    lastTick = performance.now(); sim.day++; if (sim.day % 30 === 0) monthly(); let changed = false;
+    const t0 = performance.now();
+    lastTick = t0; sim.day++; if (sim.day % 30 === 0) monthly();
     const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    for (const k of zlist) { const i = (k / N) | 0, j = k - i * N;
       const z = zone[i][j]; if (!z) continue;
       if (consT[i][j]) { // advance construction
         consD[i][j]++;
-        if (consD[i][j] >= CONS_DAYS * 3) { bld[i][j] = consT[i][j]; consT[i][j] = 0; changed = true; }
-        else if (consD[i][j] % CONS_DAYS === 0) changed = true;
+        if (consD[i][j] >= CONS_DAYS * 3) { bld[i][j] = consT[i][j]; consT[i][j] = 0; markDirty(i, j, i, j); }
+        else if (consD[i][j] % CONS_DAYS === 0) markDirty(i, j, i, j);
         continue;
       }
       const L = bld[i][j];
       const dem = d[z] - Math.min(0.3, crime[i][j] * 0.05) // crime lowers desirability everywhere
         + (z === 'R' ? -Math.min(0.4, poll[i][j] * 0.04) + 0.15 * cov.edu[i][j] + 0.15 * cov.health[i][j] : 0); // pollution vs schools & health care
-      if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; changed = true; } continue; } // lost road access
-      const before = bld[i][j];
+      if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; markDirty(i, j, i, j); } continue; } // lost road access
       if (dem > 0 && L < 3) {
         const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
         const utilOk = L + 1 < 2 || (powered[i][j] && watered[i][j]); // no power or water: stays low density
         const eduOk = utilOk && !(z === 'R' && L + 1 === 3 && cov.edu[i][j] <= 0); // high-density housing needs a school nearby
-        if (eduOk && dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) { consT[i][j] = L + 1; consD[i][j] = 0; changed = true; }
-      } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) bld[i][j]--;
-      if (bld[i][j] !== before) changed = true;
+        if (eduOk && dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) { consT[i][j] = L + 1; consD[i][j] = 0; markDirty(i, j, i, j); }
+      } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) { bld[i][j]--; markDirty(i, j, i, j); }
     }
-    if (changed) redraw(); census(); updateStats();
+    census(false); updateStats();
+    const dt = performance.now() - t0; perf.tick = perf.tick * 0.9 + dt * 0.1; perf.tickMax = Math.max(perf.tickMax, dt); perf.n++;
   };
   // top HUD
   const stats = document.getElementById('stats')!;
@@ -430,18 +509,17 @@ function diamond(g: Graphics, i: number, j: number) {
   const covL = new Container(); world.addChildAt(covL, world.getChildIndex(gridL));
   let covView = '';
   const COVCOL: Record<string, number> = { edu: 0xffd23f, police: 0x3b6cff, fire: 0xff5a36, health: 0x3fe0c5, crime: 0xb000ff, fireRisk: 0xff8800, power: 0xffd23f, water: 0x3d8fe0 };
+  const covTex = tileTex(covL), pollTex = tileTex(pollL);
   const drawCoverage = () => {
-    clear(covL); if (!covView) return;
-    const g = new Graphics(); covL.addChild(g);
+    covTex.sp.visible = !!covView; if (!covView) return;
     const src: any = covView === 'power' ? powered.map(r => r.map(Number)) : covView === 'water' ? watered.map(r => r.map(Number)) : covView === 'crime' ? crime : covView === 'fireRisk' ? fireRisk : cov[covView as Kind], scale = covView === 'crime' ? 0.25 : covView === 'fireRisk' ? 0.25 : 1;
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const v = Math.min(1, src[i][j] * scale); if (v > 0.02) { diamond(g, i, j); g.fill({ color: COVCOL[covView], alpha: 0.12 + 0.45 * v }); } }
+    const col = COVCOL[covView]; covTex.paint((i, j) => { const v = Math.min(1, src[i][j] * scale); return v > 0.02 ? rgba(col, 0.12 + 0.45 * v) : 0; });
   };
   const setCovView = (v: string) => { covView = v; (document.getElementById('covSel') as HTMLSelectElement).value = v; drawCoverage(); };
   document.getElementById('covSel')!.onchange = e => setCovView((e.target as HTMLSelectElement).value);
   const drawPollution = () => {
-    clear(pollL); if (!fx.pollution) return;
-    const g = new Graphics(); pollL.addChild(g);
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (poll[i][j] > 0.3) { diamond(g, i, j); g.fill({ color: 0x6b4a1e, alpha: Math.min(0.55, poll[i][j] * 0.07) }); }
+    pollTex.sp.visible = fx.pollution; if (!fx.pollution) return;
+    pollTex.paint((i, j) => poll[i][j] > 0.3 ? rgba(0x6b4a1e, Math.min(0.55, poll[i][j] * 0.07)) : 0);
   };
   census(); updateStats(); setSpeed(1);
   // ---- music (real CC0 / CC-BY tracks, see CREDITS.md) + separate ambience ----
@@ -469,14 +547,6 @@ function diamond(g: Graphics, i: number, j: number) {
   (window as any).__jazz = jazz; (window as any).__amb = amb;
   // ---- missing-utility icons + underground view ----
   let underground = false;
-  function drawIcons() {
-    clear(iconL); const g = new Graphics(); iconL.addChild(g);
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j] && bld[i][j] && (!powered[i][j] || !watered[i][j])) {
-      const { x, y } = toScreen(i, j), yy = y - 26 - bld[i][j] * 6; let xx = x - (!powered[i][j] && !watered[i][j] ? 6 : 0);
-      if (!powered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx + 1, yy - 4, xx - 2, yy + 0.5, xx + 0.3, yy + 0.5, xx - 1, yy + 4, xx + 2.5, yy - 1, xx + 0.3, yy - 1]).fill(0xffe14d); xx += 12; }
-      if (!watered[i][j]) { g.circle(xx, yy, 5).fill(0xd62828).stroke({ width: 1, color: 0xffffff }); g.poly([xx, yy - 3.8, xx + 2.4, yy + 0.8, xx, yy + 3, xx - 2.4, yy + 0.8]).fill(0x7cc8ff); }
-    }
-  }
   const ugBtn = document.getElementById('ugBtn')!;
   const setUnderground = (v: boolean) => { underground = v; ugBtn.classList.toggle('on', v);
     for (const L of [roadL, carL, zoneL, objL, smokeL, cloudL, skyL, iconL]) L.alpha = v ? 0.12 : 1;
@@ -592,14 +662,14 @@ function diamond(g: Graphics, i: number, j: number) {
   setFxVisibility();
   let clock = 0;
   let night = 0;
-  const applyNight = (n: number) => { // tint objects to match the shading; lights fade in additively
+  const applyNight = (n: number) => { // objects are tinted to match the shading (per visible chunk, lazily); lights fade in additively
     if (Math.abs(n - lastNightTint) < 0.01) return; lastNightTint = n;
-    const r = Math.round(255 * (1 - 0.48 * n)), g = Math.round(255 * (1 - 0.46 * n)), b = Math.round(255 * (1 - 0.36 * n)), tint = (r << 16) | (g << 8) | b;
-    const isLight = new Set<unknown>(lights); curTint = tint; for (const c of cars) if (c.n) isLight.add(c.n);
-    for (const c of objL.children) if (!isLight.has(c)) (c as Sprite).tint = tint;
-    for (const l of lights) l.alpha = n;
+    const r = Math.round(255 * (1 - 0.48 * n)), g = Math.round(255 * (1 - 0.46 * n)), b = Math.round(255 * (1 - 0.36 * n)); curTint = (r << 16) | (g << 8) | b;
     smokeL.alpha = 1 - 0.5 * n;
   };
+  const syncChunkNight = () => { for (const ch of chunks) if (ch.vis) {
+    if (ch.tint !== curTint) { ch.tint = curTint; for (const c of ch.ob.children) if (!(c as any).__light) (c as Sprite).tint = curTint; }
+    if (ch.la !== lastNightTint) { ch.la = lastNightTint; for (const l of ch.lights) { l.alpha = Math.max(0, lastNightTint); l.visible = l.alpha > 0.02; } } } };
   app.ticker.add(t => {
     const dt = t.deltaMS / 1000; clock += dt;
     // day/night: one full cycle every 24 game-days, smoothed between ticks
@@ -612,16 +682,18 @@ function diamond(g: Graphics, i: number, j: number) {
       applyNight(night);
       app.renderer.background.color = night > 0.5 ? 0x0d1220 : 0x1b2430;
     }
+    updateChunks(); syncChunkNight();
     if (fx.clouds) for (const c of clouds) { c.x += 12 * dt; c.y += 3 * dt; if (c.x > W1 + 300) { c.x = W0 - 300; c.y = Math.random() * H1; } }
     if (fx.nature) {
-      for (const tr of trees) tr.s.skew.x = Math.sin(clock * 1.3 + tr.ph) * 0.03;
+      for (const ch of chunks) if (ch.vis) for (const tr of ch.trees) tr.s.skew.x = Math.sin(clock * 1.3 + tr.ph) * 0.03;
       for (const f of flocks) f.birds.forEach((b, k) => { const a = clock * 0.4 + f.ph + k * 0.25; b.position.set(f.cx + Math.cos(a) * f.r + k * 6, f.cy + Math.sin(a) * f.r * 0.5 - k * 3); b.scale.y = 0.6 + Math.abs(Math.sin(clock * 8 + k)) * 0.8; });
     }
     for (const f of flocks) for (const b of f.birds) b.visible = fx.nature;
     if (fx.smoke) {
       smokeAcc += dt;
       if (smokeAcc > 0.12) { smokeAcc = 0;
-        for (const b of blds) if (b.z === 'I' && smoke.length < 260 && Math.random() < 0.12 * b.L) {
+        const smokeCap = Math.min(140, 30 + 4 * chunks.filter(c => c.vis).length); // particles scale with the visible area
+        for (const ch of chunks) if (ch.vis) for (const b of ch.blds) if (b.z === 'I' && smoke.length < smokeCap && Math.random() < 0.12 * b.L) {
           const s = new Sprite(dot); s.anchor.set(0.5); s.tint = 0xcfcac2; s.alpha = 0.5; s.scale.set(0.12);
           s.position.set(b.x + 10 + (b.seed % 7) - 3, b.y - 22 - b.L * 6); smokeL.addChild(s);
           smoke.push({ s, vx: 4 + Math.random() * 4, vy: -10 - Math.random() * 6, life: 0, max: 3 + Math.random() * 2 });
@@ -631,38 +703,53 @@ function diamond(g: Graphics, i: number, j: number) {
       if (p.life > p.max || !fx.smoke) { p.s.destroy(); smoke.splice(k, 1); continue; }
       p.s.x += p.vx * dt; p.s.y += p.vy * dt; p.s.scale.set(0.12 + p.life * 0.12); p.s.alpha = 0.5 * (1 - p.life / p.max); }
     if (fx.cars) {
-      const roadCount = road.flat().filter(Boolean).length;
-      const target = Math.min(70, Math.floor((sim.pop + sim.jobsC + sim.jobsI) / 30), Math.floor(roadCount * 0.45));
+      const target = far ? 0 : Math.min(70, Math.floor((sim.pop + sim.jobsC + sim.jobsI) / 30), Math.floor(visRoads.length * 0.45)); // traffic scales with what is on screen
       if (cars.length < target && Math.random() < 0.3) {
-        const rl = roadList();
+        const rl = visRoads;
         if (rl.length > 1) { const [i, j] = rl[Math.floor(Math.random() * rl.length)];
           if (Math.random() < Math.min(1, activity(i, j) / 150 + 0.05)) { const nb = roadNbrs(i, j);
             if (nb.length) { const key = pickVehicle(i, j), big = /semi|bus|truck/.test(key);
               const c: Car = { s: new Graphics(), key, pi: i, pj: j, i: nb[0][0], j: nb[0][1], t: Math.random(), sp: (big ? 0.9 : 1.2) + Math.random() * 0.6, dir: '' };
-              if (!hasArt(key + '_NE')) { const g = new Graphics().roundRect(-3.5, -2, 7, 4, 1.2).fill(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]); (g as any).__veh = true; objL.addChild(g); c.s = g; }
+              if (!hasArt(key + '_NE')) { const g = new Graphics().roundRect(-3.5, -2, 7, 4, 1.2).fill(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]); (g as any).__veh = true; chunkOf(i, j).ob.addChild(g); c.s = g; }
               cars.push(c); } } }
       } else if (cars.length > target + 5) { dropCar(cars.length - 1); }
     }
     for (let k = cars.length - 1; k >= 0; k--) { const c = cars[k];
-      if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj) || !fx.cars) { dropCar(k); continue; }
+      if (!isRoad(c.i, c.j) || !isRoad(c.pi, c.pj) || !fx.cars || !chunkOf(c.i, c.j).vis) { dropCar(k); continue; }
       if (sim.speed) c.t += dt * c.sp;
       if (c.t >= 1) { const nb = roadNbrs(c.i, c.j).filter(([a, b]) => a !== c.pi || b !== c.pj); const nx = nb.length ? nb[Math.floor(Math.random() * nb.length)] : [c.pi, c.pj];
-        c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; }
+        c.pi = c.i; c.pj = c.j; c.i = nx[0]; c.j = nx[1]; c.t = 0; const ob = chunkOf(c.i, c.j).ob; if (c.s.parent !== ob) { ob.addChild(c.s); if (c.n) ob.addChild(c.n); } }
       const a = toScreen(c.pi, c.pj), b = toScreen(c.i, c.j), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
       const di = c.i - c.pi, dir = di > 0 ? 'SE' : di < 0 ? 'NW' : c.j < c.pj ? 'NE' : 'SW';
       if (c.s instanceof Graphics && !hasArt(c.key + '_NE')) { const ox = -dy / L * 5, oy = dx / L * 5; c.s.position.set(a.x + dx * c.t + ox, a.y + dy * c.t + oy); c.s.rotation = Math.atan2(dy, dx); }
       else {
         if (dir !== c.dir) { // swap to the sprite facing the new direction
           c.dir = dir; c.s.destroy(); c.n?.destroy();
-          c.s = place(c.key + '_' + dir, 0, 0, objL); (c.s as any).__veh = true; (c.s as Sprite).tint = curTint;
-          c.n = placeNight(c.key + '_' + dir, 0, 0, objL); if (c.n) (c.n as any).__veh = true;
+          const ob = chunkOf(c.i, c.j).ob; c.s = place(c.key + '_' + dir, 0, 0, ob); (c.s as any).__veh = true; (c.s as Sprite).tint = curTint;
+          c.n = placeNight(c.key + '_' + dir, 0, 0, ob); if (c.n) { (c.n as any).__veh = true; (c.n as any).__light = true; }
         }
         const [lx, ly] = LANE[dir], x = a.x + dx * c.t + lx, y = a.y + dy * c.t + ly;
         c.s.position.set(x, y); c.s.zIndex = y + 1; // depth: same key as buildings (screen y)
-        if (c.n) { c.n.position.set(x, y); c.n.zIndex = y + 1.01; c.n.alpha = night; }
+        if (c.n) { c.n.position.set(x, y); c.n.zIndex = y + 1.01; c.n.alpha = night; c.n.visible = night > 0.02; } (c.s as Sprite).tint = curTint;
       }
     }
   });
+  let frames = 0, cpuAcc = 0, tF = 0; app.ticker.add(() => { frames++; tF = performance.now(); }, undefined, 1000); // highest priority: start of frame work
+  app.ticker.add(() => { cpuAcc += performance.now() - tF; }, undefined, -1000); // after Pixi has rendered: JS + scene submission time per frame
+  const genDense = (seed = 7) => { // test helper: a dense, fully built city on every land tile
+    let h = seed >>> 0; const rnd = () => ((h = (h * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { if (terrain[i][j] === 'water' || civAt[i][j]) continue;
+      if (i % 8 === 0 || j % 8 === 0) { road[i][j] = true; pline[i][j] = true; pipe[i][j] = true; zone[i][j] = ''; bld[i][j] = 0; continue; }
+      const bi = (i / 8) | 0, bj = (j / 8) | 0;
+      if ((bi * 7 + bj * 3) % 5 === 0 && i % 8 === 2 && j % 8 === 2) { let ok = true; for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) if (!inb(i + a, j + b) || terrain[i + a][j + b] === 'water' || (i + a) % 8 === 0 || (j + b) % 8 === 0) ok = false;
+        if (ok) { const c: Civ = { type: 'coal', i, j, s: 3 }; civs.push(c); for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) civAt[i + a][j + b] = c; const t: Civ = { type: 'tower', i: i + 4, j, s: 1 }; if (!civAt[i + 4][j] && (i + 4) % 8) { civs.push(t); civAt[i + 4][j] = t; } continue; } }
+      if (civAt[i][j]) continue;
+      zone[i][j] = (bi + bj) % 6 === 0 ? 'I' : (bi * 3 + bj) % 4 === 0 ? 'C' : 'R'; bld[i][j] = 1 + Math.floor(rnd() * 3); consT[i][j] = 0;
+    }
+    computeNear(); rebuildZ(); markAll(); census(); updateStats();
+  };
+  const measure = async (ms = 5000) => { const f0 = frames, t0 = performance.now(); perf.tickMax = 0; cpuAcc = 0; await new Promise(r => setTimeout(r, ms)); const cpu = Math.round(cpuAcc / Math.max(1, frames - f0) * 10) / 10; return { cpuFrameMs: cpu, fps: Math.round((frames - f0) * 1000 / (performance.now() - t0) * 10) / 10, tickAvgMs: Math.round(perf.tick * 10) / 10, tickMaxMs: Math.round(perf.tickMax * 10) / 10, censusMs: Math.round(perf.census * 10) / 10, visibleChunks: chunks.filter(c => c.vis).length, cars: cars.length, smoke: smoke.length }; };
+  Object.assign((window as any).__city, { layers: { groundL, gridL, roadL, zoneL, objL, smokeL, cloudL, nightG, iconL, skyL, pipeL }, genDense, measure, perf, chunks: () => chunks.length, far: () => far, pan: (dx: number, dy: number) => { camX += dx; camY += dy; } });
   (window as any).__fx = { fx, cars, smoke, setDay: (d: number) => { sim.day = d; lastTick = performance.now(); } };
   app.ticker.add(t => {
     const sp = 600 * (t.deltaMS / 1000) / zoom;

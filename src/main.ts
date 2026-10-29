@@ -198,7 +198,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const chunks: Chunk[] = [];
   objL.sortableChildren = true;
   for (let ci = 0; ci < NCH; ci++) for (let cj = 0; cj < NCH; cj++) {
-    const mk = (L: Container) => { const c = new Container({ isRenderGroup: true }); c.visible = false; L.addChild(c); return c; }; // render groups: static chunk content is not re-walked every frame
+    const mk = (L: Container) => { const c = new Container(); c.visible = false; L.addChild(c); return c; }; // render groups: static chunk content is not re-walked every frame
     const ob = mk(objL); ob.sortableChildren = true; ob.zIndex = ci + cj; // chunks drawn back to front; inside a chunk sprites sort by screen y
     const i0 = ci * CH, j0 = cj * CH, i1 = Math.min(N, i0 + CH) - 1, j1 = Math.min(N, j0 + CH) - 1;
     chunks.push({ ci, cj, g: mk(groundL), gr: mk(gridL), rd: mk(roadL), zn: mk(zoneL), ob, pp: mk(pipeL), ic: mk(iconL), ground: false, built: false, dirty: true, iconDirty: true, vis: false, seen: 0,
@@ -281,13 +281,13 @@ function diamond(g: Graphics, i: number, j: number) {
   const OVC = { water: rgba(0x3478bd), sand: rgba(0xdccb92), grass: rgba(0x5ea849), forest: rgba(0x2f6a2a), road: rgba(0x6b6f76), civ: rgba(0xe8e2d6), line: rgba(0xc9b26a),
     R: [rgba(0x7fd08a), rgba(0xd8b48a), rgba(0xc77f5e), rgba(0xa7b4c4)], C: [rgba(0x86b6f0), rgba(0x9fc3e8), rgba(0x6f9fd6), rgba(0x8fb0d0)], I: [rgba(0xe8d47a), rgba(0xb8b2a8), rgba(0x9a948c), rgba(0x86807a)] } as any;
   const overviewL = new Container(); world.addChildAt(overviewL, world.getChildIndex(groundL) + 1);
-  const overview = tileTex(overviewL); overviewL.visible = false;
+  const overview = tileTex(overviewL); // always-on base layer: even if chunk sprites fail, the map still shows
   const paintOverview = () => { ovDirty = false; overview.paint((i, j) => civAt[i][j] ? OVC.civ : road[i][j] ? OVC.road : zone[i][j] ? OVC[zone[i][j]][bld[i][j]] : pline[i][j] ? OVC.line : OVC[terrain[i][j]]); };
   const FAR = 0.2; let far = false, lastOv = 0, visRoads: [number, number][] = [];
   const updateChunks = () => {
     const vx0 = -world.position.x / zoom, vy0 = -world.position.y / zoom, vx1 = vx0 + app.screen.width / zoom, vy1 = vy0 + app.screen.height / zoom, now = performance.now();
-    far = zoom < FAR; overviewL.visible = far;
-    if (far && ovDirty && now - lastOv > 700) { lastOv = now; paintOverview(); }
+    far = zoom < FAR;
+    if (ovDirty && (far || !lastOv || now - lastOv > 5000) && now - lastOv > 700) { lastOv = now; paintOverview(); }
     const t0 = now, showGrid = zoom > 0.3; visRoads = [];
     for (const ch of chunks) {
       const v = !far && ch.x1 > vx0 && ch.x0 < vx1 && ch.y1 > vy0 && ch.y0 < vy1;
@@ -767,7 +767,7 @@ function diamond(g: Graphics, i: number, j: number) {
   menu.querySelectorAll<HTMLInputElement>('#fxList input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
   document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
   setFxVisibility();
-  let clock = 0, windF = -1;
+  let clock = 0, windF = -1, chunkErr = false;
   let night = 0;
   const applyNight = (n: number) => { // objects are tinted to match the shading (per visible chunk, lazily); lights fade in additively
     if (Math.abs(n - lastNightTint) < 0.01) return; lastNightTint = n;
@@ -789,7 +789,7 @@ function diamond(g: Graphics, i: number, j: number) {
       applyNight(night);
       app.renderer.background.color = night > 0.5 ? 0x0d1220 : 0x1b2430;
     }
-    updateChunks(); syncChunkNight();
+    try { updateChunks(); syncChunkNight(); } catch (err) { if (!chunkErr) { chunkErr = true; console.error('map drawing failed', err); toast('Map drawing problem: ' + (err as Error).message + ' (showing the simple map)'); overviewL.visible = true; } }
     { const f = Math.floor(clock * 8); if (f !== windF) { windF = f; const fr = [0, 1, 2, 3].map(k => artTex('util_wind_f' + k)); if (fr[0]) for (const ch of chunks) if (ch.vis) for (const w of ch.winds) w.texture = fr[(f + (w as any).__ph) % 4]!; } } // turbines spin at 8 fps
     if (fx.clouds) for (const c of clouds) { c.x += 12 * dt; c.y += 3 * dt; if (c.x > W1 + 300) { c.x = W0 - 300; c.y = Math.random() * H1; } }
     if (fx.nature) {

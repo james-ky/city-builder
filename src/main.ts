@@ -1,5 +1,5 @@
 import { TripSim, carsOf } from './trips';
-import { PARKING, TRIPS, RESIDENTS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
+import { PARKING, TRIPS, RESIDENTS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { loadManifest, place, placeNight, hasArt, artTex, facingName } from './sprites';
@@ -711,7 +711,9 @@ function diamond(g: Graphics, i: number, j: number) {
   const ZNAME: Record<string, string> = { R: 'Residential', C: 'Commercial', I: 'Industrial' };
   const DNAME = ['', 'Low density', 'Medium density', 'High density'];
   const CAP: Record<string, number[]> = { R: RESIDENTS.R, C: JOBS.C, I: JOBS.I }; // see src/realism.ts
-  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0 };
+  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0, edu: [...DEMOG.eduNoSchools] as number[] };
+  const hist: { m: number; inc: number; exp: number; net: number; funds: number; pop: number }[] = []; // monthly history (saved)
+  const why: Record<string, [string, number][]> = { R: [], C: [], I: [] }; // demand terms, for the data panel
   // ---- budget ----
   const tax: Record<string, number> = { R: 9, C: 9, I: 9 };
   /** what painting the current tier on (i,j) costs: full price on bare ground, the difference when upgrading, 0 if already that tier or better / under works */
@@ -757,6 +759,8 @@ function diamond(g: Graphics, i: number, j: number) {
   let onMonth = () => {}; let tripTick = () => {}; let tripPenalty = 0, parkPenalty = 0, jamPenalty = 0;
   const monthly = () => { jamPenalty = Math.min(0.25, failed.month / Math.max(20, failed.spawned) * 0.5); failed.last = failed.month; failed.month = 0; failed.spawned = 0;
     lastMonth = projection(); sim.funds += lastMonth.net;
+    { const inc = Object.values(lastMonth.income).reduce((a, b) => a + b, 0), exp = Object.values(lastMonth.expense).reduce((a, b) => a + b, 0); hist.push({ m: Math.floor(sim.day / 30), inc, exp, net: lastMonth.net, funds: Math.round(sim.funds), pop: sim.pop }); if (hist.length > 120) hist.shift(); }
+    { const c = eduCoverage(), tgt = DEMOG.eduNoSchools.map((v, k) => v + (DEMOG.eduUS[k] - v) * c); sim.edu = sim.edu.map((v, k) => v + (tgt[k] - v) * DEMOG.eduDriftPerMonth); }
     if (sim.funds < 0) toast(`⚠ The city is in debt ($${Math.floor(sim.funds).toLocaleString()}). Raise taxes, cut funding, or take a loan.`);
     renderBudget(); onMonth();
   };
@@ -774,6 +778,8 @@ function diamond(g: Graphics, i: number, j: number) {
       for (let a = Math.floor(ci - r); a <= Math.ceil(ci + r); a++) for (let b = Math.floor(cj - r); b <= Math.ceil(cj + r); b++) { const d = Math.hypot(a - ci, b - cj); if (d <= r && inb(a, b)) poll[a][b] = Math.max(0, poll[a][b] - q * (1 - d / (r + 1)) / c.s); } }
   };
   let phase = 0; const perf = { tick: 0, tickMax: 0, census: 0, n: 0 };
+  /** share of residents living inside school coverage (0..1) */
+  const eduCoverage = () => { let r = 0, c = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (zone[i][j] === 'R' && bld[i][j]) { const v = resCap(i, j); r += v; c += v * Math.min(1, cov.edu[i][j]); } return r ? c / r : 0; };
   const census = (full = true) => { // after edits everything is recomputed; during play the heavy passes take turns, one per tick
     const t0 = performance.now(), ph = phase++ % 3;
     if (full || ph === 0) computeUtilities();
@@ -786,13 +792,16 @@ function diamond(g: Graphics, i: number, j: number) {
     }
     sim.pop = Math.round(sim.pop); sim.jobsC = Math.round(sim.jobsC); sim.jobsI = Math.round(sim.jobsI);
     const jobs = sim.jobsC + sim.jobsI;
-    sim.dR = clamp((jobs * ECON.residentsPerJob + 60 - sim.pop) / Math.max(60, sim.pop * 0.4));      // people come for jobs
-    sim.dC = clamp((sim.pop * ECON.commercialJobsPerResident + 10 - sim.jobsC) / Math.max(15, sim.pop * 0.12));  // shops & offices follow residents
-    sim.dI = clamp((60 + sim.day * 0.4 + sim.pop * ECON.industrialJobsPerResident - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); // outside (export) demand + local need
+    sim.dR = clamp((jobs * ECON.residentsPerJob + 60 - sim.pop) / Math.max(60, sim.pop * 0.4)); const bR = sim.dR;      // people come for jobs
+    sim.dC = clamp((sim.pop * ECON.commercialJobsPerResident + 10 - sim.jobsC) / Math.max(15, sim.pop * 0.12)); const bC = sim.dC;  // shops & offices follow residents
+    sim.dI = clamp((60 + sim.day * 0.4 + sim.pop * ECON.industrialJobsPerResident - sim.jobsI) / Math.max(30, sim.jobsI * 0.4)); const bI = sim.dI; // outside (export) demand + local need
     // taxes: each point below the 9% default boosts that zone's demand, each point above lowers it
     sim.dR = clamp(sim.dR + (9 - tax.R) * 0.05 - tripPenalty - jamPenalty); // people won't move where jobs/schools can't be reached by road, or where commutes keep failing in jams
     sim.dC = clamp(sim.dC + (9 - tax.C) * 0.05 - parkPenalty - jamPenalty * 0.5); // shoppers who can't park (or can't get through) go elsewhere
     sim.dI = clamp(sim.dI + (9 - tax.I) * 0.05);
+    why.R = [['Jobs vs residents (people come for jobs)', bR], [`Residential tax ${tax.R}%`, (9 - tax.R) * 0.05], ['Jobs/schools not reachable by road', -tripPenalty], ['Failed commutes (jams)', -jamPenalty]];
+    why.C = [['Residents vs shop/office jobs', bC], [`Commercial tax ${tax.C}%`, (9 - tax.C) * 0.05], ["Shoppers who can't park", -parkPenalty], ['Failed commutes (jams)', -jamPenalty * 0.5]];
+    why.I = [['Export demand + local need vs industrial jobs', bI], [`Industrial tax ${tax.I}%`, (9 - tax.I) * 0.05]];
     perf.census = performance.now() - t0;
   };
   const tick = () => {
@@ -988,7 +997,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); rt[k] = rtier[i][j]; rs[k] = rstage[i][j]; rd[k] = Math.min(255, rday[i][j]); rf[k] = rfrom[i][j]; ww[k] = rw[i][j]; pd[k] = rpd[i][j]; }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      stops: [...stops], ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
+      stops: [...stops], ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) })), lots: [...lots].map(l => ({ ...l })), hist: hist.slice(), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
   };
   const applySave = (o: any) => {
     const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0, ww = o.grids.rwidth ? g('rwidth') : z0, pkg = o.grids.pk ? g('pk') : null, pd = o.grids.rpart ? g('rpart') : null, zdg = o.grids.zden ? g('zden') : null, zfg = o.grids.zface ? g('zface') : null; roadWorks.length = 0;
@@ -1001,7 +1010,8 @@ function diamond(g: Graphics, i: number, j: number) {
     ixSet.clear(); autoCtl.clear(); for (const [k, mode, axis, cyc, split] of o.ix ?? []) ixSet.set(k, { mode, axis, cyc, split }); // pre-v9 saves: every junction is Auto
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
     for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l }); syncLots();
-    Object.assign(sim, o.sim); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
+    Object.assign(sim, o.sim); if (!Array.isArray(o.sim?.edu) || o.sim.edu.length !== 4) sim.edu = [...DEMOG.eduNoSchools]; // pre-v11: no education history yet
+    hist.length = 0; for (const h of o.hist ?? []) hist.push(h); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
     if (o.cam) { camX = o.cam.x; camY = o.cam.y; zoom = clampZoom(o.cam.zoom); }
     tripsDirty = true; trips.volume.fill(0); if (o.traffic?.volume) { const u = new Uint16Array(unb64(o.traffic.volume).buffer); trips.volume.set(u.subarray(0, N * N)); }
     computeNear(); rebuildZ(); markAll(); census(); updateStats(); setSpeed(o.sim.speed ?? 1);
@@ -1011,6 +1021,73 @@ function diamond(g: Graphics, i: number, j: number) {
   const autoId = () => `auto:${city.name}:${city.size}:${city.seed}`;
   let autosaveOn = localStorage.getItem('autosave') !== 'off';
   onMonth = () => { if (autosaveOn && Math.floor(sim.day / 30) % 3 === 0) saveTo('Autosave', autoId()).then(() => toastOk('Autosaved')).catch(() => {}); };
+  // ---- City Data panel (button 📊 / Shift+D): every number here comes from the simulation; anything not simulated says so ----
+  const dataP = document.createElement('div'); dataP.id = 'dataPanel';
+  dataP.style.cssText = 'position:fixed;top:44px;right:8px;bottom:76px;width:440px;display:none;flex-direction:column;background:rgba(18,24,33,.96);color:#e6edf5;border:1px solid #3a4658;border-radius:10px;z-index:6;font:13px/1.45 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4)';
+  dataP.addEventListener('pointerdown', e => e.stopPropagation()); dataP.addEventListener('wheel', e => e.stopPropagation());
+  const TABS = ['Budget', 'Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
+  let dataTab = 'Budget';
+  dataP.innerHTML = `<div style="display:flex;align-items:center;padding:8px 10px;border-bottom:1px solid #2c3646"><b style="font-size:15px">📊 City Data</b><span style="flex:1"></span><small style="color:#8b98a8;margin-right:8px">Shift+D</small><button id="dataX" title="Close" style="background:none;border:0;color:#cbd5e1;font-size:16px;cursor:pointer">✕</button></div>
+    <div id="dataTabs" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px">${TABS.map(t => `<button data-tab="${t}" style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">${t}</button>`).join('')}</div>
+    <div id="dataBody" style="flex:1;overflow:auto;padding:4px 14px 14px"></div>`;
+  document.body.appendChild(dataP);
+  const NT = '<span style="color:#8b98a8;font-style:italic">not tracked yet</span>';
+  const fmt = (v: number) => Math.round(v).toLocaleString(), pc = (v: number) => (v * 100).toFixed(v < 0.1 ? 1 : 0) + '%', dmoney = (v: number) => (v < 0 ? '-$' : '$') + Math.abs(Math.round(v)).toLocaleString();
+  const row = (k: string, v: string, sub = '') => `<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;border-bottom:1px solid #222c3a"><span>${k}${sub ? ` <small style="color:#8b98a8">${sub}</small>` : ''}</span><b>${v}</b></div>`;
+  const h = (t: string) => `<h4 style="margin:12px 0 4px;color:#9cc4ff">${t}</h4>`;
+  const dbar = (label: string, v: number, max: number, col: string, txt: string) => `<div style="margin:3px 0"><div style="display:flex;justify-content:space-between"><span>${label}</span><b>${txt}</b></div><div style="height:9px;background:#2a3444;border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.max(0, Math.min(100, max ? v / max * 100 : 0))}%;background:${col}"></div></div></div>`;
+  const sbar = (label: string, v: number, col: string) => `<div style="margin:6px 0"><div style="display:flex;justify-content:space-between"><span>${label}</span><b>${v >= 0 ? '+' : ''}${v.toFixed(2)}</b></div><div style="position:relative;height:10px;background:#2a3444;border-radius:4px"><div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#8b98a8"></div><div style="position:absolute;top:0;bottom:0;${v >= 0 ? 'left:50%' : `right:50%`};width:${Math.min(50, Math.abs(v) * 50)}%;background:${col};border-radius:3px"></div></div></div>`;
+  /** commute/mode stats from the trip model (people per day, one way) */
+  const transportStats = () => { let car = 0, bus = 0, walk = 0, other = 0, workP = 0, workMin = 0, freight = 0; const kinds: Record<string, number> = {};
+    for (const f of trips.flows) { if (f.kind === 'freight') { freight += f.people; continue; } kinds[f.kind] = (kinds[f.kind] ?? 0) + f.people;
+      if (trips.md(f.home, f.dest) <= TRIPS.walkTiles) { walk += f.people; continue; } const b = f.people * (f.bus ?? 0), cr = (f.people - b) * TRIPS.carShare[f.kind]; bus += b; car += cr; other += f.people - b - cr; }
+    const work = trips.flows.filter(f => f.kind === 'work' && trips.md(f.home, f.dest) > TRIPS.walkTiles); for (let x = 0; x < work.length; x += Math.max(1, Math.floor(work.length / 200))) { const f = work[x], p = trips.route(trips.access[f.home], trips.end(f)); if (!p) continue; workP += f.people; workMin += f.people * (trips.minutes(p) + (f.extraMin ?? 0) + (f.walk ?? 0) * 20 / 80); }
+    let spaces = 0, occ = 0; for (let k = 0; k < N * N; k++) { spaces += trips.spaces[k]; occ += Math.min(trips.spaces[k], trips.occ[k]); }
+    return { car, bus, walk, other, kinds, avg: workP ? workMin / workP : 0, freight, spaces, occ }; };
+  const drawHist = () => { const cv = document.getElementById('histCv') as HTMLCanvasElement | null; if (!cv) return; const ctx = cv.getContext('2d')!, W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    const hs = hist.slice(-24); if (!hs.length) { ctx.fillStyle = '#8b98a8'; ctx.font = '13px system-ui'; ctx.fillText('No months finished yet', 12, H / 2); return; }
+    const mx = Math.max(1, ...hs.map(x => Math.max(x.inc, x.exp))), bw = (W - 40) / hs.length, y0 = H - 18;
+    ctx.strokeStyle = '#3a4658'; ctx.beginPath(); ctx.moveTo(32, y0); ctx.lineTo(W, y0); ctx.stroke(); ctx.fillStyle = '#8b98a8'; ctx.font = '11px system-ui'; ctx.fillText('$' + fmt(mx), 0, 10);
+    hs.forEach((x, k) => { const bx = 36 + k * bw, hi = (y0 - 14) * x.inc / mx, he = (y0 - 14) * x.exp / mx; ctx.fillStyle = '#3ecf4a'; ctx.fillRect(bx, y0 - hi, bw * 0.4, hi); ctx.fillStyle = '#e0605a'; ctx.fillRect(bx + bw * 0.42, y0 - he, bw * 0.4, he); if (k % Math.ceil(hs.length / 6) === 0) { ctx.fillStyle = '#8b98a8'; ctx.fillText('M' + (x.m), bx, H - 4); } });
+    const fmn = Math.min(...hs.map(x => x.funds)), fmx = Math.max(...hs.map(x => x.funds)); ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2; ctx.beginPath(); hs.forEach((x, k) => { const px = 36 + (k + 0.4) * bw, py = 14 + (y0 - 28) * (1 - (fmx > fmn ? (x.funds - fmn) / (fmx - fmn) : 0.5)); if (k) ctx.lineTo(px, py); else ctx.moveTo(px, py); }); ctx.stroke(); ctx.lineWidth = 1; };
+  const renderData = () => { if (dataP.style.display === 'none') return; const B = dataP.querySelector('#dataBody')!; dataP.querySelectorAll<HTMLElement>('[data-tab]').forEach(b => b.style.background = b.dataset.tab === dataTab ? '#3d6fd1' : '#2b3442');
+    const st = trips.stats, pop = sim.pop; let html = '';
+    if (dataTab === 'Budget') { const p = projection(), inc = Object.entries(p.income), exp = Object.entries(p.expense);
+      html = h('This month (projected)') + inc.map(([k, v]) => row(k, dmoney(v))).join('') + row('<i>Total income</i>', dmoney(inc.reduce((a, [, v]) => a + v, 0))) + exp.map(([k, v]) => row(k, dmoney(-v))).join('') + row('<i>Total expenses</i>', dmoney(-exp.reduce((a, [, v]) => a + v, 0))) + row('Net', dmoney(p.net)) + row('Funds', dmoney(sim.funds), sim.loan ? `loan ${dmoney(sim.loan)}` : '')
+        + h('Monthly history (last 24 months)') + '<canvas id="histCv" width="410" height="150" style="width:100%;background:#151c27;border-radius:6px"></canvas><div style="font-size:11px;color:#8b98a8"><span style="color:#3ecf4a">■</span> income <span style="color:#e0605a">■</span> expenses <span style="color:#ffd23f">━</span> funds</div>'; }
+    else if (dataTab === 'Demand') { html = h('RCI demand') + sbar('Residential', sim.dR, '#3ecf4a') + sbar('Commercial', sim.dC, '#3b8cff') + sbar('Industrial', sim.dI, '#f2c230');
+      for (const [z, n] of [['R', 'Residential'], ['C', 'Commercial'], ['I', 'Industrial']]) html += h(`Why — ${n}`) + why[z].map(([k, v]) => row(k, (v >= 0 ? '+' : '') + v.toFixed(2))).join('');
+      html += '<p style="color:#8b98a8;font-size:12px">Terms add up before clamping to −1…+1. Growth also needs road access, power and water.</p>'; }
+    else if (dataTab === 'Transportation') { const t = transportStats(), tot = t.car + t.bus + t.walk + t.other;
+      html = h('Trips by mode (people/day, one way)') + dbar('🚗 Car', t.car, tot, '#9aa0a6', `${fmt(t.car)} · ${pc(tot ? t.car / tot : 0)}`) + dbar('🚌 Bus', t.bus, tot, '#2f6fd1', `${fmt(t.bus)} · ${pc(tot ? t.bus / tot : 0)}`) + dbar('🚶 Walk (≤ 400 m)', t.walk, tot, '#3ecf4a', `${fmt(t.walk)} · ${pc(tot ? t.walk / tot : 0)}`) + dbar('Other (school bus, carpool, bike)', t.other, tot, '#8b98a8', `${fmt(t.other)} · ${pc(tot ? t.other / tot : 0)}`)
+        + h('Commuting') + row('Average commute (driving to work)', t.avg ? t.avg.toFixed(1) + ' min' : '—') + row('Failed commutes last month', fmt(failed.last), `${fmt(failed.total)} total`) + row('Demand penalty from jams', pc(jamPenalty))
+        + row('Trips by purpose', Object.entries(t.kinds).map(([k, v]) => `${k} ${fmt(v)}`).join(' · ') || '—')
+        + h('Transit & freight') + row('Bus ridership', fmt(st.busRiders) + ' trips/day') + row('Bus stops · buses running', `${stops.length} · ${cars.filter(c => c.bus).length}`) + row('Freight trucks', fmt(st.trucks) + '/day')
+        + h('Parking') + row('Spaces in use at peak', `${fmt(t.occ)} / ${fmt(t.spaces)}`, t.spaces ? pc(t.occ / t.spaces) : '') + row('Cars without a space', fmt(st.unparkedCars)) + row('Shoppers lost to parking', fmt(st.lostShoppers) + '/day'); }
+    else if (dataTab === 'Population') { const A = DEMOG.age;
+      html = h('People') + row('Population', fmt(pop)) + row('Households', fmt(pop / DEMOG.householdSize), `≈ ${DEMOG.householdSize} people each`)
+        + h('Age groups') + dbar('Children (0–17)', pop * A.child, pop, '#7fd08a', `${fmt(pop * A.child)} · ${pc(A.child)}`) + dbar('Adults (18–64)', pop * A.adult, pop, '#86b6f0', `${fmt(pop * A.adult)} · ${pc(A.adult)}`) + dbar('Seniors (65+)', pop * A.senior, pop, '#e8d47a', `${fmt(pop * A.senior)} · ${pc(A.senior)}`)
+        + row('School-age (5–17), making school trips', fmt(st.kids)) + '<p style="color:#8b98a8;font-size:12px">Age shares are US Census 2020 proportions applied to the simulated population (modeled, not individually aged).</p>'
+        + h('Not simulated') + row('Births, deaths, ageing', NT) + row('Income levels', NT); }
+    else if (dataTab === 'Education') { const c = eduCoverage();
+      html = h("Adults' highest education") + sim.edu.map((v, k) => dbar(DEMOG.eduNames[k], v, 1, ['#e0605a', '#e8d47a', '#86b6f0', '#3ecf4a'][k], pc(v))).join('')
+        + h('Schools') + row('Residents inside school coverage', pc(c)) + row('Kids with a school seat', `${fmt(st.schooled)} / ${fmt(st.kids)}`) + row('Kids with no reachable school', fmt(st.noSchoolReachable))
+        + `<p style="color:#8b98a8;font-size:12px">Modeled: shares drift ${pc(DEMOG.eduDriftPerMonth)} of the gap per month toward the US profile (ACS 2022) as school coverage rises, or toward a low-attainment profile without schools.</p>` + h('Not simulated') + row('Colleges / universities', NT) + row('Graduation rates', NT); }
+    else if (dataTab === 'Jobs') { const jobs = sim.jobsC + sim.jobsI; let eC = 0, eI = 0; for (const f of trips.flows) if (f.kind === 'work') { const z = zone[(f.dest / N) | 0][f.dest % N]; if (z === 'C') eC += f.people; else if (z === 'I') eI += f.people; }
+      html = h('Jobs vs workers') + dbar('Commercial jobs filled', eC, sim.jobsC, '#3b8cff', `${fmt(eC)} / ${fmt(sim.jobsC)}`) + dbar('Industrial jobs filled', eI, sim.jobsI, '#f2c230', `${fmt(eI)} / ${fmt(sim.jobsI)}`) + row('Total jobs', fmt(jobs)) + row('Workers (residents in the labour force)', fmt(st.workers)) + row('Employed', fmt(st.employed))
+        + row('Unemployment', st.workers ? pc(Math.max(0, st.workers - st.employed) / st.workers) : '—') + row('…of whom no job reachable by road', fmt(st.noJobReachable)) + row('Open jobs', fmt(Math.max(0, jobs - st.employed)))
+        + h('Not simulated') + row('Wages', NT) + row('Jobs by education level', NT); }
+    else if (dataTab === 'Utilities') { html = h('Power') + dbar('Used / capacity', util.pUse, util.pCap, '#ffd23f', `${fmtPower(util.pUse)} / ${fmtPower(util.pCap)}`) + row('Demand (incl. unconnected)', fmtPower(util.pWant)) + row('Shortfall', util.pWant > util.pUse ? fmtPower(util.pWant - util.pUse) : 'none')
+        + h('Water') + dbar('Used / capacity', util.wUse, util.wCap, '#3d8fe0', `${fmtWater(util.wUse)} / ${fmtWater(util.wCap)}`) + row('Demand (incl. unconnected)', fmtWater(util.wWant)) + row('Shortfall', util.wWant > util.wUse ? fmtWater(util.wWant - util.wUse) : 'none')
+        + h('Not simulated') + row('Sewage / garbage', NT); }
+    B.innerHTML = html; if (dataTab === 'Budget') drawHist(); };
+  const setData = (v: boolean, tab?: string) => { if (tab) dataTab = tab; dataP.style.display = v ? 'flex' : 'none'; document.getElementById('dataBtn')?.classList.toggle('on', v); renderData(); };
+  dataP.querySelector('#dataX')!.addEventListener('click', () => setData(false));
+  dataP.querySelectorAll<HTMLElement>('[data-tab]').forEach(b => b.onclick = () => { dataTab = b.dataset.tab!; renderData(); });
+  { const db = document.createElement('button'); db.id = 'dataBtn'; db.title = 'City Data (Shift+D)'; db.textContent = '📊'; db.style.cssText = 'background:#2b3442;color:#fff;border:1px solid #445;border-radius:5px;padding:4px 8px;cursor:pointer;margin-left:4px'; db.onclick = () => setData(dataP.style.display === 'none'); document.getElementById('viewGrp')!.appendChild(db); }
+  window.addEventListener('keydown', e => { if (e.shiftKey && e.key.toLowerCase() === 'd' && !(e.target instanceof HTMLInputElement)) { e.preventDefault(); setData(dataP.style.display === 'none'); } });
+  setInterval(() => { if (dataP.style.display !== 'none' && !dataP.matches(':hover')) renderData(); }, 1000);
+  Object.assign((window as any).__city, { dataPanel: (v: boolean, tab?: string) => setData(v, tab), dataText: () => (dataP.querySelector('#dataBody') as HTMLElement).innerText, hist: () => hist, eduCoverage: () => eduCoverage(), monthly: () => monthly(), why: () => why });
   const toastOk = (m: string) => { toast(m); toastEl.style.background = 'rgba(30,110,60,.92)'; setTimeout(() => toastEl.style.background = '', 2700); };
   const saveEl = document.getElementById('saveMenu')!;
   saveEl.addEventListener('pointerdown', e => e.stopPropagation());
@@ -1108,7 +1185,7 @@ function diamond(g: Graphics, i: number, j: number) {
   c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
   c.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') mouse = null; });
   c.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, zoom * Math.exp(-e.deltaY * 0.0015)); }, { passive: false });
-  window.addEventListener('keydown', e => keys.add(e.key.toLowerCase()));
+  window.addEventListener('keydown', e => { if (!(e.shiftKey && e.key.toLowerCase() === 'd')) keys.add(e.key.toLowerCase()); }); // Shift+D opens City Data, not a pan
   window.addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
   window.addEventListener('blur', () => keys.clear());
 

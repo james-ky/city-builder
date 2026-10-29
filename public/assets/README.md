@@ -1,11 +1,11 @@
-# Art assets
-Drop PNGs here and list them in `manifest.json` under `sprites`.
-Keys: `grass`, `water`, `sand`, `forest`, `zone_R`, `zone_C`, `zone_I`,
-`road_<mask>` where mask is 0-15 (bit 1 = +i neighbor, 2 = -i, 4 = +j, 8 = -j).
-Tile footprint: 64x32 px diamond; image anchored at the tile's bottom corner.
-Anything not listed is drawn in code.
+# Art assets (art set v1)
+`manifest.json` lists every sprite (file, size, anchor, scale, layer, variantOf, autotile).
+All art is @2x and drawn at displayScale 0.5 on a 64x32 tile; ground/road/overlay anchor (0.5,0.5), objects (0.5,0.75), placed at the tile centre.
+Draw order: ground (terrain + shore) < roads < zone tint < grid overlay (toggle G) < trees & buildings (sorted by i+j).
 
-## Buildings
-`bld_<zone>_<level>`: zone R/C/I, level 1 = low, 2 = medium, 3 = high density
-(e.g. `bld_R_1` houses, `bld_C_2` mid-rise shops, `bld_I_3` heavy industry).
-Drawn on top of the zone tile, anchored at the tile's bottom corner; images can be taller than 32px.
+Game keys the code asks for (missing ones are drawn in code):
+- `grass`, `water`, `sand` (variants via `variantOf`), `forest` (object over grass)
+- `shore_<mask>` on water tiles: NE=1 SE=2 SW=4 NW=8, corners N=16 E=32 S=64 W=128 (corner only if both adjacent sides are water)
+- `road_<mask>`: NE=1 SE=2 SW=4 NW=8; isolated road uses the NE dead-end
+- `zone_R|C|I`, `grid`
+- `bld_<R|C|I>_<1..3>` buildings (1 low, 2 medium, 3 high density). Map art names to these in `ALIAS` in `src/sprites.ts` (currently `bld_R_1` -> `house_lowdensity_1x1`).

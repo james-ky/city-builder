@@ -1,5 +1,5 @@
 import { Application, Container, Graphics } from 'pixi.js';
-import { loadManifest, drawSprite } from './sprites';
+import { loadManifest, place, hasArt } from './sprites';
 
 const N = 64, TW = 64, TH = 32;
 const hud = document.getElementById('hud')!;
@@ -45,20 +45,38 @@ function diamond(g: Graphics, i: number, j: number) {
   const world = new Container();
   app.stage.addChild(world);
 
-  const ground = new Graphics();
-  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-    const t = terrain[i][j], c = colors[t];
-    diamond(ground, i, j);
-    ground.fill(c[(i * 7 + j * 13) % c.length]).stroke({ width: 1, color: 0x000000, alpha: 0.08 });
-  }
-  world.addChild(ground);
   await loadManifest();
-  const objG = new Graphics(), objSprites = new Container();
-  world.addChild(objG, objSprites);
+  const groundL = new Container(), roadL = new Container(), zoneL = new Container(), gridL = new Container(), objL = new Container();
+  world.addChild(groundL, roadL, zoneL, gridL, objL);
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
   const bld: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // 0 none, 1 low, 2 medium, 3 high
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
+  const seedOf = (i: number, j: number) => ((i * 73856093) ^ (j * 19349663)) >>> 0;
+  // manifest directions: NE=(0,-1) SE=(1,0) SW=(0,1) NW=(-1,0); corners N=(-1,-1) E=(1,-1) S=(1,1) W=(-1,1)
+  const isLand = (i: number, j: number) => inb(i, j) && terrain[i][j] !== 'water';
+  const shoreMask = (i: number, j: number) => {
+    const ne = isLand(i, j - 1), se = isLand(i + 1, j), sw = isLand(i, j + 1), nw = isLand(i - 1, j);
+    let m = (ne ? 1 : 0) | (se ? 2 : 0) | (sw ? 4 : 0) | (nw ? 8 : 0);
+    if (isLand(i - 1, j - 1) && !nw && !ne) m |= 16;
+    if (isLand(i + 1, j - 1) && !ne && !se) m |= 32;
+    if (isLand(i + 1, j + 1) && !se && !sw) m |= 64;
+    if (isLand(i - 1, j + 1) && !sw && !nw) m |= 128;
+    return m;
+  };
+  const sandKey = hasArt('sand') ? 'sand' : hasArt('grass') ? 'grass' : 'sand';
+  for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
+    const { x, y } = toScreen(i, j), t = terrain[i][j];
+    let key: string = t === 'sand' ? sandKey : t === 'forest' ? 'grass' : t;
+    if (t === 'water') { const m = shoreMask(i, j); if (m && hasArt('shore_' + m)) key = 'shore_' + m; }
+    place(key, x, y, groundL, seedOf(i, j));
+    place('grid', x, y, gridL);
+  }
+  gridL.visible = localStorage.getItem('grid') !== 'off';
+  const gridBtn = document.getElementById('gridBtn')!;
+  const setGrid = (v: boolean) => { gridL.visible = v; gridBtn.classList.toggle('on', v); localStorage.setItem('grid', v ? 'on' : 'off'); };
+  gridBtn.onclick = () => setGrid(!gridL.visible); setGrid(gridL.visible);
+  window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'g') setGrid(!gridL.visible); });
   let near: number[][] = [];
   const computeNear = () => { // BFS distance from nearest road (4-neighbour steps)
     near = [...Array(N)].map(() => Array(N).fill(99)); const q: [number, number][] = [];
@@ -66,19 +84,20 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let h = 0; h < q.length; h++) { const [i, j] = q[h];
       for (const [a, b] of [[1,0],[-1,0],[0,1],[0,-1]]) { const ni=i+a, nj=j+b; if (inb(ni,nj) && near[ni][nj] > near[i][j]+1) { near[ni][nj]=near[i][j]+1; q.push([ni,nj]); } } }
   };
+  const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
+  const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
   const redraw = () => {
-    objG.clear(); objSprites.removeChildren().forEach(c => c.destroy());
+    clear(roadL); clear(zoneL); clear(objL);
     computeNear();
     for (let s = 0; s < 2 * N - 1; s++) for (let i = 0; i < N; i++) { const j = s - i; if (j < 0 || j >= N) continue;
-      const { x, y } = toScreen(i, j);
+      const { x, y } = toScreen(i, j), seed = seedOf(i, j);
       if (road[i][j]) {
-        const m = (inb(i+1,j)&&road[i+1][j]?1:0)|(inb(i-1,j)&&road[i-1][j]?2:0)|(inb(i,j+1)&&road[i][j+1]?4:0)|(inb(i,j-1)&&road[i][j-1]?8:0);
-        drawSprite('road_' + m, x, y, objG, objSprites);
+        const m = (isRoad(i, j - 1) ? 1 : 0) | (isRoad(i + 1, j) ? 2 : 0) | (isRoad(i, j + 1) ? 4 : 0) | (isRoad(i - 1, j) ? 8 : 0);
+        place('road_' + (m || (hasArt('road_0') ? 0 : 1)), x, y, roadL, seed);
       } else if (zone[i][j]) {
-        drawSprite('zone_' + zone[i][j], x, y, objG, objSprites);
-        if (bld[i][j]) drawSprite(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objG, objSprites, (i * 73856093) ^ (j * 19349663));
-      }
-      else if (terrain[i][j] === 'forest') objG.circle(x - 6, y - 4, 6).fill(0x2a5e25).circle(x + 7, y - 1, 5).fill(0x2f6a29);
+        place('zone_' + zone[i][j], x, y, zoneL, seed);
+        if (bld[i][j]) place(`bld_${zone[i][j]}_${bld[i][j]}`, x, y, objL, seed);
+      } else if (terrain[i][j] === 'forest') place('forest', x, y, objL, seed);
     }
   };
   redraw();
@@ -174,18 +193,20 @@ function diamond(g: Graphics, i: number, j: number) {
     sim.dI = clamp((40 + workers * 0.5 - sim.jobsI) / Math.max(30, sim.jobsI * 0.5)); // outside demand + workforce
   };
   const tick = () => {
-    sim.day++;
+    sim.day++; let changed = false;
     const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
       const z = zone[i][j]; if (!z) continue;
       const dem = d[z], L = bld[i][j];
-      if (near[i][j] > 3) { if (L && Math.random() < 0.05) bld[i][j]--; continue; } // lost road access
+      if (near[i][j] > 3) { if (L && Math.random() < 0.05) { bld[i][j]--; changed = true; } continue; } // lost road access
+      const before = bld[i][j];
       if (dem > 0 && L < 3) {
         const need = [0, 0, 0.25, 0.5][L + 1]; // higher density needs sustained strong demand
         if (dem > need && Math.random() < (L === 0 ? 0.06 : 0.012) * dem) bld[i][j]++;
       } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) bld[i][j]--;
+      if (bld[i][j] !== before) changed = true;
     }
-    census(); redraw(); updateStats();
+    if (changed) redraw(); census(); updateStats();
   };
   // top HUD
   const stats = document.getElementById('stats')!;

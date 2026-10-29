@@ -22,3 +22,6 @@
   - Lots surviving save and load, and Ctrl+S.
   - Bulldozing lots and services.
   - All pass.
+
+## Beaches
+- Added the new sand art (511 assets). Water next to a beach now uses sandy shoreline pieces, so the green strip between the water and the sand is gone. Sand tiles pick edge pieces based on their neighbours and fade softly into grass, so beaches are no longer hard-edged blocks.

@@ -248,17 +248,44 @@ function diamond(g: Graphics, i: number, j: number) {
   const CH = 16, NCH = Math.ceil(N / CH);
   type Bld = { x: number; y: number; z: string; L: number; seed: number };
   // intersections: 'L' = traffic lights, 'S' = stop signs on the listed approaches (dir = the way approaching traffic travels)
-  type TL = { axis: number; sp: Record<string, Sprite>; nt: Record<string, Sprite | undefined>; st: string; ph: number };
-  const ctrl = new Map<number, { k: 'L' | 'S'; stops: string[]; ph: number }>();
+  type TL = { axis: number; sp: Record<string, Sprite>; nt: Record<string, Sprite | undefined>; st: string; ph: number; k: number };
+  // control: L lights, S stop on `stops`, Y yield on `stops`, N uncontrolled. cyc = light cycle in game seconds, g0 = green share for axis 0 (SE/NW)
+  type Ctl = { k: 'L' | 'S' | 'Y' | 'N'; stops: string[]; ph: number; cyc: number; g0: number; mode: string };
+  const ctrl = new Map<number, Ctl>();
+  /** player choice per junction tile: mode auto|light|allstop|twostop|yield|none; axis = road that stops (0 SE/NW, 1 NE/SW); split auto|even */
+  type IxSet = { mode: string; axis: number; cyc: number; split: string };
+  const ixSet = new Map<number, IxSet>();
+  const autoCtl = new Map<number, Ctl>(); // last auto decision, only refreshed when no road around the junction is being built or upgraded
   const APPR: [number, number, string][] = [[0, 1, 'NE'], [-1, 0, 'SE'], [0, -1, 'SW'], [1, 0, 'NW']]; // neighbour offset -> dir of traffic coming from it
   const CORNER: Record<string, [number, number]> = { NE: [0, 11.2], SE: [-22.4, 0], SW: [0, -11.2], NW: [22.4, 0] };
-  const straightLen = (i: number, j: number, a: number, b: number) => { let n = 0; for (let k = 1; k <= 8 && isRoad(i + a * k, j + b * k); k++) n++; return n; };
-  const classify = (i: number, j: number) => { const ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3) return null;
-    if (ap.length === 4) { const act = activity(i, j), busy = straightLen(i, j, 1, 0) + straightLen(i, j, -1, 0) >= 6 && straightLen(i, j, 0, 1) + straightLen(i, j, 0, -1) >= 6;
-      return busy && act >= 40 ? { k: 'L' as const, stops: [], ph: (i * 7 + j * 13) % 15 } : { k: 'S' as const, stops: ap.map(x => x[2]), ph: 0 }; }
-    const stem = ap.find(([a, b]) => !link(i, j, -a, -b)) ?? ap[0]; return { k: 'S' as const, stops: [stem[2]], ph: 0 }; }; // T: only the side road stops
-  const LCYCLE = 15, lightState = (axis: number, ph: number) => { const t = (clock + ph) % LCYCLE, u = axis ? (t + 7.5) % LCYCLE : t; return u < 6 ? 'green' : u < 7.5 ? 'yellow' : 'red'; };
+  /** size of the road an approach comes in on: width kind first (2-lane < Street < Avenue), then tier */
+  const roadRank = (i: number, j: number) => inb(i, j) && road[i][j] ? wKind(rw[i][j]) * 4 + (rtier[i][j] || 2) : 0;
+  const busyShare = (i: number, j: number) => { let v0 = 0, v1 = 0; for (const [a, b, d] of APPR) if (isRoad(i + a, j + b)) { const v = volRef ? volRef[(i + a) * N + j + b] : 0; if (axisOf(d)) v1 += v; else v0 += v; } return v0 + v1 > 0 ? Math.max(0.3, Math.min(0.7, v0 / (v0 + v1))) : 0.5; };
+  /** auto rule from finished road width & tier only (no traffic or building activity, so it never flips by itself):
+   *  4-way with any Street/Avenue -> lights; 4-way of 2-lane roads -> all-way stop;
+   *  T: stem is a Street/Avenue -> lights, otherwise the stem stops (minor road joining a bigger one, or same size). */
+  const autoRule = (i: number, j: number): Ctl | null => { const ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3) return null;
+    const ph = (i * 7 + j * 13) % 15, wide = (a: number, b: number) => wKind(rw[i + a][j + b]) >= 1;
+    if (ap.length === 4) return ap.some(([a, b]) => wide(a, b)) ? { k: 'L', stops: [], ph, cyc: 45, g0: 0.5, mode: 'auto' } : { k: 'S', stops: ap.map(x => x[2]), ph: 0, cyc: 45, g0: 0.5, mode: 'auto' };
+    const stem = ap.find(([a, b]) => !link(i, j, -a, -b)) ?? ap[0];
+    if (wide(stem[0], stem[1])) return { k: 'L', stops: [], ph, cyc: 45, g0: 0.5, mode: 'auto' };
+    return { k: 'S', stops: [stem[2]], ph: 0, cyc: 45, g0: 0.5, mode: 'auto' }; };
+  const building = (i: number, j: number) => { for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) if (inb(i + a, j + b) && road[i + a][j + b] && rstage[i + a][j + b]) return true; return false; };
+  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3) { autoCtl.delete(k); return null; }
+    let auto = autoCtl.get(k); if (!auto || !building(i, j)) { const r = autoRule(i, j); if (r) { auto = r; autoCtl.set(k, r); } } // changes apply only once construction finishes
+    const o = ixSet.get(k); if (!o || o.mode === 'auto') return auto ?? null;
+    const ph = (i * 7 + j * 13) % 15, base = { ph, cyc: o.cyc || 45, g0: o.split === 'even' ? 0.5 : busyShare(i, j), mode: o.mode };
+    if (o.mode === 'light') return { k: 'L', stops: [], ...base };
+    if (o.mode === 'allstop') return { k: 'S', stops: ap.map(x => x[2]), ...base };
+    if (o.mode === 'none') return { k: 'N', stops: [], ...base };
+    const st = ap.filter(x => axisOf(x[2]) === o.axis).map(x => x[2]);
+    return { k: o.mode === 'yield' ? 'Y' : 'S', stops: st.length ? st : [ap.find(([a, b]) => !link(i, j, -a, -b))?.[2] ?? ap[0][2]], ...base }; };
+  /** light colour for an approach axis; cyc game seconds play at 1/3 speed (45 s = the old 15 s loop); 1.5 s amber each way */
+  const lightState = (axis: number, ph: number, cyc = 45, g0 = 0.5) => { const T = cyc / 3, t = (clock + ph) % T, s0 = g0 * T, Y = 1.5;
+    if (axis === 0) return t < s0 - Y ? 'green' : t < s0 ? 'yellow' : 'red'; return t < s0 ? 'red' : t < T - Y ? 'green' : 'yellow'; };
   const axisOf = (dir: string) => dir === 'SE' || dir === 'NW' ? 0 : 1;
+  /** may a car arriving from `din` enter? stop: full stop (0.8 s) first; yield: only stops if there's cross traffic; uncontrolled: always (the junction reservation still prevents crashes) */
+  const decide = (cc: Ctl, din: string, waited: number, crossBusy: boolean) => cc.k === 'L' ? lightState(axisOf(din), cc.ph, cc.cyc, cc.g0) === 'green' : cc.k === 'N' || !cc.stops.includes(din) ? true : cc.k === 'S' ? waited > 0.8 : !crossBusy;
   type Chunk = { ci: number; cj: number; g: Container; gr: Container; rd: Container; zn: Container; ob: Container; pp: Container; ic: Container;
     ground: boolean; built: boolean; dirty: boolean; iconDirty: boolean; vis: boolean; seen: number; lights: Sprite[]; winds: Sprite[]; trees: { s: any; ph: number }[]; blds: Bld[]; roads: [number, number][]; tls: TL[]; trucks: any[];
     tint: number; la: number; x0: number; x1: number; y0: number; y1: number };
@@ -377,9 +404,10 @@ function diamond(g: Graphics, i: number, j: number) {
         const m = (link(i, j, 0, -1) ? 1 : 0) | (link(i, j, 1, 0) ? 2 : 0) | (link(i, j, 0, 1) ? 4 : 0) | (link(i, j, -1, 0) ? 8 : 0);
         drawRoadTile(ch, i, j, x, y, m, seed); if (drivable(i, j)) { ch.roads.push([i, j]); if (rw[i][j]) ch.roads.push([i, j]); } // wider roads carry more traffic
         const cc = classify(i, j); if (cc) ctrl.set(i * N + j, cc); else ctrl.delete(i * N + j);
-        if (cc) for (const [, , dir] of APPR.filter(([a, b]) => link(i, j, a, b))) { const [ox, oy] = CORNER[dir], px = x + ox, py = y + oy, z = y + 0.5 + (py - y) * 0.001; // with the intersection tile, after the road
+        if (cc && cc.k === 'Y') for (const dir of cc.stops) { const [ox, oy] = CORNER[dir], g = new Graphics(); g.poly([x + ox - 3.5, y + oy - 9, x + ox + 3.5, y + oy - 9, x + ox, y + oy - 3]).fill(0xffffff).stroke({ width: 1.2, color: 0xd0202a }); g.moveTo(x + ox, y + oy - 3).lineTo(x + ox, y + oy + 1).stroke({ width: 0.8, color: 0x777777 }); g.zIndex = y + 0.5; ch.ob.addChild(g); } // yield sign (code-drawn, no art yet)
+        if (cc && (cc.k === 'S' || cc.k === 'L')) for (const [, , dir] of APPR.filter(([a, b]) => link(i, j, a, b))) { const [ox, oy] = CORNER[dir], px = x + ox, py = y + oy, z = y + 0.5 + (py - y) * 0.001; // with the intersection tile, after the road
           if (cc.k === 'S') { if (cc.stops.includes(dir)) { P('prop_stop_sign_' + dir, px, py, seed, z); PN('prop_stop_sign_' + dir, px, py, seed, z); } }
-          else { const tl: TL = { axis: axisOf(dir), sp: {}, nt: {}, st: '', ph: cc.ph };
+          else { const tl: TL = { axis: axisOf(dir), sp: {}, nt: {}, st: '', ph: cc.ph, k: i * N + j };
             for (const c of ['red', 'yellow', 'green']) { const o = P(`prop_traffic_light_${c}_${dir}`, px, py, seed, z) as Sprite; o.visible = false; tl.sp[c] = o;
               const n = placeNight(`prop_traffic_light_${c}_${dir}`, px, py, ch.ob, seed); if (n) { n.zIndex = z + 0.0001; n.visible = false; } tl.nt[c] = n; }
             ch.tls.push(tl); } }
@@ -486,9 +514,32 @@ function diamond(g: Graphics, i: number, j: number) {
   tierBar.addEventListener('pointerdown', e => e.stopPropagation());
   tierBar.innerHTML = '<span style="align-self:center">Road type</span>' + ([1, 2, 3] as RoadTier[]).map(t => { const r = ROAD_TIERS[t]; return `<button data-tier="${t}" title="${r.name}: build $${r.build}/tile, upkeep $${r.upkeep}/tile/month, speed ×${r.speed}. Paint over an existing road to upgrade it (you pay the difference)." style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer">${r.name} <small style="color:#9cf">$${r.build}/tile · $${r.upkeep}/mo</small></button>`; }).join('');
   tierBar.innerHTML += '<span style="align-self:center;margin-left:8px;border-left:1px solid #556;padding-left:8px">Width</span>' + ROAD_WIDTHS.map((w, k) => `<button data-w="${k}" title="${w.name}: ${w.lanes} lanes of ${w.laneFt} ft, ${w.tiles} tile${w.tiles > 1 ? 's' : ''} wide, capacity ×${w.capacity}, build ×${w.buildMul}" style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer">${w.name}${k === 2 ? ' (2 tiles)' : ''}</button>`).join('');
+  tierBar.innerHTML += '<span style="align-self:center;margin-left:8px;border-left:1px solid #556;padding-left:8px"></span><button data-ix="1" title="Intersection tool: click a junction to choose lights, stop signs, yield or no control" style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer">🚦 Intersection</button>';
   document.body.appendChild(tierBar);
   const refreshTierBar = () => { tierBar.querySelectorAll<HTMLElement>('button[data-tier]').forEach(b => { const t = +b.dataset.tier! as RoadTier, dis = t === 1 && roadW > 0; b.style.background = t === roadTier ? '#3d6fd1' : '#2b3442'; b.style.opacity = dis ? '0.4' : '1'; b.querySelector('small')!.textContent = `$${roadBuild(t, roadW)}/tile · $${+roadUpkeep(t, roadW).toFixed(2)}/mo`; });
     tierBar.querySelectorAll<HTMLElement>('button[data-w]').forEach(b => b.style.background = +b.dataset.w! === roadW ? '#3d6fd1' : '#2b3442'); };
+  tierBar.querySelector<HTMLElement>('button[data-ix]')!.onclick = () => { setTool('ix'); };
+  const ixBox = document.createElement('div'); ixBox.id = 'ixPicker'; ixBox.style.cssText = 'position:fixed;display:none;z-index:5;background:rgba(15,20,30,.94);color:#ddd;font-size:12px;padding:8px;border-radius:10px;border:1px solid #445;min-width:230px';
+  ixBox.addEventListener('pointerdown', e => e.stopPropagation()); document.body.appendChild(ixBox);
+  const IXM: [string, string][] = [['auto', 'Auto'], ['light', 'Traffic light'], ['allstop', 'All-way stop'], ['twostop', 'Two-way stop'], ['yield', 'Yield'], ['none', 'Uncontrolled']];
+  /** all junction tiles of one crossing (avenues make 2x2 or 2x1 clusters) */
+  const ixCluster = (i: number, j: number) => { const out: number[] = [], seen = new Set<number>(), q = [i * N + j]; seen.add(q[0]);
+    while (q.length) { const k = q.pop()!, a = (k / N) | 0, b = k - a * N; out.push(k); for (const [x, y] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const ni = a + x, nj = b + y, nk = ni * N + nj; if (!seen.has(nk) && inb(ni, nj) && road[ni][nj] && APPR.filter(([p, r]) => link(ni, nj, p, r)).length >= 3) { seen.add(nk); q.push(nk); } } } return out; };
+  const isJunction = (i: number, j: number) => inb(i, j) && road[i][j] && APPR.filter(([a, b]) => link(i, j, a, b)).length >= 3;
+  const setIx = (i: number, j: number, o: Partial<IxSet>) => { if (!isJunction(i, j)) return false; for (const k of ixCluster(i, j)) { const cur = ixSet.get(k) ?? { mode: 'auto', axis: 1, cyc: 45, split: 'auto' }, nx = { ...cur, ...o }; if (nx.mode === 'auto' && nx.cyc === 45 && nx.split === 'auto') ixSet.delete(k); else ixSet.set(k, nx); const a = (k / N) | 0; markDirty(a, k - a * N, a, k - a * N); } return true; };
+  const openIx = (i: number, j: number, sx?: number, sy?: number) => { if (!isJunction(i, j)) { ixBox.style.display = 'none'; toast('Click a road intersection'); return; }
+    const o = ixSet.get(i * N + j) ?? { mode: 'auto', axis: 1, cyc: 45, split: 'auto' }, cur = classify(i, j), B = (on: boolean) => `background:${on ? '#3d6fd1' : '#2b3442'};color:#fff;border:1px solid #445;border-radius:6px;padding:4px 7px;margin:2px;cursor:pointer`;
+    const autoTxt = cur && o.mode === 'auto' ? ` (now: ${cur.k === 'L' ? 'traffic light' : cur.stops.length >= 3 ? 'all-way stop' : 'stop on side road'})` : '';
+    ixBox.innerHTML = `<b>🚦 Intersection ${i}, ${j}</b><br>${IXM.map(([m, n]) => `<button data-m="${m}" style="${B(o.mode === m)}">${n}</button>`).join('')}<div style="margin-top:4px;color:#9cf">${o.mode === 'auto' ? 'Auto: picked from road widths' + autoTxt : ''}</div>`
+      + (o.mode === 'twostop' || o.mode === 'yield' ? `<div>Stopping road: <button data-ax="1" style="${B(true)}">${o.axis ? 'NE–SW road stops' : 'SE–NW road stops'} ⇄</button></div>` : '')
+      + (o.mode === 'light' ? `<div>Cycle: ${[30, 45, 60, 90].map(c => `<button data-cyc="${c}" style="${B(o.cyc === c)}">${c}s</button>`).join('')}</div><div>Green split: <button data-sp="auto" style="${B(o.split !== 'even')}">Busier road gets more</button><button data-sp="even" style="${B(o.split === 'even')}">Even</button></div><div style="color:#aaa;margin-top:3px">Protected left turns: not available yet (left turns go on green after oncoming traffic clears)</div>` : '')
+      + '<div style="text-align:right;margin-top:4px"><button data-x="1" style="' + B(false) + '">Close</button></div>';
+    ixBox.querySelectorAll<HTMLElement>('button[data-m]').forEach(b => b.onclick = () => { setIx(i, j, { mode: b.dataset.m! }); openIx(i, j); });
+    ixBox.querySelector<HTMLElement>('button[data-ax]')?.addEventListener('click', () => { setIx(i, j, { axis: 1 - o.axis }); openIx(i, j); });
+    ixBox.querySelectorAll<HTMLElement>('button[data-cyc]').forEach(b => b.onclick = () => { setIx(i, j, { cyc: +b.dataset.cyc! }); openIx(i, j); });
+    ixBox.querySelectorAll<HTMLElement>('button[data-sp]').forEach(b => b.onclick = () => { setIx(i, j, { split: b.dataset.sp! }); openIx(i, j); });
+    ixBox.querySelector<HTMLElement>('button[data-x]')!.onclick = () => { ixBox.style.display = 'none'; };
+    if (sx != null) { ixBox.style.left = Math.min(window.innerWidth - 260, sx + 12) + 'px'; ixBox.style.top = Math.max(10, sy! - 60) + 'px'; } ixBox.style.display = 'block'; };
   const setRoadWidth = (w: number) => { roadW = w; if (w > 0 && roadTier === 1) { roadTier = 2; toast('Streets and avenues need pavement: switched to Asphalt'); } refreshTierBar(); };
   tierBar.querySelectorAll<HTMLElement>('button[data-w]').forEach(b => b.onclick = () => setRoadWidth(+b.dataset.w!));
   const setRoadTier = (t: RoadTier) => { if (t === 1 && roadW > 0) { roadW = 0; toast('Dirt only comes as a 2-lane road'); } roadTier = t; refreshTierBar(); };
@@ -505,7 +556,7 @@ function diamond(g: Graphics, i: number, j: number) {
   let confirmDown = (n: number) => window.confirm(`${n} building${n > 1 ? 's are' : ' is'} bigger than the new density allows. Demolish and rebuild ${n > 1 ? 'them' : 'it'} smaller?`);
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'r' && ['R', 'C', 'I'].includes(tool) && !(e.target instanceof HTMLInputElement)) setZoneFace((zoneFace + 1) % 5); });
   { const prev = toolHook; toolHook = t => { prev?.(t); zoneBar.style.display = ['R', 'C', 'I'].includes(t) ? 'flex' : 'none'; if (zoneBar.style.display === 'flex') refreshZoneBar(); }; }
-  { const prev = toolHook; toolHook = t => { prev?.(t); tierBar.style.display = t === 'road' ? 'flex' : 'none'; document.getElementById('services')!.style.visibility = t === 'road' ? 'hidden' : ''; }; }
+  { const prev = toolHook; toolHook = t => { prev?.(t); tierBar.style.display = t === 'road' || t === 'ix' ? 'flex' : 'none'; tierBar.querySelector<HTMLElement>('button[data-ix]')!.style.background = t === 'ix' ? '#3d6fd1' : '#2b3442'; if (t !== 'ix') ixBox.style.display = 'none'; document.getElementById('services')!.style.visibility = t === 'road' ? 'hidden' : ''; }; }
   // Services toolbar group
   const svcBar = document.getElementById('services')!;
   const ICON: Record<string, string> = { school: 'school_elem', highschool: 'school_high', police: 'police', fire: 'fire_station', clinic: 'clinic', hospital: 'hospital', garage: 'parking', garage2: 'parking' };
@@ -570,6 +621,7 @@ function diamond(g: Graphics, i: number, j: number) {
       hud.textContent = `${DENN[zoneDen]} ${ZNAME[tool]} (cap: ${CAPNAME[tool][zoneDen]}) · Facing ${FACE[zoneFace][0]} (R to change) · Free` + (bad ? ` · ⚠ ${bad} tile${bad > 1 ? 's' : ''} with no road access on the front` : ''); }
   };
   const commit = () => {
+    if (tool === 'ix') { if (drag) { const o = ixSet.get(drag.ci * N + drag.cj), p = toScreen(drag.ci, drag.cj); if (ixBox.style.display === 'block' && ixBox.dataset.k === String(drag.ci * N + drag.cj) && o && (o.mode === 'twostop' || o.mode === 'yield')) setIx(drag.ci, drag.cj, { axis: 1 - o.axis }); ixBox.dataset.k = String(drag.ci * N + drag.cj); openIx(drag.ci, drag.cj, p.x * zoom + world.position.x, p.y * zoom + world.position.y); } drag = null; preview.clear(); return; } // clicking again flips which road stops
     if (tool.startsWith('svc:')) { if (drag) plop(tool.slice(4), drag.ci, drag.cj); drag = null; preview.clear(); return; }
     const rtiles = tool === 'road' ? roadTiles(dragTiles()).filter(([i, j]) => valid(i, j)) : [], wAt = new Map(rtiles.map(([i, j, w]) => [i * N + j, w])), pdAt = new Map(rtiles.map(([i, j, , d]) => [i * N + j, d ?? 0]));
     const tiles = tool === 'road' ? rtiles.map(([i, j]) => [i, j] as [number, number]) : dragTiles().filter(([i, j]) => valid(i, j)), seen = new Set<Civ>();
@@ -602,7 +654,7 @@ function diamond(g: Graphics, i: number, j: number) {
     syncLots(); drag = null; preview.clear(); census(); updateStats();
   };
   const tileAt = (sx: number, sy: number) => toTile((sx - world.position.x) / zoom, (sy - world.position.y) / zoom);
-  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), rerollPark: (c: Civ) => rerollPark(c), poll: () => poll, computeAll: () => { computeCoverage(); computePollution(); }, parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, zden, zface, facingOf: (i: number, j: number) => FACE[facingOf(i, j)][0], hasAccess: (i: number, j: number) => hasAccess(i, j), entranceOf: (i: number, j: number) => entranceOf(i, j), lotAt: (i: number, j: number) => lot[i][j], setZoneDensity: (d: number) => setZoneDen(d), setZoneFacing: (f: number) => setZoneFace(f), paint: (t: string, i0: number, j0: number, i1: number, j1: number) => { setTool(t); drag = { i: i0, j: j0, ci: i1, cj: j1 }; commit(); }, setConfirm: (f: (n: number) => boolean) => { confirmDown = f; }, refresh: () => { computeNear(); rebuildZ(); markAll(); }, spriteFor: (i: number, j: number) => { const sd = seedOf(i, j), d = FACE[drawFace(i, j)][0], lt = lot[i][j]; return lt && lotReady(lt) ? lotKey(lt) : consT[i][j] ? facingName(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, sd, d) : bld[i][j] ? facingName(`bld_${zone[i][j]}_${bld[i][j]}`, sd, d) : ''; }, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
+  (window as any).__city = { N: () => N, city: () => city, zoom: () => zoom, setZoom: (z: number) => { zoom = clampZoom(z); }, tileToScreen: (i: number, j: number) => { const p = toScreen(i, j); return { x: p.x * zoom + world.position.x, y: p.y * zoom + world.position.y }; }, road, rtier, rstage, rfrom, rw, pk, growParking: () => growParking(), rerollPark: (c: Civ) => rerollPark(c), poll: () => poll, computeAll: () => { computeCoverage(); computePollution(); }, parkingIncome: () => parkingIncome(), trips: () => trips, cars: () => cars, spawnTrips: () => spawnTrips(), inspectAt: (x: number, y: number) => inspectAt(x, y), setCovView: (v: string) => setCovView(v), markTripsDirty: () => { tripsDirty = true; }, setRoadWidth: (w: number) => setRoadWidth(w), setRoadTier: (t: RoadTier) => setRoadTier(t), roadCost: (i: number, j: number) => roadCost(i, j), zone, bld, consT, zden, zface, facingOf: (i: number, j: number) => FACE[facingOf(i, j)][0], hasAccess: (i: number, j: number) => hasAccess(i, j), entranceOf: (i: number, j: number) => entranceOf(i, j), lotAt: (i: number, j: number) => lot[i][j], setZoneDensity: (d: number) => setZoneDen(d), setZoneFacing: (f: number) => setZoneFace(f), paint: (t: string, i0: number, j0: number, i1: number, j1: number) => { setTool(t); drag = { i: i0, j: j0, ci: i1, cj: j1 }; commit(); }, setConfirm: (f: (n: number) => boolean) => { confirmDown = f; }, refresh: () => { computeNear(); rebuildZ(); markAll(); }, ctrlAt: (i: number, j: number) => classify(i, j), setIx: (i: number, j: number, o: any) => setIx(i, j, o), ixSet, decide: (cc: any, din: string, w: number, cb: boolean) => decide(cc, din, w, cb), lightState: (a: number, ph: number, cyc: number, g0: number) => lightState(a, ph, cyc, g0), openIx: (i: number, j: number) => { const p = toScreen(i, j); openIx(i, j, p.x * zoom + world.position.x, p.y * zoom + world.position.y); }, ctrlMap: ctrl, spriteFor: (i: number, j: number) => { const sd = seedOf(i, j), d = FACE[drawFace(i, j)][0], lt = lot[i][j]; return lt && lotReady(lt) ? lotKey(lt) : consT[i][j] ? facingName(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`, sd, d) : bld[i][j] ? facingName(`bld_${zone[i][j]}_${bld[i][j]}`, sd, d) : ''; }, terrain, civs, plop, cov, crime, fireRisk, setTool, sim: () => sim, setSpeed: (n: number) => setSpeed(n), fastForward: (n: number) => { for (let k = 0; k < n; k++) tick(); }, centerOn: (i: number, j: number) => { const p = toScreen(i, j); camX = p.x; camY = p.y; } };
 
   // camera
   const center = toScreen(N / 2, N / 2);
@@ -630,6 +682,8 @@ function diamond(g: Graphics, i: number, j: number) {
     if (tool.startsWith('svc:') && !drag) { const t = tool.slice(4), ok = canPlop(t, i, j); for (const [a, b] of svcFoot(t, i, j).tiles) if (inb(a, b)) { diamond(hl, a, b); hl.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.35 }); } }
     else { diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 }); }
     if (civAt[i][j]) { hud.textContent = `Tile: ${i}, ${j}  (${SERV[civAt[i][j]!.type].name})`; return; }
+    if (road[i][j] && ctrl.has(i * N + j)) { const q = ctrl.get(i * N + j)!, wait = cars.filter(c => c.i === i && c.j === j && c.res !== i * N + j && c.t >= 0.25 && c.t <= 0.31).length;
+      hud.textContent = `Tile: ${i}, ${j}  (intersection · ${q.mode === 'auto' ? 'Auto: ' : ''}${q.k === 'L' ? `traffic light, ${q.cyc}s cycle` : q.k === 'N' ? 'uncontrolled' : (q.k === 'Y' ? 'yield' : q.stops.length >= 3 ? 'all-way stop' : 'stop') + ' on ' + q.stops.join('/')} · ${wait} car${wait === 1 ? '' : 's'} waiting)`; return; }
     hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? ROAD_TIERS[rtier[i][j] as RoadTier]?.name.toLowerCase() + ' ' + ROAD_WIDTHS[wKind(rw[i][j])].name.toLowerCase() + (rstage[i][j] ? ' · ' + ['', 'surveyed', 'graded', 'gravel base', 'surfacing'][rstage[i][j]] + (rfrom[i][j] ? ' (upgrade, still open)' : ' (closed)') : '') : zone[i][j] ? `${DENN[zden[i][j]] || 'Uncapped'} ${ZNAME[zone[i][j]]} zone (cap: ${CAPNAME[zone[i][j]][capOf(i, j)]})` + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : '') + ` · facing ${zface[i][j] ? FACE[zface[i][j]][0] : 'Auto' + (facingOf(i, j) ? ' (' + FACE[facingOf(i, j)][0] + ')' : '')}` + (hasAccess(i, j) ? '' : ' · ⚠ no road access') : terrain[i][j]})`;
   };
 
@@ -893,7 +947,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); rt[k] = rtier[i][j]; rs[k] = rstage[i][j]; rd[k] = Math.min(255, rday[i][j]); rf[k] = rfrom[i][j]; ww[k] = rw[i][j]; pd[k] = rpd[i][j]; }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
+      ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) })), lots: [...lots].map(l => ({ ...l })), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
   };
   const applySave = (o: any) => {
     const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0, ww = o.grids.rwidth ? g('rwidth') : z0, pkg = o.grids.pk ? g('pk') : null, pd = o.grids.rpart ? g('rpart') : null, zdg = o.grids.zden ? g('zden') : null, zfg = o.grids.zface ? g('zface') : null; roadWorks.length = 0;
@@ -902,6 +956,7 @@ function diamond(g: Graphics, i: number, j: number) {
       rtier[i][j] = road[i][j] ? (rt ? rt[k] || 2 : 2) : 0; rstage[i][j] = road[i][j] ? rs[k] : 0; rday[i][j] = rd[k]; rfrom[i][j] = rf[k]; rw[i][j] = road[i][j] ? ww[k] : 0; pk[i][j] = pkg ? pkg[k] : 0; rpd[i][j] = pd && rw[i][j] >= 2 ? pd[k] : 0; if (rstage[i][j]) roadWorks.push(k);
       zden[i][j] = zdg ? zdg[k] : zone[i][j] ? (bld[i][j] || consT[i][j] || 2) : 0; zface[i][j] = zfg ? zfg[k] : 0; } // pre-v7: density of the current building (empty = Medium), Auto facing
     if (!pd) guessPartners();
+    ixSet.clear(); autoCtl.clear(); for (const [k, mode, axis, cyc, split] of o.ix ?? []) ixSet.set(k, { mode, axis, cyc, split }); // pre-v9 saves: every junction is Auto
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
     for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l }); syncLots();
     Object.assign(sim, o.sim); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
@@ -1095,13 +1150,14 @@ function diamond(g: Graphics, i: number, j: number) {
     for (const ch of chunks) if (ch.vis) for (const t of ch.trucks) { const w = t.__truck, f = Math.sin(clock * 1.3 + w.ph), d = Math.cos(clock * 1.3 + w.ph) >= 0 ? 0 : 1; t.x = w.x + f * w.vx; t.y = w.y + f * w.vy; if (d !== w.d) { w.d = d; if (t instanceof Sprite) { const tx = artTex(w.keys[d]); if (tx) t.texture = tx; } else t.scale.x = d ? -1 : 1; } }
     const lane = new Map<number, number[]>(), segK = (pi: number, pj: number, i: number, j: number, ln = 0) => (((pi * N + pj) * 8 + (i - pi + 1) * 2 + (j - pj + 1 >> 1)) * 2 + (rw[i][j] ? ln : 0)) | 0; // multi-lane roads: one queue per lane
     for (const c of cars) { const k = segK(c.pi, c.pj, c.i, c.j, c.ln); const l = lane.get(k); if (l) l.push(c.t); else lane.set(k, [c.t]); }
-    for (const ch of chunks) if (ch.vis) for (const tl of ch.tls) { const st = lightState(tl.axis, tl.ph); { tl.st = st;
+    for (const ch of chunks) if (ch.vis) for (const tl of ch.tls) { const q = ctrl.get(tl.k), st = lightState(tl.axis, tl.ph, q?.cyc, q?.g0); { tl.st = st;
       for (const c of ['red', 'yellow', 'green']) { tl.sp[c].visible = c === st; tl.sp[c].tint = curTint; const n = tl.nt[c]; if (n) { n.visible = c === st && night > 0.02; n.alpha = night; } } } }
     // intersection reservation: a car holds the junction tile from its stop line until it is half way out the other side
     const resv = new Map<number, Car[]>(); for (const c of cars) if (c.res != null) { const l = resv.get(c.res); if (l) l.push(c); else resv.set(c.res, [c]); }
     const compatible = (a: Car, b: { din: string; dout: string }) => { const opp: Record<string, string> = { NE: 'SW', SW: 'NE', SE: 'NW', NW: 'SE' };
       return a.din === b.din && a.dout === b.dout ? true : opp[a.din!] === b.din && a.din === a.dout && b.din === b.dout; }; // same movement (spacing handles it) or straight through from opposite sides
     const STOPLINE = 0.3;
+    const dinOf = (o: Car) => o.i - o.pi > 0 ? 'SE' : o.i - o.pi < 0 ? 'NW' : o.j < o.pj ? 'NE' : 'SW';
     const GAP = 0.55; // simple spacing: keep about half a tile behind the car ahead in the same lane
     const blocked = (k: number, t: number, self: boolean) => { const l = lane.get(k); if (!l) return false; for (const u of l) if (u > t + (self ? 1e-6 : -1) && u - t < GAP && !(self && u === t)) return true; return false; };
     for (let k = cars.length - 1; k >= 0; k--) { const c = cars[k];
@@ -1115,8 +1171,8 @@ function diamond(g: Graphics, i: number, j: number) {
         if (!c.nx) c.nx = routeNext(c);
         const dout = !c.nx ? din : c.nx[0] - c.i > 0 ? 'SE' : c.nx[0] - c.i < 0 ? 'NW' : c.nx[1] < c.j ? 'NE' : 'SW';
         let go = true;
-        if (cc.k === 'L') go = lightState(axisOf(din), cc.ph) === 'green';
-        else if (cc.stops.includes(din)) { c.wait = (c.wait ?? 0) + dt; go = c.wait > 0.8; }
+        const crossBusy = cc.k === 'Y' && cc.stops.includes(din) && (cars.some(o => o !== c && o.i === c.i && o.j === c.j && o.t > 0.1 && axisOf(dinOf(o)) !== axisOf(din)) || (resv.get(jk) ?? []).some(o => axisOf(o.din!) !== axisOf(din)));
+        c.wait = cc.k === 'S' && cc.stops.includes(din) || crossBusy ? (c.wait ?? 0) + dt : c.wait; go = decide(cc, din, c.wait ?? 0, crossBusy);
         const occ = resv.get(jk) ?? []; if (go && occ.some(o => o !== c && !compatible(o, { din, dout }))) go = false;
         if (go) { c.res = jk; c.din = din; c.dout = dout; c.wait = 0; const l = resv.get(jk); if (l) l.push(c); else resv.set(jk, [c]); } else { hold = true; c.t = Math.max(c.t, Math.min(c.t, STOPLINE)); }
       }

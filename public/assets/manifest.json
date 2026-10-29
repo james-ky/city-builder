@@ -1921,7 +1921,80 @@
       "layer": "object",
       "zone": "R",
       "density": 1,
+      "variant": "a",
+      "tall": false,
+      "aliasOf": "bld_R_1_a",
       "description": "low-density house (copy of house_lowdensity_1x1)"
+    },
+    {
+      "name": "bld_R_1_a",
+      "file": "buildings/bld_R_1_a@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 1,
+      "variant": "a",
+      "tall": false,
+      "variantOf": "bld_R_1",
+      "description": "low-density house (copy of house_lowdensity_1x1)"
+    },
+    {
+      "name": "bld_R_1_b",
+      "file": "buildings/bld_R_1_b@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 1,
+      "variant": "b",
+      "tall": false,
+      "variantOf": "bld_R_1"
+    },
+    {
+      "name": "bld_R_1_c",
+      "file": "buildings/bld_R_1_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 1,
+      "variant": "c",
+      "tall": false,
+      "variantOf": "bld_R_1"
     },
     {
       "name": "bld_R_2",
@@ -1942,7 +2015,80 @@
       "layer": "object",
       "zone": "R",
       "density": 2,
+      "variant": "a",
+      "tall": false,
+      "aliasOf": "bld_R_2_a",
       "description": "3-storey brick walk-up"
+    },
+    {
+      "name": "bld_R_2_a",
+      "file": "buildings/bld_R_2_a@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 2,
+      "variant": "a",
+      "tall": false,
+      "variantOf": "bld_R_2",
+      "description": "3-storey brick walk-up"
+    },
+    {
+      "name": "bld_R_2_b",
+      "file": "buildings/bld_R_2_b@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 2,
+      "variant": "b",
+      "tall": false,
+      "variantOf": "bld_R_2"
+    },
+    {
+      "name": "bld_R_2_c",
+      "file": "buildings/bld_R_2_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 2,
+      "variant": "c",
+      "tall": false,
+      "variantOf": "bld_R_2"
     },
     {
       "name": "bld_R_3",
@@ -1963,7 +2109,80 @@
       "layer": "object",
       "zone": "R",
       "density": 3,
+      "variant": "a",
+      "tall": true,
+      "aliasOf": "bld_R_3_a",
       "description": "residential tower"
+    },
+    {
+      "name": "bld_R_3_a",
+      "file": "buildings/bld_R_3_a@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 3,
+      "variant": "a",
+      "tall": true,
+      "variantOf": "bld_R_3",
+      "description": "residential tower"
+    },
+    {
+      "name": "bld_R_3_b",
+      "file": "buildings/bld_R_3_b@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 3,
+      "variant": "b",
+      "tall": true,
+      "variantOf": "bld_R_3"
+    },
+    {
+      "name": "bld_R_3_c",
+      "file": "buildings/bld_R_3_c@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "R",
+      "density": 3,
+      "variant": "c",
+      "tall": true,
+      "variantOf": "bld_R_3"
     },
     {
       "name": "bld_C_1",
@@ -1984,7 +2203,80 @@
       "layer": "object",
       "zone": "C",
       "density": 1,
+      "variant": "a",
+      "tall": false,
+      "aliasOf": "bld_C_1_a",
       "description": "corner shop"
+    },
+    {
+      "name": "bld_C_1_a",
+      "file": "buildings/bld_C_1_a@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 1,
+      "variant": "a",
+      "tall": false,
+      "variantOf": "bld_C_1",
+      "description": "corner shop"
+    },
+    {
+      "name": "bld_C_1_b",
+      "file": "buildings/bld_C_1_b@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 1,
+      "variant": "b",
+      "tall": false,
+      "variantOf": "bld_C_1"
+    },
+    {
+      "name": "bld_C_1_c",
+      "file": "buildings/bld_C_1_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 1,
+      "variant": "c",
+      "tall": false,
+      "variantOf": "bld_C_1"
     },
     {
       "name": "bld_C_2",
@@ -2005,7 +2297,80 @@
       "layer": "object",
       "zone": "C",
       "density": 2,
+      "variant": "a",
+      "tall": false,
+      "aliasOf": "bld_C_2_a",
       "description": "mid-rise office"
+    },
+    {
+      "name": "bld_C_2_a",
+      "file": "buildings/bld_C_2_a@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 2,
+      "variant": "a",
+      "tall": false,
+      "variantOf": "bld_C_2",
+      "description": "mid-rise office"
+    },
+    {
+      "name": "bld_C_2_b",
+      "file": "buildings/bld_C_2_b@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 2,
+      "variant": "b",
+      "tall": false,
+      "variantOf": "bld_C_2"
+    },
+    {
+      "name": "bld_C_2_c",
+      "file": "buildings/bld_C_2_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 2,
+      "variant": "c",
+      "tall": false,
+      "variantOf": "bld_C_2"
     },
     {
       "name": "bld_C_3",
@@ -2026,7 +2391,80 @@
       "layer": "object",
       "zone": "C",
       "density": 3,
+      "variant": "a",
+      "tall": true,
+      "aliasOf": "bld_C_3_a",
       "description": "glass office tower"
+    },
+    {
+      "name": "bld_C_3_a",
+      "file": "buildings/bld_C_3_a@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 3,
+      "variant": "a",
+      "tall": true,
+      "variantOf": "bld_C_3",
+      "description": "glass office tower"
+    },
+    {
+      "name": "bld_C_3_b",
+      "file": "buildings/bld_C_3_b@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 3,
+      "variant": "b",
+      "tall": true,
+      "variantOf": "bld_C_3"
+    },
+    {
+      "name": "bld_C_3_c",
+      "file": "buildings/bld_C_3_c@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "C",
+      "density": 3,
+      "variant": "c",
+      "tall": true,
+      "variantOf": "bld_C_3"
     },
     {
       "name": "bld_I_1",
@@ -2047,7 +2485,80 @@
       "layer": "object",
       "zone": "I",
       "density": 1,
+      "variant": "a",
+      "tall": false,
+      "aliasOf": "bld_I_1_a",
       "description": "small workshop"
+    },
+    {
+      "name": "bld_I_1_a",
+      "file": "buildings/bld_I_1_a@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 1,
+      "variant": "a",
+      "tall": false,
+      "variantOf": "bld_I_1",
+      "description": "small workshop"
+    },
+    {
+      "name": "bld_I_1_b",
+      "file": "buildings/bld_I_1_b@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 1,
+      "variant": "b",
+      "tall": false,
+      "variantOf": "bld_I_1"
+    },
+    {
+      "name": "bld_I_1_c",
+      "file": "buildings/bld_I_1_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 1,
+      "variant": "c",
+      "tall": false,
+      "variantOf": "bld_I_1"
     },
     {
       "name": "bld_I_2",
@@ -2068,7 +2579,80 @@
       "layer": "object",
       "zone": "I",
       "density": 2,
+      "variant": "a",
+      "tall": false,
+      "aliasOf": "bld_I_2_a",
       "description": "warehouse with loading door"
+    },
+    {
+      "name": "bld_I_2_a",
+      "file": "buildings/bld_I_2_a@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 2,
+      "variant": "a",
+      "tall": false,
+      "variantOf": "bld_I_2",
+      "description": "warehouse with loading door"
+    },
+    {
+      "name": "bld_I_2_b",
+      "file": "buildings/bld_I_2_b@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 2,
+      "variant": "b",
+      "tall": false,
+      "variantOf": "bld_I_2"
+    },
+    {
+      "name": "bld_I_2_c",
+      "file": "buildings/bld_I_2_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 2,
+      "variant": "c",
+      "tall": false,
+      "variantOf": "bld_I_2"
     },
     {
       "name": "bld_I_3",
@@ -2089,7 +2673,200 @@
       "layer": "object",
       "zone": "I",
       "density": 3,
+      "variant": "a",
+      "tall": false,
+      "aliasOf": "bld_I_3_a",
       "description": "factory with smokestacks"
+    },
+    {
+      "name": "bld_I_3_a",
+      "file": "buildings/bld_I_3_a@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 3,
+      "variant": "a",
+      "tall": false,
+      "variantOf": "bld_I_3",
+      "description": "factory with smokestacks"
+    },
+    {
+      "name": "bld_I_3_b",
+      "file": "buildings/bld_I_3_b@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 3,
+      "variant": "b",
+      "tall": false,
+      "variantOf": "bld_I_3"
+    },
+    {
+      "name": "bld_I_3_c",
+      "file": "buildings/bld_I_3_c@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "zone": "I",
+      "density": 3,
+      "variant": "c",
+      "tall": false,
+      "variantOf": "bld_I_3"
+    },
+    {
+      "name": "construction_1x1_stage1",
+      "file": "buildings/construction_1x1_stage1@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "stage": 1,
+      "tall": false
+    },
+    {
+      "name": "construction_1x1_stage2",
+      "file": "buildings/construction_1x1_stage2@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "stage": 2,
+      "tall": false
+    },
+    {
+      "name": "construction_1x1_stage3",
+      "file": "buildings/construction_1x1_stage3@2x.png",
+      "size": [
+        128,
+        128
+      ],
+      "anchor": [
+        0.5,
+        0.75
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "stage": 3,
+      "tall": false
+    },
+    {
+      "name": "construction_1x1_tall_stage1",
+      "file": "buildings/construction_1x1_tall_stage1@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "stage": 1,
+      "tall": true
+    },
+    {
+      "name": "construction_1x1_tall_stage2",
+      "file": "buildings/construction_1x1_tall_stage2@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "stage": 2,
+      "tall": true
+    },
+    {
+      "name": "construction_1x1_tall_stage3",
+      "file": "buildings/construction_1x1_tall_stage3@2x.png",
+      "size": [
+        128,
+        192
+      ],
+      "anchor": [
+        0.5,
+        0.8333
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "scale": 0.5,
+      "layer": "object",
+      "stage": 3,
+      "tall": true
     },
     {
       "name": "grid_overlay",

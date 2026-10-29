@@ -20,7 +20,9 @@ export async function loadManifest() {
       const want = (a.size?.[0] ?? tex.source.pixelWidth) * (a.scale ?? defScale);
       art.set(a.name, { tex, anchor: a.anchor ?? [0.5, 0.5], scale: want / tex.width });
     } catch { console.warn('missing art', a.file); return; }
-    if (a.variantOf) variants.set(a.variantOf, [...(variants.get(a.variantOf) ?? []), a.name].sort());
+    // explicit variantOf, or implicit <base>_<letter> naming for buildings
+    const base = a.variantOf ?? (/^(bld_.+)_[a-z]$/.exec(a.name)?.[1]);
+    if (base) variants.set(base, [...(variants.get(base) ?? []), a.name].sort());
     if (a.autotile && !(a.autotile.set === 'shore' && a.autotile.mask === 0)) keyed.set(`${a.autotile.set}_${a.autotile.mask}`, a.name);
   }));
   // legacy {sprites:{key:file}} support
@@ -30,10 +32,11 @@ export async function loadManifest() {
 }
 
 function resolve(key: string, seed: number): Art | undefined {
-  const name = ALIAS[key] ?? keyed.get(key) ?? key;
-  if (art.has(name)) return art.get(name);
+  // variants first (e.g. bld_R_1 -> bld_R_1_a/_b/_c, stable per tile via seed), then the base name
   const v = variants.get(key);
   if (v?.length) return art.get(v[(seed >>> 0) % v.length]);
+  const name = ALIAS[key] ?? keyed.get(key) ?? key;
+  if (art.has(name)) return art.get(name);
 }
 export const hasArt = (key: string) => !!resolve(key, 0);
 
@@ -67,6 +70,12 @@ export function place(key: string, x: number, y: number, layer: Container, seed 
     if (arms.length !== 2 || arms[0][0] !== -arms[1][0] || arms[0][1] !== -arms[1][1]) g.ellipse(x, y, 10, 5).fill(0x3d3f44);
     for (const [dx, dy] of arms) g.moveTo(x, y).lineTo(x + dx * 2, y + dy * 2).stroke({ width: 14, color: 0x3d3f44 });
     for (const [dx, dy] of arms) g.moveTo(x + dx * 0.3, y + dy * 0.3).lineTo(x + dx * 1.9, y + dy * 1.9).stroke({ width: 1.5, color: 0xf5d547 });
+  } else if (key.startsWith('construction_')) {
+    const st = +key.slice(-1), tall = key.includes('tall'), k = 0.7, H = (tall ? 60 : 24) * st / 3;
+    dia(k).fill(0x8b7355);
+    if (st >= 2) box(g, x, y, TW / 2 * k * 0.9, TH / 2 * k * 0.9, H, 0xb0a89a, 0x9a9184);
+    for (let f = 0; f <= H; f += 8) g.moveTo(x - TW / 2 * k, y - f).lineTo(x, y + TH / 2 * k - f).lineTo(x + TW / 2 * k, y - f).stroke({ width: 1, color: 0xe0a030 });
+    if (st === 3) g.moveTo(x + 10, y + 4).lineTo(x + 10, y - H - 18).lineTo(x - 14, y - H - 18).stroke({ width: 2, color: 0xf2b200 });
   } else if (key.startsWith('bld_')) {
     const [, z, lv] = key.split('_'); const L = +lv;
     const pal: Record<string, number[]> = { R: [0xe8d9b5, 0xd9a07a, 0xc9cfd6], C: [0x9fc3e8, 0x7aa7d9, 0x8fb0c8], I: [0xb9a57a, 0x9a8f80, 0x8c8a86] };

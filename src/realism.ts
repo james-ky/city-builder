@@ -90,3 +90,23 @@ export const ROAD_TIERS: Record<RoadTier, { name: string; build: number; upkeep:
 };
 /** Upgrading in place costs the price difference; works start at the gravel stage, old road stays open meanwhile. */
 export const roadUpgradeCost = (from: RoadTier, to: RoadTier) => Math.max(0, ROAD_TIERS[to].build - ROAD_TIERS[from].build);
+
+// =====================================================================================
+// ROAD WIDTHS — one tile ≈ 20 m ≈ 65 ft of right-of-way.
+//   2-lane road: 2 × 12 ft lanes + parking + sidewalks (~60 ft ROW, typical US local street).
+//   Street (1 tile, 4 lanes): 4 × 10 ft lanes (urban minimum per AASHTO/NACTO) = 40 ft + 2 × 6 ft
+//     sidewalks ≈ 52–60 ft — fits in one 65 ft tile with no median or parking.
+//   Avenue (2 tiles ≈ 130 ft): 4 × 11 ft through lanes + 16 ft median that becomes left-turn
+//     lanes at junctions + bike/parking + wide sidewalks (a typical US arterial/boulevard).
+// Build cost is a multiplier on the tier's per-tile price (avenue figures are per tile; it is 2 tiles wide).
+// Real-world: 4-lane urban arterial ≈ $5–10 M/mile vs ≈ $2–3 M for 2 lanes → ~1.8× per tile for a street;
+// avenue ≈ $10–15 M/mile spread across 2 tiles ≈ 1.6× per tile. Capacity ≈ lanes per direction.
+// Widths 1–2 need a paved tier (asphalt or concrete).
+// =====================================================================================
+export const ROAD_WIDTHS = [
+  { name: '2-lane road', lanes: 2, buildMul: 1,   upkeepMul: 1,   capacity: 1,   laneFt: 12, tiles: 1 },
+  { name: 'Street',      lanes: 4, buildMul: 1.8, upkeepMul: 1.6, capacity: 2,   laneFt: 10, tiles: 1 },
+  { name: 'Avenue',      lanes: 4, buildMul: 1.6, upkeepMul: 1.5, capacity: 2.5, laneFt: 11, tiles: 2 },
+];
+export const roadBuild = (t: RoadTier, w: number) => Math.round(ROAD_TIERS[t].build * ROAD_WIDTHS[w].buildMul);
+export const roadUpkeep = (t: RoadTier, w: number) => ROAD_TIERS[t].upkeep * ROAD_WIDTHS[w].upkeepMul;

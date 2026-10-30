@@ -20,6 +20,7 @@ export async function loadManifest() {
   await Promise.all((m.assets ?? []).map(async (a: any) => {
     try {
       const tex: Texture = await Assets.load('./assets/' + a.file);
+      tex.source.autoGenerateMipmaps = true; tex.source.updateMipmaps?.(); // mipmaps: clean, non-grainy art when zoomed out
       // Pixi already treats '@2x' files as resolution 2; size the sprite to manifest size * scale regardless
       const want = (a.size?.[0] ?? tex.source.pixelWidth) * (a.scale ?? defScale);
       art.set(a.name, { tex, anchor: a.anchor ?? [0.5, 0.5], scale: want / tex.width });

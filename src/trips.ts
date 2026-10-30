@@ -22,6 +22,7 @@ export type World = {
   seed: number;
   leisure?: () => { k: number; draw: number }[]; // sports parks & playgrounds people drive to
   entrance?: (i: number, j: number) => number; // road tile on the building's front side (-1 none)
+  nearRoads?: (i: number, j: number) => number[]; // road tiles within 1 tile of the building (any side, diagonals too)
   transit?: () => { stops: number[]; depot: boolean }; // bus stops (road tiles) and whether a depot runs buses
 };
 /** vehicles per day for a flow (freight: people = trucks; bus riders leave their car at home) */
@@ -46,7 +47,7 @@ export class TripSim {
   /** recompute access, components and everybody's destinations (call monthly or after road edits) */
   assign(month = 0) {
     const t0 = performance.now(), { N, w } = this, n = N * N, R = rng(w.seed * 7919 + month);
-    this.cache.clear(); this.version++;
+    this.cache.clear(); this.mcache.clear(); this.version++;
     // road components
     const comp = this.comp.fill(-1); let nc = 0; const q = new Int32Array(n);
     for (let s = 0; s < n; s++) { const si = (s / N) | 0, sj = s - si * N; if (comp[s] >= 0 || !w.drivable(si, sj)) continue;
@@ -124,6 +125,30 @@ export class TripSim {
   /** seconds to drive across a tile right now (free flow × BPR congestion) */
   tileCost(k: number) { const N = this.N, i = (k / N) | 0, j = k - i * N, vc = this.volume[k] / Math.max(1, this.w.capacity(i, j)); return this.w.tileSecs(i, j) * (1 + 0.15 * vc ** 4); }
 
+  /** commuters and freight may use any road within a tile of the building (back and side roads); shoppers, errands, school and leisure trips use the front door */
+  flexible(f: Flow) { return f.kind === 'work' || f.kind === 'freight'; }
+  private around(k: number, flex: boolean) { const a = this.access[k]; if (a < 0) return []; if (!flex || !this.w.nearRoads) return [a]; const N = this.N, out = [a], c = this.comp[a];
+    for (const r of this.w.nearRoads((k / N) | 0, k % N)) if (this.comp[r] === c && !out.includes(r)) out.push(r); return out; }
+  starts(f: Flow) { return this.around(f.home, this.flexible(f)); }
+  ends(f: Flow) { return f.park !== undefined ? [this.access[f.park]].filter(x => x >= 0) : this.around(f.dest, this.flexible(f)); }
+  /** cheapest route for a flow (home/origin -> destination), choosing among its allowed start and end roads */
+  pathOf(f: Flow) { return this.routeMulti(this.starts(f), this.ends(f)); }
+  private mcache = new Map<string, number[] | null>();
+  routeMulti(os: number[], ds: number[]): number[] | null {
+    if (!os.length || !ds.length) return null; if (os.length === 1 && ds.length === 1) return this.route(os[0], ds[0]);
+    const key = os.join(',') + '>' + ds.join(','), hit = this.mcache.get(key); if (hit !== undefined) { this.stats.cacheHits++; return hit; }
+    const N = this.N, w = this.w, hmin = 20 / (55 / 3.6), dset = new Set(ds), dt = ds.map(d => [(d / N) | 0, d % N]);
+    const h = (i: number, j: number) => { let m = 1e9; for (const [a, b] of dt) m = Math.min(m, Math.abs(i - a) + Math.abs(j - b)); return m * hmin; };
+    const g = new Map<number, number>(), from = new Map<number, number>(), heap: [number, number][] = [];
+    const push = (f: number, k: number) => { heap.push([f, k]); let x = heap.length - 1; while (x) { const p = (x - 1) >> 1; if (heap[p][0] <= heap[x][0]) break; [heap[p], heap[x]] = [heap[x], heap[p]]; x = p; } };
+    const pop = () => { const top = heap[0], last = heap.pop()!; if (heap.length) { heap[0] = last; let x = 0; for (;;) { const l = 2 * x + 1, r = l + 1; let m = x; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === x) break; [heap[m], heap[x]] = [heap[x], heap[m]]; x = m; } } return top; };
+    for (const o of os) { if (this.comp[o] < 0) continue; g.set(o, this.tileCost(o)); push(g.get(o)! + h((o / N) | 0, o % N), o); }
+    let end = -1;
+    while (heap.length) { const [fv, k] = pop(); const i = (k / N) | 0, j = k - i * N, gk = g.get(k)!; if (fv > gk + h(i, j) + 1e-9) continue; if (dset.has(k)) { end = k; break; }
+      for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (ni < 0 || nj < 0 || ni >= N || nj >= N || !w.drivable(ni, nj) || !w.linked(i, j, a, b)) continue; const nk = ni * N + nj, ng = gk + this.tileCost(nk);
+        if (ng < (g.get(nk) ?? 1e18)) { g.set(nk, ng); from.set(nk, k); push(ng + h(ni, nj), nk); } } }
+    let path: number[] | null = null; if (end >= 0) { path = [end]; let k = end; while (from.has(k)) { k = from.get(k)!; path.push(k); } path.reverse(); }
+    if (this.mcache.size > 20000) this.mcache.clear(); this.mcache.set(key, path); this.stats.routes++; return path; }
   /** A* between two road tiles; cached per pair until the network or congestion changes */
   route(o: number, d: number): number[] | null {
     if (o < 0 || d < 0 || this.comp[o] < 0 || this.comp[o] !== this.comp[d]) return null;
@@ -145,9 +170,9 @@ export class TripSim {
   /** traffic volume: route a few sampled flows per call and blend into the daily volume map */
   sampleVolume(n = 25) { const fl = this.flows; if (!fl.length) return; const N = this.N, A = 0.05, w = fl.length / n * A; // running estimate: decay, then add this sample scaled up to the whole city
     if (this.volSamples % 10 === 0) { const f = (1 - A) ** 10; for (let k = 0; k < N * N; k++) if (this.volume[k]) this.volume[k] *= f; } // decay in batches (cheaper)
-    for (let s = 0; s < n; s++) { const f = fl[this.volCursor++ % fl.length]; if (this.md(f.home, f.dest) <= TRIPS.walkTiles) continue; const p = this.route(this.access[f.home], this.end(f)); if (!p) continue;
+    for (let s = 0; s < n; s++) { const f = fl[this.volCursor++ % fl.length]; if (this.md(f.home, f.dest) <= TRIPS.walkTiles) continue; const p = this.pathOf(f); if (!p) continue;
       const cars = carsOf(f) * 2 * w; for (const k of p) this.volume[k] += cars; }
-    if (++this.volSamples % 240 === 0) this.cache.clear(); } // re-route with fresh congestion now and then
+    if (++this.volSamples % 240 === 0) { this.cache.clear(); this.mcache.clear(); } } // re-route with fresh congestion now and then
   md(x: number, y: number) { const N = this.N; return Math.abs(((x / N) | 0) - ((y / N) | 0)) + Math.abs((x % N) - (y % N)); }
 
   private byKind: Record<string, { idx: number[]; cum: number[]; tot: number }> | null = null;

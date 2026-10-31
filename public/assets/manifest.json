@@ -1,6 +1,6 @@
 {
  "version": 1,
- "artRevision": "v3-soft3d-l",
+ "artRevision": "v3-soft3d-h",
  "displayScale": 0.5,
  "baseTile": [
   64,
@@ -424,7 +424,7 @@
    },
    "files": "roads/avenue_asphalt_<mask>@2x.png",
    "count": 16,
-   "rule": "20 m per tile. One carriageway per tile: 2 lanes x 3.3 m, 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.1325 and 0.2975 tile from the median line (shared edge of the two halves). Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
+   "rule": "20 m per tile. One carriageway per tile: 3 lanes x 3.2 m (+0.4 m gutter; carriageway 10.0 m = a 0.45-0.95), 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.13, 0.29 and 0.45 tile from the median line (shared edge of the two halves) = 0.08, 0.24, 0.40 tile from the median curb. Right-hand traffic: inner (fast/left-turn) lane 0.13. Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
   },
   "avenue_concrete": {
    "bits": {
@@ -453,7 +453,7 @@
    },
    "files": "roads/avenue_concrete_<mask>@2x.png",
    "count": 16,
-   "rule": "20 m per tile. One carriageway per tile: 2 lanes x 3.3 m, 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.1325 and 0.2975 tile from the median line (shared edge of the two halves). Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
+   "rule": "20 m per tile. One carriageway per tile: 3 lanes x 3.2 m (+0.4 m gutter; carriageway 10.0 m = a 0.45-0.95), 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.13, 0.29 and 0.45 tile from the median line (shared edge of the two halves) = 0.08, 0.24, 0.40 tile from the median curb. Right-hand traffic: inner (fast/left-turn) lane 0.13. Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
   },
   "avenue_extras": {
    "tiers": [
@@ -462,7 +462,7 @@
    ],
    "files": "roads/avenue_<tier>_<kind>_<key>@2x.png",
    "metresPerTile": 20,
-   "profile": "a = 0 at the outer edge .. 1 at the partner (median) edge: verge <0.5325 | sidewalk 0.5325-0.62 | lanes 0.62-0.95 (2 x 3.3 m) | half-median 0.95-1.0. Lane centres 0.1325 / 0.2975 tile from the median line.",
+   "profile": "a = 0 at the outer edge .. 1 at the partner (median) edge: verge <0.3625 | sidewalk 0.3625-0.45 | gutter 0.45-0.47 | lanes 0.47-0.95 (3 x 3.2 m; dashed lines at 0.63 / 0.79) | half-median 0.95-1.0. Lane centres 0.13 / 0.29 / 0.45 tile from the median line.",
    "LR": "Standing in the tile facing the partner edge P: L = counter-clockwise edge, R = clockwise edge (clockwise order NE->SE->SW->NW). Partner NE: L=NW, R=SE; SE: L=NE, R=SW; SW: L=SE, R=NW; NW: L=SW, R=NE.",
    "kinds": {
     "end_<P>_<L|R>": "half enters through edge L/R and ends; median stops, lanes open across P into the partner end tile (U-turn). Pair: end_<P>_<s> with the partner end tile entering from the same edge direction.",
@@ -24358,7 +24358,13 @@
    },
    "shape": "t_no_nw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_8",
@@ -24474,7 +24480,13 @@
    },
    "shape": "t_no_sw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_12",
@@ -24533,7 +24545,13 @@
    },
    "shape": "t_no_se",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_14",
@@ -24563,7 +24581,13 @@
    },
    "shape": "t_no_ne",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_15",
@@ -24821,7 +24845,13 @@
    },
    "shape": "t_no_nw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_8",
@@ -24937,7 +24967,13 @@
    },
    "shape": "t_no_sw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_12",
@@ -24996,7 +25032,13 @@
    },
    "shape": "t_no_se",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_14",
@@ -25026,7 +25068,13 @@
    },
    "shape": "t_no_ne",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_15",
@@ -25087,7 +25135,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NE_L",
@@ -25120,7 +25174,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_NE_R",
@@ -25150,7 +25210,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NE_R",
@@ -25183,7 +25249,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_NE",
@@ -25214,7 +25286,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_NE",
@@ -25243,7 +25321,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_NE",
@@ -25274,7 +25358,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SE_L",
@@ -25304,7 +25394,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SE_L",
@@ -25337,7 +25433,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SE_R",
@@ -25367,7 +25469,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SE_R",
@@ -25400,7 +25508,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_SE",
@@ -25431,7 +25545,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_SE",
@@ -25460,7 +25580,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_SE",
@@ -25491,7 +25617,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SW_L",
@@ -25521,7 +25653,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SW_L",
@@ -25554,7 +25692,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SW_R",
@@ -25584,7 +25728,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SW_R",
@@ -25617,7 +25767,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_SW",
@@ -25648,7 +25804,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_SW",
@@ -25677,7 +25839,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_SW",
@@ -25708,7 +25876,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_NW_L",
@@ -25738,7 +25912,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NW_L",
@@ -25771,7 +25951,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_NW_R",
@@ -25801,7 +25987,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NW_R",
@@ -25834,7 +26026,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_NW",
@@ -25865,7 +26063,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_NW",
@@ -25894,7 +26098,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_NW",
@@ -25925,7 +26135,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_N",
@@ -25953,7 +26169,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_E",
@@ -25981,7 +26203,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_S",
@@ -26009,7 +26237,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_W",
@@ -26037,7 +26271,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NE_L",
@@ -26067,7 +26307,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NE_L",
@@ -26100,7 +26346,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NE_R",
@@ -26130,7 +26382,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NE_R",
@@ -26163,7 +26421,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_NE",
@@ -26194,7 +26458,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_NE",
@@ -26223,7 +26493,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_NE",
@@ -26254,7 +26530,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SE_L",
@@ -26284,7 +26566,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SE_L",
@@ -26317,7 +26605,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SE_R",
@@ -26347,7 +26641,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SE_R",
@@ -26380,7 +26680,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_SE",
@@ -26411,7 +26717,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_SE",
@@ -26440,7 +26752,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_SE",
@@ -26471,7 +26789,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SW_L",
@@ -26501,7 +26825,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SW_L",
@@ -26534,7 +26864,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SW_R",
@@ -26564,7 +26900,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SW_R",
@@ -26597,7 +26939,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_SW",
@@ -26628,7 +26976,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_SW",
@@ -26657,7 +27011,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_SW",
@@ -26688,7 +27048,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NW_L",
@@ -26718,7 +27084,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NW_L",
@@ -26751,7 +27123,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NW_R",
@@ -26781,7 +27159,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NW_R",
@@ -26814,7 +27198,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_NW",
@@ -26845,7 +27235,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_NW",
@@ -26874,7 +27270,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_NW",
@@ -26905,7 +27307,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_N",
@@ -26933,7 +27341,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_E",
@@ -26961,7 +27375,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_S",
@@ -26989,7 +27409,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_W",
@@ -27017,7 +27443,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.13,
+    0.29,
+    0.45
+   ],
+   "lanes": 3
   },
   {
    "name": "civic_garage",
@@ -35394,6 +35826,6 @@
   "manifest": "parts/manifest.json",
   "count": 88
  },
- "revision": "v3-soft3d-l",
+ "revision": "v3-soft3d-m",
  "vehicleBodyNote": "Vehicle collision/body fields (rev v3-soft3d-l). Travel axis = the vehicle's facing direction on the iso grid. bodyFront/bodyRear: signed distance in TILES (1 tile = 20 m) along the travel axis from the sprite anchor (vehicle ground centre) to the front/rear bumper; front positive, rear negative. lengthTiles = bodyFront - bodyRear (true bumper-to-bumper length, measured from Blender geometry incl. lamps, cross-checked against rendered alpha). Bumper-to-bumper queue: centre distance between follower F and leader L = F.bodyFront - L.bodyRear + gap, i.e. place F anchor at L anchor - (F.bodyFront - L.bodyRear + gap) along the axis. travelAxisPx = screen offset in 2x px for +1 tile along travel (SE [64,32], SW [-64,32], NE [64,-32], NW [-64,-32]); divide by 2 for 1x screen px. headlightOffsetPx/taillightOffsetPx = bodyFront/bodyRear * travelAxisPx, in 2x px from the vehicle anchor: put the anchor of headlightGlow/taillightGlow (fx_*, blend add, layer night) there. Both fx glows are ground light: draw them UNDER the vehicle sprites (drawOrder 'underVehicle'). A taillight glow drawn over the body puts red light on the box/cab side and reads as a reversed vehicle. The sprite canvas is NOT centred on the body (anchor x != 0.5) - never space cars by canvas width."
 }

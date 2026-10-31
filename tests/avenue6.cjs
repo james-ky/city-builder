@@ -1,4 +1,4 @@
-// Avenue = 3 lanes each way + median: lane paint drawn on every straight half, and cars in lanes 0/1/2 sit in 3 distinct, evenly spaced lanes inside the widened carriageway.
+// Avenue = 3 lanes each way + median (City Art Studio avenue6 art): lane centres from the manifest, right-hand traffic with the median on the driver's left, and cars in lanes 0/1/2 sit in 3 distinct, evenly spaced lanes inside the widened carriageway.
 const {chromium}=require('playwright');(async()=>{const url=process.argv[2]||'http://localhost:4420/';
 const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});const p=await b.newPage({viewport:{width:1000,height:700}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.goto(url+'?size=64&seed=5&city=Av6');await p.waitForFunction(()=>window.__city&&__city.N);await p.evaluate(()=>__city.setSpeed(0));
@@ -8,13 +8,16 @@ const r=await p.evaluate(([ci,cj])=>{const C=__city,N=C.N();C.setRoadTier(2);C.s
  const hs=[];for(let j=cj-2;j<=cj+2;j++)if(C.rw[ci][j]>=2)hs.push([j,C.rpd[ci][j]]);return {hs,N}},c);
 ok('avenue is two halves with partners',r.hs.length===2,JSON.stringify(r.hs));
 await p.waitForTimeout(800);
-const paint=await p.evaluate(()=>__city.avPaint());
-ok('3-lane paint drawn on the avenue straights',paint>=20,'tiles '+paint);
+const lanes=await p.evaluate(async()=>{const m=await (await fetch('./assets/manifest.json')).json();const a=m.assets.find(x=>x.name==='avenue_asphalt_14');return {m:a.laneOffsetTilesFromMedian,g:__city.avLanes(),rev:m.revision}});
+ok('lane centres come from the art manifest (0.13/0.29/0.45)',JSON.stringify(lanes.m)==='[0.13,0.29,0.45]'&&JSON.stringify(lanes.g)===JSON.stringify(lanes.m),JSON.stringify(lanes));
+const side=await p.evaluate(([ci,hs])=>hs.map(([j,pd])=>({pd,se:__city.avenueOK(ci,j,1,0),nw:__city.avenueOK(ci,j,-1,0)})),[c[0],r.hs]);
+// right-hand traffic: heading SE (+i) the driver's left is NE, so the half whose partner (median) is NE (pd 1) runs SE, the other runs NW
+ok('right-hand traffic, median on the driver\'s left',side.every(x=>x.pd===1?(x.se&&!x.nw):(x.nw&&!x.se)),JSON.stringify(side));
 const off=await p.evaluate(([ci,cj,hs])=>{const C=__city,N=C.N(),out=[];for(const [j,pd] of hs){const dir=pd===1?1:-1,route=[];for(let k=-8;k<=8;k++)route.push((ci+dir*k)*N+j);
  const row=[];for(let ln=0;ln<3;ln++){C.spawnCar(route.slice(ln*3));const x=C.cars()[C.cars().length-1];x.ln=ln;row.push(x)}out.push(row.length)}return out},[c[0],c[1],r.hs]);
 await p.evaluate(()=>{for(const x of __city.cars())x.sp=0});await p.waitForTimeout(500);
 const pos=await p.evaluate(([ci,cj])=>{const C=__city,a=C.tileToScreen(ci,cj),b=C.tileToScreen(ci+1,cj),z=C.zoom();const ux=(b.x-a.x),uy=(b.y-a.y),L=Math.hypot(ux,uy),nx=-uy/L,ny=ux/L;
  return C.cars().map(x=>({ln:x.ln,dir:x.i-x.pi,perp:((x.s.x*z+0)-(0))*nx+(x.s.y*z)*ny,j:x.j}))},c);
-const bad=[];for(const dir of [1,-1]){const q=pos.filter(x=>x.dir===dir).sort((a,b)=>a.ln-b.ln);if(q.length!==3){bad.push('dir '+dir+' n '+q.length);continue}const d1=q[1].perp-q[0].perp,d2=q[2].perp-q[1].perp;if(Math.abs(d1)<2||Math.abs(d1-d2)>0.5||Math.sign(d1)!==Math.sign(d2))bad.push(`dir ${dir} spacing ${d1.toFixed(2)},${d2.toFixed(2)}`)}
+const bad=[];for(const dir of [1,-1]){const q=pos.filter(x=>x.dir===dir).sort((a,b)=>a.ln-b.ln);if(q.length!==3){bad.push('dir '+dir+' n '+q.length);continue}const d1=q[1].perp-q[0].perp,d2=q[2].perp-q[1].perp;if(Math.abs(d1)<2||Math.abs(d1-d2)>0.5||Math.abs(d1/(q[2].perp-q[0].perp)-0.5)>0.02||Math.sign(d1)!==Math.sign(d2))bad.push(`dir ${dir} spacing ${d1.toFixed(2)},${d2.toFixed(2)}`)}
 ok('cars in lanes 0,1,2 sit in 3 evenly spaced lanes each way',bad.length===0,bad.join(' | '));
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs);process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

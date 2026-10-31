@@ -52,7 +52,7 @@ export class TripSim {
     const comp = this.comp.fill(-1); let nc = 0; const q = new Int32Array(n);
     for (let s = 0; s < n; s++) { const si = (s / N) | 0, sj = s - si * N; if (comp[s] >= 0 || !w.drivable(si, sj)) continue;
       let h = 0, t = 0; q[t++] = s; comp[s] = nc;
-      while (h < t) { const k = q[h++], i = (k / N) | 0, j = k - i * N; for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (ni < 0 || nj < 0 || ni >= N || nj >= N) continue; const nk = ni * N + nj; if (comp[nk] < 0 && w.drivable(ni, nj) && w.linked(i, j, a, b)) { comp[nk] = nc; q[t++] = nk; } } }
+      while (h < t) { const k = q[h++], i = (k / N) | 0, j = k - i * N; for (const [a, b] of D4) { const ni = i + a, nj = j + b; if (ni < 0 || nj < 0 || ni >= N || nj >= N) continue; const nk = ni * N + nj; if (comp[nk] < 0 && w.drivable(ni, nj) && (w.linked(i, j, a, b) || w.linked(ni, nj, -a, -b))) { comp[nk] = nc; q[t++] = nk; } } }
       nc++; }
     // access road: multi-source BFS up to 3 steps
     const acc = this.access.fill(-1), dist = new Uint8Array(n).fill(255); let h = 0, t = 0;
@@ -100,7 +100,8 @@ export class TripSim {
       if (toShop < 1 && ed.length) { let best = ed[0], bd = 1e9; for (const e of ed) { const dd = md(k, e); if (dd < bd) { bd = dd; best = e; } } this.flows.push({ home: k, dest: best, kind: 'freight', people: tr * (1 - toShop) }); } }
     // transit: people with a stop within a short walk at both ends (and a running bus service) ride some of the time
     this.riders.clear(); st.busRiders = 0; const tn = w.transit?.();
-    if (tn && tn.depot && tn.stops.length >= 2) { const near = (k: number) => { let b = -1, bd = TRANSIT.walkTiles + 1; for (const s of tn.stops) { const d = md(k, s); if (d < bd) { bd = d; b = s; } } return [b, bd]; };
+    const loopOK = (st: number[]) => st.every((a, x) => !!this.route(a, st[(x + 1) % st.length])); // riders only when the buses can actually run the loop
+    if (tn && tn.depot && tn.stops.length >= 2 && loopOK(tn.stops)) { const near = (k: number) => { let b = -1, bd = TRANSIT.walkTiles + 1; for (const s of tn.stops) { const d = md(k, s); if (d < bd) { bd = d; b = s; } } return [b, bd]; };
       for (const f of this.flows) { const sh = TRANSIT.share[f.kind]; if (!sh || md(f.home, f.dest) <= TRIPS.walkTiles) continue; const [s0, d0] = near(f.home), [s1, d1] = near(f.dest); if (s0 < 0 || s1 < 0 || s0 === s1) continue;
         f.bus = sh * (1 - 0.5 * (d0 + d1) / (2 * TRANSIT.walkTiles)); const r = f.people * f.bus * 2; st.busRiders += f.people * f.bus; this.riders.set(s0, (this.riders.get(s0) ?? 0) + r); this.riders.set(s1, (this.riders.get(s1) ?? 0) + r); } }
     this.parkAll(); st.assignMs = performance.now() - t0;
@@ -130,9 +131,12 @@ export class TripSim {
   private around(k: number, flex: boolean) { const a = this.access[k]; if (a < 0) return []; if (!flex || !this.w.nearRoads) return [a]; const N = this.N, out = [a], c = this.comp[a];
     for (const r of this.w.nearRoads((k / N) | 0, k % N)) if (this.comp[r] === c && !out.includes(r)) out.push(r); return out; }
   starts(f: Flow) { return this.around(f.home, this.flexible(f)); }
-  ends(f: Flow) { return f.park !== undefined ? [this.access[f.park]].filter(x => x >= 0) : this.around(f.dest, this.flexible(f)); }
+  ends(f: Flow) { const N = this.N, di = (f.dest / N) | 0, dj = f.dest % N; if (f.kind === 'freight' && (di === 0 || dj === 0 || di === N - 1 || dj === N - 1) && this.comp[f.dest] >= 0) return [f.dest]; // edge freight drives to the map edge itself
+    return f.park !== undefined ? [this.access[f.park]].filter(x => x >= 0) : this.around(f.dest, this.flexible(f)); }
   /** cheapest route for a flow (home/origin -> destination), choosing among its allowed start and end roads */
   pathOf(f: Flow) { return this.routeMulti(this.starts(f), this.ends(f)); }
+  /** the trip home: routed on its own (avenues are one-way, so the outbound path reversed may be illegal) */
+  pathBack(f: Flow) { return this.routeMulti(this.ends(f), this.starts(f)); }
   private mcache = new Map<string, number[] | null>();
   routeMulti(os: number[], ds: number[]): number[] | null {
     if (!os.length || !ds.length) return null; if (os.length === 1 && ds.length === 1) return this.route(os[0], ds[0]);

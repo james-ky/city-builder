@@ -5,7 +5,7 @@ const $ = (s: string) => document.querySelector<HTMLElement>(s);
 const click = (s: string) => $(s)?.click();
 const svc = (k: string) => () => click(`#services button[data-t="svc:${k}"]`);
 const tool = (n: number) => () => click(`#toolbar button:nth-child(${n})`);
-type Item = { label: string; tip: string; key?: string; icon?: string; run: () => void; on?: () => boolean };
+type Item = { label: string; tip: string; key?: string; icon?: string; img?: string; run: (ev?: MouseEvent) => void; on?: () => boolean };
 const I = (id: string, cls = 'ic') => `<img class="${cls}" src="./assets/ui/icons2/svg/${id}.svg" alt="">`;
 const CSS = `
 :root{--u-bg:rgba(16,22,30,.94);--u-line:#33404f;--u-acc:#4f8cff;--u-txt:#e8eef6;--u-dim:#93a3b8}
@@ -54,7 +54,7 @@ export function mountUI2() {
   document.querySelectorAll<HTMLElement>('#roadTiers button[data-tier]').forEach(b => { b.insertAdjacentHTML('afterbegin', I(['', 'road_dirt', 'road_asphalt', 'road_concrete'][+b.dataset.tier!], 'ic ic22')); Array.from(b.childNodes).forEach(n => { if (n.nodeType === 3) n.remove(); }); });
   document.querySelectorAll<HTMLElement>('#roadTiers button[data-w]').forEach(b => { b.innerHTML = I(['road_width_2lane', 'road_width_street', 'road_width_avenue'][+b.dataset.w!], 'ic ic22'); });
   document.querySelectorAll<HTMLElement>('#roadTiers > span').forEach(sp => { sp.textContent = ''; });
-  const CATS: { id: string; icon: string; name: string; key?: string; direct?: () => void; on?: () => boolean; groups?: Item[][] }[] = [
+  const CATS: { id: string; icon: string; name: string; key?: string; direct?: () => void; on?: () => boolean; groups?: Item[][] | (() => Item[][]) }[] = [
     { id: 'select', icon: 'cat_select', name: 'Select / pan', key: '1', direct: tool(1), on: toolOn('select') },
     { id: 'roads', icon: 'cat_roads', name: 'Roads', groups: [[{ label: 'Road', tip: 'Drag to build. Type and width in the bar above.', key: '2', icon: 'road_asphalt', run: tool(2), on: toolOn('road') }, { label: 'Intersection', tip: 'Click a junction: lights, stop signs, yield', icon: 'road_intersection', run: () => click('#roadTiers button[data-ix]'), on: toolOn('ix') }, { label: 'Traffic circle', tip: 'Click to place a small 1-lane roundabout (3×3). Cars enter at the 4 arms and yield to the circle.', icon: 'road_roundabout', run: () => click('#roadTiers button[data-rab]'), on: () => ($('#roadTiers button[data-rab]') as HTMLElement | null)?.style.background === 'rgb(61, 111, 209)' }]] },
     { id: 'zones', icon: 'cat_zones', name: 'Zones', groups: [[{ label: 'Residential', tip: 'R rotates facing', key: '3', icon: 'zone_R_2', run: tool(3), on: toolOn('R') }, { label: 'Commercial', tip: '', key: '4', icon: 'zone_C_2', run: tool(4), on: toolOn('C') }, { label: 'Industrial', tip: '', key: '5', icon: 'zone_I_2', run: tool(5), on: toolOn('I') }]] },
@@ -62,6 +62,7 @@ export function mountUI2() {
     { id: 'svc', icon: 'cat_services', name: 'Services', groups: [svcItems(['police', 'fire']), svcItems(['clinic', 'hospital']), svcItems(['school', 'highschool'])] },
     { id: 'transit', icon: 'cat_transit', name: 'Transit', groups: [[...svcItems(['busdepot']), { label: 'Bus stop', tip: 'Click a road to add a stop', icon: 'tool_bus_stop', run: () => click('#roadTiers button[data-stop]'), on: toolOn('stop') }], svcItems(['garage', 'garage2'])] },
     { id: 'parks', icon: 'cat_parks', name: 'Parks', groups: [parks] },
+    { id: 'plots', icon: 'cat_plots', name: 'Custom lots', groups: () => (window as any).__plots?.items() ?? [] },
     { id: 'doze', icon: 'cat_bulldoze', name: 'Bulldoze', key: '6', direct: tool(6), on: toolOn('bulldoze') },
     { id: 'views', icon: 'cat_views', name: 'Views', groups: [[{ label: 'Grid', tip: '', key: 'G', icon: 'view_grid', run: () => click('#gridBtn'), on: isOn('#gridBtn') }, { label: 'Zone colours', tip: '', key: 'Z', icon: 'view_zone_colours', run: () => click('#zoneBtn'), on: isOn('#zoneBtn') }, { label: 'Underground', tip: 'Pipes', key: 'U', icon: 'view_underground', run: () => click('#ugBtn'), on: isOn('#ugBtn') }],
       Array.from(covSel.options).filter(o => o.value).map(o => ({ label: o.text, tip: 'Overlay. Click again to turn off.', icon: 'overlay_' + o.value, run: cov(o.value), on: () => covSel.value === o.value }))] },
@@ -77,8 +78,8 @@ export function mountUI2() {
   const refresh = () => { bar.querySelectorAll<HTMLElement>('button').forEach(b => { const c = CATS.find(x => x.id === b.dataset.c)!; b.classList.toggle('on', open === c.id || !!c.on?.()); });
     tray.querySelectorAll<HTMLElement>('button').forEach((b, k) => b.classList.toggle('on', !!(b as any).__it.on?.())); };
   const openTray = (id: string) => { open = open === id ? '' : id; const c = CATS.find(x => x.id === id)!; tray.innerHTML = ''; tray.style.display = open ? 'flex' : 'none';
-    (c.groups ?? []).forEach((items, gi) => { if (gi) { const sep = document.createElement('span'); sep.className = 'sep'; tray.appendChild(sep); }
-      for (const it of items) { const b = document.createElement('button'); (b as any).__it = it; b.innerHTML = it.icon ? I(it.icon, 'ic ic28') : it.label; withTip(b, it.label, it.tip, it.key); b.onclick = () => { it.run(); setTimeout(refresh, 30); }; tray.appendChild(b); } });
+    (typeof c.groups === 'function' ? c.groups() : c.groups ?? []).forEach((items, gi) => { if (gi) { const sep = document.createElement('span'); sep.className = 'sep'; tray.appendChild(sep); }
+      for (const it of items) { const b = document.createElement('button'); (b as any).__it = it; b.innerHTML = it.img ? `<img class="ic ic28" style="object-fit:contain" src="${it.img}" alt="">` : it.icon ? I(it.icon, 'ic ic28') : it.label; withTip(b, it.label, it.tip, it.key); b.onclick = ev => { it.run(ev); if (c.id === 'plots') { open = ''; openTray(c.id); } setTimeout(refresh, 30); }; tray.appendChild(b); } });
     refresh(); };
   for (const c of CATS) { const b = document.createElement('button'); b.dataset.c = c.id; b.innerHTML = I(c.icon, 'ic ic28');
     withTip(b, c.name, '', c.key); b.onclick = () => { if (c.direct) { open = ''; tray.style.display = 'none'; c.direct(); refresh(); } else openTray(c.id); }; bar.appendChild(b); }

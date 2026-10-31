@@ -3,6 +3,7 @@ import { TripSim, carsOf } from './trips';
 import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
+import { plotStats, drawPlot, newDesign, fits, partAt, PARTS, CELLS, type Design, type PartType, type PlotStats } from './plots';
 import { loadManifest, place, placeNight, hasArt, artMeta, artTex, facingName , autotile } from './sprites';
 
 const TW = 64, TH = 32;
@@ -112,7 +113,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const isTall = (z: string, L: number) => L === 3 && (z === 'R' || z === 'C');
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
   // ---- civic services (plopped buildings) ----
-  type Kind = 'edu' | 'police' | 'fire' | 'health' | 'power' | 'water' | 'parking' | 'park' | 'transit';
+  type Kind = 'edu' | 'police' | 'fire' | 'health' | 'power' | 'water' | 'parking' | 'park' | 'transit' | 'plot';
   const SERV: Record<string, { name: string; size: number; cost: number; radius: number; kind: Kind; util?: boolean; out?: number; needsWater?: boolean; key?: string; str?: number }> = {
     school: { name: 'Elementary School', size: 2, cost: 400, radius: 10, kind: 'edu' },
     highschool: { name: 'High School', size: 3, cost: 900, radius: 16, kind: 'edu' },
@@ -126,12 +127,19 @@ function diamond(g: Graphics, i: number, j: number) {
     garage: { name: PARKING.garage.name, size: 1, cost: PARKING.garage.cost, radius: 0, kind: 'parking' },
     garage2: { name: PARKING.garage2.name, size: 2, cost: PARKING.garage2.cost, radius: 0, kind: 'parking' },
     busdepot: { name: 'Bus Depot', size: 2, cost: TRANSIT.depotCost, radius: 0, kind: 'transit', key: 'civic_bus_depot' },
+    plot: { name: 'Custom lot', size: 1, cost: 0, radius: 0, kind: 'plot' },
     tower: { name: 'Water Tower', size: 1, cost: 500, radius: 0, kind: 'water', util: true, out: CIVIC.tower.outGpd, key: 'util_tower' },
   };
   for (const [k, P] of Object.entries(PARKS)) SERV['park_' + k] = { name: P.name, size: P.size, cost: P.cost, radius: PARK_EFFECT.radius[P.size], kind: 'park', str: PARK_EFFECT.strength[P.size] };
   const isPark = (t: string) => t.startsWith('park_');
-  type Civ = { type: string; i: number; j: number; s: number; v?: string };
-  const UPKEEP: Record<string, number> = { school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180, coal: 150, wind: 15, pump: 40, tower: 30, garage: PARKING.garage.upkeep, garage2: PARKING.garage2.upkeep, busdepot: TRANSIT.depotUpkeep, ...Object.fromEntries(Object.entries(PARKS).map(([k, P]) => ['park_' + k, P.upkeep])) }; // $/month at 100% funding
+  type Civ = { type: string; i: number; j: number; s: number; v?: string; pid?: string; f?: number }; // plot: pid = design id, f = locked face (0 auto)
+  // ---- Plot Builder designs (saved with the city and in the browser's plot library) ----
+  const designs = new Map<string, Design>(); const statCache = new Map<string, PlotStats>();
+  try { for (const d of JSON.parse(localStorage.getItem('plotLib') ?? '[]')) designs.set(d.id, d); } catch { /* empty library */ }
+  const saveLib = () => { try { localStorage.setItem('plotLib', JSON.stringify([...designs.values()])); } catch { /* storage full */ } };
+  const pstats = (c: Civ | undefined | null): PlotStats | null => { if (!c || c.type !== 'plot' || !c.pid) return null; const d = designs.get(c.pid); if (!d) return null; let st = statCache.get(d.id); if (!st) { st = plotStats(d); statCache.set(d.id, st); } return st; };
+  const plotAt = (i: number, j: number) => { const c = civAt[i]?.[j]; return c && c.type === 'plot' && c.i === i && c.j === j ? pstats(c) : null; }; // stats live on the origin tile
+  const UPKEEP: Record<string, number> = { plot: 0, school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180, coal: 150, wind: 15, pump: 40, tower: 30, garage: PARKING.garage.upkeep, garage2: PARKING.garage2.upkeep, busdepot: TRANSIT.depotUpkeep, ...Object.fromEntries(Object.entries(PARKS).map(([k, P]) => ['park_' + k, P.upkeep])) }; // $/month at 100% funding
   const funding: Record<string, number> = Object.fromEntries(Object.keys(SERV).map(k => [k, 1])); // 0..1 per service type
   const civs: Civ[] = [];
   const civAt: (Civ | null)[][] = [...Array(N)].map(() => Array(N).fill(null));
@@ -141,7 +149,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const powered: boolean[][] = [...Array(N)].map(() => Array(N).fill(false)), watered: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const PDEM: Record<string, number[]> = POWER_KW, WDEM: Record<string, number[]> = WATER_GPD; // see src/realism.ts
   const util = { pCap: 0, pUse: 0, pWant: 0, wCap: 0, wUse: 0, wWant: 0 };
-  const consumerDemand = (i: number, j: number, D: Record<string, number[]>) => { const c = civAt[i][j]; if (c) return SERV[c.type].util ? 0 : (i === c.i && j === c.j ? ((D === PDEM ? CIVIC[c.type]?.kw : CIVIC[c.type]?.gpd) ?? 0) : 0); return bld[i][j] && zone[i][j] ? D[zone[i][j]][bld[i][j]] : 0; };
+  const consumerDemand = (i: number, j: number, D: Record<string, number[]>) => { const c = civAt[i][j]; if (c && c.type === 'plot') { const st = plotAt(i, j); return st ? (D === PDEM ? st.kw : st.gpd) : 0; } if (c) return SERV[c.type].util ? 0 : (i === c.i && j === c.j ? ((D === PDEM ? CIVIC[c.type]?.kw : CIVIC[c.type]?.gpd) ?? 0) : 0); return bld[i][j] && zone[i][j] ? D[zone[i][j]][bld[i][j]] : 0; };
   const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   const seenA = new Uint8Array(N * N), wseenA = new Uint8Array(N * N), asgA = new Uint8Array(N * N), dstamp = new Int32Array(N * N), dval = new Uint8Array(N * N);
   const qA = new Int32Array(N * N), q2 = new Int32Array(N * N), prevPW = new Uint8Array(N * N); let stamp = 0;
@@ -245,11 +253,16 @@ function diamond(g: Graphics, i: number, j: number) {
   const faceFor = (i: number, j: number, want: number) => want && isFront(i + FACE[want][1], j + FACE[want][2]) ? want : autoFace(i, j); // a locked facing with no road on that side falls back to the busiest adjacent road
   const facingOf = (i: number, j: number) => faceFor(i, j, zface[i][j]);
   /** a civic building faces the side of its footprint with the most road (SE on ties/none) */
+  /** tile just outside edge `d` (1 NE, 2 SE, 3 SW, 4 NW) of a square footprint, t along the edge */
+  const sideTile = (c: { i: number; j: number; s: number }, d: number, t: number): [number, number] => d === 1 ? [c.i + t, c.j - 1] : d === 2 ? [c.i + c.s, c.j + t] : d === 3 ? [c.i + t, c.j + c.s] : [c.i - 1, c.j + t];
+  /** a custom lot faces its locked side, else the side with the most frontable road */
+  const plotFace = (c: { i: number; j: number; s: number; f?: number }) => { if (c.f) return c.f; let best = 0, bn = 0; for (const d of [2, 1, 3, 4]) { let n = 0; for (let t = 0; t < c.s; t++) { const [a, b] = sideTile(c, d, t); if (isFront(a, b)) n++; } if (n > bn) { bn = n; best = d; } } return best || 2; };
+  const plotHasFront = (c: { i: number; j: number; s: number; f?: number }) => { const f = plotFace(c); for (let t = 0; t < c.s; t++) { const [a, b] = sideTile(c, f, t); if (isFront(a, b)) return true; } return false; };
   const civFace = (c: { i: number; j: number; s: number }) => { let best = 2, bn = 0; for (const d of [2, 1, 3, 4]) { let n = 0; for (let t = 0; t < c.s; t++) { const [a, b] = d === 1 ? [c.i + t, c.j - 1] : d === 2 ? [c.i + c.s, c.j + t] : d === 3 ? [c.i + t, c.j + c.s] : [c.i - 1, c.j + t]; if (isRoad(a, b)) n++; } if (n > bn) { bn = n; best = d; } } return best; };
   /** every building needs its own road: a lot counts if its front edge touches a road on its facing side */
   const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isFront(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
   /** road tile in front of the building's entrance (-1 none) */
-  const entranceOf = (i: number, j: number) => { if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isFront(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
+  const entranceOf = (i: number, j: number) => { const pc = civAt[i]?.[j]; if (pc && pc.type === 'plot') { const f = plotFace(pc); for (let t = 0; t < pc.s; t++) { const [a, b] = sideTile(pc, f, t); if (isFront(a, b)) return a * N + b; } return -1; } if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isFront(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
   const drawFace = (i: number, j: number) => { const l = lot[i][j]; if (l) return FACE.findIndex(x => x[0] === l.dir); return facingOf(i, j) || zface[i][j] || 2; };
   const DENN = ['', 'Light', 'Medium', 'Dense'];
   const CAPNAME: Record<string, string[]> = { R: ['', 'single-family homes', 'up to mid-rise apartments', 'up to towers'], C: ['', 'storefronts', 'main-street blocks & small offices', 'up to office towers'], I: ['', 'workshops', 'mid-size factories', 'heavy industry'] };
@@ -453,6 +466,9 @@ function diamond(g: Graphics, i: number, j: number) {
         const d = stopDir.get(i * N + j) ?? (isRoad(i, j - 1) || isRoad(i, j + 1) ? 'SW' : 'SE'), off = STOP_OFF[d], key = 'prop_bus_stop_' + d;
         P(key, x + off[0], y + off[1], seed, y + 0.6); PN(key, x + off[0], y + off[1], seed, y + 0.6); }
       const cv = civAt[i][j];
+      if (cv && cv.type === 'plot') { const d = cv.pid ? designs.get(cv.pid) : undefined;
+        if (d && i === cv.i + cv.s - 1 && j === cv.j) { const g = new Container(); g.sortableChildren = true; g.zIndex = toScreen(cv.i + cv.s - 1, cv.j + cv.s - 1).y + 0.5; drawPlot({ toScreen, place, hasArt }, d, cv.i, cv.j, plotFace(cv), g); ch.ob.addChild(g); }
+        return; }
       if (cv) {
         place('civic_lot', x, y, ch.zn, seed);
         if (i === cv.i + cv.s - 1 && j === cv.j) { // depth key i0+j0+size-1 (manifest placement); anchor = footprint centre
@@ -635,7 +651,7 @@ function diamond(g: Graphics, i: number, j: number) {
   // Services toolbar group
   const svcBar = document.getElementById('services')!;
   const ICON: Record<string, string> = { school: 'svc_school_elem', highschool: 'svc_school_high', police: 'svc_police', fire: 'svc_fire', clinic: 'svc_clinic', hospital: 'svc_hospital', garage: 'svc_garage', garage2: 'svc_garage_big', busdepot: 'svc_bus_depot' };
-  svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util && v.kind !== 'park').map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}">${ICON[k] ? `<img class="ic" src="./assets/ui/icons2/svg/${ICON[k]}.svg" alt="">` : ''}${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
+  svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util && v.kind !== 'park' && v.kind !== 'plot').map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}">${ICON[k] ? `<img class="ic" src="./assets/ui/icons2/svg/${ICON[k]}.svg" alt="">` : ''}${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
     + '<span class="sep">Parks</span><span id="parkGroup" style="display:inline-flex;flex-wrap:wrap;gap:3px;max-width:900px">' + Object.entries(PARKS).map(([k, P]) => `<button data-t="svc:park_${k}" title="${P.name}: ${P.size}x${P.size}, build $${P.cost}, upkeep $${P.upkeep}/month. Raises nearby home values${P.leisure ? '; draws leisure trips' : ''}. Doesn't need a road."><img class="ic" src="./assets/ui/icons2/svg/park_${k}.svg" alt=""> ${P.name} <small>${P.size}×${P.size} $${P.cost}</small></button>`).join('') + '</span>'
     + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.kind === 'power' ? fmtPower(v.out!) : fmtWater(v.out!)}${v.needsWater ? ', its south-east side must be on water' : ''}"><img class="ic" src="./assets/ui/icons2/svg/${({ coal: 'svc_coal', wind: 'svc_wind', pump: 'svc_pump', tower: 'svc_water_tower' } as Record<string, string>)[k] ?? 'svc_' + k}.svg" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
     + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="traffic">Traffic volume</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option><option value="power">Powered</option><option value="water">Water served</option><option value="park">Parks (happiness)</option></select>';
@@ -669,6 +685,10 @@ function diamond(g: Graphics, i: number, j: number) {
     if (!canPlop(t, hi, hj)) return false; if (!spend(SERV[t].cost)) return false; tripsDirty = true; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s }; if (isPark(t)) c.v = pickVariant(c);
     civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; markDirty(f.i0, f.j0, f.i0 + f.s, f.j0 + f.s); census(); updateStats(); return true;
   };
+  const plotFoot = (id: string, hi: number, hj: number) => { const d = designs.get(id)!, o = Math.floor((d.s - 1) / 2); return { i: hi - o, j: hj - o, s: d.s, f: d.face }; };
+  const canPlot = (id: string, hi: number, hj: number) => { const d = designs.get(id); if (!d) return false; const c = plotFoot(id, hi, hj); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (!tileFree(c.i + a, c.j + b) || pline[c.i + a][c.j + b]) return false; return plotHasFront(c); };
+  const placePlot = (id: string, hi: number, hj: number) => { if (!canPlot(id, hi, hj)) return false; const d = designs.get(id)!; if (!spend(plotStats(d).cost)) return false; tripsDirty = true; const f = plotFoot(id, hi, hj), c: Civ = { type: 'plot', i: f.i, j: f.j, s: f.s, pid: id, f: f.f };
+    civs.push(c); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) civAt[c.i + a][c.j + b] = c; markDirty(c.i, c.j, c.i + c.s, c.j + c.s); census(); updateStats(); return true; };
   const parkVariants = (c: Civ) => 'abcdef'.split('').filter(v => hasArt(`${c.type}_${c.s}x${c.s}_${v}`));
   const pickVariant = (c: Civ) => { const vs = parkVariants(c); return vs.length ? vs[Math.floor(Math.random() * vs.length)] : 'a'; };
   const rerollPark = (c: Civ) => { const vs = parkVariants(c); if (vs.length < 2) return false; let v = c.v; while (v === c.v) v = vs[Math.floor(Math.random() * vs.length)]; c.v = v; markDirty(c.i, c.j, c.i + c.s, c.j + c.s); return true; };
@@ -683,6 +703,7 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const showPreview = () => {
     preview.clear();
+    if (tool.startsWith('plot:')) { if (drag && designs.has(tool.slice(5))) { const id = tool.slice(5), ok = canPlot(id, drag.ci, drag.cj), f = plotFoot(id, drag.ci, drag.cj); for (let a = 0; a < f.s; a++) for (let b = 0; b < f.s; b++) if (inb(f.i + a, f.j + b)) { diamond(preview, f.i + a, f.j + b); preview.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.5 }); } } return; }
     if (tool.startsWith('svc:')) { if (drag) { const t = tool.slice(4), ok = canPlop(t, drag.ci, drag.cj); for (const [i, j] of svcFoot(t, drag.ci, drag.cj).tiles) if (inb(i, j)) { diamond(preview, i, j); preview.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.5 }); } } return; }
     const col = tool === 'pline' ? 0xffd23f : tool === 'pipe' ? 0x4fa3ff : tool === 'road' ? 0x9aa0a6 : tool === 'bulldoze' ? 0xff8800 : ({R:0x3ecf4a,C:0x3b8cff,I:0xf2c230} as any)[tool];
     if (tool === 'road') { let c = 0; const rt = roadTiles(dragTiles()); for (const [i, j, w] of rt) if (valid(i, j)) c += roadCost(i, j, wKind(w)); hud.textContent = `Cost: $${c.toLocaleString()}` + (c > sim.funds ? ' (not enough funds)' : ''); for (const [i, j] of rt) { diamond(preview, i, j); preview.fill({ color: valid(i, j) ? col : 0xff2020, alpha: 0.55 }); } return; }
@@ -710,6 +731,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (tool === 'stop') { if (drag) toggleStop(drag.ci, drag.cj); drag = null; preview.clear(); return; }
     if (tool === 'rab') { if (drag) placeRab(drag.ci, drag.cj); drag = null; preview.clear(); return; }
     if (tool === 'ix') { if (drag) { const o = ixSet.get(drag.ci * N + drag.cj), p = toScreen(drag.ci, drag.cj); if (ixBox.style.display === 'block' && ixBox.dataset.k === String(drag.ci * N + drag.cj) && o && (o.mode === 'twostop' || o.mode === 'yield')) setIx(drag.ci, drag.cj, { axis: 1 - o.axis }); ixBox.dataset.k = String(drag.ci * N + drag.cj); openIx(drag.ci, drag.cj, p.x * zoom + world.position.x, p.y * zoom + world.position.y); } drag = null; preview.clear(); return; } // clicking again flips which road stops
+    if (tool.startsWith('plot:')) { if (drag) placePlot(tool.slice(5), drag.ci, drag.cj); drag = null; preview.clear(); return; }
     if (tool.startsWith('svc:')) { if (drag) plop(tool.slice(4), drag.ci, drag.cj); drag = null; preview.clear(); return; }
     const rtiles = tool === 'road' ? roadTiles(dragTiles()).filter(([i, j]) => valid(i, j)) : [], wAt = new Map(rtiles.map(([i, j, w]) => [i * N + j, w])), pdAt = new Map(rtiles.map(([i, j, , d]) => [i * N + j, d ?? 0]));
     const tiles = tool === 'road' ? rtiles.map(([i, j]) => [i, j] as [number, number]) : dragTiles().filter(([i, j]) => valid(i, j)), seen = new Set<Civ>();
@@ -767,6 +789,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (!mouse) { hud.textContent = 'Tile: —'; return; }
     const { i, j } = toTile((mouse.x - world.position.x) / zoom, (mouse.y - world.position.y) / zoom);
     if (i < 0 || j < 0 || i >= N || j >= N) { hud.textContent = 'Tile: —'; return; }
+    if (tool.startsWith('plot:') && !drag && designs.has(tool.slice(5))) { const id = tool.slice(5), ok = canPlot(id, i, j), f = plotFoot(id, i, j); for (let a = 0; a < f.s; a++) for (let b = 0; b < f.s; b++) if (inb(f.i + a, f.j + b)) { diamond(hl, f.i + a, f.j + b); hl.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.35 }); } }
     if (tool.startsWith('svc:') && !drag) { const t = tool.slice(4), ok = canPlop(t, i, j); for (const [a, b] of svcFoot(t, i, j).tiles) if (inb(a, b)) { diamond(hl, a, b); hl.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.35 }); } }
     else { diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 }); }
     if (drag && tool !== 'select') return; // mid-drag the HUD shows the preview's cost / no-road warning (set in showPreview); don't overwrite it every frame
@@ -818,7 +841,7 @@ function diamond(g: Graphics, i: number, j: number) {
       'Industrial tax': Math.round(tax.I / 100 * sim.jobsI * 6) };
     const pf = Math.round(parkingIncome()); if (pf) income['Parking fees'] = pf;
     const expense: Record<string, number> = { 'Road upkeep': Math.round(roads) };
-    for (const c of civs) { const k = SERV[c.type].name; expense[k] = (expense[k] ?? 0) + Math.round(UPKEEP[c.type] * funding[c.type]); }
+    for (const c of civs) { if (c.type === 'plot') continue; const k = SERV[c.type].name; expense[k] = (expense[k] ?? 0) + Math.round(UPKEEP[c.type] * funding[c.type]); }
     if (stops.length || hasDepot()) expense['Bus service'] = Math.round(stops.length * TRANSIT.stopUpkeep + (hasDepot() ? busesWanted() * TRANSIT.busUpkeep : 0));
     extraExpenses(expense);
     if (sim.loan) expense['Loan interest'] = Math.round(sim.loan * LOAN_RATE);
@@ -860,6 +883,7 @@ function diamond(g: Graphics, i: number, j: number) {
       const v = zone[i][j] === 'R' ? resCap(i, j) : CAP[zone[i][j]][bld[i][j]];
       if (zone[i][j] === 'R') sim.pop += v; else if (zone[i][j] === 'C') sim.jobsC += v; else sim.jobsI += v;
     }
+    for (const c of civs) { const st = pstats(c); if (st) { sim.pop += st.residents; sim.jobsC += st.jobsC; sim.jobsI += st.jobsI; } } // custom lots
     sim.pop = Math.round(sim.pop); sim.jobsC = Math.round(sim.jobsC); sim.jobsI = Math.round(sim.jobsI);
     const jobs = sim.jobsC + sim.jobsI;
     sim.dR = clamp((jobs * ECON.residentsPerJob + 60 - sim.pop) / Math.max(60, sim.pop * 0.4)); const bR = sim.dR;      // people come for jobs
@@ -994,7 +1018,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const renderBudget = () => {
     const p = projection(), lm = lastMonth;
     const rows = (o: Record<string, number>, sign: string) => Object.entries(o).map(([k, v]) => `<tr><td>${k}</td><td>${sign}${money(v)}</td></tr>`).join('');
-    const types = [...new Set(civs.filter(c => !SERV[c.type].util).map(c => c.type))];
+    const types = [...new Set(civs.filter(c => !SERV[c.type].util && c.type !== 'plot').map(c => c.type))];
     budgetEl.innerHTML = `<div class="bh"><b>Budget</b><button id="bClose"><img class="ic" src="./assets/ui/icons2/svg/btn_close.svg" alt=""></button></div>
       <div>Funds <b>${money(sim.funds)}</b>${sim.loan ? ` · Loan ${money(sim.loan)} (1%/month)` : ''}${sim.funds < 0 ? ' <img class="ic" src="./assets/ui/icons2/svg/status_debt.svg" alt=""><span class="neg"> in debt</span>' : ''}</div>
       <div>Last month's net: <b class="${lm && lm.net < 0 ? 'neg' : 'pos'}">${lm ? money(lm.net) : '—'}</b> · Next month (projected): <b class="${p.net < 0 ? 'neg' : 'pos'}">${money(p.net)}</b></div>
@@ -1017,15 +1041,15 @@ function diamond(g: Graphics, i: number, j: number) {
   const trips = new TripSim({ N, seed: city.seed ?? 1, leisure: () => civs.filter(c => PARKS[c.type.slice(5)]?.leisure && isPark(c.type)).map(c => ({ k: c.i * N + c.j, draw: PARKS[c.type.slice(5)].leisure! })), entrance: (i, j) => entranceOf(i, j), drivable: (i, j) => drivable(i, j), linked: (i, j, a, b) => !partner(i, j, a, b) && avenueOK(i, j, a, b) && rabOK(i, j, a, b),
     tileSecs: (i, j) => rab[i][j] ? TRIPS.tileMeters * 0.7 / (25 / 3.6) : TRIPS.tileMeters / (TRIPS.speedKmh[(rtier[i][j] || 2)] * ROAD_WIDTHS[wKind(rw[i][j])].speedMul / 3.6),
     capacity: (i, j) => TRIPS.dailyCapacityPerLane * (rab[i][j] ? 1 : ROAD_WIDTHS[wKind(rw[i][j])].tileLanes) * ROAD_TIERS[(rtier[i][j] || 2) as RoadTier].capacity,
-    residents: (i, j) => zone[i][j] === 'R' && bld[i][j] ? resCap(i, j) : 0, jobs: (i, j) => (zone[i][j] === 'C' || zone[i][j] === 'I') && bld[i][j] ? CAP[zone[i][j]][bld[i][j]] : 0,
-    shop: (i, j) => zone[i][j] === 'C' && bld[i][j] > 0,
-    nearRoads: (i, j) => { const l = lot[i][j], ts = l ? lotTiles(l) : [[i, j]], out: number[] = []; for (const [a, b] of ts) for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) { const p = a + x, q = b + y; if ((x || y) && inb(p, q) && drivable(p, q) && !out.includes(p * N + q)) out.push(p * N + q); } return out; },
-    industry: (i, j) => zone[i][j] === 'I' && bld[i][j] > 0,
+    residents: (i, j) => civAt[i][j] ? plotAt(i, j)?.residents ?? 0 : zone[i][j] === 'R' && bld[i][j] ? resCap(i, j) : 0, jobs: (i, j) => civAt[i][j] ? (st => st ? st.jobsC + st.jobsI : 0)(plotAt(i, j)) : (zone[i][j] === 'C' || zone[i][j] === 'I') && bld[i][j] ? CAP[zone[i][j]][bld[i][j]] : 0,
+    shop: (i, j) => civAt[i][j] ? !!plotAt(i, j)?.shop : zone[i][j] === 'C' && bld[i][j] > 0,
+    nearRoads: (i, j) => { const l = lot[i][j], pc = civAt[i][j], ts = pc && pc.type === 'plot' ? Array.from({ length: pc.s * pc.s }, (_, k) => [pc.i + ((k / pc.s) | 0), pc.j + k % pc.s]) : l ? lotTiles(l) : [[i, j]], out: number[] = []; for (const [a, b] of ts) for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) { const p = a + x, q = b + y; if ((x || y) && inb(p, q) && drivable(p, q) && !out.includes(p * N + q)) out.push(p * N + q); } return out; },
+    industry: (i, j) => civAt[i][j] ? !!plotAt(i, j)?.industry : zone[i][j] === 'I' && bld[i][j] > 0,
     transit: () => ({ stops, depot: hasDepot() }),
     schools: () => civs.filter(c => TRIPS.schoolSeats[c.type]).map(c => ({ k: c.i * N + c.j, seats: TRIPS.schoolSeats[c.type] })),
-    parkSpaces: (i, j) => { const c = civAt[i][j]; if (c) return SERV[c.type].kind === 'parking' && i === c.i && j === c.j ? (PARKING as any)[c.type].spaces : 0;
+    parkSpaces: (i, j) => { const c = civAt[i][j]; if (c && c.type === 'plot') return plotAt(i, j)?.spaces ?? 0; if (c) return SERV[c.type].kind === 'parking' && i === c.i && j === c.j ? (PARKING as any)[c.type].spaces : 0;
       if (pk[i][j]) return pk[i][j] === 1 ? PARKING.privateLot.spaces : PARKING.privateGarage.spaces; return drivable(i, j) ? PARKING.streetSpaces[wKind(rw[i][j])] : 0; },
-    needsParking: (i, j) => { const c = civAt[i][j]; if (c) return c.type === 'hospital' || c.type === 'highschool'; return zone[i][j] === 'C' && bld[i][j] >= 2; } });
+    needsParking: (i, j) => { const c = civAt[i][j]; if (c && c.type === 'plot') return !!plotAt(i, j)?.shop; if (c) return c.type === 'hospital' || c.type === 'highschool'; return zone[i][j] === 'C' && bld[i][j] >= 2; } });
   volRef = trips.volume;
   /** private parking grows on its own where drivers can't find spaces: a free or low-density C tile near the shortfall becomes a lot (a garage next to C3) */
   const growParking = () => { let made = 0; const cand: [number, number][] = []; for (let k = 0; k < N * N; k++) if (trips.unmet[k] > 8) cand.push([k, trips.unmet[k]]); cand.sort((a, b) => b[1] - a[1]);
@@ -1082,7 +1106,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); rt[k] = rtier[i][j]; rs[k] = rstage[i][j]; rd[k] = Math.min(255, rday[i][j]); rf[k] = rfrom[i][j]; ww[k] = rw[i][j]; pd[k] = rpd[i][j]; }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      stops: [...stops], rabs: [...new Set(rab.flat().filter(v => v > 0).map(v => v - 1))], ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) })), lots: [...lots].map(l => ({ ...l })), hist: hist.slice(), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
+      stops: [...stops], rabs: [...new Set(rab.flat().filter(v => v > 0).map(v => v - 1))], ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}), ...(c.pid ? { pid: c.pid, f: c.f ?? 0 } : {}) })), plots: [...designs.values()].filter(d => civs.some(c => c.pid === d.id)).map(d => JSON.parse(JSON.stringify(d))), lots: [...lots].map(l => ({ ...l })), hist: hist.slice(), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
   };
   const applySave = (o: any) => {
     const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0, ww = o.grids.rwidth ? g('rwidth') : z0, pkg = o.grids.pk ? g('pk') : null, pd = o.grids.rpart ? g('rpart') : null, zdg = o.grids.zden ? g('zden') : null, zfg = o.grids.zface ? g('zface') : null; roadWorks.length = 0;
@@ -1094,7 +1118,8 @@ function diamond(g: Graphics, i: number, j: number) {
     for (const r of rab) r.fill(0); for (const k of o.rabs ?? []) { const i0 = (k / N) | 0, j0 = k % N; for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) if (inb(i0 + a, j0 + b) && road[i0 + a][j0 + b]) rab[i0 + a][j0 + b] = k + 1; } // pre-v12 saves: no roundabouts
     stops.length = 0; for (const k of o.stops ?? []) stops.push(k); busKey = ''; drawStops(); // pre-v10 saves: no bus stops
     ixSet.clear(); autoCtl.clear(); for (const [k, mode, axis, cyc, split] of o.ix ?? []) ixSet.set(k, { mode, axis, cyc, split }); // pre-v9 saves: every junction is Auto
-    civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
+    for (const d of o.plots ?? []) { designs.set(d.id, d); statCache.delete(d.id); } // pre-v13 saves: no custom lots
+    civs.length = 0; for (const c of o.civs) { if (!SERV[c.type] || (c.type === 'plot' && !designs.has(c.pid))) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}), ...(c.pid ? { pid: c.pid, f: c.f ?? 0 } : {}) }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
     for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l }); syncLots();
     Object.assign(sim, o.sim); if (!Array.isArray(o.sim?.edu) || o.sim.edu.length !== 4) sim.edu = [...DEMOG.eduNoSchools]; // pre-v11: no education history yet
     hist.length = 0; for (const h of o.hist ?? []) hist.push(h); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
@@ -1211,6 +1236,62 @@ function diamond(g: Graphics, i: number, j: number) {
   document.getElementById('saveBtn')!.onclick = e => { e.stopPropagation(); toggleSave(); };
   window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveTo(city.name, 'slot:' + city.name).then(() => toastOk(`Saved “${city.name}”`)); } });
   if (loaded) applySave(loaded);
+  // ---- Plot Builder mode: design a lot from parts on a 5 m grid, save it, then place it like a service building ----
+  const builderC = new Container(); builderC.visible = false; app.stage.addChild(builderC);
+  const pUI = document.createElement('div'); pUI.id = 'plotUI'; document.body.appendChild(pUI);
+  const pCSS = document.createElement('style'); pCSS.textContent = `#plotUI{position:fixed;inset:0;display:none;z-index:20;font:12px system-ui;color:#e8eef6}
+body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting #zoneBar,body.plotting #info{display:none!important}
+#plotUI .pp{position:absolute;background:rgba(16,22,30,.94);border:1px solid #33404f;border-radius:12px;padding:6px;display:flex;gap:4px}
+#plotUI button{background:#1c2633;border:1px solid #2c3a4b;border-radius:9px;padding:6px;cursor:pointer;color:#e8eef6;font:12px system-ui;min-width:30px}
+#plotUI button.on{border-color:#4f8cff;background:#20314a}#plotUI button:hover{background:#243142}#plotUI .ic28{width:28px;height:28px;display:block}
+#plotUI .sep{width:1px;align-self:stretch;background:#33404f;margin:0 3px}#plotUI b.n{min-width:18px;text-align:center;align-self:center;font-size:14px}
+#pPal{left:50%;bottom:12px;transform:translateX(-50%)}#pTop{left:50%;top:52px;transform:translateX(-50%);align-items:center}
+#pStats{right:12px;top:52px;flex-direction:column;gap:2px;padding:10px 14px;min-width:190px;line-height:1.7}#pStats .w{color:#ffb347}
+#pTop input{background:#0f151d;border:1px solid #2c3a4b;border-radius:7px;color:#e8eef6;padding:5px 8px;width:140px}`; document.head.appendChild(pCSS);
+  const IC = (id: string) => `<img class="ic28" src="./assets/ui/icons2/svg/${id}.svg" alt="">`;
+  let pd: Design = newDesign(1), brush: PartType | 'erase' = 'house', bFloors = 1, hover: [number, number] | null = null, painting = false;
+  const PAL: (PartType | 'erase')[] = ['house', 'shop', 'factory', 'parking', 'driveway', 'sidewalk', 'tree', 'fence', 'erase'];
+  pUI.innerHTML = `<div class="pp" id="pTop"><button data-sz="1">1×1</button><button data-sz="2">2×2</button><button data-sz="3">3×3</button><span class="sep"></span>
+    <button data-fl="-1">${IC('plot_floor_down')}</button><b class="n" id="pFl">1</b><button data-fl="1">${IC('plot_floor_up')}</button><span class="sep"></span>
+    ${['face_auto', 'face_ne', 'face_se', 'face_sw', 'face_nw'].map((f, k) => `<button data-face="${k}">${IC(f)}</button>`).join('')}<span class="sep"></span>
+    <input id="pName" maxlength="24"><button id="pSave">${IC('btn_save')}</button><button id="pClose">${IC('btn_close')}</button></div>
+    <div class="pp" id="pPal">${PAL.map(t => `<button data-part="${t}">${IC(t === 'erase' ? 'tool_erase' : 'part_' + t)}</button>`).join('')}</div><div class="pp" id="pStats"></div>`;
+  const tipEl = () => document.getElementById('uTip');
+  const ptip = (b: HTMLElement, t: string, body = '') => { b.onmouseenter = () => { const tp = tipEl(); if (!tp) return; tp.innerHTML = `<b>${t}</b>${body ? '<br>' + body : ''}`; const r = b.getBoundingClientRect(); tp.style.display = 'block'; tp.style.zIndex = '60'; tp.style.left = Math.min(innerWidth - 290, r.left) + 'px'; tp.style.top = (r.top < 120 ? r.bottom + 6 : r.top - tp.offsetHeight - 6) + 'px'; }; b.onmouseleave = () => { const tp = tipEl(); if (tp) tp.style.display = 'none'; }; };
+  pUI.querySelectorAll<HTMLElement>('[data-part]').forEach(b => { const t = b.dataset.part as PartType | 'erase'; ptip(b, t === 'erase' ? 'Erase' : PARTS[t].name, t === 'erase' ? 'Click or drag to remove parts' : `${PARTS[t].tip}<br>$${PARTS[t].cost}${PARTS[t].body ? ' per floor' : ''}`); b.onclick = () => { brush = t; pSync(); }; });
+  pUI.querySelectorAll<HTMLElement>('[data-sz]').forEach(b => { ptip(b, `Lot ${b.dataset.sz}×${b.dataset.sz} tiles`, 'Parts outside the new size are removed'); b.onclick = () => { pd.s = +b.dataset.sz!; pd.parts = pd.parts.filter(p => fits({ ...pd, parts: [] }, p)); pDraw(); }; });
+  pUI.querySelectorAll<HTMLElement>('[data-fl]').forEach(b => { ptip(b, +b.dataset.fl! > 0 ? 'More floors' : 'Fewer floors', 'For the next building you place (3.2 m per floor). Click a building with the same tool to set its floors'); b.onclick = () => { bFloors = Math.max(1, Math.min(4, bFloors + +b.dataset.fl!)); pSync(); }; });
+  const FTIP = ['Front faces the road automatically', 'Lock front to NE', 'Lock front to SE', 'Lock front to SW', 'Lock front to NW'];
+  pUI.querySelectorAll<HTMLElement>('[data-face]').forEach(b => { ptip(b, FTIP[+b.dataset.face!], 'The gold edge is the front: front door, driveway and shoppers. Workers and trucks may use any road within 1 tile'); b.onclick = () => { pd.face = +b.dataset.face!; pSync(); }; });
+  const nameIn = pUI.querySelector('#pName') as HTMLInputElement; nameIn.oninput = () => { pd.name = nameIn.value || 'Custom lot'; }; nameIn.onkeydown = e => e.stopPropagation(); nameIn.title = 'Name';
+  ptip(pUI.querySelector('#pSave')!, 'Save and place', 'Saves to your lot library, then click the city to place it next to a road'); ptip(pUI.querySelector('#pClose')!, 'Close builder');
+  const pScale = () => Math.min(innerWidth * 0.5, (innerHeight - 220) * 1.6) / (pd.s * 64);
+  const pLocal = (cx: number, cy: number) => { const k = pScale(), x = (cx - builderC.position.x) / k, y = (cy - builderC.position.y) / k, i = (x / 32 + y / 16) / 2, j = (y / 16 - x / 32) / 2; return [Math.floor((i + 0.5) * CELLS), Math.floor((j + 0.5) * CELLS)] as [number, number]; };
+  const pSync = () => { pUI.querySelectorAll<HTMLElement>('[data-part]').forEach(b => b.classList.toggle('on', b.dataset.part === brush)); pUI.querySelectorAll<HTMLElement>('[data-sz]').forEach(b => b.classList.toggle('on', +b.dataset.sz! === pd.s)); pUI.querySelectorAll<HTMLElement>('[data-face]').forEach(b => b.classList.toggle('on', +b.dataset.face! === pd.face));
+    (pUI.querySelector('#pFl') as HTMLElement).textContent = String(bFloors); nameIn.value = pd.name; pDraw(); };
+  const pDraw = () => { for (const c of builderC.removeChildren()) c.destroy({ children: true }); const k = pScale(); builderC.scale.set(k); builderC.position.set(innerWidth / 2, innerHeight / 2 + 10 - (pd.s - 1) * 16 * k); builderC.sortableChildren = true;
+    drawPlot({ toScreen, place, hasArt }, pd, 0, 0, 2, builderC, { grid: true });
+    if (hover) { const t = brush === 'erase' ? null : brush, w = t ? PARTS[t].w : 1, h = t ? PARTS[t].h : 1, [x, y] = hover, ok = brush === 'erase' ? !!partAt(pd, x, y) : fits(pd, { t: brush as PartType, x, y }) || (!!PARTS[brush as PartType].body && partAt(pd, x, y)?.t === brush);
+      const q = (u: number, v: number) => toScreen(-0.5 + u / CELLS, -0.5 + v / CELLS), g = new Graphics(); g.zIndex = 1e9; g.poly([q(x, y), q(x + w, y), q(x + w, y + h), q(x, y + h)].flatMap(p => [p.x, p.y])).fill({ color: ok ? 0xffffff : 0xff3030, alpha: 0.35 }).stroke({ width: 1 / k, color: ok ? 0xffffff : 0xff3030 }); builderC.addChild(g); }
+    const st = plotStats(pd); (pUI.querySelector('#pStats') as HTMLElement).innerHTML = `<b>${pd.name}</b>${st.homes ? `<span>${st.homes} home${st.homes > 1 ? 's' : ''} · ${st.residents} residents</span>` : ''}<span>${st.jobsC + st.jobsI} jobs${st.jobsC ? ` (${st.jobsC} shop/office)` : ''}${st.jobsI ? ` (${st.jobsI} industry)` : ''}</span><span>${st.spaces} parking stall${st.spaces === 1 ? '' : 's'}</span><span>${fmtPower(st.kw)} · ${fmtWater(st.gpd)}</span><span>Cost $${st.cost}</span>${st.warnings.map(w => `<span class="w">${w}</span>`).join('')}`; };
+  const pApply = (x: number, y: number) => { if (brush === 'erase') { const p = partAt(pd, x, y); if (p) pd.parts.splice(pd.parts.indexOf(p), 1); return; }
+    const ex = partAt(pd, x, y); if (ex && ex.t === brush && PARTS[brush].body) { ex.f = bFloors; return; } const p = { t: brush, x, y, ...(PARTS[brush].body ? { f: Math.min(bFloors, PARTS[brush].floors![1]) } : {}) }; if (fits(pd, p)) pd.parts.push(p); };
+  pUI.addEventListener('pointerdown', e => { if ((e.target as HTMLElement).closest('.pp')) return; e.stopPropagation(); const c = pLocal(e.clientX, e.clientY); painting = true; pApply(...c); pDraw(); });
+  pUI.addEventListener('pointermove', e => { if ((e.target as HTMLElement).closest('.pp')) { if (hover) { hover = null; pDraw(); } return; } const c = pLocal(e.clientX, e.clientY), n = pd.s * CELLS, inside = c[0] >= 0 && c[1] >= 0 && c[0] < n && c[1] < n; const nh = inside ? c : null;
+    if (painting && nh && (brush === 'erase' || !PARTS[brush].body)) pApply(...nh); if (String(nh) !== String(hover) || painting) { hover = nh; pDraw(); } });
+  addEventListener('pointerup', () => { painting = false; });
+  const openBuilder = (d?: Design) => { pd = d ? JSON.parse(JSON.stringify(d)) : newDesign(1); world.visible = false; builderC.visible = true; pUI.style.display = 'block'; document.body.classList.add('plotting'); setTool('select'); pSync(); };
+  const closeBuilder = () => { world.visible = true; builderC.visible = false; pUI.style.display = 'none'; document.body.classList.remove('plotting'); hover = null; const tp = tipEl(); if (tp) tp.style.display = 'none'; };
+  const thumbs = new Map<string, string>();
+  const thumbOf = (d: Design) => { let u = thumbs.get(d.id); if (u) return u; const c = new Container(); c.sortableChildren = true; drawPlot({ toScreen, place, hasArt }, d, 0, 0, 2, c); try { u = (app.renderer as any).extract.canvas({ target: c, resolution: 1.2 }).toDataURL(); } catch { u = './assets/ui/icons2/svg/cat_plots.svg'; } c.destroy({ children: true }); thumbs.set(d.id, u!); return u!; };
+  const saveDesign = () => { if (!plotStats(pd).bodies) return null; const d: Design = JSON.parse(JSON.stringify(pd)); designs.set(d.id, d); statCache.delete(d.id); thumbs.delete(d.id); saveLib(); markDirty(0, 0, N, N); census(); updateStats(); return d; };
+  (pUI.querySelector('#pSave') as HTMLElement).onclick = () => { const d = saveDesign(); if (!d) { pDraw(); return; } closeBuilder(); setTool('plot:' + d.id); };
+  (pUI.querySelector('#pClose') as HTMLElement).onclick = () => closeBuilder();
+  addEventListener('resize', () => { if (builderC.visible) pDraw(); });
+  (window as any).__plots = { items: () => [[{ label: 'Plot Builder', tip: 'Design your own lot from parts: buildings, parking, driveway, paths, trees and fences', icon: 'plot_builder', run: () => openBuilder(), on: () => builderC.visible }],
+    [...designs.values()].map(d => { const st = plotStats(d); return { label: d.name, tip: `${d.s}×${d.s} · $${st.cost}${st.homes ? ` · ${st.residents} residents` : ''}${st.jobsC + st.jobsI ? ` · ${st.jobsC + st.jobsI} jobs` : ''} · ${st.spaces} parking<br>Click the city next to a road to place. Shift-click here to edit`, img: thumbOf(d), run: (ev?: MouseEvent) => ev?.shiftKey ? openBuilder(d) : setTool('plot:' + d.id), on: () => tool === 'plot:' + d.id }; })] };
+  Object.assign((window as any).__city, { plots: { designs: () => [...designs.values()], stats: (id: string) => designs.get(id) && plotStats(designs.get(id)!), open: (d?: Design) => openBuilder(d), close: closeBuilder, cur: () => pd, apply: (x: number, y: number, t: PartType | 'erase', f = 1) => { brush = t; bFloors = f; pApply(x, y); pDraw(); }, setSize: (n: number) => { pd.s = n; pDraw(); }, setFace: (f: number) => { pd.face = f; pSync(); }, save: () => saveDesign()?.id ?? null,
+    place: (id: string, i: number, j: number) => placePlot(id, i, j), can: (id: string, i: number, j: number) => canPlot(id, i, j), civ: (i: number, j: number) => civAt[i][j] && { ...civAt[i][j]!, face: plotFace(civAt[i][j]!) }, entrance: (i: number, j: number) => entranceOf(i, j), near: (i: number, j: number) => (trips as any).w?.nearRoads?.(i, j), tile: (i: number, j: number) => ({ res: (trips as any).w?.residents?.(i, j) }) } });
   Object.assign((window as any).__city, { lots: () => [...lots], syncLots: () => syncLots(), addLot: (l: Lot) => addLot(l), lotAt: (i: number, j: number) => lot[i][j], serialize, applySave, saveTo, listSaves });
   // info panel
   const info = document.getElementById('info')!;
@@ -1235,6 +1316,8 @@ function diamond(g: Graphics, i: number, j: number) {
     const pct = (v: number) => Math.round(v * 100) + '%';
     if (inb(i, j) && stops.includes(i * N + j)) { const k = i * N + j, r = trips.riders.get(k) ?? 0, n = stops.indexOf(k) + 1;
       getBusLoop(); info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/tool_bus_stop.svg" alt=""> <b>Bus stop ${n} of ${stops.length}</b><br>${busWarn ? `<span style="color:#ffb347">${busWarn}</span><br>` : ''}Ridership: <b>${Math.round(r)}</b> boardings + alightings per day<br>City-wide: ${Math.round(trips.stats.busRiders)} bus trips/day · ${cars.filter(c => c.bus).length} bus${cars.filter(c => c.bus).length === 1 ? '' : 'es'} running${!hasDepot() ? '<br><img class="ic" src="./assets/ui/icons2/svg/status_no_depot.svg" alt=""> No Bus Depot: no buses run until you build one' : stops.length < 2 ? '<br><img class="ic" src="./assets/ui/icons2/svg/status_stops_needed.svg" alt=""> Needs at least 2 stops' : !getBusLoop() ? '<br><img class="ic" src="./assets/ui/icons2/svg/status_stops_unlinked.svg" alt=""> Stops are not connected by road' : ''}<br><small>Riders live or work within ${TRANSIT.walkTiles} tiles (${TRANSIT.walkTiles * 20} m) of a stop at both ends · Tile ${i}, ${j}</small>`; showInfo(); return; }
+    if (inb(i, j) && civAt[i][j]?.type === 'plot') { const c = civAt[i][j]!, d = designs.get(c.pid!), st = pstats(c)!, ent = entranceOf(c.i, c.j), FN = ['', 'NE', 'SE', 'SW', 'NW'];
+      info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/cat_plots.svg" alt=""> <b>${d?.name ?? 'Custom lot'}</b><br>Size ${c.s}×${c.s} · Front ${FN[plotFace(c)]}${c.f ? ' (locked)' : ' (auto)'}${ent < 0 ? ' · <span style="color:#ffb347">no road at the front</span>' : ''}<br>${st.homes ? `Homes <b>${st.homes}</b> · Residents <b>${st.residents}</b><br>` : ''}${st.jobsC + st.jobsI ? `Jobs <b>${st.jobsC + st.jobsI}</b>${st.shop ? ' · shoppers use the front door' : ''}${st.industry ? ' · freight uses any road within 1 tile' : ''}<br>` : ''}Parking <b>${st.spaces}</b> stall${st.spaces === 1 ? '' : 's'} · Power ${fmtPower(st.kw)} · Water ${fmtWater(st.gpd)}<br><small>Tile ${c.i}, ${c.j}</small>`; showInfo(); return; }
     if (inb(i, j) && civAt[i][j]) { const c = civAt[i][j]!, S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2;
       if (S.kind === 'park') { const P = PARKS[c.type.slice(5)], vs = parkVariants(c); let homes = 0; for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) if (zone[a][b] === 'R' && bld[a][b] && Math.hypot(a - ci, b - cj) <= S.radius) homes++;
         info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/cat_parks.svg" alt=""> <b>${P.name}</b><br>Size ${P.size}×${P.size} · Build $${P.cost} · Upkeep $${P.upkeep}/month<br>Raises home values up to ${Math.round(S.str! * PARK_EFFECT.desirability * 100)}% demand boost within ${S.radius} tiles (fades with distance)<br>Homes nearby: <b>${homes}</b> · Cleans a little pollution${P.leisure ? '<br>Draws leisure trips from nearby homes' : ''}${vs.length > 1 ? `<br><button id="parkReroll" style="margin-top:4px"><img class="ic" src="./assets/ui/icons2/svg/btn_reroll.svg" alt=""> Different look (${vs.length} variants)</button>` : ''}<br><small>Tile ${c.i}, ${c.j}</small>`;

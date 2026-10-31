@@ -1,0 +1,40 @@
+// Plot Builder v1: design a lot from parts, realistic stats (whole people), driveway rule for parking, save the design,
+// place it next to a road (auto-face + lock), shoppers use the front road tile, workers/freight any road within 1 tile, save v13 round trip + pre-v13 migration.
+const {chromium}=require('playwright');(async()=>{const url=process.argv[2]||'http://localhost:4431/',arg=k=>process.argv.includes(k)?process.argv[process.argv.indexOf(k)+1]:'';const shotUI=arg('--shot-ui'),shotCity=arg('--shot-city');
+const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});const p=await b.newPage({viewport:{width:1600,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
+await p.goto(url+'?size=64&seed=5&city=Plots');await p.waitForFunction(()=>window.__city&&__city.N);await p.evaluate(()=>{__city.setSpeed(0);localStorage.removeItem('plotLib')});
+const res=[];const ok=(n,c,d='')=>res.push((c?'PASS ':'FAIL ')+n+(d?' ('+d+')':''));
+const ui=await p.evaluate(()=>{const ps=__city.plots;ps.open();ps.setSize(2);
+ ps.apply(0,0,'house',3);ps.apply(0,4,'house',1);ps.apply(3,3,'shop',2);ps.apply(6,1,'parking');ps.apply(6,2,'parking');ps.apply(6,3,'parking');
+ for(let y=0;y<8;y++)ps.apply(0+(y<0?0:0),y,'fence');for(const [x,y] of [[2,0],[2,7],[5,6],[6,7]])ps.apply(x,y,'tree');ps.apply(5,0,'sidewalk');ps.apply(5,1,'sidewalk');
+ const noDrive=ps.stats?null:null;const st1=JSON.parse(JSON.stringify(require_stats()));function require_stats(){const {plotStats}=window;return null}
+ const cur=ps.cur();return {parts:cur.parts.length,shown:getComputedStyle(document.getElementById('plotUI')).display,icons:document.querySelectorAll('#plotUI img').length,texts:[...document.querySelectorAll('#plotUI button')].filter(b=>!b.querySelector('img')).map(b=>b.textContent)}});
+ok('builder opens with an icon-only palette (sizes are the only text buttons)',ui.shown==='block'&&ui.icons>=16&&ui.texts.every(t=>/^\d×\d$/.test(t)),JSON.stringify(ui));
+const noDrv=await p.evaluate(()=>{const ps=__city.plots,id=ps.save(),st=ps.stats(id);return st});
+ok('parking without a driveway on the front edge gives 0 stalls and a warning',noDrv.stalls===3&&noDrv.spaces===0&&noDrv.warnings.some(w=>/driveway/.test(w)),JSON.stringify(noDrv));
+const st=await p.evaluate(()=>{const ps=__city.plots;ps.apply(7,2,'driveway');ps.apply(7,1,'driveway');return ps.stats(ps.save())});
+ok('stats: 3-floor house = 3 flats + 1 detached house; whole residents; 2-floor shop = 2 retail + 4 office jobs; 3 stalls with a driveway',st.homes===4&&Number.isInteger(st.residents)&&st.residents>=4&&st.residents<=24&&st.jobsC===6&&st.spaces===3&&st.kw>0&&st.gpd>0&&st.cost>0,JSON.stringify(st));
+const blank=await p.evaluate(()=>{const ps=__city.plots;const n=ps.designs().length;const keep=ps.cur();ps.open();const r=ps.save();ps.open(keep);return {r,n,n2:ps.designs().length}});
+ok('an empty lot cannot be saved',blank.r===null&&blank.n===blank.n2,JSON.stringify(blank));
+await p.waitForTimeout(500);if(shotUI)await p.screenshot({path:shotUI});
+const id=await p.evaluate(()=>{const ps=__city.plots;const cur=ps.cur();cur.name='Corner flats';const id=ps.save();ps.close();return id});
+const c=await p.evaluate(()=>{const t=__city.terrain;for(let r=0;r<30;r++)for(let i=32-r;i<=32+r;i++)for(let j=32-r;j<=32+r;j++){let g=true;for(let a=-8;a<=8&&g;a++)for(let b=-8;b<=8;b++)if(!t[i+a]||t[i+a][j+b]==='water'){g=false;break}if(g)return[i,j]}});const [ci,cj]=c;
+const pl=await p.evaluate(([ci,cj,id])=>{const C=__city,ps=C.plots;C.sim().funds=1e6;const noRoad=ps.can(id,ci,cj);C.setRoadTier(2);C.setRoadWidth(1);C.paint('road',ci-4,cj+2,ci+5,cj+2);C.paint('road',ci-4,cj-4,ci-4,cj+2);const N=C.N();for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(C.road[i][j])C.rstage[i][j]=0;C.refresh();
+ const pop0=C.sim().pop,f0=C.sim().funds,okp=ps.place(id,ci,cj),cv=ps.civ(ci,cj);return {noRoad,okp,cv,cost:f0-C.sim().funds,pop0,pop1:C.sim().pop,stats:ps.stats(id)}},[ci,cj,id]);
+ok('needs a road: cannot place on bare land, places next to a road and charges the parts cost',!pl.noRoad&&pl.okp&&pl.cost===pl.stats.cost,JSON.stringify({noRoad:pl.noRoad,okp:pl.okp,cost:pl.cost}));
+ok('auto-faces the road (front on the SW side) and fills a 2x2',pl.cv&&pl.cv.face===3&&pl.cv.s===2&&pl.cv.pid===id,JSON.stringify(pl.cv));
+ok('city population counts the lot residents (whole people)',pl.pop1-pl.pop0===pl.stats.residents,`${pl.pop0} -> ${pl.pop1}`);
+const acc=await p.evaluate(([ci,cj])=>{const C=__city,N=C.N(),ps=C.plots,e=ps.entrance(ci,cj),near=ps.near(ci,cj);return {e:[(e/N)|0,e%N],near:near.map(k=>[(k/N)|0,k%N]),res:ps.tile(ci,cj).res,res2:ps.tile(ci+1,cj).res}},[ci,cj]);
+ok('shoppers: the entrance is a road tile on the front (SW) edge',acc.e[1]===cj+2&&acc.e[0]>=ci&&acc.e[0]<=ci+1,JSON.stringify(acc.e));
+ok('workers/freight: any road within 1 tile (front and the corner)',acc.near.length>=3&&acc.near.every(([i,j])=>i>=ci-1&&i<=ci+2&&j>=cj-1&&j<=cj+2),JSON.stringify(acc.near));
+ok('trip sim sees residents on the origin tile only',acc.res===pl.stats.residents&&acc.res2===0,JSON.stringify(acc));
+const lock=await p.evaluate(([ci,cj])=>{const ps=__city.plots,d=ps.designs()[0];ps.open(d);ps.setFace(1);const id2=ps.save();ps.close();return {ne:ps.can(id2,ci+6,cj),nw:(()=>{ps.open(ps.designs().find(x=>x.id===id2));ps.setFace(3);const id3=ps.save();ps.close();return ps.can(id3,ci+3,cj)})()}},[ci,cj]);
+ok('face lock: a NE-locked lot cannot face the SW road; SW-locked can',!lock.ne&&lock.nw,JSON.stringify(lock));
+const sv=await p.evaluate(([ci,cj])=>{const C=__city,o=JSON.parse(JSON.stringify(C.serialize()));const pop=C.sim().pop;localStorage.removeItem('plotLib');C.applySave(o);const cv=C.plots.civ(ci,cj);
+ const old=JSON.parse(JSON.stringify(o));old.version=12;delete old.plots;old.civs=old.civs.filter(c=>c.type!=='plot');C.applySave(old);const gone=!C.plots.civ(ci,cj);C.applySave(o);return {v:o.version,plots:o.plots.length,civ:!!cv&&cv.pid===o.civs.find(c=>c.type==='plot').pid,gone}},[ci,cj]);
+ok('save v13 stores designs + lot; round trip restores it; a v12 save loads with no custom lots',sv.v===13&&sv.plots>=1&&sv.civ&&sv.gone,JSON.stringify(sv));
+const tray=await p.evaluate(()=>{document.querySelector('#uBar button[data-c="plots"]').click();return document.querySelectorAll('#uTray button').length});
+ok('Custom lots tray lists the builder plus saved designs',tray>=2,String(tray));
+await p.evaluate(([ci,cj])=>{document.querySelector('#uBar button[data-c="plots"]').click();const C=__city;C.centerOn(ci+0.5,cj+1);C.setZoom(4)},[ci,cj]);await p.waitForTimeout(1200);if(shotCity)await p.screenshot({path:shotCity});
+ok('no console errors',errs.length===0,errs.slice(0,3).join(' | '));
+console.log(res.join('\n'));await b.close();process.exit(res.some(r=>r.startsWith('FAIL'))?1:0)})();

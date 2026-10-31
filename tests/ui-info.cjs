@@ -15,5 +15,5 @@ ok('fullscreen button in the top bar',await p.evaluate(()=>!!document.querySelec
 await p.keyboard.press('f');await p.waitForTimeout(500);const fs=await p.evaluate(()=>!!document.fullscreenElement);
 const sz=await p.evaluate(()=>{const c=document.querySelector('canvas');return [c.clientWidth,c.clientHeight,innerWidth,innerHeight]});
 ok('F toggles full screen and the canvas fills the window',fs&&sz[0]===sz[2]&&sz[1]===sz[3],JSON.stringify({fs,sz}));
-await p.keyboard.press('f');await p.waitForTimeout(300);ok('F again leaves full screen',!(await p.evaluate(()=>!!document.fullscreenElement)));
+await p.keyboard.press('f');const left=await p.waitForFunction(()=>!document.fullscreenElement,null,{timeout:4000}).then(()=>true,()=>false);ok('F again leaves full screen',left); // exitFullscreen is async; under load it can take longer than 300 ms
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs);process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

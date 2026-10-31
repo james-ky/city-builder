@@ -34,7 +34,7 @@ await p.evaluate(()=>{__city.sim().funds+=20000;__city.setRoadTier(2);__city.set
 ok('asphalt street costs 11 x $45',Math.round(f0-f1)===495,f0-f1);ok('street tiles are width 1',await p.evaluate(([i,j])=>__city.rw[i][j]===1,[ci,cj-6]));
 await p.evaluate(()=>__city.setRoadWidth(2));f0=await F();await drag([ci-5,cj-9],[ci+5,cj-9]);f1=await F();
 const av=await p.evaluate(([i,j])=>[__city.rw[i][j-9],__city.rw[i][j-8],__city.road[i][j-8]],[ci,cj]);ok('avenue drag lays 2 tiles side by side',av[0]===2&&av[1]===2&&av[2],JSON.stringify(av));
-ok('avenue costs 22 tiles x $40',Math.round(f0-f1)===880,f0-f1);
+ok('avenue costs 22 tiles x $57 (6-lane divided)',Math.round(f0-f1)===22*57,f0-f1);
 await p.evaluate(()=>{__city.setRoadWidth(1);__city.setRoadTier(1)});ok('dirt forces 2-lane',await p.evaluate(()=>__city.roadCost(0,0)===6));
 await p.evaluate(()=>__city.fastForward(20));
 const sv=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));const w=o.grids.rwidth;__city.applySave(o);const a=__city.serialize().grids.rwidth===w;delete o.grids.rwidth;__city.applySave(o);let n=0;for(const r of __city.rw)for(const v of r)n+=v;return [a,n]});

@@ -22,14 +22,14 @@ const g=q.filter(x=>x.tex);ok('each vehicle has headlight + taillight glow under
 if(shots){await p.evaluate(([ci,cj])=>{__city.centerOn(ci+5,cj);__city.setZoom(4.5)},c);await p.waitForTimeout(800);await p.screenshot({path:'screenshots/night-queue.png'})}
 const day=await p.evaluate(()=>{__fx.setDay(36);return 0});await p.waitForTimeout(800);const dv=await p.evaluate(()=>__city.carInfo().every(x=>!x.hgVis));ok('no glow in daytime',dv);
 if(shots){await p.screenshot({path:'screenshots/day-queue.png'})}
-// direction mapping: every type in all 4 directions
+// direction mapping: every type in all 4 grid directions -> the matching 16-direction sprite (d00=SE, d04=NE, d08=NW, d12=SW)
 await p.evaluate(()=>{const cs=__city.cars();while(cs.length)__city.cars().splice(0,1)[0].s.destroy()}).catch(()=>{});
 const all=['sedan_a','hatchback_a','pickup_a','van_a','taxi_a','bus_a','delivery_truck_a','delivery_truck_b','semi_a','semi_b'];const bad=[];
 for(const v of all){const routes=await p.evaluate(([ci,cj])=>{const N=__city.N(),mk=(di,dj)=>{const r=[];for(let s=-8;s<=8;s++){const i=ci+di*s,j=cj+dj*s;if(i===ci&&j===cj)continue;r.push(i*N+j)}return r};return{SE:mk(1,0),NW:mk(-1,0),SW:mk(0,1),NE:mk(0,-1)}},c);
  const n0=await p.evaluate(()=>__city.cars().length);for(const d of ['SE','NW','SW','NE'])await p.evaluate(([r,k])=>__city.spawnCar(r,k),[routes[d],'veh_'+v]);
  const a=await p.evaluate(n0=>__city.carInfo().slice(n0),n0);const k0=await p.evaluate(()=>__city.carClock());await p.waitForFunction(k0=>__city.carClock()>k0+0.6,k0);const z=await p.evaluate(n0=>__city.carInfo().slice(n0),n0);
  ['SE','NW','SW','NE'].forEach((d,k)=>{const A=a[k],B=z[k];if(!B){bad.push(v+' '+d+' missing');return}const mx=B.x-A.x,my=B.y-A.y,ax=man.veh[`veh_${v}_${d}`];
-  if(B.dir!==d||!B.tex.includes(`veh_${v}_${d}`)||!ax||Math.sign(mx)!==Math.sign(ax[0])||Math.sign(my)!==Math.sign(ax[1]))bad.push(`${v} ${d}: dir ${B.dir} tex ${B.tex.replace(/^.*\//,'')} move ${mx.toFixed(1)},${my.toFixed(1)} axis ${ax}`)});
+  const D16={SE:'d00',NE:'d04',NW:'d08',SW:'d12'}[d];if(B.dir!==D16||!B.tex.includes(`veh_${v}_${D16}`)||!ax||Math.sign(mx)!==Math.sign(ax[0])||Math.sign(my)!==Math.sign(ax[1]))bad.push(`${v} ${d}: dir ${B.dir} tex ${B.tex.replace(/^.*\//,'')} move ${mx.toFixed(1)},${my.toFixed(1)} axis ${ax}`)});
  await p.evaluate(n0=>{const cs=__city.cars();for(const x of cs.splice(n0)){x.s.destroy();x.n?.destroy();x.hg?.destroy();x.tg?.destroy()}},n0)}
 ok('travel direction picks the matching sprite facing for every vehicle type (screen motion matches manifest travelAxisPx)',bad.length===0,bad.slice(0,4).join(' | '));
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs);process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

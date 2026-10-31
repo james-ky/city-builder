@@ -1254,7 +1254,7 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const dropCar = (k: number) => { const c = cars[k]; c.s.destroy(); c.n?.destroy(); c.hg?.destroy(); c.tg?.destroy(); cars.splice(k, 1); };
   /** body extent along travel from the sprite anchor, in tiles (manifest bodyFront / -bodyRear); falls back to a 4.8 m car */
-  const bodyOf = (c: Car) => { if (c.bf === undefined) { const a = artMeta(c.key + '_NE'); c.bf = a?.bodyFront ?? 0.12; c.br = -(a?.bodyRear ?? -0.12); } return c; };
+  const bodyOf = (c: Car) => { if (c.bf === undefined) { const a = artMeta(c.key + '_d00') ?? artMeta(c.key + '_NE'); c.bf = a?.bodyFront ?? 0.12; c.br = -(a?.bodyRear ?? -0.12); } return c; };
   const STOP_GAP = 1.5 / 20; // ≈ 1.5 m between bumpers in a stopped queue
   const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => drivable(a, b) && !partner(i, j, a - i, b - j));
   const activity = (i: number, j: number) => { let v = 0; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (inb(i + a, j + b) && bld[i + a][j + b]) v += CAP[zone[i + a][j + b]][bld[i + a][j + b]]; return v; };
@@ -1385,7 +1385,13 @@ function diamond(g: Graphics, i: number, j: number) {
       const di = c.i - c.pi, dir = di > 0 ? 'SE' : di < 0 ? 'NW' : c.j < c.pj ? 'NE' : 'SW';
       if (c.s instanceof Graphics && !hasArt(c.key + '_NE')) { const ox = -dy / L * 5, oy = dx / L * 5; c.s.position.set(a.x + dx * c.t + ox, a.y + dy * c.t + oy); c.s.rotation = Math.atan2(dy, dx); }
       else {
-        if (dir !== c.dir) { // swap to the sprite facing the new direction
+        // 16-direction art (when the vehicle has it; never mixed with the 4-facing set): smoothed ground heading through turns
+        let face = dir; if (hasArt(c.key + '_d00')) { const gv = (a0: number, a1: number, b0: number, b1: number) => [b0 - a0, -(b1 - a1)]; // (SE, NE) ground units
+          const cur = gv(c.pi, c.pj, c.i, c.j); let g = cur; const ri = c.ri ?? 0;
+          if (c.t < 0.5 && c.route && ri >= 2) { const [qi, qj] = tileOf(c.route[ri - 2]), pv = gv(qi, qj, c.pi, c.pj), w = 0.5 - c.t; g = [pv[0] * w + cur[0] * (1 - w), pv[1] * w + cur[1] * (1 - w)]; }
+          else if (c.t > 0.5) { const n2 = c.nx ?? routeNext(c); if (n2) { const nv = gv(c.i, c.j, n2[0], n2[1]), w = c.t - 0.5; g = [cur[0] * (1 - w) + nv[0] * w, cur[1] * (1 - w) + nv[1] * w]; } }
+          const K = ((Math.round(Math.atan2(g[1], g[0]) / (Math.PI / 8)) % 16) + 16) % 16; face = 'd' + String(K).padStart(2, '0'); }
+        if (face !== c.dir) { const dir = face; // swap to the sprite facing the new direction
           c.dir = dir; c.s.destroy(); c.n?.destroy(); c.hg?.destroy(); c.tg?.destroy(); c.hg = c.tg = undefined;
           const ob = chunkOf(c.i, c.j).ob; c.s = place(c.key + '_' + dir, 0, 0, ob); (c.s as any).__veh = true; (c.s as Sprite).tint = curTint; c.s.scale.set(c.s.scale.x * VSCALE, c.s.scale.y * VSCALE);
           { const m = artMeta(c.key + '_' + dir); if (m?.headlightGlow && hasArt(m.headlightGlow)) { c.hg = place(m.headlightGlow, 0, 0, glowL) as Sprite; c.hg.blendMode = 'add'; (c.hg as any).__off = m.headlightOffsetPx; }

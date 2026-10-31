@@ -671,7 +671,7 @@ function diamond(g: Graphics, i: number, j: number) {
         const p = toScreen(i, j), q = toScreen(i + (FACE[d || 2][1]) * 0.42, j + (FACE[d || 2][2]) * 0.42), c = f ? 0xffffff : 0xff3030;
         if (!d) { preview.circle(p.x, p.y, 3).fill({ color: c }); continue; }
         const dx = q.x - p.x, dy = q.y - p.y; preview.moveTo(p.x - dx * 0.3, p.y - dy * 0.3).lineTo(q.x, q.y).stroke({ width: 2, color: c }); preview.poly([q.x, q.y, q.x - dx * 0.35 - dy * 0.3, q.y - dy * 0.35 + dx * 0.3, q.x - dx * 0.35 + dy * 0.3, q.y - dy * 0.35 - dx * 0.3]).fill(c); }
-      hud.textContent = `${DENN[zoneDen]} ${ZNAME[tool]} (cap: ${CAPNAME[tool][zoneDen]}) · Facing ${FACE[zoneFace][0]} (R to change) · Free` + (bad ? ` · <img class="ic" src="./assets/ui/icons2/svg/status_no_road.svg" alt=""> ${bad} tile${bad > 1 ? 's' : ''} with no road access on the front` : ''); }
+      hud.innerHTML = `${DENN[zoneDen]} ${ZNAME[tool]} (cap: ${CAPNAME[tool][zoneDen]}) · Facing ${FACE[zoneFace][0]} (R to change) · Free` + (bad ? ` · <img class="ic" src="./assets/ui/icons2/svg/status_no_road.svg" alt=""> ${bad} tile${bad > 1 ? 's' : ''} with no road access on the front` : ''); }
   };
   const commit = () => {
     if (tool === 'stop') { if (drag) toggleStop(drag.ci, drag.cj); drag = null; preview.clear(); return; }
@@ -735,10 +735,11 @@ function diamond(g: Graphics, i: number, j: number) {
     if (i < 0 || j < 0 || i >= N || j >= N) { hud.textContent = 'Tile: —'; return; }
     if (tool.startsWith('svc:') && !drag) { const t = tool.slice(4), ok = canPlop(t, i, j); for (const [a, b] of svcFoot(t, i, j).tiles) if (inb(a, b)) { diamond(hl, a, b); hl.fill({ color: ok ? 0xffffff : 0xff2020, alpha: 0.35 }); } }
     else { diamond(hl, i, j); hl.fill({ color: 0xffffff, alpha: 0.25 }).stroke({ width: 2 / zoom, color: 0xffff66 }); }
+    if (drag && tool !== 'select') return; // mid-drag the HUD shows the preview's cost / no-road warning (set in showPreview); don't overwrite it every frame
     if (civAt[i][j]) { hud.textContent = `Tile: ${i}, ${j}  (${SERV[civAt[i][j]!.type].name})`; return; }
     if (road[i][j] && ctrl.has(i * N + j)) { const q = ctrl.get(i * N + j)!, wait = cars.filter(c => c.i === i && c.j === j && c.res !== i * N + j && c.t >= 0.25 && c.t <= 0.31).length;
       hud.textContent = `Tile: ${i}, ${j}  (intersection · ${q.mode === 'auto' ? 'Auto: ' : ''}${q.k === 'L' ? `traffic light, ${q.cyc}s cycle` : q.k === 'N' ? 'uncontrolled' : (q.k === 'Y' ? 'yield' : q.stops.length >= 3 ? 'all-way stop' : 'stop') + ' on ' + q.stops.join('/')} · ${wait} car${wait === 1 ? '' : 's'} waiting)`; return; }
-    hud.textContent = `Tile: ${i}, ${j}  (${road[i][j] ? ROAD_TIERS[rtier[i][j] as RoadTier]?.name.toLowerCase() + ' ' + ROAD_WIDTHS[wKind(rw[i][j])].name.toLowerCase() + (rstage[i][j] ? ' · ' + ['', 'surveyed', 'graded', 'gravel base', 'surfacing'][rstage[i][j]] + (rfrom[i][j] ? ' (upgrade, still open)' : ' (closed)') : '') : zone[i][j] ? `${DENN[zden[i][j]] || 'Uncapped'} ${ZNAME[zone[i][j]]} zone (cap: ${CAPNAME[zone[i][j]][capOf(i, j)]})` + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : '') + ` · facing ${zface[i][j] ? FACE[zface[i][j]][0] : 'Auto' + (facingOf(i, j) ? ' (' + FACE[facingOf(i, j)][0] + ')' : '')}` + (hasAccess(i, j) ? '' : ' · <img class="ic" src="./assets/ui/icons2/svg/status_no_road.svg" alt=""> no road access') : terrain[i][j]})`;
+    hud.innerHTML = `Tile: ${i}, ${j}  (${road[i][j] ? ROAD_TIERS[rtier[i][j] as RoadTier]?.name.toLowerCase() + ' ' + ROAD_WIDTHS[wKind(rw[i][j])].name.toLowerCase() + (rstage[i][j] ? ' · ' + ['', 'surveyed', 'graded', 'gravel base', 'surfacing'][rstage[i][j]] + (rfrom[i][j] ? ' (upgrade, still open)' : ' (closed)') : '') : zone[i][j] ? `${DENN[zden[i][j]] || 'Uncapped'} ${ZNAME[zone[i][j]]} zone (cap: ${CAPNAME[zone[i][j]][capOf(i, j)]})` + (bld[i][j] ? ' · ' + DNAME[bld[i][j]] + ' building' : '') + ` · facing ${zface[i][j] ? FACE[zface[i][j]][0] : 'Auto' + (facingOf(i, j) ? ' (' + FACE[facingOf(i, j)][0] + ')' : '')}` + (hasAccess(i, j) ? '' : ' · <img class="ic" src="./assets/ui/icons2/svg/status_no_road.svg" alt=""> no road access') : terrain[i][j]})`;
   };
 
   // ---- simulation ----
@@ -768,7 +769,8 @@ function diamond(g: Graphics, i: number, j: number) {
     const toggleFs = () => { if (document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.().catch(() => {}); };
     fb.onclick = toggleFs; window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'f' && !e.ctrlKey && !e.metaKey && !(e.target instanceof HTMLInputElement)) toggleFs(); });
     document.addEventListener('fullscreenchange', () => { fb.classList.toggle('on', !!document.fullscreenElement); app.resize(); }); }
-  const toast = (msg: string) => { toastEl.textContent = msg; toastEl.style.opacity = '1'; clearTimeout(toastT); toastT = window.setTimeout(() => toastEl.style.opacity = '0', 2600); };
+  // html = true only for our own icon markup, never for player text (city names, import errors)
+  const toast = (msg: string, html = false) => { if (html) toastEl.innerHTML = msg; else toastEl.textContent = msg; toastEl.style.opacity = '1'; clearTimeout(toastT); toastT = window.setTimeout(() => toastEl.style.opacity = '0', 2600); };
   const spend = (cost: number) => { // returns false (and explains) if the city can't afford it
     if (cost <= 0) return true;
     if (sim.funds < cost) { toast(`Not enough funds: this costs $${cost.toLocaleString()}, you have $${Math.floor(sim.funds).toLocaleString()}` + (sim.loan ? '' : ' (a loan is available in the Budget panel, B)')); return false; }
@@ -795,7 +797,7 @@ function diamond(g: Graphics, i: number, j: number) {
     lastMonth = projection(); sim.funds += lastMonth.net;
     { const inc = Object.values(lastMonth.income).reduce((a, b) => a + b, 0), exp = Object.values(lastMonth.expense).reduce((a, b) => a + b, 0); hist.push({ m: Math.floor(sim.day / 30), inc, exp, net: lastMonth.net, funds: Math.round(sim.funds), pop: sim.pop }); if (hist.length > 120) hist.shift(); }
     { const c = eduCoverage(), tgt = DEMOG.eduNoSchools.map((v, k) => v + (DEMOG.eduUS[k] - v) * c); sim.edu = sim.edu.map((v, k) => v + (tgt[k] - v) * DEMOG.eduDriftPerMonth); }
-    if (sim.funds < 0) toast(`<img class="ic" src="./assets/ui/icons2/svg/status_debt.svg" alt=""> The city is in debt ($${Math.floor(sim.funds).toLocaleString()}). Raise taxes, cut funding, or take a loan.`);
+    if (sim.funds < 0) toast(`<img class="ic" src="./assets/ui/icons2/svg/status_debt.svg" alt=""> The city is in debt ($${Math.floor(sim.funds).toLocaleString()}). Raise taxes, cut funding, or take a loan.`, true);
     renderBudget(); onMonth();
   };
   let downAt: { x: number; y: number } | null = null;

@@ -1,5 +1,11 @@
 # Changelog
 
+## HUD fixes
+- The hover info and the zoning preview showed raw code like `<img class="ic" ...>` instead of the little "no road access" icon, and the "city is in debt" message did the same. They now show the icon.
+- While dragging a road, zone, pipe, power line or bulldozer, the cost (and the "no road access on the front" warning for zones) was overwritten every frame by the tile under the mouse, so you never saw it. It now stays up while you drag.
+- Player text (like a city name in "Saved …") is still shown as plain text.
+- New test: tests/hud-text.cjs.
+
 ## Realism pass
 - All per-building residents, jobs, power (kW) and water (gal/day) figures and plant outputs now come from src/realism.ts, based on real-world averages (sources in the file).
 - Top bar shows power in kW/MW and water in gal/day.

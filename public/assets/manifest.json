@@ -13944,7 +13944,7 @@
   },
   {
    "name": "status_no_power",
-   "file": "ui/icons/status_no_power@2x.png",
+   "file": "ui/icons2/png48/status_no_power.png",
    "size": [
     48,
     48
@@ -13962,7 +13962,7 @@
   },
   {
    "name": "status_no_water",
-   "file": "ui/icons/status_no_water@2x.png",
+   "file": "ui/icons2/png48/status_no_water.png",
    "size": [
     48,
     48

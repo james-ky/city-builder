@@ -1,0 +1,1332 @@
+{
+ "version": 1,
+ "set": "cb-ui-icons-v1",
+ "grid": 24,
+ "stroke": {
+  "width_px_at_24": 1.6,
+  "color": "#26323f",
+  "linecap": "round",
+  "linejoin": "round"
+ },
+ "palette": {
+  "R": "#3ecf4a",
+  "C": "#3b8cff",
+  "I": "#f2c230",
+  "pow": "#e8a21c",
+  "wat": "#2f86c8",
+  "red": "#e0503a",
+  "white": "#f6f5f0",
+  "grey": "#c9ced6",
+  "asph": "#5d6472",
+  "dirt": "#c08a58",
+  "conc": "#d8d4ca",
+  "green": "#5cb85a",
+  "dgreen": "#3f9a4a",
+  "wood": "#b7764f",
+  "sky": "#9fd0f0",
+  "sand": "#e8d39a",
+  "purple": "#9a5cd0",
+  "orange": "#f08a3c",
+  "teal": "#2fb5a6"
+ },
+ "notes": "Original icon set. Every icon has a thin light halo (group #halo) so it reads on light and dark UI. Overlay icons sit on a white iso tile; data-tab icons on a white panel with a header bar; status icons share one pin bubble (red ring = blocks growth, orange ring = advisory). Use png24 at 1x DPR, png48 at 2x DPR, or the SVG.",
+ "icons": {
+  "cat_select": {
+   "group": "category",
+   "label": "Select",
+   "replacesEmoji": "🖐",
+   "usedIn": "src/ui2.ts CATS id=select",
+   "svg": "ui/icons/svg/cat_select.svg",
+   "png24": "ui/icons/png24/cat_select.png",
+   "png48": "ui/icons/png48/cat_select.png"
+  },
+  "cat_roads": {
+   "group": "category",
+   "label": "Roads",
+   "replacesEmoji": "🛣",
+   "usedIn": "src/ui2.ts CATS id=roads",
+   "svg": "ui/icons/svg/cat_roads.svg",
+   "png24": "ui/icons/png24/cat_roads.png",
+   "png48": "ui/icons/png48/cat_roads.png"
+  },
+  "cat_zones": {
+   "group": "category",
+   "label": "Zones",
+   "replacesEmoji": "🏘",
+   "usedIn": "src/ui2.ts CATS id=zones",
+   "svg": "ui/icons/svg/cat_zones.svg",
+   "png24": "ui/icons/png24/cat_zones.png",
+   "png48": "ui/icons/png48/cat_zones.png"
+  },
+  "cat_utilities": {
+   "group": "category",
+   "label": "Utilities",
+   "replacesEmoji": "⚡",
+   "usedIn": "src/ui2.ts CATS id=util",
+   "svg": "ui/icons/svg/cat_utilities.svg",
+   "png24": "ui/icons/png24/cat_utilities.png",
+   "png48": "ui/icons/png48/cat_utilities.png"
+  },
+  "cat_services": {
+   "group": "category",
+   "label": "Services",
+   "replacesEmoji": "🏛",
+   "usedIn": "src/ui2.ts CATS id=svc",
+   "svg": "ui/icons/svg/cat_services.svg",
+   "png24": "ui/icons/png24/cat_services.png",
+   "png48": "ui/icons/png48/cat_services.png"
+  },
+  "cat_transit": {
+   "group": "category",
+   "label": "Transit",
+   "replacesEmoji": "🚌",
+   "usedIn": "src/ui2.ts CATS id=transit",
+   "svg": "ui/icons/svg/cat_transit.svg",
+   "png24": "ui/icons/png24/cat_transit.png",
+   "png48": "ui/icons/png48/cat_transit.png"
+  },
+  "cat_parks": {
+   "group": "category",
+   "label": "Parks",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/ui2.ts CATS id=parks",
+   "svg": "ui/icons/svg/cat_parks.svg",
+   "png24": "ui/icons/png24/cat_parks.png",
+   "png48": "ui/icons/png48/cat_parks.png"
+  },
+  "cat_bulldoze": {
+   "group": "category",
+   "label": "Bulldoze",
+   "replacesEmoji": "🧨",
+   "usedIn": "src/ui2.ts CATS id=doze",
+   "svg": "ui/icons/svg/cat_bulldoze.svg",
+   "png24": "ui/icons/png24/cat_bulldoze.png",
+   "png48": "ui/icons/png48/cat_bulldoze.png"
+  },
+  "cat_views": {
+   "group": "category",
+   "label": "Views",
+   "replacesEmoji": "👁",
+   "usedIn": "src/ui2.ts CATS id=views",
+   "svg": "ui/icons/svg/cat_views.svg",
+   "png24": "ui/icons/png24/cat_views.png",
+   "png48": "ui/icons/png48/cat_views.png"
+  },
+  "cat_data": {
+   "group": "category",
+   "label": "Data",
+   "replacesEmoji": "📊",
+   "usedIn": "src/ui2.ts CATS id=data; index.html #dataBtn",
+   "svg": "ui/icons/svg/cat_data.svg",
+   "png24": "ui/icons/png24/cat_data.png",
+   "png48": "ui/icons/png48/cat_data.png"
+  },
+  "cat_menu": {
+   "group": "category",
+   "label": "Menu",
+   "replacesEmoji": "☰",
+   "usedIn": "src/ui2.ts #uMenuBtn",
+   "svg": "ui/icons/svg/cat_menu.svg",
+   "png24": "ui/icons/png24/cat_menu.png",
+   "png48": "ui/icons/png48/cat_menu.png"
+  },
+  "cat_help": {
+   "group": "category",
+   "label": "Help / shortcuts",
+   "replacesEmoji": "?",
+   "usedIn": "src/ui2.ts #uHelpBtn ('?' text)",
+   "svg": "ui/icons/svg/cat_help.svg",
+   "png24": "ui/icons/png24/cat_help.png",
+   "png48": "ui/icons/png48/cat_help.png"
+  },
+  "road_dirt": {
+   "group": "roads",
+   "label": "Dirt road",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #roadTiers data-tier=1",
+   "svg": "ui/icons/svg/road_dirt.svg",
+   "png24": "ui/icons/png24/road_dirt.png",
+   "png48": "ui/icons/png48/road_dirt.png"
+  },
+  "road_asphalt": {
+   "group": "roads",
+   "label": "Asphalt road",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #roadTiers data-tier=2",
+   "svg": "ui/icons/svg/road_asphalt.svg",
+   "png24": "ui/icons/png24/road_asphalt.png",
+   "png48": "ui/icons/png48/road_asphalt.png"
+  },
+  "road_concrete": {
+   "group": "roads",
+   "label": "Concrete road",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #roadTiers data-tier=3",
+   "svg": "ui/icons/svg/road_concrete.svg",
+   "png24": "ui/icons/png24/road_concrete.png",
+   "png48": "ui/icons/png48/road_concrete.png"
+  },
+  "road_width_2lane": {
+   "group": "roads",
+   "label": "2-lane road",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #roadTiers data-w=0",
+   "svg": "ui/icons/svg/road_width_2lane.svg",
+   "png24": "ui/icons/png24/road_width_2lane.png",
+   "png48": "ui/icons/png48/road_width_2lane.png"
+  },
+  "road_width_street": {
+   "group": "roads",
+   "label": "Street (4 lanes)",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #roadTiers data-w=1",
+   "svg": "ui/icons/svg/road_width_street.svg",
+   "png24": "ui/icons/png24/road_width_street.png",
+   "png48": "ui/icons/png48/road_width_street.png"
+  },
+  "road_width_avenue": {
+   "group": "roads",
+   "label": "Avenue (2 tiles, median)",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #roadTiers data-w=2",
+   "svg": "ui/icons/svg/road_width_avenue.svg",
+   "png24": "ui/icons/png24/road_width_avenue.png",
+   "png48": "ui/icons/png48/road_width_avenue.png"
+  },
+  "road_intersection": {
+   "group": "roads",
+   "label": "Intersection tool",
+   "replacesEmoji": "🚦",
+   "usedIn": "src/main.ts #roadTiers data-ix; ui2 Roads tray",
+   "svg": "ui/icons/svg/road_intersection.svg",
+   "png24": "ui/icons/png24/road_intersection.png",
+   "png48": "ui/icons/png48/road_intersection.png"
+  },
+  "ix_auto": {
+   "group": "roads",
+   "label": "Junction: auto",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts IXM 'auto'",
+   "svg": "ui/icons/svg/ix_auto.svg",
+   "png24": "ui/icons/png24/ix_auto.png",
+   "png48": "ui/icons/png48/ix_auto.png"
+  },
+  "ix_light": {
+   "group": "roads",
+   "label": "Junction: traffic light",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts IXM 'light'",
+   "svg": "ui/icons/svg/ix_light.svg",
+   "png24": "ui/icons/png24/ix_light.png",
+   "png48": "ui/icons/png48/ix_light.png"
+  },
+  "ix_allstop": {
+   "group": "roads",
+   "label": "Junction: all-way stop",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts IXM 'allstop'",
+   "svg": "ui/icons/svg/ix_allstop.svg",
+   "png24": "ui/icons/png24/ix_allstop.png",
+   "png48": "ui/icons/png48/ix_allstop.png"
+  },
+  "ix_twostop": {
+   "group": "roads",
+   "label": "Junction: two-way stop",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts IXM 'twostop'",
+   "svg": "ui/icons/svg/ix_twostop.svg",
+   "png24": "ui/icons/png24/ix_twostop.png",
+   "png48": "ui/icons/png48/ix_twostop.png"
+  },
+  "ix_yield": {
+   "group": "roads",
+   "label": "Junction: yield",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts IXM 'yield'",
+   "svg": "ui/icons/svg/ix_yield.svg",
+   "png24": "ui/icons/png24/ix_yield.png",
+   "png48": "ui/icons/png48/ix_yield.png"
+  },
+  "ix_none": {
+   "group": "roads",
+   "label": "Junction: uncontrolled",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts IXM 'none'",
+   "svg": "ui/icons/svg/ix_none.svg",
+   "png24": "ui/icons/png24/ix_none.png",
+   "png48": "ui/icons/png48/ix_none.png"
+  },
+  "tool_bus_stop": {
+   "group": "transit",
+   "label": "Bus stop",
+   "replacesEmoji": "🚏",
+   "usedIn": "src/main.ts #roadTiers data-stop; ui2 Transit tray",
+   "svg": "ui/icons/svg/tool_bus_stop.svg",
+   "png24": "ui/icons/png24/tool_bus_stop.png",
+   "png48": "ui/icons/png48/tool_bus_stop.png"
+  },
+  "svc_bus_depot": {
+   "group": "transit",
+   "label": "Bus depot",
+   "replacesEmoji": "🚌",
+   "usedIn": "src/main.ts #services svc:busdepot",
+   "svg": "ui/icons/svg/svc_bus_depot.svg",
+   "png24": "ui/icons/png24/svc_bus_depot.png",
+   "png48": "ui/icons/png48/svc_bus_depot.png"
+  },
+  "svc_garage": {
+   "group": "transit",
+   "label": "Parking garage",
+   "replacesEmoji": "🅿️",
+   "usedIn": "src/main.ts #services svc:garage",
+   "svg": "ui/icons/svg/svc_garage.svg",
+   "png24": "ui/icons/png24/svc_garage.png",
+   "png48": "ui/icons/png48/svc_garage.png"
+  },
+  "svc_garage_big": {
+   "group": "transit",
+   "label": "Parking garage (big)",
+   "replacesEmoji": "🅿️",
+   "usedIn": "src/main.ts #services svc:garage2",
+   "svg": "ui/icons/svg/svc_garage_big.svg",
+   "png24": "ui/icons/png24/svc_garage_big.png",
+   "png48": "ui/icons/png48/svc_garage_big.png"
+  },
+  "face_auto": {
+   "group": "zones",
+   "label": "Facing: auto",
+   "replacesEmoji": "⟳",
+   "usedIn": "src/main.ts #zoneBar data-face",
+   "svg": "ui/icons/svg/face_auto.svg",
+   "png24": "ui/icons/png24/face_auto.png",
+   "png48": "ui/icons/png48/face_auto.png"
+  },
+  "face_ne": {
+   "group": "zones",
+   "label": "Facing: NE",
+   "replacesEmoji": "↗",
+   "usedIn": "src/main.ts #zoneBar data-face",
+   "svg": "ui/icons/svg/face_ne.svg",
+   "png24": "ui/icons/png24/face_ne.png",
+   "png48": "ui/icons/png48/face_ne.png"
+  },
+  "face_se": {
+   "group": "zones",
+   "label": "Facing: SE",
+   "replacesEmoji": "↘",
+   "usedIn": "src/main.ts #zoneBar data-face",
+   "svg": "ui/icons/svg/face_se.svg",
+   "png24": "ui/icons/png24/face_se.png",
+   "png48": "ui/icons/png48/face_se.png"
+  },
+  "face_sw": {
+   "group": "zones",
+   "label": "Facing: SW",
+   "replacesEmoji": "↙",
+   "usedIn": "src/main.ts #zoneBar data-face",
+   "svg": "ui/icons/svg/face_sw.svg",
+   "png24": "ui/icons/png24/face_sw.png",
+   "png48": "ui/icons/png48/face_sw.png"
+  },
+  "face_nw": {
+   "group": "zones",
+   "label": "Facing: NW",
+   "replacesEmoji": "↖",
+   "usedIn": "src/main.ts #zoneBar data-face",
+   "svg": "ui/icons/svg/face_nw.svg",
+   "png24": "ui/icons/png24/face_nw.png",
+   "png48": "ui/icons/png48/face_nw.png"
+  },
+  "zone_R_1": {
+   "group": "zones",
+   "label": "Residential · Light",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den R den=1",
+   "svg": "ui/icons/svg/zone_R_1.svg",
+   "png24": "ui/icons/png24/zone_R_1.png",
+   "png48": "ui/icons/png48/zone_R_1.png"
+  },
+  "zone_R_2": {
+   "group": "zones",
+   "label": "Residential · Medium",
+   "replacesEmoji": "🟩",
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den R den=2",
+   "svg": "ui/icons/svg/zone_R_2.svg",
+   "png24": "ui/icons/png24/zone_R_2.png",
+   "png48": "ui/icons/png48/zone_R_2.png"
+  },
+  "zone_R_3": {
+   "group": "zones",
+   "label": "Residential · Dense",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den R den=3",
+   "svg": "ui/icons/svg/zone_R_3.svg",
+   "png24": "ui/icons/png24/zone_R_3.png",
+   "png48": "ui/icons/png48/zone_R_3.png"
+  },
+  "zone_C_1": {
+   "group": "zones",
+   "label": "Commercial · Light",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den C den=1",
+   "svg": "ui/icons/svg/zone_C_1.svg",
+   "png24": "ui/icons/png24/zone_C_1.png",
+   "png48": "ui/icons/png48/zone_C_1.png"
+  },
+  "zone_C_2": {
+   "group": "zones",
+   "label": "Commercial · Medium",
+   "replacesEmoji": "🟦",
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den C den=2",
+   "svg": "ui/icons/svg/zone_C_2.svg",
+   "png24": "ui/icons/png24/zone_C_2.png",
+   "png48": "ui/icons/png48/zone_C_2.png"
+  },
+  "zone_C_3": {
+   "group": "zones",
+   "label": "Commercial · Dense",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den C den=3",
+   "svg": "ui/icons/svg/zone_C_3.svg",
+   "png24": "ui/icons/png24/zone_C_3.png",
+   "png48": "ui/icons/png48/zone_C_3.png"
+  },
+  "zone_I_1": {
+   "group": "zones",
+   "label": "Industrial · Light",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den I den=1",
+   "svg": "ui/icons/svg/zone_I_1.svg",
+   "png24": "ui/icons/png24/zone_I_1.png",
+   "png48": "ui/icons/png48/zone_I_1.png"
+  },
+  "zone_I_2": {
+   "group": "zones",
+   "label": "Industrial · Medium",
+   "replacesEmoji": "🟨",
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den I den=2",
+   "svg": "ui/icons/svg/zone_I_2.svg",
+   "png24": "ui/icons/png24/zone_I_2.png",
+   "png48": "ui/icons/png48/zone_I_2.png"
+  },
+  "zone_I_3": {
+   "group": "zones",
+   "label": "Industrial · Dense",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools R/C/I + #zoneBar data-den I den=3",
+   "svg": "ui/icons/svg/zone_I_3.svg",
+   "png24": "ui/icons/png24/zone_I_3.png",
+   "png48": "ui/icons/png48/zone_I_3.png"
+  },
+  "tool_power_line": {
+   "group": "utilities",
+   "label": "Power line",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools pline (key 7)",
+   "svg": "ui/icons/svg/tool_power_line.svg",
+   "png24": "ui/icons/png24/tool_power_line.png",
+   "png48": "ui/icons/png48/tool_power_line.png"
+  },
+  "tool_pipe": {
+   "group": "utilities",
+   "label": "Water pipe",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts tools pipe (key 8)",
+   "svg": "ui/icons/svg/tool_pipe.svg",
+   "png24": "ui/icons/png24/tool_pipe.png",
+   "png48": "ui/icons/png48/tool_pipe.png"
+  },
+  "svc_coal": {
+   "group": "utilities",
+   "label": "Coal power plant",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:coal",
+   "svg": "ui/icons/svg/svc_coal.svg",
+   "png24": "ui/icons/png24/svc_coal.png",
+   "png48": "ui/icons/png48/svc_coal.png"
+  },
+  "svc_wind": {
+   "group": "utilities",
+   "label": "Wind turbine",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:wind",
+   "svg": "ui/icons/svg/svc_wind.svg",
+   "png24": "ui/icons/png24/svc_wind.png",
+   "png48": "ui/icons/png48/svc_wind.png"
+  },
+  "svc_pump": {
+   "group": "utilities",
+   "label": "Water pump",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:pump",
+   "svg": "ui/icons/svg/svc_pump.svg",
+   "png24": "ui/icons/png24/svc_pump.png",
+   "png48": "ui/icons/png48/svc_pump.png"
+  },
+  "svc_water_tower": {
+   "group": "utilities",
+   "label": "Water tower",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:tower",
+   "svg": "ui/icons/svg/svc_water_tower.svg",
+   "png24": "ui/icons/png24/svc_water_tower.png",
+   "png48": "ui/icons/png48/svc_water_tower.png"
+  },
+  "svc_police": {
+   "group": "services",
+   "label": "Police station",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:police",
+   "svg": "ui/icons/svg/svc_police.svg",
+   "png24": "ui/icons/png24/svc_police.png",
+   "png48": "ui/icons/png48/svc_police.png"
+  },
+  "svc_fire": {
+   "group": "services",
+   "label": "Fire station",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:fire",
+   "svg": "ui/icons/svg/svc_fire.svg",
+   "png24": "ui/icons/png24/svc_fire.png",
+   "png48": "ui/icons/png48/svc_fire.png"
+  },
+  "svc_clinic": {
+   "group": "services",
+   "label": "Clinic",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:clinic",
+   "svg": "ui/icons/svg/svc_clinic.svg",
+   "png24": "ui/icons/png24/svc_clinic.png",
+   "png48": "ui/icons/png48/svc_clinic.png"
+  },
+  "svc_hospital": {
+   "group": "services",
+   "label": "Hospital",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:hospital",
+   "svg": "ui/icons/svg/svc_hospital.svg",
+   "png24": "ui/icons/png24/svc_hospital.png",
+   "png48": "ui/icons/png48/svc_hospital.png"
+  },
+  "svc_school_elem": {
+   "group": "services",
+   "label": "Elementary school",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:school",
+   "svg": "ui/icons/svg/svc_school_elem.svg",
+   "png24": "ui/icons/png24/svc_school_elem.png",
+   "png48": "ui/icons/png48/svc_school_elem.png"
+  },
+  "svc_school_high": {
+   "group": "services",
+   "label": "High school",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #services svc:highschool",
+   "svg": "ui/icons/svg/svc_school_high.svg",
+   "png24": "ui/icons/png24/svc_school_high.png",
+   "png48": "ui/icons/png48/svc_school_high.png"
+  },
+  "park_pocket": {
+   "group": "parks",
+   "label": "Pocket Park",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_pocket",
+   "svg": "ui/icons/svg/park_pocket.svg",
+   "png24": "ui/icons/png24/park_pocket.png",
+   "png48": "ui/icons/png48/park_pocket.png"
+  },
+  "park_community_garden": {
+   "group": "parks",
+   "label": "Community Garden",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_community_garden",
+   "svg": "ui/icons/svg/park_community_garden.svg",
+   "png24": "ui/icons/png24/park_community_garden.png",
+   "png48": "ui/icons/png48/park_community_garden.png"
+  },
+  "park_flower_garden": {
+   "group": "parks",
+   "label": "Flower Garden",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_flower_garden",
+   "svg": "ui/icons/svg/park_flower_garden.svg",
+   "png24": "ui/icons/png24/park_flower_garden.png",
+   "png48": "ui/icons/png48/park_flower_garden.png"
+  },
+  "park_playground": {
+   "group": "parks",
+   "label": "Playground",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_playground",
+   "svg": "ui/icons/svg/park_playground.svg",
+   "png24": "ui/icons/png24/park_playground.png",
+   "png48": "ui/icons/png48/park_playground.png"
+  },
+  "park_dog": {
+   "group": "parks",
+   "label": "Dog Park",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_dog",
+   "svg": "ui/icons/svg/park_dog.svg",
+   "png24": "ui/icons/png24/park_dog.png",
+   "png48": "ui/icons/png48/park_dog.png"
+  },
+  "park_plaza": {
+   "group": "parks",
+   "label": "Plaza",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_plaza",
+   "svg": "ui/icons/svg/park_plaza.svg",
+   "png24": "ui/icons/png24/park_plaza.png",
+   "png48": "ui/icons/png48/park_plaza.png"
+  },
+  "park_basketball": {
+   "group": "parks",
+   "label": "Basketball Court",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_basketball",
+   "svg": "ui/icons/svg/park_basketball.svg",
+   "png24": "ui/icons/png24/park_basketball.png",
+   "png48": "ui/icons/png48/park_basketball.png"
+  },
+  "park_neighborhood": {
+   "group": "parks",
+   "label": "Neighborhood Park",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_neighborhood",
+   "svg": "ui/icons/svg/park_neighborhood.svg",
+   "png24": "ui/icons/png24/park_neighborhood.png",
+   "png48": "ui/icons/png48/park_neighborhood.png"
+  },
+  "park_botanical": {
+   "group": "parks",
+   "label": "Botanical Garden",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_botanical",
+   "svg": "ui/icons/svg/park_botanical.svg",
+   "png24": "ui/icons/png24/park_botanical.png",
+   "png48": "ui/icons/png48/park_botanical.png"
+  },
+  "park_sports_field": {
+   "group": "parks",
+   "label": "Sports Field",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_sports_field",
+   "svg": "ui/icons/svg/park_sports_field.svg",
+   "png24": "ui/icons/png24/park_sports_field.png",
+   "png48": "ui/icons/png48/park_sports_field.png"
+  },
+  "park_tennis": {
+   "group": "parks",
+   "label": "Tennis Courts",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_tennis",
+   "svg": "ui/icons/svg/park_tennis.svg",
+   "png24": "ui/icons/png24/park_tennis.png",
+   "png48": "ui/icons/png48/park_tennis.png"
+  },
+  "park_skate": {
+   "group": "parks",
+   "label": "Skate Park",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_skate",
+   "svg": "ui/icons/svg/park_skate.svg",
+   "png24": "ui/icons/png24/park_skate.png",
+   "png48": "ui/icons/png48/park_skate.png"
+  },
+  "park_pond": {
+   "group": "parks",
+   "label": "Pond Park",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_pond",
+   "svg": "ui/icons/svg/park_pond.svg",
+   "png24": "ui/icons/png24/park_pond.png",
+   "png48": "ui/icons/png48/park_pond.png"
+  },
+  "park_city_lake": {
+   "group": "parks",
+   "label": "City Lake Park",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_city_lake",
+   "svg": "ui/icons/svg/park_city_lake.svg",
+   "png24": "ui/icons/png24/park_city_lake.png",
+   "png48": "ui/icons/png48/park_city_lake.png"
+  },
+  "park_sports_complex": {
+   "group": "parks",
+   "label": "Sports Complex",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_sports_complex",
+   "svg": "ui/icons/svg/park_sports_complex.svg",
+   "png24": "ui/icons/png24/park_sports_complex.png",
+   "png48": "ui/icons/png48/park_sports_complex.png"
+  },
+  "park_memorial": {
+   "group": "parks",
+   "label": "Memorial Park",
+   "replacesEmoji": "🌳",
+   "usedIn": "src/main.ts #parkGroup (PARKS in realism.ts) park_memorial",
+   "svg": "ui/icons/svg/park_memorial.svg",
+   "png24": "ui/icons/png24/park_memorial.png",
+   "png48": "ui/icons/png48/park_memorial.png"
+  },
+  "view_grid": {
+   "group": "views",
+   "label": "Grid",
+   "replacesEmoji": "▦",
+   "usedIn": "src/ui2.ts Views tray / index.html #gridBtn",
+   "svg": "ui/icons/svg/view_grid.svg",
+   "png24": "ui/icons/png24/view_grid.png",
+   "png48": "ui/icons/png48/view_grid.png"
+  },
+  "view_zone_colours": {
+   "group": "views",
+   "label": "Zone colours",
+   "replacesEmoji": "◧",
+   "usedIn": "src/ui2.ts Views tray / index.html #zoneBtn",
+   "svg": "ui/icons/svg/view_zone_colours.svg",
+   "png24": "ui/icons/png24/view_zone_colours.png",
+   "png48": "ui/icons/png48/view_zone_colours.png"
+  },
+  "view_underground": {
+   "group": "views",
+   "label": "Underground (pipes)",
+   "replacesEmoji": "⛏",
+   "usedIn": "src/ui2.ts Views tray / index.html #ugBtn",
+   "svg": "ui/icons/svg/view_underground.svg",
+   "png24": "ui/icons/png24/view_underground.png",
+   "png48": "ui/icons/png48/view_underground.png"
+  },
+  "overlay_off": {
+   "group": "overlays",
+   "label": "Overlay off",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"\"",
+   "svg": "ui/icons/svg/overlay_off.svg",
+   "png24": "ui/icons/png24/overlay_off.png",
+   "png48": "ui/icons/png48/overlay_off.png"
+  },
+  "overlay_edu": {
+   "group": "overlays",
+   "label": "Education coverage",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"edu\"",
+   "svg": "ui/icons/svg/overlay_edu.svg",
+   "png24": "ui/icons/png24/overlay_edu.png",
+   "png48": "ui/icons/png48/overlay_edu.png"
+  },
+  "overlay_police": {
+   "group": "overlays",
+   "label": "Police coverage",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"police\"",
+   "svg": "ui/icons/svg/overlay_police.svg",
+   "png24": "ui/icons/png24/overlay_police.png",
+   "png48": "ui/icons/png48/overlay_police.png"
+  },
+  "overlay_fire": {
+   "group": "overlays",
+   "label": "Fire coverage",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"fire\"",
+   "svg": "ui/icons/svg/overlay_fire.svg",
+   "png24": "ui/icons/png24/overlay_fire.png",
+   "png48": "ui/icons/png48/overlay_fire.png"
+  },
+  "overlay_health": {
+   "group": "overlays",
+   "label": "Health coverage",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"health\"",
+   "svg": "ui/icons/svg/overlay_health.svg",
+   "png24": "ui/icons/png24/overlay_health.png",
+   "png48": "ui/icons/png48/overlay_health.png"
+  },
+  "overlay_traffic": {
+   "group": "overlays",
+   "label": "Traffic volume",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"traffic\"",
+   "svg": "ui/icons/svg/overlay_traffic.svg",
+   "png24": "ui/icons/png24/overlay_traffic.png",
+   "png48": "ui/icons/png48/overlay_traffic.png"
+  },
+  "overlay_crime": {
+   "group": "overlays",
+   "label": "Crime",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"crime\"",
+   "svg": "ui/icons/svg/overlay_crime.svg",
+   "png24": "ui/icons/png24/overlay_crime.png",
+   "png48": "ui/icons/png48/overlay_crime.png"
+  },
+  "overlay_fireRisk": {
+   "group": "overlays",
+   "label": "Fire risk",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"fireRisk\"",
+   "svg": "ui/icons/svg/overlay_fireRisk.svg",
+   "png24": "ui/icons/png24/overlay_fireRisk.png",
+   "png48": "ui/icons/png48/overlay_fireRisk.png"
+  },
+  "overlay_power": {
+   "group": "overlays",
+   "label": "Powered",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"power\"",
+   "svg": "ui/icons/svg/overlay_power.svg",
+   "png24": "ui/icons/png24/overlay_power.png",
+   "png48": "ui/icons/png48/overlay_power.png"
+  },
+  "overlay_water": {
+   "group": "overlays",
+   "label": "Water served",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"water\"",
+   "svg": "ui/icons/svg/overlay_water.svg",
+   "png24": "ui/icons/png24/overlay_water.png",
+   "png48": "ui/icons/png48/overlay_water.png"
+  },
+  "overlay_park": {
+   "group": "overlays",
+   "label": "Parks (happiness)",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #covSel option value=\"park\"",
+   "svg": "ui/icons/svg/overlay_park.svg",
+   "png24": "ui/icons/png24/overlay_park.png",
+   "png48": "ui/icons/png48/overlay_park.png"
+  },
+  "data_budget": {
+   "group": "data",
+   "label": "Budget",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #dataTabs (ui2 Data tray) data-tab=\"Budget\"",
+   "svg": "ui/icons/svg/data_budget.svg",
+   "png24": "ui/icons/png24/data_budget.png",
+   "png48": "ui/icons/png48/data_budget.png"
+  },
+  "data_demand": {
+   "group": "data",
+   "label": "Demand",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #dataTabs (ui2 Data tray) data-tab=\"Demand\"",
+   "svg": "ui/icons/svg/data_demand.svg",
+   "png24": "ui/icons/png24/data_demand.png",
+   "png48": "ui/icons/png48/data_demand.png"
+  },
+  "data_transportation": {
+   "group": "data",
+   "label": "Transportation",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #dataTabs (ui2 Data tray) data-tab=\"Transportation\"",
+   "svg": "ui/icons/svg/data_transportation.svg",
+   "png24": "ui/icons/png24/data_transportation.png",
+   "png48": "ui/icons/png48/data_transportation.png"
+  },
+  "data_population": {
+   "group": "data",
+   "label": "Population",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #dataTabs (ui2 Data tray) data-tab=\"Population\"",
+   "svg": "ui/icons/svg/data_population.svg",
+   "png24": "ui/icons/png24/data_population.png",
+   "png48": "ui/icons/png48/data_population.png"
+  },
+  "data_education": {
+   "group": "data",
+   "label": "Education",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #dataTabs (ui2 Data tray) data-tab=\"Education\"",
+   "svg": "ui/icons/svg/data_education.svg",
+   "png24": "ui/icons/png24/data_education.png",
+   "png48": "ui/icons/png48/data_education.png"
+  },
+  "data_jobs": {
+   "group": "data",
+   "label": "Jobs",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #dataTabs (ui2 Data tray) data-tab=\"Jobs\"",
+   "svg": "ui/icons/svg/data_jobs.svg",
+   "png24": "ui/icons/png24/data_jobs.png",
+   "png48": "ui/icons/png48/data_jobs.png"
+  },
+  "data_utilities": {
+   "group": "data",
+   "label": "Utilities",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts #dataTabs (ui2 Data tray) data-tab=\"Utilities\"",
+   "svg": "ui/icons/svg/data_utilities.svg",
+   "png24": "ui/icons/png24/data_utilities.png",
+   "png48": "ui/icons/png48/data_utilities.png"
+  },
+  "stat_city": {
+   "group": "topbar",
+   "label": "City name",
+   "replacesEmoji": "🏙",
+   "usedIn": "index.html #stats / src/main.ts updateStats .cityName",
+   "svg": "ui/icons/svg/stat_city.svg",
+   "png24": "ui/icons/png24/stat_city.png",
+   "png48": "ui/icons/png48/stat_city.png"
+  },
+  "stat_funds": {
+   "group": "topbar",
+   "label": "Funds",
+   "replacesEmoji": "$",
+   "usedIn": "index.html #stats / src/main.ts updateStats Funds; #budgetBtn '$ Budget'",
+   "svg": "ui/icons/svg/stat_funds.svg",
+   "png24": "ui/icons/png24/stat_funds.png",
+   "png48": "ui/icons/png48/stat_funds.png"
+  },
+  "stat_population": {
+   "group": "topbar",
+   "label": "Population",
+   "replacesEmoji": null,
+   "usedIn": "index.html #stats / src/main.ts updateStats Pop",
+   "svg": "ui/icons/svg/stat_population.svg",
+   "png24": "ui/icons/png24/stat_population.png",
+   "png48": "ui/icons/png48/stat_population.png"
+  },
+  "stat_jobs": {
+   "group": "topbar",
+   "label": "Jobs",
+   "replacesEmoji": "💼",
+   "usedIn": "index.html #stats / src/main.ts updateStats Jobs; trip purpose work",
+   "svg": "ui/icons/svg/stat_jobs.svg",
+   "png24": "ui/icons/png24/stat_jobs.png",
+   "png48": "ui/icons/png48/stat_jobs.png"
+  },
+  "stat_power": {
+   "group": "topbar",
+   "label": "Power",
+   "replacesEmoji": "⚡",
+   "usedIn": "index.html #stats / src/main.ts updateStats power used/capacity; info panels",
+   "svg": "ui/icons/svg/stat_power.svg",
+   "png24": "ui/icons/png24/stat_power.png",
+   "png48": "ui/icons/png48/stat_power.png"
+  },
+  "stat_water": {
+   "group": "topbar",
+   "label": "Water",
+   "replacesEmoji": "💧",
+   "usedIn": "index.html #stats / src/main.ts updateStats water used/capacity; info panels",
+   "svg": "ui/icons/svg/stat_water.svg",
+   "png24": "ui/icons/png24/stat_water.png",
+   "png48": "ui/icons/png48/stat_water.png"
+  },
+  "stat_date": {
+   "group": "topbar",
+   "label": "Date",
+   "replacesEmoji": null,
+   "usedIn": "index.html #stats / src/main.ts updateStats dateStr()",
+   "svg": "ui/icons/svg/stat_date.svg",
+   "png24": "ui/icons/png24/stat_date.png",
+   "png48": "ui/icons/png48/stat_date.png"
+  },
+  "stat_time_day": {
+   "group": "topbar",
+   "label": "Time: day",
+   "replacesEmoji": "☀️",
+   "usedIn": "src/main.ts #tod",
+   "svg": "ui/icons/svg/stat_time_day.svg",
+   "png24": "ui/icons/png24/stat_time_day.png",
+   "png48": "ui/icons/png48/stat_time_day.png"
+  },
+  "stat_time_night": {
+   "group": "topbar",
+   "label": "Time: night",
+   "replacesEmoji": "🌙",
+   "usedIn": "src/main.ts #tod",
+   "svg": "ui/icons/svg/stat_time_night.svg",
+   "png24": "ui/icons/png24/stat_time_night.png",
+   "png48": "ui/icons/png48/stat_time_night.png"
+  },
+  "speed_pause": {
+   "group": "topbar",
+   "label": "Pause",
+   "replacesEmoji": "⏸",
+   "usedIn": "index.html #speed button data-s=0",
+   "svg": "ui/icons/svg/speed_pause.svg",
+   "png24": "ui/icons/png24/speed_pause.png",
+   "png48": "ui/icons/png48/speed_pause.png"
+  },
+  "speed_1": {
+   "group": "topbar",
+   "label": "Speed 1×",
+   "replacesEmoji": "1×",
+   "usedIn": "index.html #speed button data-s=1 (text)",
+   "svg": "ui/icons/svg/speed_1.svg",
+   "png24": "ui/icons/png24/speed_1.png",
+   "png48": "ui/icons/png48/speed_1.png"
+  },
+  "speed_2": {
+   "group": "topbar",
+   "label": "Speed 2×",
+   "replacesEmoji": "2×",
+   "usedIn": "index.html #speed button data-s=2 (text)",
+   "svg": "ui/icons/svg/speed_2.svg",
+   "png24": "ui/icons/png24/speed_2.png",
+   "png48": "ui/icons/png48/speed_2.png"
+  },
+  "speed_3": {
+   "group": "topbar",
+   "label": "Speed 3×",
+   "replacesEmoji": "3×",
+   "usedIn": "index.html #speed button data-s=3 (text)",
+   "svg": "ui/icons/svg/speed_3.svg",
+   "png24": "ui/icons/png24/speed_3.png",
+   "png48": "ui/icons/png48/speed_3.png"
+  },
+  "btn_music": {
+   "group": "topbar",
+   "label": "Music on/off",
+   "replacesEmoji": "♪",
+   "usedIn": "index.html #musicBtn; ui2 menu",
+   "svg": "ui/icons/svg/btn_music.svg",
+   "png24": "ui/icons/png24/btn_music.png",
+   "png48": "ui/icons/png48/btn_music.png"
+  },
+  "btn_ambience": {
+   "group": "topbar",
+   "label": "City ambience",
+   "replacesEmoji": "🏙",
+   "usedIn": "index.html #ambBtn",
+   "svg": "ui/icons/svg/btn_ambience.svg",
+   "png24": "ui/icons/png24/btn_ambience.png",
+   "png48": "ui/icons/png48/btn_ambience.png"
+  },
+  "btn_settings": {
+   "group": "topbar",
+   "label": "Settings (audio, effects, graphics)",
+   "replacesEmoji": "⚙",
+   "usedIn": "index.html #fxBtn; ui2 menu",
+   "svg": "ui/icons/svg/btn_settings.svg",
+   "png24": "ui/icons/png24/btn_settings.png",
+   "png48": "ui/icons/png48/btn_settings.png"
+  },
+  "btn_fullscreen": {
+   "group": "topbar",
+   "label": "Full screen",
+   "replacesEmoji": "⛶",
+   "usedIn": "src/main.ts #fsBtn; ui2 menu",
+   "svg": "ui/icons/svg/btn_fullscreen.svg",
+   "png24": "ui/icons/png24/btn_fullscreen.png",
+   "png48": "ui/icons/png48/btn_fullscreen.png"
+  },
+  "btn_save": {
+   "group": "topbar",
+   "label": "Save / Load",
+   "replacesEmoji": "💾",
+   "usedIn": "index.html #saveBtn; save panel title; ui2 menu",
+   "svg": "ui/icons/svg/btn_save.svg",
+   "png24": "ui/icons/png24/btn_save.png",
+   "png48": "ui/icons/png48/btn_save.png"
+  },
+  "btn_load": {
+   "group": "topbar",
+   "label": "Load city",
+   "replacesEmoji": "📂",
+   "usedIn": "src/newcity.ts #ncLoad",
+   "svg": "ui/icons/svg/btn_load.svg",
+   "png24": "ui/icons/png24/btn_load.png",
+   "png48": "ui/icons/png48/btn_load.png"
+  },
+  "btn_new_city": {
+   "group": "topbar",
+   "label": "New city",
+   "replacesEmoji": "🆕",
+   "usedIn": "index.html #newBtn; ui2 menu",
+   "svg": "ui/icons/svg/btn_new_city.svg",
+   "png24": "ui/icons/png24/btn_new_city.png",
+   "png48": "ui/icons/png48/btn_new_city.png"
+  },
+  "btn_budget": {
+   "group": "topbar",
+   "label": "Budget",
+   "replacesEmoji": "$",
+   "usedIn": "index.html #budgetBtn '$ Budget'; ui2 menu",
+   "svg": "ui/icons/svg/btn_budget.svg",
+   "png24": "ui/icons/png24/btn_budget.png",
+   "png48": "ui/icons/png48/btn_budget.png"
+  },
+  "btn_keyboard": {
+   "group": "topbar",
+   "label": "Keyboard shortcuts",
+   "replacesEmoji": "⌨",
+   "usedIn": "src/ui2.ts menu",
+   "svg": "ui/icons/svg/btn_keyboard.svg",
+   "png24": "ui/icons/png24/btn_keyboard.png",
+   "png48": "ui/icons/png48/btn_keyboard.png"
+  },
+  "btn_export": {
+   "group": "topbar",
+   "label": "Export / download",
+   "replacesEmoji": "⬇",
+   "usedIn": "src/main.ts save panel #sExp, data-a=exp",
+   "svg": "ui/icons/svg/btn_export.svg",
+   "png24": "ui/icons/png24/btn_export.png",
+   "png48": "ui/icons/png48/btn_export.png"
+  },
+  "btn_import": {
+   "group": "topbar",
+   "label": "Import",
+   "replacesEmoji": "⬆",
+   "usedIn": "src/main.ts save panel .imp; newcity import",
+   "svg": "ui/icons/svg/btn_import.svg",
+   "png24": "ui/icons/png24/btn_import.png",
+   "png48": "ui/icons/png48/btn_import.png"
+  },
+  "btn_delete": {
+   "group": "topbar",
+   "label": "Delete save",
+   "replacesEmoji": "🗑",
+   "usedIn": "src/main.ts save slot data-a=del",
+   "svg": "ui/icons/svg/btn_delete.svg",
+   "png24": "ui/icons/png24/btn_delete.png",
+   "png48": "ui/icons/png48/btn_delete.png"
+  },
+  "btn_close": {
+   "group": "topbar",
+   "label": "Close panel",
+   "replacesEmoji": "✕",
+   "usedIn": "src/main.ts #bClose #sClose .infoX, data panel",
+   "svg": "ui/icons/svg/btn_close.svg",
+   "png24": "ui/icons/png24/btn_close.png",
+   "png48": "ui/icons/png48/btn_close.png"
+  },
+  "btn_reset": {
+   "group": "topbar",
+   "label": "Reset view & settings",
+   "replacesEmoji": "↺",
+   "usedIn": "src/main.ts fx menu reset",
+   "svg": "ui/icons/svg/btn_reset.svg",
+   "png24": "ui/icons/png24/btn_reset.png",
+   "png48": "ui/icons/png48/btn_reset.png"
+  },
+  "btn_reroll": {
+   "group": "topbar",
+   "label": "Different look / random seed",
+   "replacesEmoji": "🎲",
+   "usedIn": "src/main.ts #parkReroll; src/newcity.ts seed",
+   "svg": "ui/icons/svg/btn_reroll.svg",
+   "png24": "ui/icons/png24/btn_reroll.png",
+   "png48": "ui/icons/png48/btn_reroll.png"
+  },
+  "mark_ok": {
+   "group": "topbar",
+   "label": "Yes / OK",
+   "replacesEmoji": "✔",
+   "usedIn": "src/main.ts info panels Power/Water",
+   "svg": "ui/icons/svg/mark_ok.svg",
+   "png24": "ui/icons/png24/mark_ok.png",
+   "png48": "ui/icons/png48/mark_ok.png"
+  },
+  "mark_no": {
+   "group": "topbar",
+   "label": "No / missing",
+   "replacesEmoji": "✘",
+   "usedIn": "src/main.ts info panels Power/Water",
+   "svg": "ui/icons/svg/mark_no.svg",
+   "png24": "ui/icons/png24/mark_no.png",
+   "png48": "ui/icons/png48/mark_no.png"
+  },
+  "mark_up": {
+   "group": "topbar",
+   "label": "Increase (land value up)",
+   "replacesEmoji": "↑",
+   "usedIn": "src/main.ts info 'land value ↑'",
+   "svg": "ui/icons/svg/mark_up.svg",
+   "png24": "ui/icons/png24/mark_up.png",
+   "png48": "ui/icons/png48/mark_up.png"
+  },
+  "btn_swap_axis": {
+   "group": "roads",
+   "label": "Swap stopping road",
+   "replacesEmoji": "⇄",
+   "usedIn": "src/main.ts ixBox data-ax",
+   "svg": "ui/icons/svg/btn_swap_axis.svg",
+   "png24": "ui/icons/png24/btn_swap_axis.png",
+   "png48": "ui/icons/png48/btn_swap_axis.png"
+  },
+  "trip_car": {
+   "group": "trips",
+   "label": "Car trips",
+   "replacesEmoji": "🚗",
+   "usedIn": "src/main.ts data panel Transportation / info dbar Car; car info title",
+   "svg": "ui/icons/svg/trip_car.svg",
+   "png24": "ui/icons/png24/trip_car.png",
+   "png48": "ui/icons/png48/trip_car.png"
+  },
+  "trip_bus": {
+   "group": "trips",
+   "label": "Bus trips",
+   "replacesEmoji": "🚌",
+   "usedIn": "src/main.ts data panel Transportation / info dbar Bus",
+   "svg": "ui/icons/svg/trip_bus.svg",
+   "png24": "ui/icons/png24/trip_bus.png",
+   "png48": "ui/icons/png48/trip_bus.png"
+  },
+  "trip_walk": {
+   "group": "trips",
+   "label": "Walk trips",
+   "replacesEmoji": "🚶",
+   "usedIn": "src/main.ts data panel Transportation / info dbar Walk",
+   "svg": "ui/icons/svg/trip_walk.svg",
+   "png24": "ui/icons/png24/trip_walk.png",
+   "png48": "ui/icons/png48/trip_walk.png"
+  },
+  "trip_school": {
+   "group": "trips",
+   "label": "Trip purpose: school",
+   "replacesEmoji": "🎒",
+   "usedIn": "src/main.ts commuteHtml kind=school",
+   "svg": "ui/icons/svg/trip_school.svg",
+   "png24": "ui/icons/png24/trip_school.png",
+   "png48": "ui/icons/png48/trip_school.png"
+  },
+  "trip_shop": {
+   "group": "trips",
+   "label": "Trip purpose: shopping",
+   "replacesEmoji": "🛒",
+   "usedIn": "src/main.ts commuteHtml kind=shop",
+   "svg": "ui/icons/svg/trip_shop.svg",
+   "png24": "ui/icons/png24/trip_shop.png",
+   "png48": "ui/icons/png48/trip_shop.png"
+  },
+  "status_no_power": {
+   "group": "status",
+   "label": "No power",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts drawChunkIcons / info panels status_no_power sprite",
+   "svg": "ui/icons/svg/status_no_power.svg",
+   "png24": "ui/icons/png24/status_no_power.png",
+   "png48": "ui/icons/png48/status_no_power.png"
+  },
+  "status_no_water": {
+   "group": "status",
+   "label": "No water",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts drawChunkIcons / info panels status_no_water sprite",
+   "svg": "ui/icons/svg/status_no_water.svg",
+   "png24": "ui/icons/png24/status_no_water.png",
+   "png48": "ui/icons/png48/status_no_water.png"
+  },
+  "status_no_road": {
+   "group": "status",
+   "label": "No road access",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts landlocked marker; '⚠ no road access'",
+   "svg": "ui/icons/svg/status_no_road.svg",
+   "png24": "ui/icons/png24/status_no_road.png",
+   "png48": "ui/icons/png48/status_no_road.png"
+  },
+  "status_abandoned": {
+   "group": "status",
+   "label": "Abandoned building",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts info 'being abandoned'",
+   "svg": "ui/icons/svg/status_abandoned.svg",
+   "png24": "ui/icons/png24/status_abandoned.png",
+   "png48": "ui/icons/png48/status_abandoned.png"
+  },
+  "status_no_parking": {
+   "group": "status",
+   "label": "Cars can't find parking",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts info unmet parking",
+   "svg": "ui/icons/svg/status_no_parking.svg",
+   "png24": "ui/icons/png24/status_no_parking.png",
+   "png48": "ui/icons/png48/status_no_parking.png"
+  },
+  "status_no_destinations": {
+   "group": "status",
+   "label": "No jobs, schools or shops reachable",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts commuteHtml",
+   "svg": "ui/icons/svg/status_no_destinations.svg",
+   "png24": "ui/icons/png24/status_no_destinations.png",
+   "png48": "ui/icons/png48/status_no_destinations.png"
+  },
+  "status_debt": {
+   "group": "status",
+   "label": "City in debt",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts toast debt; stats Funds; budget 'in debt'",
+   "svg": "ui/icons/svg/status_debt.svg",
+   "png24": "ui/icons/png24/status_debt.png",
+   "png48": "ui/icons/png48/status_debt.png"
+  },
+  "status_no_depot": {
+   "group": "status",
+   "label": "No bus depot",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts bus stop info",
+   "svg": "ui/icons/svg/status_no_depot.svg",
+   "png24": "ui/icons/png24/status_no_depot.png",
+   "png48": "ui/icons/png48/status_no_depot.png"
+  },
+  "status_stops_needed": {
+   "group": "status",
+   "label": "Needs at least 2 stops",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts bus stop info",
+   "svg": "ui/icons/svg/status_stops_needed.svg",
+   "png24": "ui/icons/png24/status_stops_needed.png",
+   "png48": "ui/icons/png48/status_stops_needed.png"
+  },
+  "status_stops_unlinked": {
+   "group": "status",
+   "label": "Stops not connected by road",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts bus stop info",
+   "svg": "ui/icons/svg/status_stops_unlinked.svg",
+   "png24": "ui/icons/png24/status_stops_unlinked.png",
+   "png48": "ui/icons/png48/status_stops_unlinked.png"
+  },
+  "status_warning": {
+   "group": "status",
+   "label": "Warning (generic)",
+   "replacesEmoji": "⚠",
+   "usedIn": "src/main.ts other ⚠ toasts/infos",
+   "svg": "ui/icons/svg/status_warning.svg",
+   "png24": "ui/icons/png24/status_warning.png",
+   "png48": "ui/icons/png48/status_warning.png"
+  },
+  "status_low_density": {
+   "group": "status",
+   "label": "Stays low density (missing utility)",
+   "replacesEmoji": null,
+   "usedIn": "src/main.ts zone info '(stays low density)'",
+   "svg": "ui/icons/svg/status_low_density.svg",
+   "png24": "ui/icons/png24/status_low_density.png",
+   "png48": "ui/icons/png48/status_low_density.png"
+  },
+  "btn_city_data": {
+   "group": "category",
+   "label": "City data button",
+   "replacesEmoji": "📊",
+   "usedIn": "src/main.ts #dataBtn; panel title; ui2 menu",
+   "svg": "ui/icons/svg/cat_data.svg",
+   "png24": "ui/icons/png24/cat_data.png",
+   "png48": "ui/icons/png48/cat_data.png",
+   "aliasOf": "cat_data"
+  },
+  "trip_work": {
+   "group": "topbar",
+   "label": "Trip purpose: work",
+   "replacesEmoji": "💼",
+   "usedIn": "src/main.ts commuteHtml kind=work",
+   "svg": "ui/icons/svg/stat_jobs.svg",
+   "png24": "ui/icons/png24/stat_jobs.png",
+   "png48": "ui/icons/png48/stat_jobs.png",
+   "aliasOf": "stat_jobs"
+  }
+ },
+ "unmappedOnPurpose": {
+  "·": "text separator in labels/HUD (src/main.ts, realism.ts, index.html) - keep as text",
+  "→": "text arrow in trip lists and comments - keep as text",
+  "×": "multiplication sign in sizes and speed text (1×) - the speed buttons are mapped, sizes stay text",
+  "⇧": "Shift key label inside <kbd> (ui2 Data key ⇧D) - keep as text",
+  "$ (inline amounts)": "currency text stays text; the $ Budget button maps to btn_budget, Funds to stat_funds",
+  "old icon_*@2x.png / status_*@2x.png": "existing raster icons in assets/ui/icons (services toolbar, status sprites) are not touched. The new svc_*, tool_* and status_* icons can replace them"
+ }
+}

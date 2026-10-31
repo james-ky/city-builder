@@ -7,12 +7,12 @@ export function chooseCity(extra?: (el: HTMLElement, done: (v: any) => void) => 
   if (q.get('size')) { const cfg = { name: q.get('city') || 'New City', size: +q.get('size')!, seed: +(q.get('seed') || 1) }; return Promise.resolve({ cfg, terrain: genTerrain(cfg.size, cfg.seed) }); }
   return new Promise(resolve => {
     const el = document.createElement('div'); el.id = 'newCity';
-    el.innerHTML = `<div class="nc"><h1>🏙 New City</h1>
+    el.innerHTML = `<div class="nc"><h1><img class="ic" src="./assets/ui/icons2/svg/stat_city.svg" alt=""> New City</h1>
       <label>City name <input id="ncName" maxlength="40" value="${localStorage.getItem('lastCityName') || 'Riverton'}"></label>
       <div class="ncRow"><span>Map size</span><div id="ncSize">${SIZES.map(([l, s], k) => `<button data-s="${s}" class="${k === 0 ? 'on' : ''}"><b>${l}</b><small>${s}×${s}</small></button>`).join('')}</div></div>
-      <label>Terrain seed <input id="ncSeed" type="number" min="0" max="999999999"> <button id="ncRand" title="Random terrain">🎲 Randomize</button></label>
+      <label>Terrain seed <input id="ncSeed" type="number" min="0" max="999999999"> <button id="ncRand" title="Random terrain"><img class="ic" src="./assets/ui/icons2/svg/btn_reroll.svg" alt=""></button></label>
       <canvas id="ncMini" width="520" height="260"></canvas>
-      <div class="ncBtns"><span id="ncExtra"></span><button id="ncGo" class="go">Found city ▶</button></div></div>`;
+      <div class="ncBtns"><span id="ncExtra"></span><button id="ncGo" class="go">Found city</button></div></div>`;
     document.body.appendChild(el);
     const $ = (id: string) => el.querySelector('#' + id) as HTMLInputElement;
     let size = SIZES[0][1], t: T[][] = [];

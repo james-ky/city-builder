@@ -1,7 +1,8 @@
+// Classic-layout controls (?ui=old); the new UI opens the same panel from its Data category.
 // City Data panel: toggles (button, Shift+D), every tab renders real numbers, education model drifts with school coverage, save v11 + migration.
 const {chromium}=require('playwright');(async()=>{const url=process.argv[2]||'http://localhost:4318/',shots=process.argv.includes('--shots');
 const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader']});const p=await b.newPage({viewport:{width:1400,height:800}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto(url+'?size=64&seed=5&city=Datatown');await p.waitForFunction(()=>window.__city&&__city.N);await p.evaluate(()=>__city.setSpeed(0));
+await p.goto(url+'?size=64&seed=5&city=Datatown&ui=old');await p.waitForFunction(()=>window.__city&&__city.N);await p.evaluate(()=>__city.setSpeed(0));
 const res=[];const ok=(n,c,d='')=>res.push((c?'PASS ':'FAIL ')+n+(d?' ('+d+')':''));
 const c=await p.evaluate(()=>{const t=__city.terrain;for(let r=0;r<30;r++)for(let i=32-r;i<=32+r;i++)for(let j=32-r;j<=32+r;j++){let g=true;for(let a=-12;a<=12&&g;a++)for(let b2=-12;b2<=12;b2++)if(!t[i+a]||t[i+a][j+b2]==='water'){g=false;break}if(g)return [i,j]}});
 // a town: main street along row ci from the map edge, homes on the west, shops in the middle, industry on the east

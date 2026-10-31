@@ -1,5 +1,10 @@
 # Changelog
 
+## Test reliability
+- tests/vehicles.cjs could check the wrong car when a background car finished its trip mid-test (the list shifted). It now follows the exact cars it spawned.
+- tests/ui-info.cjs checked that F left full screen after only 0.3 s; leaving full screen is asynchronous, so it now waits up to 4 s.
+- New tests/run-all.sh runs the whole suite (4 at a time) against the live game or a local build and lists any failures.
+
 ## HUD fixes
 - The hover info and the zoning preview showed raw code like `<img class="ic" ...>` instead of the little "no road access" icon, and the "city is in debt" message did the same. They now show the icon.
 - While dragging a road, zone, pipe, power line or bulldozer, the cost (and the "no road access on the front" warning for zones) was overwritten every frame by the tile under the mouse, so you never saw it. It now stays up while you drag.

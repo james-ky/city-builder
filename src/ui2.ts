@@ -5,7 +5,8 @@ const $ = (s: string) => document.querySelector<HTMLElement>(s);
 const click = (s: string) => $(s)?.click();
 const svc = (k: string) => () => click(`#services button[data-t="svc:${k}"]`);
 const tool = (n: number) => () => click(`#toolbar button:nth-child(${n})`);
-type Item = { label: string; tip: string; key?: string; run: () => void; on?: () => boolean };
+type Item = { label: string; tip: string; key?: string; icon?: string; run: () => void; on?: () => boolean };
+const I = (id: string, cls = 'ic') => `<img class="${cls}" src="./assets/ui/icons2/svg/${id}.svg" alt="">`;
 const CSS = `
 :root{--u-bg:rgba(16,22,30,.94);--u-line:#33404f;--u-acc:#4f8cff;--u-txt:#e8eef6;--u-dim:#93a3b8}
 #toolbar,#services,#help,#viewGrp,#stats>.grp{position:fixed!important;left:-9999px!important;top:-9999px!important}
@@ -27,7 +28,13 @@ const CSS = `
 #uMenu button{text-align:left;padding:7px 10px;display:flex;justify-content:space-between;gap:16px}#uMenu kbd,#uTip kbd,#uHelp kbd{font:11px ui-monospace,monospace;color:#cfe0ff;background:#2a3850;border-radius:4px;padding:0 5px}
 #uTip{position:fixed;pointer-events:none;display:none;z-index:30;background:#0b1118;color:var(--u-txt);border:1px solid var(--u-line);border-radius:8px;padding:6px 9px;font:12px system-ui;max-width:280px}
 #uHelp{position:fixed;inset:0;margin:auto;width:560px;height:max-content;display:none;z-index:40;background:var(--u-bg);color:var(--u-txt);border:1px solid var(--u-line);border-radius:14px;padding:16px 20px;font:13px/1.9 system-ui;columns:2}
-#uHelp h4{column-span:all;margin:0 0 6px}#uBadge{position:fixed;left:12px;top:48px;z-index:9;font:11px system-ui;color:#ffd27a;background:#3a2a0a;border:1px solid #6b5220;border-radius:6px;padding:2px 8px}`;
+#uHelp h4{column-span:all;margin:0 0 6px}#uMenu{grid-template-columns:repeat(4,44px);min-width:0!important}#uMenu button{justify-content:center!important;padding:8px!important}
+.ic{width:18px;height:18px;vertical-align:-4px}.ic22{width:22px;height:22px}.ic28{width:28px;height:28px;display:block}
+#uTray .sep{width:1px;align-self:stretch;background:var(--u-line);margin:0 4px}#uTray{flex-wrap:nowrap!important;max-width:96vw;overflow-x:auto}
+#uBar button{min-width:0;padding:7px 9px}#uTray button{padding:6px}#uTop button{padding:4px 6px}#uTop .ic{width:20px;height:20px}
+#roadTiers button,#zoneBar button{display:flex!important;align-items:center;gap:4px}#roadTiers small{display:none}#roadTiers>span{margin:0 2px!important;padding:0!important}
+#dataTabs button{padding:5px 7px!important}#speed .ic{width:16px;height:16px}
+#uBadge{position:fixed;left:12px;top:48px;z-index:9;font:11px system-ui;color:#ffd27a;background:#3a2a0a;border:1px solid #6b5220;border-radius:6px;padding:2px 8px}`;
 export function mountUI2() {
   if (new URLSearchParams(location.search).get('ui') === 'old') return;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
@@ -35,22 +42,30 @@ export function mountUI2() {
   const cov = (v: string) => () => { covSel.value = covSel.value === v ? '' : v; covSel.dispatchEvent(new Event('change')); };
   const isOn = (s: string) => () => !!$(s)?.classList.contains('on');
   const toolOn = (t: string) => () => !!$(`#toolbar button[data-t="${t}"], #services button[data-t="${t}"]`)?.classList.contains('on');
-  const parks = Array.from(document.querySelectorAll<HTMLElement>('#parkGroup button')).map(b => ({ label: b.textContent!.replace('🌳 ', ''), tip: b.title, run: () => b.click(), on: () => b.classList.contains('on') }));
-  const svcItems = (keys: string[]) => keys.filter(k => $(`#services button[data-t="svc:${k}"]`)).map(k => { const b = $(`#services button[data-t="svc:${k}"]`)!; return { label: b.textContent!.trim(), tip: b.title, run: svc(k), on: toolOn('svc:' + k) }; });
+  const imgOf = (b: HTMLElement) => b.querySelector('img')?.getAttribute('src')?.replace(/^.*\/svg\/(.+)\.svg$/, '$1');
+  const parks: Item[] = Array.from(document.querySelectorAll<HTMLElement>('#parkGroup button')).map(b => ({ label: b.textContent!.trim(), tip: b.title, icon: imgOf(b), run: () => b.click(), on: () => b.classList.contains('on') }));
+  const svcItems = (keys: string[]): Item[] => keys.filter(k => $(`#services button[data-t="svc:${k}"]`)).map(k => { const b = $(`#services button[data-t="svc:${k}"]`)!; return { label: b.title.split(':')[0], tip: b.title.split(':').slice(1).join(':').trim(), icon: imgOf(b), run: svc(k), on: toolOn('svc:' + k) }; });
   const utilKeys = Array.from(document.querySelectorAll<HTMLElement>('#services button[data-t^="svc:"]')).map(b => b.dataset.t!.slice(4)).filter(k => /coal|wind|pump|tower/.test(k));
   const dataTab = (t: string) => () => { const p = $('#dataPanel')!; if (p.style.display === 'none') click('#dataBtn'); click(`#dataTabs button[data-tab="${t}"]`); };
-  const CATS: { id: string; icon: string; name: string; key?: string; direct?: () => void; on?: () => boolean; groups?: [string, Item[]][] }[] = [
-    { id: 'select', icon: '🖐', name: 'Select', key: '1', direct: tool(1), on: toolOn('select') },
-    { id: 'roads', icon: '🛣', name: 'Roads', key: '2', groups: [['Build', [{ label: 'Road', tip: 'Drag to build. Pick type and width in the bar above.', key: '2', run: tool(2), on: toolOn('road') }, { label: '🚦 Intersection', tip: 'Click a junction to set lights, stop signs or yield.', run: () => click('#roadTiers button[data-ix]'), on: toolOn('ix') }]]] },
-    { id: 'zones', icon: '🏘', name: 'Zones', groups: [['Zone', [{ label: '🟩 Residential', tip: 'Paint homes. R rotates facing.', key: '3', run: tool(3), on: toolOn('R') }, { label: '🟦 Commercial', tip: 'Paint shops and offices.', key: '4', run: tool(4), on: toolOn('C') }, { label: '🟨 Industrial', tip: 'Paint factories.', key: '5', run: tool(5), on: toolOn('I') }]]] },
-    { id: 'util', icon: '⚡', name: 'Utilities', groups: [['Networks', [{ label: 'Power line', tip: 'Carries power between plants and zones.', key: '7', run: tool(7), on: toolOn('pline') }, { label: 'Water pipe', tip: 'Underground; switches to the underground view.', key: '8', run: tool(8), on: toolOn('pipe') }]], ['Plants', svcItems(utilKeys)]] },
-    { id: 'svc', icon: '🏛', name: 'Services', groups: [['Safety', svcItems(['police', 'fire'])], ['Health', svcItems(['clinic', 'hospital'])], ['Education', svcItems(['school', 'highschool'])]] },
-    { id: 'transit', icon: '🚌', name: 'Transit', groups: [['Buses', [...svcItems(['busdepot']), { label: '🚏 Bus stop', tip: 'Click a road to add a stop; buses loop through stops in order.', run: () => click('#roadTiers button[data-stop]'), on: toolOn('stop') }]], ['Parking', svcItems(['garage', 'garage2'])]] },
-    { id: 'parks', icon: '🌳', name: 'Parks', groups: [['Parks', parks]] },
-    { id: 'doze', icon: '🧨', name: 'Bulldoze', key: '6', direct: tool(6), on: toolOn('bulldoze') },
-    { id: 'views', icon: '👁', name: 'Views', groups: [['Map', [{ label: '▦ Grid', tip: 'Tile grid', key: 'G', run: () => click('#gridBtn'), on: isOn('#gridBtn') }, { label: '◧ Zone colours', tip: 'Tint zoned land', key: 'Z', run: () => click('#zoneBtn'), on: isOn('#zoneBtn') }, { label: '⛏ Underground', tip: 'Pipes view', key: 'U', run: () => click('#ugBtn'), on: isOn('#ugBtn') }]],
-      ['Overlays', Array.from(covSel.options).filter(o => o.value).map(o => ({ label: o.text, tip: 'Colour the map by ' + o.text.toLowerCase() + '. Click again to turn off.', run: cov(o.value), on: () => covSel.value === o.value }))]] },
-    { id: 'data', icon: '📊', name: 'Data', key: '⇧D', groups: [['City data (opens on the right)', ['Budget', 'Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'].map(t => ({ label: t, tip: 'Open the ' + t + ' page in the side panel', run: dataTab(t) }))]] },
+  const TABS = ['Budget', 'Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
+  // the Data panel's tab strip: icons only, name in the tooltip
+  document.querySelectorAll<HTMLElement>('#dataTabs button[data-tab]').forEach(b => { const t = b.dataset.tab!; b.title = t; b.innerHTML = I('data_' + t.toLowerCase(), 'ic ic22'); });
+  // road bar: icons only (prices stay in the tooltip; the hidden <small> keeps the game's live price updates working)
+  document.querySelectorAll<HTMLElement>('#roadTiers button[data-tier]').forEach(b => { b.insertAdjacentHTML('afterbegin', I(['', 'road_dirt', 'road_asphalt', 'road_concrete'][+b.dataset.tier!], 'ic ic22')); Array.from(b.childNodes).forEach(n => { if (n.nodeType === 3) n.remove(); }); });
+  document.querySelectorAll<HTMLElement>('#roadTiers button[data-w]').forEach(b => { b.innerHTML = I(['road_width_2lane', 'road_width_street', 'road_width_avenue'][+b.dataset.w!], 'ic ic22'); });
+  document.querySelectorAll<HTMLElement>('#roadTiers > span').forEach(sp => { sp.textContent = ''; });
+  const CATS: { id: string; icon: string; name: string; key?: string; direct?: () => void; on?: () => boolean; groups?: Item[][] }[] = [
+    { id: 'select', icon: 'cat_select', name: 'Select / pan', key: '1', direct: tool(1), on: toolOn('select') },
+    { id: 'roads', icon: 'cat_roads', name: 'Roads', groups: [[{ label: 'Road', tip: 'Drag to build. Type and width in the bar above.', key: '2', icon: 'road_asphalt', run: tool(2), on: toolOn('road') }, { label: 'Intersection', tip: 'Click a junction: lights, stop signs, yield', icon: 'road_intersection', run: () => click('#roadTiers button[data-ix]'), on: toolOn('ix') }]] },
+    { id: 'zones', icon: 'cat_zones', name: 'Zones', groups: [[{ label: 'Residential', tip: 'R rotates facing', key: '3', icon: 'zone_R_2', run: tool(3), on: toolOn('R') }, { label: 'Commercial', tip: '', key: '4', icon: 'zone_C_2', run: tool(4), on: toolOn('C') }, { label: 'Industrial', tip: '', key: '5', icon: 'zone_I_2', run: tool(5), on: toolOn('I') }]] },
+    { id: 'util', icon: 'cat_utilities', name: 'Utilities', groups: [[{ label: 'Power line', tip: '', key: '7', icon: 'tool_power_line', run: tool(7), on: toolOn('pline') }, { label: 'Water pipe', tip: 'Shows the underground view', key: '8', icon: 'tool_pipe', run: tool(8), on: toolOn('pipe') }], svcItems(utilKeys)] },
+    { id: 'svc', icon: 'cat_services', name: 'Services', groups: [svcItems(['police', 'fire']), svcItems(['clinic', 'hospital']), svcItems(['school', 'highschool'])] },
+    { id: 'transit', icon: 'cat_transit', name: 'Transit', groups: [[...svcItems(['busdepot']), { label: 'Bus stop', tip: 'Click a road to add a stop', icon: 'tool_bus_stop', run: () => click('#roadTiers button[data-stop]'), on: toolOn('stop') }], svcItems(['garage', 'garage2'])] },
+    { id: 'parks', icon: 'cat_parks', name: 'Parks', groups: [parks] },
+    { id: 'doze', icon: 'cat_bulldoze', name: 'Bulldoze', key: '6', direct: tool(6), on: toolOn('bulldoze') },
+    { id: 'views', icon: 'cat_views', name: 'Views', groups: [[{ label: 'Grid', tip: '', key: 'G', icon: 'view_grid', run: () => click('#gridBtn'), on: isOn('#gridBtn') }, { label: 'Zone colours', tip: '', key: 'Z', icon: 'view_zone_colours', run: () => click('#zoneBtn'), on: isOn('#zoneBtn') }, { label: 'Underground', tip: 'Pipes', key: 'U', icon: 'view_underground', run: () => click('#ugBtn'), on: isOn('#ugBtn') }],
+      Array.from(covSel.options).filter(o => o.value).map(o => ({ label: o.text, tip: 'Overlay. Click again to turn off.', icon: 'overlay_' + o.value, run: cov(o.value), on: () => covSel.value === o.value }))] },
+    { id: 'data', icon: 'cat_data', name: 'City data', key: '⇧D', groups: [TABS.map(t => ({ label: t, tip: '', icon: 'data_' + t.toLowerCase(), run: dataTab(t) }))] },
   ];
   const bar = document.createElement('div'); bar.id = 'uBar'; const tray = document.createElement('div'); tray.id = 'uTray';
   const tip = document.createElement('div'); tip.id = 'uTip'; document.body.append(bar, tray, tip);
@@ -62,20 +77,20 @@ export function mountUI2() {
   const refresh = () => { bar.querySelectorAll<HTMLElement>('button').forEach(b => { const c = CATS.find(x => x.id === b.dataset.c)!; b.classList.toggle('on', open === c.id || !!c.on?.()); });
     tray.querySelectorAll<HTMLElement>('button').forEach((b, k) => b.classList.toggle('on', !!(b as any).__it.on?.())); };
   const openTray = (id: string) => { open = open === id ? '' : id; const c = CATS.find(x => x.id === id)!; tray.innerHTML = ''; tray.style.display = open ? 'flex' : 'none';
-    for (const [g, items] of c.groups ?? []) { const h = document.createElement('h5'); h.textContent = g; tray.appendChild(h);
-      for (const it of items) { const b = document.createElement('button'); (b as any).__it = it; b.textContent = it.label; withTip(b, it.label, it.tip, it.key); b.onclick = () => { it.run(); setTimeout(refresh, 30); }; tray.appendChild(b); } }
+    (c.groups ?? []).forEach((items, gi) => { if (gi) { const sep = document.createElement('span'); sep.className = 'sep'; tray.appendChild(sep); }
+      for (const it of items) { const b = document.createElement('button'); (b as any).__it = it; b.innerHTML = it.icon ? I(it.icon, 'ic ic28') : it.label; withTip(b, it.label, it.tip, it.key); b.onclick = () => { it.run(); setTimeout(refresh, 30); }; tray.appendChild(b); } });
     refresh(); };
-  for (const c of CATS) { const b = document.createElement('button'); b.dataset.c = c.id; b.innerHTML = `<i>${c.icon}</i>${c.name}`;
-    withTip(b, c.name, c.direct ? '' : 'Opens a tray of tools', c.key); b.onclick = () => { if (c.direct) { open = ''; tray.style.display = 'none'; c.direct(); refresh(); } else openTray(c.id); }; bar.appendChild(b); }
+  for (const c of CATS) { const b = document.createElement('button'); b.dataset.c = c.id; b.innerHTML = I(c.icon, 'ic ic28');
+    withTip(b, c.name, '', c.key); b.onclick = () => { if (c.direct) { open = ''; tray.style.display = 'none'; c.direct(); refresh(); } else openTray(c.id); }; bar.appendChild(b); }
   // top bar: ☰ menu (file, budget, audio, settings, full screen) and ? help
   const top = document.createElement('span'); top.id = 'uTop'; const rci = $('#rci')!; rci.after(top);
-  top.innerHTML = '<button id="uHelpBtn">?</button><button id="uMenuBtn">☰ Menu</button>';
+  top.innerHTML = `<button id="uHelpBtn">${I('cat_help')}</button><button id="uMenuBtn">${I('cat_menu')}</button>`;
   const menu = document.createElement('div'); menu.id = 'uMenu'; document.body.appendChild(menu); menu.addEventListener('pointerdown', e => e.stopPropagation());
-  const M: [string, string, () => void][] = [['🆕 New city', '', () => click('#newBtn')], ['💾 Save / Load', 'Ctrl+S', () => click('#saveBtn')], ['$ Budget', 'B', () => click('#budgetBtn')], ['📊 City data', '⇧D', () => click('#dataBtn')],
-    ['♪ Music on/off', '', () => click('#musicBtn')], ['⚙ Audio, effects & graphics', '', () => click('#fxBtn')], ['⛶ Full screen', 'F', () => click('#fsBtn')], ['⌨ Keyboard shortcuts', '?', () => toggleHelp()]];
-  for (const [l, k, f] of M) { const b = document.createElement('button'); b.innerHTML = `<span>${l}</span>${k ? `<kbd>${k}</kbd>` : ''}`; b.onclick = e => { e.stopPropagation(); menu.style.display = 'none'; f(); }; menu.appendChild(b); }
-  $('#uMenuBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex'; };
-  withTip($('#uMenuBtn')!, 'Menu', 'New, save/load, budget, audio, settings, full screen'); withTip($('#uHelpBtn')!, 'Keyboard shortcuts', '', '?');
+  const M: [string, string, string, () => void][] = [['btn_new_city', 'New city', '', () => click('#newBtn')], ['btn_save', 'Save / load', 'Ctrl+S', () => click('#saveBtn')], ['btn_budget', 'Budget', 'B', () => click('#budgetBtn')], ['cat_data', 'City data', '⇧D', () => click('#dataBtn')],
+    ['btn_music', 'Music on/off', '', () => click('#musicBtn')], ['btn_settings', 'Audio, effects & graphics', '', () => click('#fxBtn')], ['btn_fullscreen', 'Full screen', 'F', () => click('#fsBtn')], ['btn_keyboard', 'Keyboard shortcuts', '?', () => toggleHelp()]];
+  for (const [ic, l, k, f] of M) { const b = document.createElement('button'); b.innerHTML = I(ic, 'ic ic28'); withTip(b, l, '', k); b.onclick = e => { e.stopPropagation(); menu.style.display = 'none'; tip.style.display = 'none'; f(); }; menu.appendChild(b); }
+  $('#uMenuBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'grid' ? 'none' : 'grid'; };
+  withTip($('#uMenuBtn')!, 'Menu', ''); withTip($('#uHelpBtn')!, 'Keyboard shortcuts', '', '?');
   const help = document.createElement('div'); help.id = 'uHelp'; document.body.appendChild(help);
   help.innerHTML = '<h4>Keyboard shortcuts</h4>' + [['1', 'Select / pan'], ['2', 'Road'], ['3 4 5', 'Residential / Commercial / Industrial'], ['6', 'Bulldoze'], ['7', 'Power line'], ['8', 'Pipe'], ['R', 'Rotate zone facing'], ['Esc', 'Cancel / close panel'], ['Space', 'Pause / resume'], ['WASD / arrows', 'Pan'], ['Q E / wheel', 'Zoom'], ['G', 'Grid'], ['Z', 'Zone colours'], ['U', 'Underground'], ['B', 'Budget'], ['⇧D', 'City data'], ['F', 'Full screen'], ['Ctrl+S', 'Save'], ['?', 'This sheet']].map(([k, v]) => `<div><kbd>${k}</kbd> ${v}</div>`).join('');
   const toggleHelp = () => help.style.display = help.style.display === 'block' ? 'none' : 'block';
@@ -83,6 +98,13 @@ export function mountUI2() {
   addEventListener('keydown', e => { if (e.key === '?' && !(e.target instanceof HTMLInputElement)) toggleHelp(); if (e.key === 'Escape') { help.style.display = 'none'; menu.style.display = 'none'; open = ''; tray.style.display = 'none'; refresh(); } });
   addEventListener('pointerdown', () => { menu.style.display = 'none'; help.style.display = 'none'; });
   addEventListener('keyup', () => setTimeout(refresh, 30));
-  const badge = document.createElement('div'); badge.id = 'uBadge'; badge.textContent = 'UI preview (mockup) · add ?ui=old for the current layout'; document.body.appendChild(badge);
+  const badge = document.createElement('div'); badge.id = 'uBadge'; badge.textContent = 'Preview'; badge.title = 'UI mockup. Add ?ui=old for the current layout'; document.body.appendChild(badge);
+  // every other control with a title gets the same styled tooltip; a trailing "(X)" becomes the hotkey chip
+  document.addEventListener('mouseover', e => { const el = (e.target as HTMLElement).closest?.('[title],[data-tip]') as HTMLElement | null; if (!el || el.onmouseenter) return;
+    if (el.title) { el.dataset.tip = el.title; el.removeAttribute('title'); }
+    const m = /^(.*?)\s*\(([^()]{1,12})\)\s*$/.exec(el.dataset.tip!), txt = m ? m[1] : el.dataset.tip!, key = m && /^(Shift\+|Ctrl\+)?[A-Z0-9 ]{1,3}$|Space|Esc/.test(m[2]) ? m[2] : '';
+    const [head, ...rest] = (key ? txt : el.dataset.tip!).split(/:\s/); tip.innerHTML = `<b>${head}</b>${key ? ` <kbd>${key}</kbd>` : ''}${rest.length ? '<br>' + rest.join(': ') : ''}`;
+    const r = el.getBoundingClientRect(); tip.style.display = 'block'; tip.style.left = Math.max(4, Math.min(innerWidth - 290, r.left)) + 'px'; tip.style.top = (r.top < 120 ? r.bottom + 6 : r.top - tip.offsetHeight - 6) + 'px'; });
+  document.addEventListener('mouseout', e => { const el = (e.target as HTMLElement).closest?.('[data-tip]') as HTMLElement | null; if (el && !el.onmouseenter) tip.style.display = 'none'; });
   (window as any).__ui2 = { openTray, cats: CATS.map(c => c.id) };
 }

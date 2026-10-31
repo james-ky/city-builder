@@ -24,7 +24,7 @@ const tr=await p.evaluate(()=>{__city.dataPanel(true,'Transportation');return __
 const nt=await p.evaluate(()=>{__city.dataPanel(true,'Population');return __city.dataText()});ok('unsimulated stats say "not tracked yet"',/not tracked yet/.test(nt));
 const hs=await p.evaluate(()=>__city.hist().length);ok('monthly budget history recorded',hs>=12,String(hs));
 const e1=await p.evaluate(()=>({edu:__city.sim().edu,cov:__city.eduCoverage()}));ok('education rises with school coverage',e1.cov>0&&e1.edu[3]>e0[3]&&Math.abs(e1.edu.reduce((a,b)=>a+b,0)-1)<1e-6,JSON.stringify({e0,e1}));
-const sv=await p.evaluate(()=>{const o=__city.serialize();return{v:o.version,edu:o.sim.edu,h:o.hist.length}});ok('save v11 stores education and history',sv.v===11&&sv.edu.length===4&&sv.h>=12,JSON.stringify(sv));
+const sv=await p.evaluate(()=>{const o=__city.serialize();return{v:o.version,edu:o.sim.edu,h:o.hist.length}});ok('save v11+ stores education and history',sv.v>=11&&sv.edu.length===4&&sv.h>=12,JSON.stringify(sv));
 const mg=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));delete o.sim.edu;delete o.hist;o.version=10;__city.applySave(o);return{edu:__city.sim().edu,h:__city.hist().length}});ok('pre-v11 saves migrate (default education, empty history)',mg.edu.length===4&&mg.h===0,JSON.stringify(mg));
 await p.evaluate(()=>{for(let k=0;k<12;k++)__city.monthly()});
 if(shots){await p.setViewportSize({width:1500,height:900});await p.evaluate(()=>__city.dataPanel(true,'Budget'));await p.waitForTimeout(600);const a=await p.locator('#dataPanel').screenshot({path:'/tmp/dp1.png'});

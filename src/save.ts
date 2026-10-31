@@ -1,5 +1,5 @@
 // Save slots in IndexedDB, gzip-compressed (CompressionStream). The same bytes are the .city export file.
-export const SAVE_FORMAT = 'city-builder-save', SAVE_VERSION = 11;
+export const SAVE_FORMAT = 'city-builder-save', SAVE_VERSION = 12 /* v12: roundabouts (rabs: origin keys) */;
 export type SaveMeta = { id: string; slot: string; city: string; size: number; day: number; pop: number; funds: number; ts: number; bytes: number };
 export type SaveRec = SaveMeta & { data: Blob };
 const DB = 'city-builder', STORE = 'saves';

@@ -3,7 +3,7 @@ import { TripSim, carsOf } from './trips';
 import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
-import { loadManifest, place, placeNight, hasArt, artMeta, artTex, facingName } from './sprites';
+import { loadManifest, place, placeNight, hasArt, artMeta, artTex, facingName , autotile } from './sprites';
 
 const TW = 64, TH = 32;
 const hud = document.getElementById('hud')!;
@@ -64,7 +64,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const glowL = new Container(); // vehicle head/tail light pools: above the night shade, under every vehicle and building
   world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, glowL, objL, smokeL, cloudL, skyL, iconL);
   let lastNightTint = -1, curTint = 0xffffff;
-  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; res2?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean; dwell?: number; dwellAt?: number; bf?: number; br?: number; hg?: Sprite; tg?: Sprite };
+  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; res2?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean; dwell?: number; dwellAt?: number; bf?: number; br?: number; hg?: Sprite; tg?: Sprite; ra?: number; rabGo?: number };
   const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const pk: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // private parking that grew on a C tile: 1 surface lot, 2 garage
@@ -78,6 +78,20 @@ function diamond(g: Graphics, i: number, j: number) {
   let roadTier: RoadTier = 2, roadW = 0;
   const wKind = (v: number) => v >= 2 ? 2 : v;
   const rpd: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // avenue halves: explicit partner direction bit (NE=1 SE=2 SW=4 NW=8), 0 = none
+  // roundabouts (small 1-lane, 3x3): rab = origin key (min i * N + min j) + 1, 0 = none. Ring cells in counter-clockwise screen order (right-hand traffic).
+  const rab: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  const RAB_RING: [number, number][] = [[1, 0], [0, 0], [0, 1], [0, 2], [1, 2], [2, 2], [2, 1], [2, 0]];
+  const RAB_ARMS: Record<string, { c: [number, number]; out: [number, number] }> = { NE: { c: [1, 0], out: [1, -1] }, NW: { c: [0, 1], out: [-1, 1] }, SW: { c: [1, 2], out: [1, 3] }, SE: { c: [2, 1], out: [3, 1] } };
+  const rabO = (i: number, j: number): [number, number] => { const v = rab[i][j] - 1; return [(v / N) | 0, v % N]; };
+  const rabOff = (i: number, j: number): [number, number] => { const [a, b] = rabO(i, j); return [i - a, j - b]; };
+  const rabArmOf = (di: number, dj: number) => Object.keys(RAB_ARMS).find(k => RAB_ARMS[k].c[0] === di && RAB_ARMS[k].c[1] === dj);
+  const rabCentre = (i: number, j: number) => !!rab[i][j] && rabOff(i, j)[0] === 1 && rabOff(i, j)[1] === 1;
+  const rabArmAt = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N && !!rab[i][j] && !!rabArmOf(...rabOff(i, j));
+  /** (i,j)->(i+a,j+b) allowed by roundabout rules: one-way round the ring (counter-clockwise), in/out only at the 4 arm cells */
+  const rabOK = (i: number, j: number, a: number, b: number) => { const x = i + a, y = j + b; if (x < 0 || y < 0 || x >= N || y >= N) return true; const ra = rab[i][j], rb = rab[x][y]; if (!ra && !rb) return true;
+    if (ra && rb) { if (ra !== rb) return false; const [di, dj] = rabOff(i, j), k = RAB_RING.findIndex(([p, q]) => p === di && q === dj); if (k < 0) return false; const [ni, nj] = RAB_RING[(k + 1) % 8]; return rabOff(x, y)[0] === ni && rabOff(x, y)[1] === nj; }
+    if (ra) { const arm = rabArmOf(...rabOff(i, j)); return !!arm && RAB_ARMS[arm].out[0] === x - rabO(i, j)[0] && RAB_ARMS[arm].out[1] === y - rabO(i, j)[1]; }
+    const arm = rabArmOf(...rabOff(x, y)); return !!arm && RAB_ARMS[arm].out[0] === i - rabO(x, y)[0] && RAB_ARMS[arm].out[1] === j - rabO(x, y)[1]; };
   const BITV: Record<number, [number, number]> = { 1: [0, -1], 2: [1, 0], 4: [0, 1], 8: [-1, 0] }, BITOF = (a: number, b: number) => b < 0 ? 1 : a > 0 ? 2 : b > 0 ? 4 : 8, OPP: Record<number, number> = { 1: 4, 2: 8, 4: 1, 8: 2 };
   const avCases = new Map<string, number>(); // stopgap avenue shapes drawn as straight half + overlay
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
@@ -221,20 +235,21 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
+  const isFront = (i: number, j: number) => isRoad(i, j) && !rab[i][j]; // buildings can't front a roundabout cell
   const FACE: [string, number, number][] = [['Auto', 0, 0], ['NE', 0, -1], ['SE', 1, 0], ['SW', 0, 1], ['NW', -1, 0]]; // facing -> offset to the front road tile
   const capOf = (i: number, j: number) => zden[i][j] || 3;
   /** the road side a building on (i,j) faces: locked facing if that side has a road, else on Auto the busiest adjacent road (stable NE,SE,SW,NW tie-break); 0 = no road on the front */
   /** frontage tie-break for Auto: how many zoned tiles in a row along that road (up to 4 each way) also front it (corner lots face the street their row lines, not always SE) */
-  const front = (i: number, j: number, f: number) => { const di = FACE[f][2] ? 1 : 0, dj = 1 - di; let n = 0; for (const s of [-1, 1]) for (let k = 1; k <= 4; k++) { const a = i + di * s * k, b = j + dj * s * k; if (!(inb(a, b) && zone[a][b] && isRoad(a + FACE[f][1], b + FACE[f][2]))) break; n++; } return n; };
-  const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isRoad(a, b)) continue; const v = (volRef ? volRef[a * N + b] : 0) + 1e-4 * front(i, j, f); if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
-  const faceFor = (i: number, j: number, want: number) => want && isRoad(i + FACE[want][1], j + FACE[want][2]) ? want : autoFace(i, j); // a locked facing with no road on that side falls back to the busiest adjacent road
+  const front = (i: number, j: number, f: number) => { const di = FACE[f][2] ? 1 : 0, dj = 1 - di; let n = 0; for (const s of [-1, 1]) for (let k = 1; k <= 4; k++) { const a = i + di * s * k, b = j + dj * s * k; if (!(inb(a, b) && zone[a][b] && isFront(a + FACE[f][1], b + FACE[f][2]))) break; n++; } return n; };
+  const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isFront(a, b)) continue; const v = (volRef ? volRef[a * N + b] : 0) + 1e-4 * front(i, j, f); if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
+  const faceFor = (i: number, j: number, want: number) => want && isFront(i + FACE[want][1], j + FACE[want][2]) ? want : autoFace(i, j); // a locked facing with no road on that side falls back to the busiest adjacent road
   const facingOf = (i: number, j: number) => faceFor(i, j, zface[i][j]);
   /** a civic building faces the side of its footprint with the most road (SE on ties/none) */
   const civFace = (c: { i: number; j: number; s: number }) => { let best = 2, bn = 0; for (const d of [2, 1, 3, 4]) { let n = 0; for (let t = 0; t < c.s; t++) { const [a, b] = d === 1 ? [c.i + t, c.j - 1] : d === 2 ? [c.i + c.s, c.j + t] : d === 3 ? [c.i + t, c.j + c.s] : [c.i - 1, c.j + t]; if (isRoad(a, b)) n++; } if (n > bn) { bn = n; best = d; } } return best; };
   /** every building needs its own road: a lot counts if its front edge touches a road on its facing side */
-  const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isRoad(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
+  const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isFront(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
   /** road tile in front of the building's entrance (-1 none) */
-  const entranceOf = (i: number, j: number) => { if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isRoad(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
+  const entranceOf = (i: number, j: number) => { if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isFront(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
   const drawFace = (i: number, j: number) => { const l = lot[i][j]; if (l) return FACE.findIndex(x => x[0] === l.dir); return facingOf(i, j) || zface[i][j] || 2; };
   const DENN = ['', 'Light', 'Medium', 'Dense'];
   const CAPNAME: Record<string, string[]> = { R: ['', 'single-family homes', 'up to mid-rise apartments', 'up to towers'], C: ['', 'storefronts', 'main-street blocks & small offices', 'up to office towers'], I: ['', 'workshops', 'mid-size factories', 'heavy industry'] };
@@ -257,8 +272,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const guessPartners = () => { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) rpd[i][j] = 0; // old saves: pair halves side by side (along-i avenues pair on j, along-j on i)
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const v = rw[i][j]; if (v < 2 || rpd[i][j]) continue; const [a, b] = v === 2 ? [0, 1] : [1, 0];
       if (inb(i + a, j + b) && rw[i + a][j + b] === v && !rpd[i + a][j + b]) { rpd[i][j] = BITOF(a, b); rpd[i + a][j + b] = OPP[BITOF(a, b)]; } } };
-  const link = (i: number, j: number, a: number, b: number) => isRoad(i + a, j + b) && !partner(i, j, a, b);
-  const drivable = (i: number, j: number) => inb(i, j) && road[i][j] && (rstage[i][j] === 0 || rfrom[i][j] > 0);
+  const link = (i: number, j: number, a: number, b: number) => isRoad(i + a, j + b) && !partner(i, j, a, b) && rabOK(i, j, a, b);
+  const drivable = (i: number, j: number) => inb(i, j) && road[i][j] && (rstage[i][j] === 0 || rfrom[i][j] > 0) && !rabCentre(i, j);
   const roadWorks: number[] = []; // tiles under construction (i*N+j)
   const startRoad = (i: number, j: number, t: RoadTier, w = 0, pd = 0) => { rw[i][j] = w; rpd[i][j] = w >= 2 ? pd : 0; const up = road[i][j] && rtier[i][j] > 0 && rstage[i][j] === 0; rfrom[i][j] = up ? rtier[i][j] : 0; rtier[i][j] = t; rstage[i][j] = up ? 3 : 1; rday[i][j] = 0; road[i][j] = true; roadWorks.push(i * N + j); };
   const tickRoads = () => { for (let k = roadWorks.length - 1; k >= 0; k--) { const i = (roadWorks[k] / N) | 0, j = roadWorks[k] - i * N;
@@ -294,7 +309,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (wide(stem[0], stem[1])) return { k: 'L', stops: [], ph, cyc: 45, g0: 0.5, mode: 'auto' };
     return { k: 'S', stops: [stem[2]], ph: 0, cyc: 45, g0: 0.5, mode: 'auto' }; };
   const building = (i: number, j: number) => { for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) if (inb(i + a, j + b) && road[i + a][j + b] && rstage[i + a][j + b]) return true; return false; };
-  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3 || taperAt(i, j)) { autoCtl.delete(k); return null; } // a taper (avenue narrowing into a street) is a merge, not an intersection
+  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3 || taperAt(i, j) || rab[i][j]) { autoCtl.delete(k); return null; } // a taper (avenue narrowing into a street) is a merge, not an intersection
     let auto = autoCtl.get(k); if (!auto || !building(i, j)) { const r = autoRule(i, j); if (r) { auto = r; autoCtl.set(k, r); } } // changes apply only once construction finishes
     const o = ixSet.get(k); if (!o || o.mode === 'auto') return auto ?? null;
     const ph = (i * 7 + j * 13) % 15, base = { ph, cyc: o.cyc || 45, g0: o.split === 'even' ? 0.5 : busyShare(i, j), mode: o.mode };
@@ -358,6 +373,12 @@ function diamond(g: Graphics, i: number, j: number) {
       if (inb(qi, qj) && rpd[qi][qj] === OPP[pd] && narrowAt(qi + di, qj + dj) && !(inb(i + di, j + dj) && road[i + di][j + dj])) return `taper_${kindOf(qi + di, qj + dj)}_${DN[D]}_${DN[pd]}_side`; }
     return ''; };
   const drawRoadTile = (ch: Chunk, i: number, j: number, x: number, y: number, m: number, seed: number) => {
+    if (rab[i][j]) { // roundabout piece (no mask / avenue / junction rules): surface art of the shown tier, its night lamps, and the construction stage on top
+      const [di, dj] = rabOff(i, j), st = rstage[i][j], shown = st === 0 ? rtier[i][j] : rfrom[i][j], k = `roundabout_${TIERN[shown]}_${di}${dj}`, sk = st ? `roundabout_stage_${['', 'surveyed', 'graded', 'gravel', 'surfacing'][st]}_${di}${dj}` : '';
+      const hasK = !!shown && hasArt(k), hasS = !!sk && hasArt(sk);
+      if (hasK) { place(k, x, y, ch.rd, seed); const l = placeNight(k, x, y, ch.ob, seed); if (l) { l.zIndex = y + 0.001; l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } }
+      if (hasS) place(sk, x, y, ch.rd, seed);
+      if (hasK || hasS) return; }
     const st = rstage[i][j], shownTier = st === 0 ? rtier[i][j] : rfrom[i][j], base = 'road_' + (m || (hasArt('road_0') ? 0 : 1));
     let wk = wKind(rw[i][j]), wname = ['road', 'street', 'avenue'][wk];
     let artM: number | string = m, over = 0, picked = false; // avenue art is keyed by its straight-half shape: along-axis bits + the partner bit (median side); 15 = intersection
@@ -370,7 +391,7 @@ function diamond(g: Graphics, i: number, j: number) {
       }
       if (pd && shownTier) { const tp = taperAt(i, j); if (tp && hasArt(`avenue_${TIERN[shownTier]}_${tp}`)) { artM = tp; picked = true; } }
       if (pd && !picked) { artM = axis | pd; over = m & ~axis; const cs = ((m & axis) === axis ? 'side-street T' : m === 0 ? 'isolated half' : over ? 'end/corner with side street' : 'avenue end') + ' m=' + m + ' pd=' + pd; avCases.set(cs, (avCases.get(cs) ?? 0) + 1); } }
-    let jn = false; if (!wk && shownTier) for (const bb of [1, 2, 4, 8]) { const [di, dj] = BITV[bb]; if ((m & bb) && inb(i + di, j + dj) && rw[i + di][j + dj] >= 2 && !(shownTier === 1 && taperAt(i + di, j + dj).startsWith('taper_dirt') && hasArt(`avenue_${TIERN[rtier[i + di][j + dj]]}_${taperAt(i + di, j + dj)}`))) jn = true; } // 2-lane road meeting an avenue: 12 m street junction tile so it matches the avenue's outer-edge profile
+    let jn = false; if (!wk && shownTier) for (const bb of [1, 2, 4, 8]) { const [di, dj] = BITV[bb]; if ((m & bb) && inb(i + di, j + dj) && (rw[i + di][j + dj] >= 2 || rabArmAt(i + di, j + dj)) && !(shownTier === 1 && taperAt(i + di, j + dj).startsWith('taper_dirt') && hasArt(`avenue_${TIERN[rtier[i + di][j + dj]]}_${taperAt(i + di, j + dj)}`))) jn = true; } // 2-lane road meeting an avenue: 12 m street junction tile so it matches the avenue's outer-edge profile
     let apron = 0; if (jn && hasArt(`street_${TIERN[shownTier]}_${m}`)) { wk = 1; wname = 'street'; } else if (jn && hasArt(`street_asphalt_${m}`)) { wk = 1; wname = 'street'; apron = 2; } // dirt road meeting an avenue: paved apron tile (no dirt street art)
     const artT = apron || shownTier;
     if (shownTier && wk && hasArt(`${wname}_${TIERN[artT]}_${artM}`)) { place(`${wname}_${TIERN[artT]}_${artM}`, x, y, ch.rd, seed);
@@ -566,12 +587,13 @@ function diamond(g: Graphics, i: number, j: number) {
   tierBar.addEventListener('pointerdown', e => e.stopPropagation());
   tierBar.innerHTML = '<span style="align-self:center">Road type</span>' + ([1, 2, 3] as RoadTier[]).map(t => { const r = ROAD_TIERS[t]; return `<button data-tier="${t}" title="${r.name}: build $${r.build}/tile, upkeep $${r.upkeep}/tile/month, speed ×${r.speed}. Paint over an existing road to upgrade it (you pay the difference)." style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer">${r.name} <small style="color:#9cf">$${r.build}/tile · $${r.upkeep}/mo</small></button>`; }).join('');
   tierBar.innerHTML += '<span style="align-self:center;margin-left:8px;border-left:1px solid #556;padding-left:8px">Width</span>' + ROAD_WIDTHS.map((w, k) => `<button data-w="${k}" title="${w.name}: ${w.lanes} lanes of ${w.laneFt} ft, ${w.tiles} tile${w.tiles > 1 ? 's' : ''} wide, capacity ×${w.capacity}, build ×${w.buildMul}" style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer">${w.name}${k === 2 ? ' (2 tiles)' : ''}</button>`).join('');
-  tierBar.innerHTML += '<span style="align-self:center;margin-left:8px;border-left:1px solid #556;padding-left:8px"></span><button data-ix="1" title="Intersection tool: click a junction to choose lights, stop signs, yield or no control" style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer"><img class="ic" src="./assets/ui/icons2/svg/road_intersection.svg" alt=""></button><button data-stop="1" title="Bus stop: click a road tile to add a stop ($${TRANSIT.stopCost}, $${TRANSIT.stopUpkeep}/month); click a stop again to remove it. Buses run from a Bus Depot (Services) and loop through stops in the order you placed them." style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer"><img class="ic" src="./assets/ui/icons2/svg/tool_bus_stop.svg" alt=""></button>';
+  tierBar.innerHTML += '<span style="align-self:center;margin-left:8px;border-left:1px solid #556;padding-left:8px"></span><button data-ix="1" title="Intersection tool: click a junction to choose lights, stop signs, yield or no control" style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer"><img class="ic" src="./assets/ui/icons2/svg/road_intersection.svg" alt=""></button><button data-rab="1" title="Traffic circle: click to place a small 1-lane roundabout (3×3) on clear land or road. Entries at the 4 arms, cars yield to traffic already in the circle." style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer"><img class="ic" src="./assets/ui/icons2/svg/road_roundabout.svg" alt=""></button><button data-stop="1" title="Bus stop: click a road tile to add a stop ($${TRANSIT.stopCost}, $${TRANSIT.stopUpkeep}/month); click a stop again to remove it. Buses run from a Bus Depot (Services) and loop through stops in the order you placed them." style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:5px 8px;cursor:pointer"><img class="ic" src="./assets/ui/icons2/svg/tool_bus_stop.svg" alt=""></button>';
   document.body.appendChild(tierBar);
   const refreshTierBar = () => { tierBar.querySelectorAll<HTMLElement>('button[data-tier]').forEach(b => { const t = +b.dataset.tier! as RoadTier, dis = t === 1 && roadW > 0; b.style.background = t === roadTier ? '#3d6fd1' : '#2b3442'; b.style.opacity = dis ? '0.4' : '1'; b.querySelector('small')!.textContent = `$${roadBuild(t, roadW)}/tile · $${+roadUpkeep(t, roadW).toFixed(2)}/mo`; });
     tierBar.querySelectorAll<HTMLElement>('button[data-w]').forEach(b => b.style.background = +b.dataset.w! === roadW ? '#3d6fd1' : '#2b3442'); };
   tierBar.querySelector<HTMLElement>('button[data-ix]')!.onclick = () => { setTool('ix'); };
   tierBar.querySelector<HTMLElement>('button[data-stop]')!.onclick = () => { setTool('stop'); };
+  tierBar.querySelector<HTMLElement>('button[data-rab]')!.onclick = () => { setTool('rab'); };
   const ixBox = document.createElement('div'); ixBox.id = 'ixPicker'; ixBox.style.cssText = 'position:fixed;display:none;z-index:5;background:rgba(15,20,30,.94);color:#ddd;font-size:12px;padding:8px;border-radius:10px;border:1px solid #445;min-width:230px';
   ixBox.addEventListener('pointerdown', e => e.stopPropagation()); document.body.appendChild(ixBox);
   const IXM: [string, string][] = [['auto', 'Auto'], ['light', 'Traffic light'], ['allstop', 'All-way stop'], ['twostop', 'Two-way stop'], ['yield', 'Yield'], ['none', 'Uncontrolled']];
@@ -609,7 +631,7 @@ function diamond(g: Graphics, i: number, j: number) {
   let confirmDown = (n: number) => window.confirm(`${n} building${n > 1 ? 's are' : ' is'} bigger than the new density allows. Demolish and rebuild ${n > 1 ? 'them' : 'it'} smaller?`);
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'r' && ['R', 'C', 'I'].includes(tool) && !(e.target instanceof HTMLInputElement)) setZoneFace((zoneFace + 1) % 5); });
   { const prev = toolHook; toolHook = t => { prev?.(t); zoneBar.style.display = ['R', 'C', 'I'].includes(t) ? 'flex' : 'none'; if (zoneBar.style.display === 'flex') refreshZoneBar(); }; }
-  { const prev = toolHook; toolHook = t => { prev?.(t); tierBar.style.display = t === 'road' || t === 'ix' || t === 'stop' ? 'flex' : 'none'; tierBar.querySelector<HTMLElement>('button[data-stop]')!.style.background = t === 'stop' ? '#3d6fd1' : '#2b3442'; tierBar.querySelector<HTMLElement>('button[data-ix]')!.style.background = t === 'ix' ? '#3d6fd1' : '#2b3442'; if (t !== 'ix') ixBox.style.display = 'none'; document.getElementById('services')!.style.visibility = t === 'road' || t === 'stop' ? 'hidden' : ''; }; }
+  { const prev = toolHook; toolHook = t => { prev?.(t); tierBar.style.display = t === 'road' || t === 'ix' || t === 'stop' || t === 'rab' ? 'flex' : 'none'; tierBar.querySelector<HTMLElement>('button[data-rab]')!.style.background = t === 'rab' ? '#3d6fd1' : '#2b3442'; tierBar.querySelector<HTMLElement>('button[data-stop]')!.style.background = t === 'stop' ? '#3d6fd1' : '#2b3442'; tierBar.querySelector<HTMLElement>('button[data-ix]')!.style.background = t === 'ix' ? '#3d6fd1' : '#2b3442'; if (t !== 'ix') ixBox.style.display = 'none'; document.getElementById('services')!.style.visibility = t === 'road' || t === 'stop' ? 'hidden' : ''; }; }
   // Services toolbar group
   const svcBar = document.getElementById('services')!;
   const ICON: Record<string, string> = { school: 'svc_school_elem', highschool: 'svc_school_high', police: 'svc_police', fire: 'svc_fire', clinic: 'svc_clinic', hospital: 'svc_hospital', garage: 'svc_garage', garage2: 'svc_garage_big', busdepot: 'svc_bus_depot' };
@@ -673,8 +695,20 @@ function diamond(g: Graphics, i: number, j: number) {
         const dx = q.x - p.x, dy = q.y - p.y; preview.moveTo(p.x - dx * 0.3, p.y - dy * 0.3).lineTo(q.x, q.y).stroke({ width: 2, color: c }); preview.poly([q.x, q.y, q.x - dx * 0.35 - dy * 0.3, q.y - dy * 0.35 + dx * 0.3, q.x - dx * 0.35 + dy * 0.3, q.y - dy * 0.35 - dx * 0.3]).fill(c); }
       hud.innerHTML = `${DENN[zoneDen]} ${ZNAME[tool]} (cap: ${CAPNAME[tool][zoneDen]}) · Facing ${FACE[zoneFace][0]} (R to change) · Free` + (bad ? ` · <img class="ic" src="./assets/ui/icons2/svg/status_no_road.svg" alt=""> ${bad} tile${bad > 1 ? 's' : ''} with no road access on the front` : ''); }
   };
+  /** place a 3x3 roundabout centred on (ci,cj): clear land or road only; costs 9 Street cells of the chosen tier; built in stages like roads */
+  const rabCost = () => 9 * roadBuild(roadTier, 1);
+  const placeRab = (ci: number, cj: number): boolean => { const i0 = ci - 1, j0 = cj - 1;
+    for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) { const i = i0 + a, j = j0 + b;
+      if (!inb(i, j) || terrain[i][j] === 'water' || civAt[i][j] || rab[i][j] || lot[i][j] || bld[i][j] || consT[i][j] || rw[i][j] >= 2) { toast('A traffic circle needs a clear 3×3 of land or road (no buildings, water or avenues)'); return false; } }
+    if (!spend(rabCost())) return false;
+    for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) { const i = i0 + a, j = j0 + b; zone[i][j] = ''; zden[i][j] = zface[i][j] = 0; ixSet.delete(i * N + j); autoCtl.delete(i * N + j); startRoad(i, j, roadTier, 0); rab[i][j] = i0 * N + j0 + 1; }
+    markDirty(i0 - 1, j0 - 1, i0 + 3, j0 + 3); tripsDirty = true; computeNear(); rebuildZ(); census(); updateStats(); return true; };
+  const removeRab = (i: number, j: number) => { const [i0, j0] = rabO(i, j);
+    for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) { const x = i0 + a, y = j0 + b; rab[x][y] = 0; road[x][y] = false; rw[x][y] = 0; rpd[x][y] = 0; rtier[x][y] = 0; rstage[x][y] = 0; rfrom[x][y] = 0; }
+    markDirty(i0 - 1, j0 - 1, i0 + 3, j0 + 3); };
   const commit = () => {
     if (tool === 'stop') { if (drag) toggleStop(drag.ci, drag.cj); drag = null; preview.clear(); return; }
+    if (tool === 'rab') { if (drag) placeRab(drag.ci, drag.cj); drag = null; preview.clear(); return; }
     if (tool === 'ix') { if (drag) { const o = ixSet.get(drag.ci * N + drag.cj), p = toScreen(drag.ci, drag.cj); if (ixBox.style.display === 'block' && ixBox.dataset.k === String(drag.ci * N + drag.cj) && o && (o.mode === 'twostop' || o.mode === 'yield')) setIx(drag.ci, drag.cj, { axis: 1 - o.axis }); ixBox.dataset.k = String(drag.ci * N + drag.cj); openIx(drag.ci, drag.cj, p.x * zoom + world.position.x, p.y * zoom + world.position.y); } drag = null; preview.clear(); return; } // clicking again flips which road stops
     if (tool.startsWith('svc:')) { if (drag) plop(tool.slice(4), drag.ci, drag.cj); drag = null; preview.clear(); return; }
     const rtiles = tool === 'road' ? roadTiles(dragTiles()).filter(([i, j]) => valid(i, j)) : [], wAt = new Map(rtiles.map(([i, j, w]) => [i * N + j, w])), pdAt = new Map(rtiles.map(([i, j, , d]) => [i * N + j, d ?? 0]));
@@ -698,7 +732,7 @@ function diamond(g: Graphics, i: number, j: number) {
       if (tool === 'pipe') { pipe[i][j] = true; continue; }
       if (tool === 'bulldoze' && underground) { pipe[i][j] = false; continue; }
       if (tool === 'road') { const w = wAt.get(i * N + j)!; if (roadCost(i, j, wKind(w)) > 0) startRoad(i, j, Math.max(roadTier, rtier[i][j] || 0) as RoadTier, w, pdAt.get(i * N + j) ?? 0); zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; zden[i][j] = zface[i][j] = 0; }
-      else if (tool === 'bulldoze') { if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; rw[i][j] = 0; rpd[i][j] = 0; rtier[i][j] = 0; rstage[i][j] = 0; rfrom[i][j] = 0; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; zden[i][j] = zface[i][j] = 0; }
+      else if (tool === 'bulldoze') { if (rab[i][j]) { removeRab(i, j); continue; } if (civAt[i][j]) removeCiv(civAt[i][j]!); else if (pline[i][j]) { pline[i][j] = false; continue; } else if (!road[i][j] && !zone[i][j]) continue; road[i][j] = false; rw[i][j] = 0; rpd[i][j] = 0; rtier[i][j] = 0; rstage[i][j] = 0; rfrom[i][j] = 0; zone[i][j] = ''; bld[i][j] = 0; consT[i][j] = 0; zden[i][j] = zface[i][j] = 0; }
       else { if (zone[i][j] !== tool) { bld[i][j] = 0; consT[i][j] = 0; }
         const keepFace = zone[i][j] === tool && !zoneFace; // re-zoning (e.g. Medium -> Light) with the tool on Auto keeps the facing the player locked
         zone[i][j] = tool; zden[i][j] = zoneDen; if (!keepFace) zface[i][j] = zoneFace;
@@ -954,7 +988,7 @@ function diamond(g: Graphics, i: number, j: number) {
   { const prevHook = toolHook; toolHook = t => { prevHook?.(t); if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); }; }
   document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) location.href = location.pathname; };
   // ---- Budget panel (button + B) ----
-  Object.assign((window as any).__city, { avLanes: () => AV_LN(), taperAt: (i: number, j: number) => taperAt(i, j), avenueOK: (i: number, j: number, a: number, b: number) => avenueOK(i, j, a, b), rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
+  Object.assign((window as any).__city, { rab, placeRab: (i: number, j: number) => placeRab(i, j), rabOK: (i: number, j: number, a: number, b: number) => rabOK(i, j, a, b), avLanes: () => AV_LN(), taperAt: (i: number, j: number) => taperAt(i, j), avenueOK: (i: number, j: number, a: number, b: number) => avenueOK(i, j, a, b), rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
   const budgetEl = document.getElementById('budget')!;
   const money = (v: number) => (v < 0 ? '−$' : '$') + Math.abs(Math.round(v)).toLocaleString();
   const renderBudget = () => {
@@ -980,9 +1014,9 @@ function diamond(g: Graphics, i: number, j: number) {
   document.getElementById('budgetBtn')!.onclick = e => { e.stopPropagation(); toggleBudget(); };
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'b' && !(e.target instanceof HTMLInputElement)) toggleBudget(); });
   // ---- agent-based trips (logic in src/trips.ts): the cars on screen are sampled real trips ----
-  const trips = new TripSim({ N, seed: city.seed ?? 1, leisure: () => civs.filter(c => PARKS[c.type.slice(5)]?.leisure && isPark(c.type)).map(c => ({ k: c.i * N + c.j, draw: PARKS[c.type.slice(5)].leisure! })), entrance: (i, j) => entranceOf(i, j), drivable: (i, j) => drivable(i, j), linked: (i, j, a, b) => !partner(i, j, a, b) && avenueOK(i, j, a, b),
-    tileSecs: (i, j) => TRIPS.tileMeters / (TRIPS.speedKmh[(rtier[i][j] || 2)] * ROAD_WIDTHS[wKind(rw[i][j])].speedMul / 3.6),
-    capacity: (i, j) => TRIPS.dailyCapacityPerLane * ROAD_WIDTHS[wKind(rw[i][j])].tileLanes * ROAD_TIERS[(rtier[i][j] || 2) as RoadTier].capacity,
+  const trips = new TripSim({ N, seed: city.seed ?? 1, leisure: () => civs.filter(c => PARKS[c.type.slice(5)]?.leisure && isPark(c.type)).map(c => ({ k: c.i * N + c.j, draw: PARKS[c.type.slice(5)].leisure! })), entrance: (i, j) => entranceOf(i, j), drivable: (i, j) => drivable(i, j), linked: (i, j, a, b) => !partner(i, j, a, b) && avenueOK(i, j, a, b) && rabOK(i, j, a, b),
+    tileSecs: (i, j) => rab[i][j] ? TRIPS.tileMeters * 0.7 / (25 / 3.6) : TRIPS.tileMeters / (TRIPS.speedKmh[(rtier[i][j] || 2)] * ROAD_WIDTHS[wKind(rw[i][j])].speedMul / 3.6),
+    capacity: (i, j) => TRIPS.dailyCapacityPerLane * (rab[i][j] ? 1 : ROAD_WIDTHS[wKind(rw[i][j])].tileLanes) * ROAD_TIERS[(rtier[i][j] || 2) as RoadTier].capacity,
     residents: (i, j) => zone[i][j] === 'R' && bld[i][j] ? resCap(i, j) : 0, jobs: (i, j) => (zone[i][j] === 'C' || zone[i][j] === 'I') && bld[i][j] ? CAP[zone[i][j]][bld[i][j]] : 0,
     shop: (i, j) => zone[i][j] === 'C' && bld[i][j] > 0,
     nearRoads: (i, j) => { const l = lot[i][j], ts = l ? lotTiles(l) : [[i, j]], out: number[] = []; for (const [a, b] of ts) for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) { const p = a + x, q = b + y; if ((x || y) && inb(p, q) && drivable(p, q) && !out.includes(p * N + q)) out.push(p * N + q); } return out; },
@@ -1048,7 +1082,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); rt[k] = rtier[i][j]; rs[k] = rstage[i][j]; rd[k] = Math.min(255, rday[i][j]); rf[k] = rfrom[i][j]; ww[k] = rw[i][j]; pd[k] = rpd[i][j]; }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      stops: [...stops], ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) })), lots: [...lots].map(l => ({ ...l })), hist: hist.slice(), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
+      stops: [...stops], rabs: [...new Set(rab.flat().filter(v => v > 0).map(v => v - 1))], ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) })), lots: [...lots].map(l => ({ ...l })), hist: hist.slice(), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
   };
   const applySave = (o: any) => {
     const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0, ww = o.grids.rwidth ? g('rwidth') : z0, pkg = o.grids.pk ? g('pk') : null, pd = o.grids.rpart ? g('rpart') : null, zdg = o.grids.zden ? g('zden') : null, zfg = o.grids.zface ? g('zface') : null; roadWorks.length = 0;
@@ -1057,6 +1091,7 @@ function diamond(g: Graphics, i: number, j: number) {
       rtier[i][j] = road[i][j] ? (rt ? rt[k] || 2 : 2) : 0; rstage[i][j] = road[i][j] ? rs[k] : 0; rday[i][j] = rd[k]; rfrom[i][j] = rf[k]; rw[i][j] = road[i][j] ? ww[k] : 0; pk[i][j] = pkg ? pkg[k] : 0; rpd[i][j] = pd && rw[i][j] >= 2 ? pd[k] : 0; if (rstage[i][j]) roadWorks.push(k);
       zden[i][j] = zdg ? zdg[k] : zone[i][j] ? (bld[i][j] || consT[i][j] || 2) : 0; zface[i][j] = zfg ? zfg[k] : 0; } // pre-v7: density of the current building (empty = Medium), Auto facing
     if (!pd) guessPartners();
+    for (const r of rab) r.fill(0); for (const k of o.rabs ?? []) { const i0 = (k / N) | 0, j0 = k % N; for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) if (inb(i0 + a, j0 + b) && road[i0 + a][j0 + b]) rab[i0 + a][j0 + b] = k + 1; } // pre-v12 saves: no roundabouts
     stops.length = 0; for (const k of o.stops ?? []) stops.push(k); busKey = ''; drawStops(); // pre-v10 saves: no bus stops
     ixSet.clear(); autoCtl.clear(); for (const [k, mode, axis, cyc, split] of o.ix ?? []) ixSet.set(k, { mode, axis, cyc, split }); // pre-v9 saves: every junction is Auto
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type]) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}) }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
@@ -1266,11 +1301,44 @@ function diamond(g: Graphics, i: number, j: number) {
     let r = Math.random() * w.reduce((t, x) => t + x[1], 0), t = w[0][0]; for (const [k, v] of w) { if ((r -= v) < 0) { t = k; break; } }
     const vs = VEH[t]; return `veh_${t}_${vs[Math.floor(Math.random() * vs.length)]}`;
   };
+  // ---- roundabout driving: ring polyline (counter-clockwise), entry / exit paths and yield points from the manifest (autotile.roundabout.geometry) ----
+  const rabG = () => autotile('roundabout')?.geometry;
+  const arcCache = new Map<number[][], number[]>();
+  const along = (P: number[][], u: number): [number, number] => { let cum = arcCache.get(P); if (!cum) { cum = [0]; for (let k = 1; k < P.length; k++) cum.push(cum[k - 1] + Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1])); arcCache.set(P, cum); }
+    const L = cum[cum.length - 1] * Math.min(1, Math.max(0, u)); let k = 1; while (k < cum.length - 1 && cum[k] < L) k++; const f = (L - cum[k - 1]) / ((cum[k] - cum[k - 1]) || 1); return [P[k - 1][0] + (P[k][0] - P[k - 1][0]) * f, P[k - 1][1] + (P[k][1] - P[k - 1][1]) * f]; };
+  const armKind = (oi: number, oj: number) => rw[oi][oj] === 0 && rtier[oi][oj] === 1 ? 'dirt' : 'street';
+  const armGeo = (arm: string, oi: number, oj: number) => { const A = rabG()?.arms?.[arm]; return A?.[armKind(oi, oj)] ?? A?.street; };
+  const cellTh = (di: number, dj: number) => Math.atan2(dj - 1, di - 1);
+  /** where a car on/through a roundabout is (screen px) at segment progress t, plus its ring angle when on the ring; null = normal road driving */
+  const rabPos = (c: Car, t: number): { x: number; y: number; ra?: number } | null => { const g = rabG(); if (!g) return null; const A = rab[c.pi][c.pj], B = rab[c.i][c.j]; if (!A && !B) return null;
+    const [i0, j0] = B ? rabO(c.i, c.j) : rabO(c.pi, c.pj), S = (x: number, y: number) => toScreen(i0 + x, j0 + y), R = g.ring.radius, C = g.ring.centre;
+    const lnPick = (P: number[][][]) => P[Math.min(c.ln ?? 0, P.length - 1)];
+    if (!A && B) { if (t < 0.5) return null; const arm = rabArmOf(c.i - i0, c.j - j0), ag = arm && armGeo(arm, c.pi, c.pj); if (!ag) return null; const q = along(lnPick(ag.entry), (t - 0.5) * 2); return { ...S(q[0], q[1]), ra: t > 0.96 ? ag.ringJoinAngleRad.entry : undefined }; }
+    if (A && !B) { if (t >= 0.5) return null; const arm = rabArmOf(c.pi - i0, c.pj - j0), ag = arm && armGeo(arm, c.i, c.j); if (!ag) return null; const q = along(lnPick(ag.exit), t * 2); return { ...S(q[0], q[1]), ra: t < 0.04 ? ag.ringJoinAngleRad.exit : undefined }; }
+    if (A !== B) return null; const ri = c.ri ?? 0, prev2 = c.route && ri >= 2 ? tileOf(c.route[ri - 2]) : undefined, nx = c.nx ?? routeNext(c);
+    const aArm = rabArmOf(c.pi - i0, c.pj - j0), bArm = rabArmOf(c.i - i0, c.j - j0);
+    let tA = cellTh(c.pi - i0, c.pj - j0), tB = cellTh(c.i - i0, c.j - j0);
+    if (aArm && prev2 && !rab[prev2[0]][prev2[1]]) { const ag = armGeo(aArm, prev2[0], prev2[1]); if (ag) tA = ag.ringJoinAngleRad.entry; }
+    if (bArm && nx && !rab[nx[0]][nx[1]]) { const ag = armGeo(bArm, nx[0], nx[1]); if (ag) tB = ag.ringJoinAngleRad.exit; }
+    let d = tB - tA; while (d >= 0) d -= 2 * Math.PI; while (d < -2 * Math.PI) d += 2 * Math.PI; const th = tA + d * t;
+    return { ...S(C[0] + R * Math.cos(th), C[1] + R * Math.sin(th)), ra: th }; };
+  /** segment progress at which an entering car reaches the arm's yield point */
+  const yieldT = new Map<number[][], number>();
+  const rabYieldT = (c: Car) => { const [i0, j0] = rabO(c.i, c.j), arm = rabArmOf(c.i - i0, c.j - j0), ag = arm && armGeo(arm, c.pi, c.pj); if (!ag) return 0.75; const P = ag.entry[Math.min(c.ln ?? 0, ag.entry.length - 1)];
+    let v = yieldT.get(P); if (v === undefined) { let best = 1e9; v = 0.75; for (let u = 0; u <= 1.0001; u += 0.02) { const q = along(P, u), dd = Math.hypot(q[0] - ag.yieldPoint[0], q[1] - ag.yieldPoint[1]); if (dd < best) { best = dd; v = 0.5 + u / 2; } } yieldT.set(P, v); } return v; };
+  const angDiff = (a: number, b: number) => { let d = a - b; while (d > Math.PI) d -= 2 * Math.PI; while (d <= -Math.PI) d += 2 * Math.PI; return d; };
+  /** gap acceptance: a circulating car within ~1.3 tiles upstream of the entry join (or just past it) blocks the entry */
+  const RAB_UP = 1.5, RAB_DOWN = 0.35;
+  const rabConflict = (c: Car) => { const [i0, j0] = rabO(c.i, c.j), arm = rabArmOf(c.i - i0, c.j - j0), ag = arm && armGeo(arm, c.pi, c.pj); if (!ag) return false; const tj = ag.ringJoinAngleRad.entry, me = rab[c.i][c.j];
+    for (const o of cars) { if (o === c || o.ra === undefined || (rab[o.i][o.j] !== me && rab[o.pi][o.pj] !== me)) continue; if (!rab[o.pi][o.pj] && rab[o.i][o.j]) continue; // other entering cars are not circulating yet
+      if (o.i === c.i && o.j === c.j) { const n2 = o.nx ?? routeNext(o); if (n2 && !rab[n2[0]][n2[1]]) continue; } // leaves at this arm before our join
+      const d = angDiff(o.ra, tj); if (d <= RAB_UP && d >= -RAB_DOWN) return true; }
+    return false; };
   const dropCar = (k: number) => { const c = cars[k]; c.s.destroy(); c.n?.destroy(); c.hg?.destroy(); c.tg?.destroy(); cars.splice(k, 1); };
   /** body extent along travel from the sprite anchor, in tiles (manifest bodyFront / -bodyRear); falls back to a 4.8 m car */
   const bodyOf = (c: Car) => { if (c.bf === undefined) { const a = artMeta(c.key + '_d00') ?? artMeta(c.key + '_NE'); c.bf = a?.bodyFront ?? 0.12; c.br = -(a?.bodyRear ?? -0.12); } return c; };
   const STOP_GAP = 1.5 / 20; // ≈ 1.5 m between bumpers in a stopped queue
-  const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => drivable(a, b) && !partner(i, j, a - i, b - j));
+  const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => drivable(a, b) && !partner(i, j, a - i, b - j) && rabOK(i, j, a - i, b - j));
   const activity = (i: number, j: number) => { let v = 0; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (inb(i + a, j + b) && bld[i + a][j + b]) v += CAP[zone[i + a][j + b]][bld[i + a][j + b]]; return v; };
   const roadList = () => { const r: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (drivable(i, j)) r.push([i, j]); return r; };
   const water: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (terrain[i][j] === 'water' && shoreMask(i, j) === 0) water.push([i, j]);
@@ -1385,8 +1453,9 @@ function diamond(g: Graphics, i: number, j: number) {
       if (!c.nx && c.t > 0.4) c.nx = routeNext(c);
       if (c.bus && (sim.speed || carsOnly)) { if (c.dwell && c.dwell > 0) { c.dwell -= dt; hold = true; c.stuck = 0; } else if (c.t >= 0.5 && c.dwellAt !== c.ri && stops.includes(jk)) { c.dwellAt = c.ri; c.dwell = BUS_DWELL; hold = true; } } // buses pause at stops
       if (!hold && c.nx && c.t > 1 - GAP && !roomAt(segK(c.i, c.j, c.nx[0], c.nx[1], c.ln), c, 1 - c.t)) hold = true; // car just ahead on the next stretch
+      if (!hold && rab[c.i][c.j] && !rab[c.pi][c.pj] && c.rabGo !== jk) { const Y = rabYieldT(c); if (c.t >= Y - 0.08) { if (rabConflict(c)) { hold = true; c.wait = (c.wait ?? 0) + dt; } else c.rabGo = jk; } } // yield at the entry to cars already in the circle
       const run = sim.speed || carsOnly;
-      if (run && !hold && !blocked(ck, c)) { const l = lane.get(ck)!, ix = l.indexOf(c.t); let nt = Math.min(1, c.t + dt * c.sp * (ROAD_TIERS[(rtier[c.i][c.j] || 2) as RoadTier].speed) * ROAD_WIDTHS[wKind(rw[c.i][c.j])].speedMul); for (const o of laneC.get(ck) ?? []) if (o !== c && o.t > c.t) nt = Math.min(nt, o.t - need(c, o)); { const n2 = c.nx ?? routeNext(c); if (n2) for (const o of laneC.get(segK(c.i, c.j, n2[0], n2[1], c.ln)) ?? []) if (o !== c) nt = Math.min(nt, 1 + o.t - need(c, o)); } // and behind a leader on the next stretch // stop exactly at the bumper gap
+      if (run && !hold && !blocked(ck, c)) { const l = lane.get(ck)!, ix = l.indexOf(c.t); let nt = Math.min(1, c.t + dt * c.sp * (ROAD_TIERS[(rtier[c.i][c.j] || 2) as RoadTier].speed) * ROAD_WIDTHS[wKind(rw[c.i][c.j])].speedMul * (rab[c.i][c.j] || rab[c.pi][c.pj] ? 0.65 : 1)); for (const o of laneC.get(ck) ?? []) if (o !== c && o.t > c.t) nt = Math.min(nt, o.t - need(c, o)); { const n2 = c.nx ?? routeNext(c); if (n2) for (const o of laneC.get(segK(c.i, c.j, n2[0], n2[1], c.ln)) ?? []) if (o !== c) nt = Math.min(nt, 1 + o.t - need(c, o)); } // and behind a leader on the next stretch // stop exactly at the bumper gap
         c.t = Math.max(c.t, nt); if (ix >= 0) l[ix] = c.t; }
       if (c.t >= 1) { if (c.bus && !c.nx && c.route && (c.ri ?? 0) + 1 >= c.route.length) c.ri = 0; // buses keep looping
         const nx = c.nx ?? routeNext(c); if (!nx) { dropCar(k); continue; } // arrived: the driver parks and walks in
@@ -1404,6 +1473,7 @@ function diamond(g: Graphics, i: number, j: number) {
           const cur = gv(c.pi, c.pj, c.i, c.j); let g = cur; const ri = c.ri ?? 0;
           if (c.t < 0.5 && c.route && ri >= 2) { const [qi, qj] = tileOf(c.route[ri - 2]), pv = gv(qi, qj, c.pi, c.pj), w = 0.5 - c.t; g = [pv[0] * w + cur[0] * (1 - w), pv[1] * w + cur[1] * (1 - w)]; }
           else if (c.t > 0.5) { const n2 = c.nx ?? routeNext(c); if (n2) { const nv = gv(c.i, c.j, n2[0], n2[1]), w = c.t - 0.5; g = [cur[0] * (1 - w) + nv[0] * w, cur[1] * (1 - w) + nv[1] * w]; } }
+          if (rab[c.i][c.j] || rab[c.pi][c.pj]) { const p0 = rabPos(c, Math.max(0, c.t - 0.03)), p1 = rabPos(c, Math.min(1, c.t + 0.03)); if (p0 && p1) { const sx = p1.x - p0.x, sy = p1.y - p0.y; g = [sx / TW + sy / TH, -(sy / TH - sx / TW)]; } } // follow the curve
           const K = ((Math.round(Math.atan2(g[1], g[0]) / (Math.PI / 8)) % 16) + 16) % 16; face = 'd' + String(K).padStart(2, '0'); }
         if (face !== c.dir) { const dir = face; // swap to the sprite facing the new direction
           c.dir = dir; c.s.destroy(); c.n?.destroy(); c.hg?.destroy(); c.tg?.destroy(); c.hg = c.tg = undefined;
@@ -1419,7 +1489,7 @@ function diamond(g: Graphics, i: number, j: number) {
         let [lx, ly] = offAt(c.i, c.j);
         if ((rw[c.pi][c.pj] >= 2) !== (rw[c.i][c.j] >= 2)) { // avenue <-> narrower road (taper): slide between the two lane layouts; the outer avenue lane merges into the street's
           const [ox, oy] = offAt(c.pi, c.pj), u = Math.min(1, Math.max(0, (c.t - 0.1) / 0.8)), sm = u * u * (3 - 2 * u); lx = ox + (lx - ox) * sm; ly = oy + (ly - oy) * sm; }
-        const x = a.x + dx * c.t + lx, y = a.y + dy * c.t + ly;
+        let x = a.x + dx * c.t + lx, y = a.y + dy * c.t + ly; const rp = rabPos(c, c.t); c.ra = rp?.ra; if (rp) { x = rp.x; y = rp.y; } // roundabout: ring / entry / exit paths
         c.s.position.set(x, y); c.s.zIndex = y + 1; // depth: same key as buildings (screen y)
         if (c.n) { c.n.position.set(x, y); c.n.zIndex = y + 1.01; c.n.alpha = night; c.n.visible = vis && night > 0.02; } (c.s as Sprite).tint = curTint;
         for (const [gl, a] of [[c.hg, 1], [c.tg, 0.9]] as [Sprite | undefined, number][]) if (gl) { const o = (gl as any).__off ?? [0, 0]; gl.position.set(x + o[0] / 2, y + o[1] / 2); gl.alpha = Math.min(1, night * a * 1.3); gl.visible = vis && night > 0.02; } // manifest offsets are 2x px

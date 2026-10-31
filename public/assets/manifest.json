@@ -1,6 +1,6 @@
 {
  "version": 1,
- "artRevision": "v3-soft3d-n",
+ "artRevision": "v3-soft3d-p",
  "displayScale": 0.5,
  "baseTile": [
   64,
@@ -491,6 +491,1565 @@
    "rule": "Use on the LAST avenue cell pair before a narrower road. For an avenue half tile with partner bit pd: for an along bit D (D != pd, D != opp pd) with (m & D) and neighbour rw < 2 (street or 2-lane): role=main. For its partner tile (partner at opp pd): if the main tile's D neighbour is narrow and its own D neighbour is not a road, role=side. kind = 'dirt' when that narrow neighbour is rw 0 and tier dirt, else 'street' (street rw 1, and paved 2-lane, which already draws street_<tier> via the jn rule). Tier = the avenue's tier. Skip the avenueLanes overlay on taper tiles. For kind dirt, do NOT apply the jn paved-apron rule to the dirt tile beyond: road_dirt_<mask> joins directly.",
    "geometry": "Pair across-coord c from the median line (+ toward main's outer edge; main tile c 0..1, side -1..0); t 0 at the avenue edge -> 1 at edge D; s = smoothstep((t-0.08)/0.84). Median line 0 -> 0.5 (main tile centre). Main outer curb 0.55 -> 0.8 (street) / 0.93 (dirt); side outer curb -0.55 -> 0.2 / 0.07. Median 0.07 half-width closes by s 0.45 (nose ~t 0.45), then double yellow. 3 lanes per direction until s 0.42 (t ~0.45), then 2 lanes; inner lane line slides from 1/3 to 1/2 of the carriageway. Lane DROP is the outer (curb) lane of one direction: the main half's direction if D == R(P_main) (i.e. the main half's traffic flows toward D), otherwise the side half's direction; merge arrows in that lane at t 0.18 and 0.40. Last 30% of the tile crossfades into the street/road_dirt art (dirt: markings end at t 0.75). Vehicles: outer lane (0.47 from median) merges into middle lane by t 0.45; at t=1 the 2 lanes per direction sit at the street lanes (+-0.075/+-0.225 from road centre, street) or a single lane each way (dirt, +-0.15).",
    "LR": "Same as avenue_extras: R(P) = clockwise neighbour of P (NE->SE->SW->NW)."
+  },
+  "roundabout": {
+   "tiers": [
+    "dirt",
+    "asphalt",
+    "concrete"
+   ],
+   "files": "roads/roundabout_<tier>_<di><dj>@2x.png",
+   "count": 27,
+   "size": [
+    3,
+    3
+   ],
+   "metresPerTile": 20,
+   "form": "9 per-tile ground pieces (128x64, anchor 0.5,0.5), drawn in the road layer (ch.rd) exactly like other road tiles; (di,dj) = offset from the origin tile (min i, min j); 11 = central island tile; 10/21/12/01 = arm tiles at the NE/SE/SW/NW edge midpoints; 00/20/02/22 = corners.",
+   "placement": "A roundabout occupies a 3x3 block of road cells (i0..i0+2, j0..j0+2). In drawRoadTile, if a cell belongs to a roundabout (e.g. rab[i][j] = origin id), place roundabout_<tier>_<i-i0><j-j0> and skip mask selection, avenue overlays and the jn rule for that cell. Tier = the roundabout's rtier (1 dirt, 2 asphalt, 3 concrete). Corner and centre cells are not entrances: they get no road links. Each arm is only reachable through the edge midpoint cell: (i0+1,j0-1)->NE, (i0+3,j0+1)->SE, (i0+1,j0+3)->SW, (i0-1,j0+1)->NW.",
+   "joins": "asphalt arms join street_asphalt_<mask> (12 m, 4 lanes); concrete arms join street_concrete_<mask>; dirt arms join road_dirt_<mask>. A 2-lane PAVED road (rw 0, tier 2/3) attached to an arm should draw street_<tier>_<mask> for that adjacent cell (same idea as the avenue jn rule). A dirt road attached to a paved roundabout uses street_asphalt (paved apron, like the avenue apron). A paved road attached to a dirt roundabout should draw road_dirt for the adjacent cell (or the roundabout should be paved). Unconnected arms end in a short stub with curb and sidewalk: draw a street end tile there, or leave them as stubs.",
+   "markings": "asphalt/concrete: shark-tooth yield line across the entry half at the ring edge, painted yield triangle in the entry at 1.20 tile from the centre, raised grass splitter islands, 4 counter-clockwise arrows on the ring (corner tiles), central island with a truck apron of setts and a planted bed. dirt: no paint; a row of whitewashed stones across each entry plus a small yield sign on the right of each entry; central island ringed with stones.",
+   "geometry": {
+    "frame": "tile units, x = i offset, y = j offset from the ORIGIN tile's centre (origin = the roundabout's min-i, min-j tile; tile (di,dj) centre = (di,dj)). Screen: sx = (x-y)*64, sy = (x+y)*32 at 2x relative to the origin tile anchor.",
+    "direction": "All paths are ordered in the direction of travel. Ring = counter-clockwise ON SCREEN (seen from above) for right-hand traffic, i.e. the angle atan2(y-1, x-1) DECREASES; tangent at angle th = (sin th, -cos th). Inbound lanes sit on the right of the driver: for an arm with outward unit a=(ax,ay), right of inbound = (ay,-ax).",
+    "ring": {
+     "centre": [
+      1,
+      1
+     ],
+     "radius": 0.875,
+     "carriageway": [
+      0.7,
+      1.05
+     ],
+     "carriagewayDirt": [
+      0.68,
+      1.08
+     ],
+     "islandRadius": 0.7,
+     "polyline": [
+      [
+       1.875,
+       1
+      ],
+      [
+       1.8675,
+       0.8858
+      ],
+      [
+       1.8452,
+       0.7735
+      ],
+      [
+       1.8084,
+       0.6652
+      ],
+      [
+       1.7578,
+       0.5625
+      ],
+      [
+       1.6942,
+       0.4673
+      ],
+      [
+       1.6187,
+       0.3813
+      ],
+      [
+       1.5327,
+       0.3058
+      ],
+      [
+       1.4375,
+       0.2422
+      ],
+      [
+       1.3348,
+       0.1916
+      ],
+      [
+       1.2265,
+       0.1548
+      ],
+      [
+       1.1142,
+       0.1325
+      ],
+      [
+       1,
+       0.125
+      ],
+      [
+       0.8858,
+       0.1325
+      ],
+      [
+       0.7735,
+       0.1548
+      ],
+      [
+       0.6652,
+       0.1916
+      ],
+      [
+       0.5625,
+       0.2422
+      ],
+      [
+       0.4673,
+       0.3058
+      ],
+      [
+       0.3813,
+       0.3813
+      ],
+      [
+       0.3058,
+       0.4673
+      ],
+      [
+       0.2422,
+       0.5625
+      ],
+      [
+       0.1916,
+       0.6652
+      ],
+      [
+       0.1548,
+       0.7735
+      ],
+      [
+       0.1325,
+       0.8858
+      ],
+      [
+       0.125,
+       1
+      ],
+      [
+       0.1325,
+       1.1142
+      ],
+      [
+       0.1548,
+       1.2265
+      ],
+      [
+       0.1916,
+       1.3348
+      ],
+      [
+       0.2422,
+       1.4375
+      ],
+      [
+       0.3058,
+       1.5327
+      ],
+      [
+       0.3813,
+       1.6187
+      ],
+      [
+       0.4673,
+       1.6942
+      ],
+      [
+       0.5625,
+       1.7578
+      ],
+      [
+       0.6652,
+       1.8084
+      ],
+      [
+       0.7735,
+       1.8452
+      ],
+      [
+       0.8858,
+       1.8675
+      ],
+      [
+       1,
+       1.875
+      ],
+      [
+       1.1142,
+       1.8675
+      ],
+      [
+       1.2265,
+       1.8452
+      ],
+      [
+       1.3348,
+       1.8084
+      ],
+      [
+       1.4375,
+       1.7578
+      ],
+      [
+       1.5327,
+       1.6942
+      ],
+      [
+       1.6187,
+       1.6187
+      ],
+      [
+       1.6942,
+       1.5327
+      ],
+      [
+       1.7578,
+       1.4375
+      ],
+      [
+       1.8084,
+       1.3348
+      ],
+      [
+       1.8452,
+       1.2265
+      ],
+      [
+       1.8675,
+       1.1142
+      ]
+     ],
+     "polylineNote": "48 points CCW from angle 0 (+x); closed loop"
+    },
+    "arms": {
+     "NE": {
+      "tile": [
+       1,
+       0
+      ],
+      "edge": "NE",
+      "edgeMidpoint": [
+       1,
+       -0.5
+      ],
+      "outward": [
+       0,
+       -1
+      ],
+      "rightOfInbound": [
+       -1,
+       0
+      ],
+      "street": {
+       "entry": [
+        [
+         [
+          0.925,
+          -0.5
+         ],
+         [
+          0.85,
+          -0.3
+         ],
+         [
+          0.8445,
+          -0.2525
+         ],
+         [
+          0.8289,
+          -0.1925
+         ],
+         [
+          0.8044,
+          -0.1239
+         ],
+         [
+          0.7724,
+          -0.0506
+         ],
+         [
+          0.734,
+          0.0238
+         ],
+         [
+          0.6905,
+          0.0953
+         ],
+         [
+          0.6433,
+          0.16
+         ],
+         [
+          0.5936,
+          0.2142
+         ],
+         [
+          0.5426,
+          0.254
+         ]
+        ],
+        [
+         [
+          0.775,
+          -0.5
+         ],
+         [
+          0.85,
+          -0.3
+         ],
+         [
+          0.8445,
+          -0.2525
+         ],
+         [
+          0.8289,
+          -0.1925
+         ],
+         [
+          0.8044,
+          -0.1239
+         ],
+         [
+          0.7724,
+          -0.0506
+         ],
+         [
+          0.734,
+          0.0238
+         ],
+         [
+          0.6905,
+          0.0953
+         ],
+         [
+          0.6433,
+          0.16
+         ],
+         [
+          0.5936,
+          0.2142
+         ],
+         [
+          0.5426,
+          0.254
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          1.4574,
+          0.254
+         ],
+         [
+          1.4064,
+          0.2142
+         ],
+         [
+          1.3567,
+          0.16
+         ],
+         [
+          1.3095,
+          0.0953
+         ],
+         [
+          1.266,
+          0.0238
+         ],
+         [
+          1.2276,
+          -0.0506
+         ],
+         [
+          1.1956,
+          -0.1239
+         ],
+         [
+          1.1711,
+          -0.1925
+         ],
+         [
+          1.1555,
+          -0.2525
+         ],
+         [
+          1.15,
+          -0.3
+         ],
+         [
+          1.075,
+          -0.5
+         ]
+        ],
+        [
+         [
+          1.4574,
+          0.254
+         ],
+         [
+          1.4064,
+          0.2142
+         ],
+         [
+          1.3567,
+          0.16
+         ],
+         [
+          1.3095,
+          0.0953
+         ],
+         [
+          1.266,
+          0.0238
+         ],
+         [
+          1.2276,
+          -0.0506
+         ],
+         [
+          1.1956,
+          -0.1239
+         ],
+         [
+          1.1711,
+          -0.1925
+         ],
+         [
+          1.1555,
+          -0.2525
+         ],
+         [
+          1.15,
+          -0.3
+         ],
+         [
+          1.225,
+          -0.5
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.075,
+        0.225
+       ],
+       "yieldPoint": [
+        0.85,
+        -0.09
+       ],
+       "ringJoinAngleRad": {
+        "entry": -2.1208,
+        "exit": -1.0208
+       }
+      },
+      "dirt": {
+       "entry": [
+        [
+         [
+          0.85,
+          -0.5
+         ],
+         [
+          0.85,
+          -0.3
+         ],
+         [
+          0.8445,
+          -0.2525
+         ],
+         [
+          0.8289,
+          -0.1925
+         ],
+         [
+          0.8044,
+          -0.1239
+         ],
+         [
+          0.7724,
+          -0.0506
+         ],
+         [
+          0.734,
+          0.0238
+         ],
+         [
+          0.6905,
+          0.0953
+         ],
+         [
+          0.6433,
+          0.16
+         ],
+         [
+          0.5936,
+          0.2142
+         ],
+         [
+          0.5426,
+          0.254
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          1.4574,
+          0.254
+         ],
+         [
+          1.4064,
+          0.2142
+         ],
+         [
+          1.3567,
+          0.16
+         ],
+         [
+          1.3095,
+          0.0953
+         ],
+         [
+          1.266,
+          0.0238
+         ],
+         [
+          1.2276,
+          -0.0506
+         ],
+         [
+          1.1956,
+          -0.1239
+         ],
+         [
+          1.1711,
+          -0.1925
+         ],
+         [
+          1.1555,
+          -0.2525
+         ],
+         [
+          1.15,
+          -0.3
+         ],
+         [
+          1.15,
+          -0.5
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.15
+       ],
+       "yieldPoint": [
+        0.85,
+        -0.12
+       ],
+       "ringJoinAngleRad": {
+        "entry": -2.1208,
+        "exit": -1.0208
+       }
+      }
+     },
+     "SE": {
+      "tile": [
+       2,
+       1
+      ],
+      "edge": "SE",
+      "edgeMidpoint": [
+       2.5,
+       1
+      ],
+      "outward": [
+       1,
+       0
+      ],
+      "rightOfInbound": [
+       0,
+       -1
+      ],
+      "street": {
+       "entry": [
+        [
+         [
+          2.5,
+          0.925
+         ],
+         [
+          2.3,
+          0.85
+         ],
+         [
+          2.2525,
+          0.8445
+         ],
+         [
+          2.1925,
+          0.8289
+         ],
+         [
+          2.1239,
+          0.8044
+         ],
+         [
+          2.0506,
+          0.7724
+         ],
+         [
+          1.9762,
+          0.734
+         ],
+         [
+          1.9047,
+          0.6905
+         ],
+         [
+          1.84,
+          0.6433
+         ],
+         [
+          1.7858,
+          0.5936
+         ],
+         [
+          1.746,
+          0.5426
+         ]
+        ],
+        [
+         [
+          2.5,
+          0.775
+         ],
+         [
+          2.3,
+          0.85
+         ],
+         [
+          2.2525,
+          0.8445
+         ],
+         [
+          2.1925,
+          0.8289
+         ],
+         [
+          2.1239,
+          0.8044
+         ],
+         [
+          2.0506,
+          0.7724
+         ],
+         [
+          1.9762,
+          0.734
+         ],
+         [
+          1.9047,
+          0.6905
+         ],
+         [
+          1.84,
+          0.6433
+         ],
+         [
+          1.7858,
+          0.5936
+         ],
+         [
+          1.746,
+          0.5426
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          1.746,
+          1.4574
+         ],
+         [
+          1.7858,
+          1.4064
+         ],
+         [
+          1.84,
+          1.3567
+         ],
+         [
+          1.9047,
+          1.3095
+         ],
+         [
+          1.9762,
+          1.266
+         ],
+         [
+          2.0506,
+          1.2276
+         ],
+         [
+          2.1239,
+          1.1956
+         ],
+         [
+          2.1925,
+          1.1711
+         ],
+         [
+          2.2525,
+          1.1555
+         ],
+         [
+          2.3,
+          1.15
+         ],
+         [
+          2.5,
+          1.075
+         ]
+        ],
+        [
+         [
+          1.746,
+          1.4574
+         ],
+         [
+          1.7858,
+          1.4064
+         ],
+         [
+          1.84,
+          1.3567
+         ],
+         [
+          1.9047,
+          1.3095
+         ],
+         [
+          1.9762,
+          1.266
+         ],
+         [
+          2.0506,
+          1.2276
+         ],
+         [
+          2.1239,
+          1.1956
+         ],
+         [
+          2.1925,
+          1.1711
+         ],
+         [
+          2.2525,
+          1.1555
+         ],
+         [
+          2.3,
+          1.15
+         ],
+         [
+          2.5,
+          1.225
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.075,
+        0.225
+       ],
+       "yieldPoint": [
+        2.09,
+        0.85
+       ],
+       "ringJoinAngleRad": {
+        "entry": -0.55,
+        "exit": 0.55
+       }
+      },
+      "dirt": {
+       "entry": [
+        [
+         [
+          2.5,
+          0.85
+         ],
+         [
+          2.3,
+          0.85
+         ],
+         [
+          2.2525,
+          0.8445
+         ],
+         [
+          2.1925,
+          0.8289
+         ],
+         [
+          2.1239,
+          0.8044
+         ],
+         [
+          2.0506,
+          0.7724
+         ],
+         [
+          1.9762,
+          0.734
+         ],
+         [
+          1.9047,
+          0.6905
+         ],
+         [
+          1.84,
+          0.6433
+         ],
+         [
+          1.7858,
+          0.5936
+         ],
+         [
+          1.746,
+          0.5426
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          1.746,
+          1.4574
+         ],
+         [
+          1.7858,
+          1.4064
+         ],
+         [
+          1.84,
+          1.3567
+         ],
+         [
+          1.9047,
+          1.3095
+         ],
+         [
+          1.9762,
+          1.266
+         ],
+         [
+          2.0506,
+          1.2276
+         ],
+         [
+          2.1239,
+          1.1956
+         ],
+         [
+          2.1925,
+          1.1711
+         ],
+         [
+          2.2525,
+          1.1555
+         ],
+         [
+          2.3,
+          1.15
+         ],
+         [
+          2.5,
+          1.15
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.15
+       ],
+       "yieldPoint": [
+        2.12,
+        0.85
+       ],
+       "ringJoinAngleRad": {
+        "entry": -0.55,
+        "exit": 0.55
+       }
+      }
+     },
+     "SW": {
+      "tile": [
+       1,
+       2
+      ],
+      "edge": "SW",
+      "edgeMidpoint": [
+       1,
+       2.5
+      ],
+      "outward": [
+       0,
+       1
+      ],
+      "rightOfInbound": [
+       1,
+       0
+      ],
+      "street": {
+       "entry": [
+        [
+         [
+          1.075,
+          2.5
+         ],
+         [
+          1.15,
+          2.3
+         ],
+         [
+          1.1555,
+          2.2525
+         ],
+         [
+          1.1711,
+          2.1925
+         ],
+         [
+          1.1956,
+          2.1239
+         ],
+         [
+          1.2276,
+          2.0506
+         ],
+         [
+          1.266,
+          1.9762
+         ],
+         [
+          1.3095,
+          1.9047
+         ],
+         [
+          1.3567,
+          1.84
+         ],
+         [
+          1.4064,
+          1.7858
+         ],
+         [
+          1.4574,
+          1.746
+         ]
+        ],
+        [
+         [
+          1.225,
+          2.5
+         ],
+         [
+          1.15,
+          2.3
+         ],
+         [
+          1.1555,
+          2.2525
+         ],
+         [
+          1.1711,
+          2.1925
+         ],
+         [
+          1.1956,
+          2.1239
+         ],
+         [
+          1.2276,
+          2.0506
+         ],
+         [
+          1.266,
+          1.9762
+         ],
+         [
+          1.3095,
+          1.9047
+         ],
+         [
+          1.3567,
+          1.84
+         ],
+         [
+          1.4064,
+          1.7858
+         ],
+         [
+          1.4574,
+          1.746
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          0.5426,
+          1.746
+         ],
+         [
+          0.5936,
+          1.7858
+         ],
+         [
+          0.6433,
+          1.84
+         ],
+         [
+          0.6905,
+          1.9047
+         ],
+         [
+          0.734,
+          1.9762
+         ],
+         [
+          0.7724,
+          2.0506
+         ],
+         [
+          0.8044,
+          2.1239
+         ],
+         [
+          0.8289,
+          2.1925
+         ],
+         [
+          0.8445,
+          2.2525
+         ],
+         [
+          0.85,
+          2.3
+         ],
+         [
+          0.925,
+          2.5
+         ]
+        ],
+        [
+         [
+          0.5426,
+          1.746
+         ],
+         [
+          0.5936,
+          1.7858
+         ],
+         [
+          0.6433,
+          1.84
+         ],
+         [
+          0.6905,
+          1.9047
+         ],
+         [
+          0.734,
+          1.9762
+         ],
+         [
+          0.7724,
+          2.0506
+         ],
+         [
+          0.8044,
+          2.1239
+         ],
+         [
+          0.8289,
+          2.1925
+         ],
+         [
+          0.8445,
+          2.2525
+         ],
+         [
+          0.85,
+          2.3
+         ],
+         [
+          0.775,
+          2.5
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.075,
+        0.225
+       ],
+       "yieldPoint": [
+        1.15,
+        2.09
+       ],
+       "ringJoinAngleRad": {
+        "entry": 1.0208,
+        "exit": 2.1208
+       }
+      },
+      "dirt": {
+       "entry": [
+        [
+         [
+          1.15,
+          2.5
+         ],
+         [
+          1.15,
+          2.3
+         ],
+         [
+          1.1555,
+          2.2525
+         ],
+         [
+          1.1711,
+          2.1925
+         ],
+         [
+          1.1956,
+          2.1239
+         ],
+         [
+          1.2276,
+          2.0506
+         ],
+         [
+          1.266,
+          1.9762
+         ],
+         [
+          1.3095,
+          1.9047
+         ],
+         [
+          1.3567,
+          1.84
+         ],
+         [
+          1.4064,
+          1.7858
+         ],
+         [
+          1.4574,
+          1.746
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          0.5426,
+          1.746
+         ],
+         [
+          0.5936,
+          1.7858
+         ],
+         [
+          0.6433,
+          1.84
+         ],
+         [
+          0.6905,
+          1.9047
+         ],
+         [
+          0.734,
+          1.9762
+         ],
+         [
+          0.7724,
+          2.0506
+         ],
+         [
+          0.8044,
+          2.1239
+         ],
+         [
+          0.8289,
+          2.1925
+         ],
+         [
+          0.8445,
+          2.2525
+         ],
+         [
+          0.85,
+          2.3
+         ],
+         [
+          0.85,
+          2.5
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.15
+       ],
+       "yieldPoint": [
+        1.15,
+        2.12
+       ],
+       "ringJoinAngleRad": {
+        "entry": 1.0208,
+        "exit": 2.1208
+       }
+      }
+     },
+     "NW": {
+      "tile": [
+       0,
+       1
+      ],
+      "edge": "NW",
+      "edgeMidpoint": [
+       -0.5,
+       1
+      ],
+      "outward": [
+       -1,
+       0
+      ],
+      "rightOfInbound": [
+       0,
+       1
+      ],
+      "street": {
+       "entry": [
+        [
+         [
+          -0.5,
+          1.075
+         ],
+         [
+          -0.3,
+          1.15
+         ],
+         [
+          -0.2525,
+          1.1555
+         ],
+         [
+          -0.1925,
+          1.1711
+         ],
+         [
+          -0.1239,
+          1.1956
+         ],
+         [
+          -0.0506,
+          1.2276
+         ],
+         [
+          0.0238,
+          1.266
+         ],
+         [
+          0.0953,
+          1.3095
+         ],
+         [
+          0.16,
+          1.3567
+         ],
+         [
+          0.2142,
+          1.4064
+         ],
+         [
+          0.254,
+          1.4574
+         ]
+        ],
+        [
+         [
+          -0.5,
+          1.225
+         ],
+         [
+          -0.3,
+          1.15
+         ],
+         [
+          -0.2525,
+          1.1555
+         ],
+         [
+          -0.1925,
+          1.1711
+         ],
+         [
+          -0.1239,
+          1.1956
+         ],
+         [
+          -0.0506,
+          1.2276
+         ],
+         [
+          0.0238,
+          1.266
+         ],
+         [
+          0.0953,
+          1.3095
+         ],
+         [
+          0.16,
+          1.3567
+         ],
+         [
+          0.2142,
+          1.4064
+         ],
+         [
+          0.254,
+          1.4574
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          0.254,
+          0.5426
+         ],
+         [
+          0.2142,
+          0.5936
+         ],
+         [
+          0.16,
+          0.6433
+         ],
+         [
+          0.0953,
+          0.6905
+         ],
+         [
+          0.0238,
+          0.734
+         ],
+         [
+          -0.0506,
+          0.7724
+         ],
+         [
+          -0.1239,
+          0.8044
+         ],
+         [
+          -0.1925,
+          0.8289
+         ],
+         [
+          -0.2525,
+          0.8445
+         ],
+         [
+          -0.3,
+          0.85
+         ],
+         [
+          -0.5,
+          0.925
+         ]
+        ],
+        [
+         [
+          0.254,
+          0.5426
+         ],
+         [
+          0.2142,
+          0.5936
+         ],
+         [
+          0.16,
+          0.6433
+         ],
+         [
+          0.0953,
+          0.6905
+         ],
+         [
+          0.0238,
+          0.734
+         ],
+         [
+          -0.0506,
+          0.7724
+         ],
+         [
+          -0.1239,
+          0.8044
+         ],
+         [
+          -0.1925,
+          0.8289
+         ],
+         [
+          -0.2525,
+          0.8445
+         ],
+         [
+          -0.3,
+          0.85
+         ],
+         [
+          -0.5,
+          0.775
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.075,
+        0.225
+       ],
+       "yieldPoint": [
+        -0.09,
+        1.15
+       ],
+       "ringJoinAngleRad": {
+        "entry": 2.5916,
+        "exit": 3.6916
+       }
+      },
+      "dirt": {
+       "entry": [
+        [
+         [
+          -0.5,
+          1.15
+         ],
+         [
+          -0.3,
+          1.15
+         ],
+         [
+          -0.2525,
+          1.1555
+         ],
+         [
+          -0.1925,
+          1.1711
+         ],
+         [
+          -0.1239,
+          1.1956
+         ],
+         [
+          -0.0506,
+          1.2276
+         ],
+         [
+          0.0238,
+          1.266
+         ],
+         [
+          0.0953,
+          1.3095
+         ],
+         [
+          0.16,
+          1.3567
+         ],
+         [
+          0.2142,
+          1.4064
+         ],
+         [
+          0.254,
+          1.4574
+         ]
+        ]
+       ],
+       "exit": [
+        [
+         [
+          0.254,
+          0.5426
+         ],
+         [
+          0.2142,
+          0.5936
+         ],
+         [
+          0.16,
+          0.6433
+         ],
+         [
+          0.0953,
+          0.6905
+         ],
+         [
+          0.0238,
+          0.734
+         ],
+         [
+          -0.0506,
+          0.7724
+         ],
+         [
+          -0.1239,
+          0.8044
+         ],
+         [
+          -0.1925,
+          0.8289
+         ],
+         [
+          -0.2525,
+          0.8445
+         ],
+         [
+          -0.3,
+          0.85
+         ],
+         [
+          -0.5,
+          0.85
+         ]
+        ]
+       ],
+       "laneOffsetsAtEdge": [
+        0.15
+       ],
+       "yieldPoint": [
+        -0.12,
+        1.15
+       ],
+       "ringJoinAngleRad": {
+        "entry": 2.5916,
+        "exit": 3.6916
+       }
+      }
+     }
+    }
+   },
+   "night": "roundabout_<tier>_<di><dj>_night@2x.png (27): additive light-only overlay (layer night, blend add, nightOf), same convention as building/prop _night art (sprites.ts placeNight). Roads had no _night files before this: road night = the global nightG wash (0x0a1030, alpha 0.5*night) over roadL. These overlays add sodium light pools (255,212,150) from 8 ring lamps on the outer sidewalk (asphalt/concrete). Dirt has no lamps; only its yield-sign plates catch light, so most dirt night files are empty or near-empty. In drawRoadTile the game must call placeNight(key,x,y,...) for roundabout cells. Draw them in glowL (above nightG, below objects) or in ch.ob with zIndex y+0.001 like building lights, with alpha = night. The lamp posts themselves are not drawn (ground layer); only the pools and the lamp-head glow.",
+   "stages": "roads/construction/roundabout_stage_<surveyed|graded|gravel|surfacing>_<di><dj>@2x.png (36), tier-agnostic like road_stage_<stage>_<mask>; pick by rstage (1 surveyed, 2 graded, 3 gravel, 4 surfacing) with the same (di,dj) offset. Arm tiles join road_stage_<stage>_<axis> at the edge (pixel-identical edge). For an upgrade (rfrom>0) the finished roundabout_<rfrom tier> piece stays under the stage art, as for roads.",
+   "nightCount": 27,
+   "stageCount": 36
   }
  },
  "assets": [
@@ -38172,13 +39731,2618 @@
    ],
    "lanesIn": 3,
    "lanesOut": 1
+  },
+  {
+   "name": "roundabout_dirt_00",
+   "file": "roads/roundabout_dirt_00@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     0,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_dirt_01",
+   "file": "roads/roundabout_dirt_01@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     0,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "NW"
+   },
+   "connects": [
+    "NW"
+   ]
+  },
+  {
+   "name": "roundabout_dirt_02",
+   "file": "roads/roundabout_dirt_02@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     0,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_dirt_10",
+   "file": "roads/roundabout_dirt_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     1,
+     0
+    ],
+    "role": "arm",
+    "armEdge": "NE"
+   },
+   "connects": [
+    "NE"
+   ]
+  },
+  {
+   "name": "roundabout_dirt_11",
+   "file": "roads/roundabout_dirt_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     1,
+     1
+    ],
+    "role": "centre"
+   }
+  },
+  {
+   "name": "roundabout_dirt_12",
+   "file": "roads/roundabout_dirt_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     1,
+     2
+    ],
+    "role": "arm",
+    "armEdge": "SW"
+   },
+   "connects": [
+    "SW"
+   ]
+  },
+  {
+   "name": "roundabout_dirt_20",
+   "file": "roads/roundabout_dirt_20@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     2,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_dirt_21",
+   "file": "roads/roundabout_dirt_21@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     2,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "SE"
+   },
+   "connects": [
+    "SE"
+   ]
+  },
+  {
+   "name": "roundabout_dirt_22",
+   "file": "roads/roundabout_dirt_22@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     2,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_asphalt_00",
+   "file": "roads/roundabout_asphalt_00@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     0,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_asphalt_01",
+   "file": "roads/roundabout_asphalt_01@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     0,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "NW"
+   },
+   "connects": [
+    "NW"
+   ]
+  },
+  {
+   "name": "roundabout_asphalt_02",
+   "file": "roads/roundabout_asphalt_02@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     0,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_asphalt_10",
+   "file": "roads/roundabout_asphalt_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     1,
+     0
+    ],
+    "role": "arm",
+    "armEdge": "NE"
+   },
+   "connects": [
+    "NE"
+   ]
+  },
+  {
+   "name": "roundabout_asphalt_11",
+   "file": "roads/roundabout_asphalt_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     1,
+     1
+    ],
+    "role": "centre"
+   }
+  },
+  {
+   "name": "roundabout_asphalt_12",
+   "file": "roads/roundabout_asphalt_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     1,
+     2
+    ],
+    "role": "arm",
+    "armEdge": "SW"
+   },
+   "connects": [
+    "SW"
+   ]
+  },
+  {
+   "name": "roundabout_asphalt_20",
+   "file": "roads/roundabout_asphalt_20@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     2,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_asphalt_21",
+   "file": "roads/roundabout_asphalt_21@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     2,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "SE"
+   },
+   "connects": [
+    "SE"
+   ]
+  },
+  {
+   "name": "roundabout_asphalt_22",
+   "file": "roads/roundabout_asphalt_22@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     2,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_concrete_00",
+   "file": "roads/roundabout_concrete_00@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     0,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_concrete_01",
+   "file": "roads/roundabout_concrete_01@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     0,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "NW"
+   },
+   "connects": [
+    "NW"
+   ]
+  },
+  {
+   "name": "roundabout_concrete_02",
+   "file": "roads/roundabout_concrete_02@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     0,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_concrete_10",
+   "file": "roads/roundabout_concrete_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     1,
+     0
+    ],
+    "role": "arm",
+    "armEdge": "NE"
+   },
+   "connects": [
+    "NE"
+   ]
+  },
+  {
+   "name": "roundabout_concrete_11",
+   "file": "roads/roundabout_concrete_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     1,
+     1
+    ],
+    "role": "centre"
+   }
+  },
+  {
+   "name": "roundabout_concrete_12",
+   "file": "roads/roundabout_concrete_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     1,
+     2
+    ],
+    "role": "arm",
+    "armEdge": "SW"
+   },
+   "connects": [
+    "SW"
+   ]
+  },
+  {
+   "name": "roundabout_concrete_20",
+   "file": "roads/roundabout_concrete_20@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     2,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_concrete_21",
+   "file": "roads/roundabout_concrete_21@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     2,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "SE"
+   },
+   "connects": [
+    "SE"
+   ]
+  },
+  {
+   "name": "roundabout_concrete_22",
+   "file": "roads/roundabout_concrete_22@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     2,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_dirt_00_night",
+   "file": "roads/roundabout_dirt_00_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_00",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_01_night",
+   "file": "roads/roundabout_dirt_01_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_01",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_02_night",
+   "file": "roads/roundabout_dirt_02_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_02",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_10_night",
+   "file": "roads/roundabout_dirt_10_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_10",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_11_night",
+   "file": "roads/roundabout_dirt_11_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_11",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_12_night",
+   "file": "roads/roundabout_dirt_12_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_12",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_20_night",
+   "file": "roads/roundabout_dirt_20_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_20",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     2,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_21_night",
+   "file": "roads/roundabout_dirt_21_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_21",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_dirt_22_night",
+   "file": "roads/roundabout_dirt_22_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_dirt_22",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_dirt",
+    "tier": "dirt",
+    "offset": [
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_00_night",
+   "file": "roads/roundabout_asphalt_00_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_00",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_01_night",
+   "file": "roads/roundabout_asphalt_01_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_01",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_02_night",
+   "file": "roads/roundabout_asphalt_02_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_02",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_10_night",
+   "file": "roads/roundabout_asphalt_10_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_10",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_11_night",
+   "file": "roads/roundabout_asphalt_11_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_11",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_12_night",
+   "file": "roads/roundabout_asphalt_12_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_12",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_20_night",
+   "file": "roads/roundabout_asphalt_20_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_20",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     2,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_21_night",
+   "file": "roads/roundabout_asphalt_21_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_21",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_asphalt_22_night",
+   "file": "roads/roundabout_asphalt_22_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_asphalt_22",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_asphalt",
+    "tier": "asphalt",
+    "offset": [
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_00_night",
+   "file": "roads/roundabout_concrete_00_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_00",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_01_night",
+   "file": "roads/roundabout_concrete_01_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_01",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_02_night",
+   "file": "roads/roundabout_concrete_02_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_02",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_10_night",
+   "file": "roads/roundabout_concrete_10_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_10",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_11_night",
+   "file": "roads/roundabout_concrete_11_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_11",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_12_night",
+   "file": "roads/roundabout_concrete_12_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_12",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_20_night",
+   "file": "roads/roundabout_concrete_20_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_20",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     2,
+     0
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_21_night",
+   "file": "roads/roundabout_concrete_21_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_21",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "name": "roundabout_concrete_22_night",
+   "file": "roads/roundabout_concrete_22_night@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": null,
+   "scale": 0.5,
+   "layer": "night",
+   "category": "road",
+   "nightOf": "roundabout_concrete_22",
+   "blend": "add",
+   "roundabout": {
+    "set": "roundabout_concrete",
+    "tier": "concrete",
+    "offset": [
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "name": "roundabout_stage_surveyed_00",
+   "file": "roads/construction/roundabout_stage_surveyed_00@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     0,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_surveyed_01",
+   "file": "roads/construction/roundabout_stage_surveyed_01@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     0,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "NW"
+   },
+   "connects": [
+    "NW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surveyed_02",
+   "file": "roads/construction/roundabout_stage_surveyed_02@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     0,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_surveyed_10",
+   "file": "roads/construction/roundabout_stage_surveyed_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     1,
+     0
+    ],
+    "role": "arm",
+    "armEdge": "NE"
+   },
+   "connects": [
+    "NE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surveyed_11",
+   "file": "roads/construction/roundabout_stage_surveyed_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     1,
+     1
+    ],
+    "role": "centre"
+   }
+  },
+  {
+   "name": "roundabout_stage_surveyed_12",
+   "file": "roads/construction/roundabout_stage_surveyed_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     1,
+     2
+    ],
+    "role": "arm",
+    "armEdge": "SW"
+   },
+   "connects": [
+    "SW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surveyed_20",
+   "file": "roads/construction/roundabout_stage_surveyed_20@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     2,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_surveyed_21",
+   "file": "roads/construction/roundabout_stage_surveyed_21@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     2,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "SE"
+   },
+   "connects": [
+    "SE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surveyed_22",
+   "file": "roads/construction/roundabout_stage_surveyed_22@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surveyed",
+   "roundabout": {
+    "set": "roundabout_stage_surveyed",
+    "offset": [
+     2,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_graded_00",
+   "file": "roads/construction/roundabout_stage_graded_00@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     0,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_graded_01",
+   "file": "roads/construction/roundabout_stage_graded_01@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     0,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "NW"
+   },
+   "connects": [
+    "NW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_graded_02",
+   "file": "roads/construction/roundabout_stage_graded_02@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     0,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_graded_10",
+   "file": "roads/construction/roundabout_stage_graded_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     1,
+     0
+    ],
+    "role": "arm",
+    "armEdge": "NE"
+   },
+   "connects": [
+    "NE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_graded_11",
+   "file": "roads/construction/roundabout_stage_graded_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     1,
+     1
+    ],
+    "role": "centre"
+   }
+  },
+  {
+   "name": "roundabout_stage_graded_12",
+   "file": "roads/construction/roundabout_stage_graded_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     1,
+     2
+    ],
+    "role": "arm",
+    "armEdge": "SW"
+   },
+   "connects": [
+    "SW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_graded_20",
+   "file": "roads/construction/roundabout_stage_graded_20@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     2,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_graded_21",
+   "file": "roads/construction/roundabout_stage_graded_21@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     2,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "SE"
+   },
+   "connects": [
+    "SE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_graded_22",
+   "file": "roads/construction/roundabout_stage_graded_22@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "graded",
+   "roundabout": {
+    "set": "roundabout_stage_graded",
+    "offset": [
+     2,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_gravel_00",
+   "file": "roads/construction/roundabout_stage_gravel_00@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     0,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_gravel_01",
+   "file": "roads/construction/roundabout_stage_gravel_01@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     0,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "NW"
+   },
+   "connects": [
+    "NW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_gravel_02",
+   "file": "roads/construction/roundabout_stage_gravel_02@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     0,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_gravel_10",
+   "file": "roads/construction/roundabout_stage_gravel_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     1,
+     0
+    ],
+    "role": "arm",
+    "armEdge": "NE"
+   },
+   "connects": [
+    "NE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_gravel_11",
+   "file": "roads/construction/roundabout_stage_gravel_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     1,
+     1
+    ],
+    "role": "centre"
+   }
+  },
+  {
+   "name": "roundabout_stage_gravel_12",
+   "file": "roads/construction/roundabout_stage_gravel_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     1,
+     2
+    ],
+    "role": "arm",
+    "armEdge": "SW"
+   },
+   "connects": [
+    "SW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_gravel_20",
+   "file": "roads/construction/roundabout_stage_gravel_20@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     2,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_gravel_21",
+   "file": "roads/construction/roundabout_stage_gravel_21@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     2,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "SE"
+   },
+   "connects": [
+    "SE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_gravel_22",
+   "file": "roads/construction/roundabout_stage_gravel_22@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "gravel",
+   "roundabout": {
+    "set": "roundabout_stage_gravel",
+    "offset": [
+     2,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_surfacing_00",
+   "file": "roads/construction/roundabout_stage_surfacing_00@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     0,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_surfacing_01",
+   "file": "roads/construction/roundabout_stage_surfacing_01@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     0,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "NW"
+   },
+   "connects": [
+    "NW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surfacing_02",
+   "file": "roads/construction/roundabout_stage_surfacing_02@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     0,
+     2
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_surfacing_10",
+   "file": "roads/construction/roundabout_stage_surfacing_10@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     1,
+     0
+    ],
+    "role": "arm",
+    "armEdge": "NE"
+   },
+   "connects": [
+    "NE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surfacing_11",
+   "file": "roads/construction/roundabout_stage_surfacing_11@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     1,
+     1
+    ],
+    "role": "centre"
+   }
+  },
+  {
+   "name": "roundabout_stage_surfacing_12",
+   "file": "roads/construction/roundabout_stage_surfacing_12@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     1,
+     2
+    ],
+    "role": "arm",
+    "armEdge": "SW"
+   },
+   "connects": [
+    "SW"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surfacing_20",
+   "file": "roads/construction/roundabout_stage_surfacing_20@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     2,
+     0
+    ],
+    "role": "corner"
+   }
+  },
+  {
+   "name": "roundabout_stage_surfacing_21",
+   "file": "roads/construction/roundabout_stage_surfacing_21@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     2,
+     1
+    ],
+    "role": "arm",
+    "armEdge": "SE"
+   },
+   "connects": [
+    "SE"
+   ]
+  },
+  {
+   "name": "roundabout_stage_surfacing_22",
+   "file": "roads/construction/roundabout_stage_surfacing_22@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road_construction",
+   "stage": "surfacing",
+   "roundabout": {
+    "set": "roundabout_stage_surfacing",
+    "offset": [
+     2,
+     2
+    ],
+    "role": "corner"
+   }
   }
  ],
- "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 — see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix — builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas. | v3-soft3d-n: avenue art realigned to game AV_D0 0.07 (median 1.4 m half, no gutter, lane centres 0.15/0.31/0.47 = AV_LN), white edge line ~2 px; 64 avenue_<tier>_taper_<street|dirt>_<D>_<P>_<main|side> tiles (see PROMOTION_avenue_taper.txt).",
+ "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 — see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix — builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas. | v3-soft3d-n: avenue art realigned to game AV_D0 0.07 (median 1.4 m half, no gutter, lane centres 0.15/0.31/0.47 = AV_LN), white edge line ~2 px; 64 avenue_<tier>_taper_<street|dirt>_<D>_<P>_<main|side> tiles (see PROMOTION_avenue_taper.txt). | v3-soft3d-o: artRevision synced with revision (it had been left at v3-soft3d-h). 27 roundabout_<tier>_<di><dj> pieces (3x3 single-lane roundabout, dirt/asphalt/concrete; see autotile.roundabout and PROMOTION_roundabout.txt). | v3-soft3d-p: roundabout _night overlays (27, additive), roundabout_stage_* construction pieces (36), dirt NE-arm yield sign added (smaller, nearer the ring); UI icon road_roundabout (assets/ui/icons). See PROMOTION_roundabout.txt.",
  "parts": {
   "manifest": "parts/manifest.json",
   "count": 88
  },
- "revision": "v3-soft3d-n",
+ "revision": "v3-soft3d-p",
  "vehicleBodyNote": "Vehicle collision/body fields (rev v3-soft3d-l). Travel axis = the vehicle's facing direction on the iso grid. bodyFront/bodyRear: signed distance in TILES (1 tile = 20 m) along the travel axis from the sprite anchor (vehicle ground centre) to the front/rear bumper; front positive, rear negative. lengthTiles = bodyFront - bodyRear (true bumper-to-bumper length, measured from Blender geometry incl. lamps, cross-checked against rendered alpha). Bumper-to-bumper queue: centre distance between follower F and leader L = F.bodyFront - L.bodyRear + gap, i.e. place F anchor at L anchor - (F.bodyFront - L.bodyRear + gap) along the axis. travelAxisPx = screen offset in 2x px for +1 tile along travel (SE [64,32], SW [-64,32], NE [64,-32], NW [-64,-32]); divide by 2 for 1x screen px. headlightOffsetPx/taillightOffsetPx = bodyFront/bodyRear * travelAxisPx, in 2x px from the vehicle anchor: put the anchor of headlightGlow/taillightGlow (fx_*, blend add, layer night) there. Both fx glows are ground light: draw them UNDER the vehicle sprites (drawOrder 'underVehicle'). A taillight glow drawn over the body puts red light on the box/cab side and reads as a reversed vehicle. The sprite canvas is NOT centred on the body (anchor x != 0.5) - never space cars by canvas width."
 }

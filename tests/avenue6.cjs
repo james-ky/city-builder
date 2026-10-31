@@ -9,7 +9,7 @@ const r=await p.evaluate(([ci,cj])=>{const C=__city,N=C.N();C.setRoadTier(2);C.s
 ok('avenue is two halves with partners',r.hs.length===2,JSON.stringify(r.hs));
 await p.waitForTimeout(800);
 const lanes=await p.evaluate(async()=>{const m=await (await fetch('./assets/manifest.json')).json();const a=m.assets.find(x=>x.name==='avenue_asphalt_14');return {m:a.laneOffsetTilesFromMedian,g:__city.avLanes(),rev:m.revision}});
-ok('lane centres come from the art manifest (0.13/0.29/0.45)',JSON.stringify(lanes.m)==='[0.13,0.29,0.45]'&&JSON.stringify(lanes.g)===JSON.stringify(lanes.m),JSON.stringify(lanes));
+ok('lane centres come from the art manifest (0.15/0.31/0.47)',JSON.stringify(lanes.m)==='[0.15,0.31,0.47]'&&JSON.stringify(lanes.g)===JSON.stringify(lanes.m),JSON.stringify(lanes));
 const side=await p.evaluate(([ci,hs])=>hs.map(([j,pd])=>({pd,se:__city.avenueOK(ci,j,1,0),nw:__city.avenueOK(ci,j,-1,0)})),[c[0],r.hs]);
 // right-hand traffic: heading SE (+i) the driver's left is NE, so the half whose partner (median) is NE (pd 1) runs SE, the other runs NW
 ok('right-hand traffic, median on the driver\'s left',side.every(x=>x.pd===1?(x.se&&!x.nw):(x.nw&&!x.se)),JSON.stringify(side));

@@ -4,7 +4,7 @@
 //
 // Scale assumption: one map tile ≈ 20 m × 20 m ≈ 400 m² ≈ 4,300 sq ft (about 0.1 acre).
 // Building floor area per tile (density levels 1/2/3):
-//   Residential: 1 house · 4 apartments (3-storey walk-up) · ~60 apartments (15-storey tower)
+//   Residential: 1 house · 12 apartments (4-storey mid-rise) · ~60 apartments (15-storey tower)
 //   Commercial:  ~3,000 sq ft shop · ~12,000 sq ft (4 floors) offices · ~70,000 sq ft (20 floors) tower
 //   Industrial:  ~3,000 sq ft workshop/warehouse · ~8,000 sq ft factory · ~12,000 sq ft heavy plant
 // Index 0 of each array = empty lot.
@@ -25,7 +25,20 @@
 // =====================================================================================
 
 /** Residents per tile at density 1/2/3 (households × people per household). */
-export const RESIDENTS = { R: [0, 2.5, 4 * 2.2, 60 * 1.8] };   // 2.5 · 8.8 · 108
+// Whole people only: each building holds a whole number of homes (units), and each home a whole number of people,
+// drawn from a real household-size mix (US Census ACS, rounded). Level 2 is a 4-storey mid-rise: ~65 % lot coverage
+// (260 m²) × 4 floors × 80 % net ≈ 830 m² ÷ ~70 m² per flat ≈ 12 flats. Level 3 is a ~15-storey tower with ~60 flats.
+export const RES_UNITS = [0, 1, 12, 60];
+/** share of homes with 1,2,3,4,5,6 people, by building type (house / mid-rise flat / tower flat) */
+export const HOUSEHOLD_MIX = [[], [0.18, 0.34, 0.18, 0.17, 0.08, 0.05], [0.38, 0.31, 0.15, 0.10, 0.04, 0.02], [0.45, 0.35, 0.11, 0.06, 0.02, 0.01]];
+const mixMean = (m: number[]) => m.reduce((t, p, k) => t + p * (k + 1), 0);
+/** average residents per tile (for budgets and docs); actual buildings use residentsOf() */
+export const RESIDENTS = { R: RES_UNITS.map((u, l) => l ? u * mixMean(HOUSEHOLD_MIX[l]) : 0) };   // ≈ 2.9 · 26 · 113
+/** whole residents of one building: `units` homes, each with a household size drawn (deterministically, from `seed`) from the mix */
+export const residentsOf = (level: number, seed: number, extraUnitShare = 0) => { if (!level) return 0; const mix = HOUSEHOLD_MIX[level];
+  const units = RES_UNITS[level] + (level > 1 ? Math.round(RES_UNITS[level] * extraUnitShare) : 0); let h = (seed ^ (level * 0x9e3779b1)) >>> 0, n = 0;
+  for (let u = 0; u < units; u++) { h = (Math.imul(h, 1664525) + 1013904223) >>> 0; let x = h / 4294967296, k = 0; while (k < mix.length - 1 && x >= mix[k]) { x -= mix[k]; k++; } n += k + 1; }
+  return n; };
 
 /** Jobs per tile at density 1/2/3 (floor area ÷ sq ft per job). */
 export const JOBS: Record<'C' | 'I', number[]> = {
@@ -35,14 +48,14 @@ export const JOBS: Record<'C' | 'I', number[]> = {
 
 /** Average electricity demand per tile, kW. */
 export const POWER_KW: Record<'R' | 'C' | 'I', number[]> = {
-  R: [0, 1.25, 4 * 0.9, 60 * 0.8 * 1.2],                         // 1.25 · 3.6 · ~58 (towers add 20 % for lifts/common areas)
+  R: [0, 1.25, 12 * 0.9, 60 * 0.8 * 1.2],                        // 1.25 · 10.8 · ~58 (towers add 20 % for lifts/common areas)
   C: [0, 3000 * 15 / 8760, 12000 * 15 / 8760, 70000 * 20 / 8760],// ~5 · ~21 · ~160
   I: [0, 3000 * 7 / 8760, 8000 * 50 / 8760, 12000 * 95 / 8760],  // ~2.4 · ~46 · ~130
 };
 
 /** Water demand per tile, gallons/day. */
 export const WATER_GPD: Record<'R' | 'C' | 'I', number[]> = {
-  R: [0, 300, 4 * 175, 60 * 150],                                // 300 · 700 · 9,000
+  R: [0, 300, 12 * 175, 60 * 150],                               // 300 · 2,100 · 9,000
   C: [0, 3000 * 0.1, 12000 * 0.1, 70000 * 0.1],                  // 300 · 1,200 · 7,000
   I: [0, 3000 * 0.05, 8000 * 0.5, 12000 * 1.0],                  // 150 · 4,000 · 12,000
 };
@@ -103,10 +116,14 @@ export const roadUpgradeCost = (from: RoadTier, to: RoadTier) => Math.max(0, ROA
 // avenue ≈ $10–15 M/mile spread across 2 tiles ≈ 1.6× per tile. Capacity ≈ lanes per direction.
 // Widths 1–2 need a paved tier (asphalt or concrete).
 // =====================================================================================
+// tileLanes: lanes on one map tile (an avenue is 2 tiles: one half each way); lanesPerDir: lanes a car can pick on that tile.
+// Avenue = divided 6-lane arterial (3 each way + raised median): higher design speed (no mid-block left turns or
+// head-on conflicts; left turns only at median openings), ~3x a 2-lane road's capacity per direction pair.
+// Costs follow typical US per-lane-mile ratios: 4-lane undivided ≈ 1.8x a 2-lane road, 6-lane divided ≈ 4-5x (both tiles).
 export const ROAD_WIDTHS = [
-  { name: '2-lane road', lanes: 2, buildMul: 1,   upkeepMul: 1,   capacity: 1,   laneFt: 12, tiles: 1 },
-  { name: 'Street',      lanes: 4, buildMul: 1.8, upkeepMul: 1.6, capacity: 2,   laneFt: 10, tiles: 1 },
-  { name: 'Avenue',      lanes: 4, buildMul: 1.6, upkeepMul: 1.5, capacity: 2.5, laneFt: 11, tiles: 2 },
+  { name: '2-lane road', lanes: 2, buildMul: 1,   upkeepMul: 1,   capacity: 1,   laneFt: 12, tiles: 1, tileLanes: 2, lanesPerDir: 1, speedMul: 1 },
+  { name: 'Street',      lanes: 4, buildMul: 1.8, upkeepMul: 1.6, capacity: 2,   laneFt: 10, tiles: 1, tileLanes: 4, lanesPerDir: 2, speedMul: 1 },
+  { name: 'Avenue',      lanes: 6, buildMul: 2.3, upkeepMul: 2.1, capacity: 3,   laneFt: 11, tiles: 2, tileLanes: 3, lanesPerDir: 3, speedMul: 1.35 },
 ];
 export const roadBuild = (t: RoadTier, w: number) => Math.round(ROAD_TIERS[t].build * ROAD_WIDTHS[w].buildMul);
 export const roadUpkeep = (t: RoadTier, w: number) => ROAD_TIERS[t].upkeep * ROAD_WIDTHS[w].upkeepMul;

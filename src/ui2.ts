@@ -1,6 +1,6 @@
 // UI redesign MOCKUP (preview only). Re-homes the existing controls into one top bar, one category toolbar with trays,
 // one right-side panel, a Views menu, a single ☰ menu and a '?' shortcut sheet. Every action forwards to the original
-// (now hidden) control, so game logic is untouched. Add ?ui=old to the URL to see the current layout.
+// (now hidden) control, so game logic is untouched. Add ?ui=old to the URL for the classic layout.
 const $ = (s: string) => document.querySelector<HTMLElement>(s);
 const click = (s: string) => $(s)?.click();
 const svc = (k: string) => () => click(`#services button[data-t="svc:${k}"]`);
@@ -98,7 +98,6 @@ export function mountUI2() {
   addEventListener('keydown', e => { if (e.key === '?' && !(e.target instanceof HTMLInputElement)) toggleHelp(); if (e.key === 'Escape') { help.style.display = 'none'; menu.style.display = 'none'; open = ''; tray.style.display = 'none'; refresh(); } });
   addEventListener('pointerdown', () => { menu.style.display = 'none'; help.style.display = 'none'; });
   addEventListener('keyup', () => setTimeout(refresh, 30));
-  const badge = document.createElement('div'); badge.id = 'uBadge'; badge.textContent = 'Preview'; badge.title = 'UI mockup. Add ?ui=old for the current layout'; document.body.appendChild(badge);
   // every other control with a title gets the same styled tooltip; a trailing "(X)" becomes the hotkey chip
   document.addEventListener('mouseover', e => { const el = (e.target as HTMLElement).closest?.('[title],[data-tip]') as HTMLElement | null; if (!el || el.onmouseenter) return;
     if (el.title) { el.dataset.tip = el.title; el.removeAttribute('title'); }

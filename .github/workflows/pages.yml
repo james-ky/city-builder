@@ -13,12 +13,6 @@ jobs:
         with: { node-version: 20, cache: npm }
       - run: npm ci
       - run: npm run build
-      # preview branch: publish the live main game at / and this branch at /preview/
-      - if: github.ref != 'refs/heads/main'
-        run: |
-          mv dist /tmp/preview
-          git fetch --depth=1 origin main && git checkout FETCH_HEAD -- . && npm ci && npm run build
-          mv /tmp/preview dist/preview
       - uses: actions/configure-pages@v5
         with: { enablement: true }
       - uses: actions/upload-pages-artifact@v3

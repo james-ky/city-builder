@@ -346,6 +346,24 @@ function diamond(g: Graphics, i: number, j: number) {
     g.stroke({ width: 1, color: 0xffffff, alpha: 0.16 }); ch.gr.addChild(g); ch.ground = true; };
   // road tile: tier art if City Art Studio has drawn it (road_<tier>_<mask>), else the asphalt art recoloured, plus procedural construction overlays
   const TIERN = ['', 'dirt', 'asphalt', 'concrete'];
+  /** Avenue half, 3 lanes each way: the straight art only paints 2 narrow lanes (0.3 tile), so widen the carriageway into the verge
+   *  (median curb d=0.07 .. curb d=0.55 of the tile, measured from the shared median edge; 9.6 m = 3 x 3.2 m lanes) and paint 2 dashed lane lines. */
+  const AV_D0 = 0.07, AV_D1 = 0.55, AV_LANE = (AV_D1 - AV_D0) / 3;
+  const avenueLanes = (i: number, j: number, x: number, y: number, tier: number) => {
+    const pd = rpd[i][j], [pa, pb] = BITV[pd], q = toScreen(i, j), e = toScreen(i + pa, j + pb), ex = e.x - q.x, ey = e.y - q.y; // toward the partner half (median side)
+    const [ua, ub] = rw[i][j] === 2 ? [1, 0] : [0, 1], u = toScreen(i + ua, j + ub), ux = u.x - q.x, uy = u.y - q.y; // along the avenue
+    const P = (s: number, d: number): [number, number] => [x + ux * s + ex * (0.5 - d), y + uy * s + ey * (0.5 - d)];
+    const quad = (s0: number, s1: number, d0: number, d1: number) => [...P(s0, d0), ...P(s1, d0), ...P(s1, d1), ...P(s0, d1)];
+    const conc = tier === 3, g = new Graphics();
+    g.poly(quad(-0.5, 0.5, AV_D0, AV_D1)).fill(conc ? 0xbab7af : 0x5a616f);       // carriageway
+    g.poly(quad(-0.5, 0.5, AV_D1, AV_D1 + 0.1)).fill(conc ? 0xd6d3cb : 0xc3c0b7); // sidewalk
+    g.poly(quad(-0.5, 0.5, AV_D1 - 0.012, AV_D1)).fill(conc ? 0xe2e0d8 : 0xcfcdc6); // curb
+    g.poly(quad(-0.5, 0.5, AV_D0, AV_D0 + 0.012)).fill(0xd8c060);                  // median edge line
+    for (const k of [1, 2]) { const d = AV_D0 + AV_LANE * k; for (let s = -0.5; s < 0.5; s += 0.25) g.poly(quad(s + 0.03, s + 0.155, d - 0.008, d + 0.008)).fill(conc ? 0x8f8b82 : 0xe8e8e2); }
+    (g as any).__avLanes = true; avPaint++; return g; };
+  let avPaint = 0; // avenue half tiles painted with 3-lane markings (tests)
+  /** lane centres of an avenue half, from the median edge (lane 0 beside the median) */
+  const AV_LN = [0, 1, 2].map(k => AV_D0 + AV_LANE * (k + 0.5));
   const drawRoadTile = (ch: Chunk, i: number, j: number, x: number, y: number, m: number, seed: number) => {
     const st = rstage[i][j], shownTier = st === 0 ? rtier[i][j] : rfrom[i][j], base = 'road_' + (m || (hasArt('road_0') ? 0 : 1));
     let wk = wKind(rw[i][j]), wname = ['road', 'street', 'avenue'][wk];
@@ -362,6 +380,7 @@ function diamond(g: Graphics, i: number, j: number) {
     let apron = 0; if (jn && hasArt(`street_${TIERN[shownTier]}_${m}`)) { wk = 1; wname = 'street'; } else if (jn && hasArt(`street_asphalt_${m}`)) { wk = 1; wname = 'street'; apron = 2; } // dirt road meeting an avenue: paved apron tile (no dirt street art)
     const artT = apron || shownTier;
     if (shownTier && wk && hasArt(`${wname}_${TIERN[artT]}_${artM}`)) { place(`${wname}_${TIERN[artT]}_${artM}`, x, y, ch.rd, seed);
+      if (wk === 2 && rpd[i][j] && !over && (artM === ((rw[i][j] === 2 ? 10 : 5) | rpd[i][j]) || String(artM).startsWith('gap_'))) ch.rd.addChild(avenueLanes(i, j, x, y, shownTier));
       if (over) { const g = new Graphics(), col = shownTier === 3 ? 0xa9a59b : 0x4a4b50; // stopgap intersection overlay: pave over the median/curb toward each side street
         for (const b of [1, 2, 4, 8]) if (over & b) { const [di, dj] = BITV[b], e = toScreen(i + di / 2, j + dj / 2), q = toScreen(i, j), ex = x + e.x - q.x, ey = y + e.y - q.y;
           g.moveTo(x, y).lineTo(ex, ey).stroke({ width: 13, color: col }); }
@@ -940,7 +959,7 @@ function diamond(g: Graphics, i: number, j: number) {
   { const prevHook = toolHook; toolHook = t => { prevHook?.(t); if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); }; }
   document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) location.href = location.pathname; };
   // ---- Budget panel (button + B) ----
-  Object.assign((window as any).__city, { rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
+  Object.assign((window as any).__city, { avPaint: () => avPaint, rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
   const budgetEl = document.getElementById('budget')!;
   const money = (v: number) => (v < 0 ? '−$' : '$') + Math.abs(Math.round(v)).toLocaleString();
   const renderBudget = () => {
@@ -1399,7 +1418,7 @@ function diamond(g: Graphics, i: number, j: number) {
           c.n = placeNight(c.key + '_' + dir, 0, 0, ob); if (c.n) { (c.n as any).__veh = true; (c.n as any).__light = true; c.n.scale.set(c.n.scale.x * VSCALE, c.n.scale.y * VSCALE); }
         }
         const avd0 = rw[c.i][c.j] >= 2 ? rpd[c.i][c.j] : 0, avd = avd0 && ((BITV[avd0][0] !== 0) !== (c.i !== c.pi)) ? avd0 : 0; let lx: number, ly: number;
-        if (avd) { const [di, dj] = BITV[avd], e = toScreen(c.i + di, c.j + dj), q = toScreen(c.i, c.j), px = e.x - q.x, py = e.y - q.y, k = 0.5 - [0.1, 0.215, 0.33][Math.min(c.ln ?? 0, 2)]; lx = px * k; ly = py * k; } // avenue half: 3 lanes each way, 0.10 / 0.215 / 0.33 tile from the shared median edge (lane 0 beside the median)
+        if (avd) { const [di, dj] = BITV[avd], e = toScreen(c.i + di, c.j + dj), q = toScreen(c.i, c.j), px = e.x - q.x, py = e.y - q.y, k = 0.5 - AV_LN[Math.min(c.ln ?? 0, 2)]; lx = px * k; ly = py * k; } // avenue half: 3 lanes each way, 0.10 / 0.215 / 0.33 tile from the shared median edge (lane 0 beside the median)
         else { const lf = rw[c.i][c.j] ? (c.ln ? 1.5 : 0.5) : 1; lx = LANE[dir][0] * lf; ly = LANE[dir][1] * lf; } // 0.15 tile; streets 0.075 / 0.225
         const x = a.x + dx * c.t + lx, y = a.y + dy * c.t + ly;
         c.s.position.set(x, y); c.s.zIndex = y + 1; // depth: same key as buildings (screen y)

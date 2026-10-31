@@ -1032,6 +1032,14 @@ function diamond(g: Graphics, i: number, j: number) {
   const dataP = document.createElement('div'); dataP.id = 'dataPanel';
   dataP.style.cssText = 'position:fixed;top:44px;right:8px;bottom:76px;width:440px;display:none;flex-direction:column;background:rgba(18,24,33,.96);color:#e6edf5;border:1px solid #3a4658;border-radius:10px;z-index:6;font:13px/1.45 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4)';
   dataP.addEventListener('pointerdown', e => e.stopPropagation()); dataP.addEventListener('wheel', e => e.stopPropagation());
+  /** live 'Vehicles on the road now', counted from the real car list (the panel re-renders every second) */
+  const liveVeh = () => { const T: Record<string, number> = { sedan: 0, hatchback: 0, pickup: 0, van: 0, taxi: 0, delivery_truck: 0, semi: 0, bus: 0 }, P: Record<string, number> = { Commute: 0, School: 0, 'Shopping / errands': 0, Freight: 0, Transit: 0, 'Leisure (parks)': 0, Other: 0 };
+    const PK: Record<string, string> = { work: 'Commute', school: 'School', errand: 'Shopping / errands', freight: 'Freight', leisure: 'Leisure (parks)' }; let stuck = 0;
+    for (const c of cars) { const ty = /^veh_(.+)_[a-z]$/.exec(c.key)?.[1] ?? ''; if (ty in T) T[ty]++; P[c.bus ? 'Transit' : PK[c.trip?.kind ?? ''] ?? 'Other']++; if (!(c.dwell && c.dwell > 0) && ((c.stuck ?? 0) > 1.5 || (c.wait ?? 0) > 1.5)) stuck++; }
+    const n = cars.length, NM: Record<string, string> = { sedan: 'Sedan', hatchback: 'Hatchback', pickup: 'Pickup', van: 'Van', taxi: 'Taxi', delivery_truck: 'Delivery truck', semi: 'Semi', bus: 'Bus' };
+    return h('Vehicles on the road now (live)') + row('Total vehicles', `<span id="liveVehN">${fmt(n)}</span>`) + row('Stuck or queued (not moving > 1.5 s)', fmt(stuck), n ? pc(stuck / n) : '')
+      + '<div style="color:#93a3b8;font-size:12px;margin-top:4px">By type</div>' + Object.entries(T).map(([k, v]) => dbar(NM[k], v, n, '#9aa0a6', fmt(v))).join('')
+      + '<div style="color:#93a3b8;font-size:12px;margin-top:4px">By purpose</div>' + Object.entries(P).filter(([k, v]) => v || !k.startsWith('Leisure') && k !== 'Other').map(([k, v]) => dbar(k, v, n, '#6d8bff', fmt(v))).join(''); };
   const TABS = ['Budget', 'Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
   let dataTab = 'Budget';
   dataP.innerHTML = `<div style="display:flex;align-items:center;padding:8px 10px;border-bottom:1px solid #2c3646"><b style="font-size:15px">📊 City Data</b><span style="flex:1"></span><small style="color:#8b98a8;margin-right:8px">Shift+D</small><button id="dataX" title="Close" style="background:none;border:0;color:#cbd5e1;font-size:16px;cursor:pointer">✕</button></div>
@@ -1069,6 +1077,7 @@ function diamond(g: Graphics, i: number, j: number) {
       html = h('Trips by mode (people/day, one way)') + dbar('🚗 Car', t.car, tot, '#9aa0a6', `${fmt(t.car)} · ${pc(tot ? t.car / tot : 0)}`) + dbar('🚌 Bus', t.bus, tot, '#2f6fd1', `${fmt(t.bus)} · ${pc(tot ? t.bus / tot : 0)}`) + dbar('🚶 Walk (≤ 400 m)', t.walk, tot, '#3ecf4a', `${fmt(t.walk)} · ${pc(tot ? t.walk / tot : 0)}`) + dbar('Other (school bus, carpool, bike)', t.other, tot, '#8b98a8', `${fmt(t.other)} · ${pc(tot ? t.other / tot : 0)}`)
         + h('Commuting') + row('Average commute (driving to work)', t.avg ? t.avg.toFixed(1) + ' min' : '—') + row('Failed commutes last month', fmt(failed.last), `${fmt(failed.total)} total`) + row('Demand penalty from jams', pc(jamPenalty))
         + row('Trips by purpose', Object.entries(t.kinds).map(([k, v]) => `${k} ${fmt(v)}`).join(' · ') || '—')
+        + liveVeh()
         + h('Transit & freight') + row('Bus ridership', fmt(st.busRiders) + ' trips/day') + row('Bus stops · buses running', `${stops.length} · ${cars.filter(c => c.bus).length}`) + row('Freight trucks', fmt(st.trucks) + '/day')
         + h('Parking') + row('Spaces in use at peak', `${fmt(t.occ)} / ${fmt(t.spaces)}`, t.spaces ? pc(t.occ / t.spaces) : '') + row('Cars without a space', fmt(st.unparkedCars)) + row('Shoppers lost to parking', fmt(st.lostShoppers) + '/day'); }
     else if (dataTab === 'Population') { const A = DEMOG.age;

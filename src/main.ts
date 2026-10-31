@@ -294,7 +294,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (wide(stem[0], stem[1])) return { k: 'L', stops: [], ph, cyc: 45, g0: 0.5, mode: 'auto' };
     return { k: 'S', stops: [stem[2]], ph: 0, cyc: 45, g0: 0.5, mode: 'auto' }; };
   const building = (i: number, j: number) => { for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) if (inb(i + a, j + b) && road[i + a][j + b] && rstage[i + a][j + b]) return true; return false; };
-  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3) { autoCtl.delete(k); return null; }
+  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3 || taperAt(i, j)) { autoCtl.delete(k); return null; } // a taper (avenue narrowing into a street) is a merge, not an intersection
     let auto = autoCtl.get(k); if (!auto || !building(i, j)) { const r = autoRule(i, j); if (r) { auto = r; autoCtl.set(k, r); } } // changes apply only once construction finishes
     const o = ixSet.get(k); if (!o || o.mode === 'auto') return auto ?? null;
     const ph = (i * 7 + j * 13) % 15, base = { ph, cyc: o.cyc || 45, g0: o.split === 'even' ? 0.5 : busyShare(i, j), mode: o.mode };

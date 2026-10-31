@@ -1,3 +1,4 @@
+import { mountUI2 } from './ui2';
 import { TripSim, carsOf } from './trips';
 import { PARKING, TRIPS, RESIDENTS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience } from './audio';
@@ -1239,6 +1240,7 @@ function diamond(g: Graphics, i: number, j: number) {
     setInterval(() => { d.textContent = `renderer ${app.renderer.name} ${app.canvas.width}x${app.canvas.height} dpr ${devicePixelRatio}\ncam ${camX.toFixed(0)},${camY.toFixed(0)} zoom ${zoom.toFixed(3)} far ${far}\nworld vis ${world.visible} a ${world.alpha}\n` + world.children.map((c, k) => `${k} vis ${c.visible} a ${c.alpha.toFixed(2)} n ${c.children.length}`).join('\n'); }, 500); }
   document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
   setFxVisibility();
+  mountUI2();
   let clock = 0, windF = -1, chunkErr = false;
   let night = 0;
   function applyNight(n: number) { // function declaration: hoisted, because setFxVisibility can call it during init (day/night off) // objects are tinted to match the shading (per visible chunk, lazily); lights fade in additively

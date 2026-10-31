@@ -8,6 +8,8 @@ const weights = new Map<string, number>(); // variant name -> pick weight (defau
 const variants = new Map<string, string[]>(); // grass -> [grass_a, grass_b, ...]
 const aliasOf = new Map<string, string>();   // bld_R_1 -> bld_R_1_a
 const nights = new Map<string, string>();
+const autot: Record<string, any> = {}; // manifest autotile rules (roundabout geometry etc.)
+export const autotile = (k: string) => autot[k];
 const meta = new Map<string, any>();           // asset name -> its manifest entry (vehicle body fields etc.)     // building asset -> its night-lights overlay (bld_R_1_a -> bld_R_1_a_night)
 /** Game keys that map onto differently-named art. Add entries here as new art arrives. */
 const ALIAS: Record<string, string> = { grid: 'grid_overlay', civic_school: 'school_elem', civic_highschool: 'school_high', civic_police: 'police', civic_fire: 'fire_station', civic_clinic: 'clinic', civic_hospital: 'hospital' };
@@ -19,7 +21,7 @@ export async function loadManifest() { // the base art set, then add-on sets mer
 async function loadOne(url: string) {
   let m: any;
   try { m = await (await fetch(url)).json(); } catch { return; }
-  const defScale = m.displayScale ?? 1;
+  const defScale = m.displayScale ?? 1; Object.assign(autot, m.autotile ?? {});
   await Promise.all((m.assets ?? []).map(async (a: any) => {
     try {
       const tex: Texture = await Assets.load('./assets/' + a.file);

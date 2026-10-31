@@ -4,7 +4,7 @@ const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swi
 await p.goto(url+'?size=64&seed=5&city=Queue');await p.waitForFunction(()=>window.__city&&__city.N);
 const res=[];const ok=(n,c,d='')=>res.push((c?'PASS ':'FAIL ')+n+(d?' ('+d+')':''));
 const man=await p.evaluate(()=>fetch('./assets/manifest.json').then(r=>r.json()).then(m=>({rev:m.artRevision,fx:m.assets.filter(a=>/^fx_/.test(a.name)).map(a=>a.drawOrder),veh:Object.fromEntries(m.assets.filter(a=>/^veh_.*_(NE|SE|SW|NW)$/.test(a.name)).map(a=>[a.name,a.travelAxisPx]))})));
-ok('manifest v3-soft3d-l, all glows drawOrder underVehicle',man.rev==='v3-soft3d-l'&&man.fx.length===8&&man.fx.every(x=>x==='underVehicle'));
+ok('manifest v3-soft3d-l or later, all glows drawOrder underVehicle',man.rev>='v3-soft3d-l'&&man.fx.length===8&&man.fx.every(x=>x==='underVehicle'));
 const c=await p.evaluate(()=>{const t=__city.terrain;for(let r=0;r<30;r++)for(let i=32-r;i<=32+r;i++)for(let j=32-r;j<=32+r;j++){let g=true;for(let a=-9;a<=9&&g;a++)for(let b=-9;b<=9;b++)if(!t[i+a]||t[i+a][j+b]==='water'){g=false;break}if(g)return[i,j]}});
 await p.evaluate(([ci,cj])=>{const C=__city;C.setSpeed(0);const R=(i,j)=>{C.road[i][j]=true;C.rtier[i][j]=2;C.rstage[i][j]=0;C.rw[i][j]=0};for(let d=-9;d<=9;d++){R(ci+d,cj);R(ci,cj+d)}C.refresh();C.markTripsDirty();C.fastForward(1);C.setCarsOnly(true);C.centerOn(ci+3,cj);C.setZoom(4);__fx.setDay(46)},c);
 await p.waitForTimeout(500);

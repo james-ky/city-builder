@@ -8,7 +8,7 @@ const r=await p.evaluate(([ci,cj])=>{const C=__city,N=C.N();C.setRoadTier(2);C.s
  const hs=[];for(let j=cj-2;j<=cj+2;j++)if(C.rw[ci][j]>=2)hs.push([j,C.rpd[ci][j]]);return {hs,N}},c);
 ok('avenue is two halves with partners',r.hs.length===2,JSON.stringify(r.hs));
 await p.waitForTimeout(800);
-const paint=await p.evaluate(()=>{let n=0;const walk=o=>{if(o.__avLanes)n++;for(const k of o.children||[])walk(k)};Object.values(__city.layers).forEach(walk);return n});
+const paint=await p.evaluate(()=>__city.avPaint());
 ok('3-lane paint drawn on the avenue straights',paint>=20,'tiles '+paint);
 const off=await p.evaluate(([ci,cj,hs])=>{const C=__city,N=C.N(),out=[];for(const [j,pd] of hs){const dir=pd===1?1:-1,route=[];for(let k=-8;k<=8;k++)route.push((ci+dir*k)*N+j);
  const row=[];for(let ln=0;ln<3;ln++){C.spawnCar(route.slice(ln*3));const x=C.cars()[C.cars().length-1];x.ln=ln;row.push(x)}out.push(row.length)}return out},[c[0],c[1],r.hs]);

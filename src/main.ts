@@ -360,7 +360,8 @@ function diamond(g: Graphics, i: number, j: number) {
     g.poly(quad(-0.5, 0.5, AV_D1 - 0.012, AV_D1)).fill(conc ? 0xe2e0d8 : 0xcfcdc6); // curb
     g.poly(quad(-0.5, 0.5, AV_D0, AV_D0 + 0.012)).fill(0xd8c060);                  // median edge line
     for (const k of [1, 2]) { const d = AV_D0 + AV_LANE * k; for (let s = -0.5; s < 0.5; s += 0.25) g.poly(quad(s + 0.03, s + 0.155, d - 0.008, d + 0.008)).fill(conc ? 0x8f8b82 : 0xe8e8e2); }
-    (g as any).__avLanes = true; return g; };
+    (g as any).__avLanes = true; avPaint++; return g; };
+  let avPaint = 0; // avenue half tiles painted with 3-lane markings (tests)
   /** lane centres of an avenue half, from the median edge (lane 0 beside the median) */
   const AV_LN = [0, 1, 2].map(k => AV_D0 + AV_LANE * (k + 0.5));
   const drawRoadTile = (ch: Chunk, i: number, j: number, x: number, y: number, m: number, seed: number) => {
@@ -958,7 +959,7 @@ function diamond(g: Graphics, i: number, j: number) {
   { const prevHook = toolHook; toolHook = t => { prevHook?.(t); if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); }; }
   document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) location.href = location.pathname; };
   // ---- Budget panel (button + B) ----
-  Object.assign((window as any).__city, { rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
+  Object.assign((window as any).__city, { avPaint: () => avPaint, rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
   const budgetEl = document.getElementById('budget')!;
   const money = (v: number) => (v < 0 ? '−$' : '$') + Math.abs(Math.round(v)).toLocaleString();
   const renderBudget = () => {

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "artRevision": "v3-soft3d-l",
+ "artRevision": "v3-soft3d-n",
  "displayScale": 0.5,
  "baseTile": [
   64,
@@ -424,7 +424,7 @@
    },
    "files": "roads/avenue_asphalt_<mask>@2x.png",
    "count": 16,
-   "rule": "20 m per tile. One carriageway per tile: 2 lanes x 3.3 m, 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.1325 and 0.2975 tile from the median line (shared edge of the two halves). Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
+   "rule": "20 m per tile. One carriageway per tile: 3 lanes x 3.2 m (carriageway 9.6 m = a 0.45-0.93), 1.4 m half-median on the partner edge (2.8 m median total; matches the game's AV_D0/AV_D1), 1.75 m sidewalk, grass verge. Lane centres 0.15, 0.31 and 0.47 tile from the median line (shared edge of the two halves) = 0.08, 0.24, 0.40 tile from the median curb. Right-hand traffic: inner (fast/left-turn) lane 0.15. Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
   },
   "avenue_concrete": {
    "bits": {
@@ -453,7 +453,7 @@
    },
    "files": "roads/avenue_concrete_<mask>@2x.png",
    "count": 16,
-   "rule": "20 m per tile. One carriageway per tile: 2 lanes x 3.3 m, 1.0 m half-median on the partner edge (2.0 m median total), 1.75 m sidewalk, grass verge. Lane centres 0.1325 and 0.2975 tile from the median line (shared edge of the two halves). Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
+   "rule": "20 m per tile. One carriageway per tile: 3 lanes x 3.2 m (carriageway 9.6 m = a 0.45-0.93), 1.4 m half-median on the partner edge (2.8 m median total; matches the game's AV_D0/AV_D1), 1.75 m sidewalk, grass verge. Lane centres 0.15, 0.31 and 0.47 tile from the median line (shared edge of the two halves) = 0.08, 0.24, 0.40 tile from the median curb. Right-hand traffic: inner (fast/left-turn) lane 0.15. Set the bit toward the partner half as well as along the road: a 3-bit mask = straight half, median on the odd arm, sidewalk on the missing side. 15 = open intersection; 0/1/2-bit masks use the street layout."
   },
   "avenue_extras": {
    "tiers": [
@@ -462,7 +462,7 @@
    ],
    "files": "roads/avenue_<tier>_<kind>_<key>@2x.png",
    "metresPerTile": 20,
-   "profile": "a = 0 at the outer edge .. 1 at the partner (median) edge: verge <0.5325 | sidewalk 0.5325-0.62 | lanes 0.62-0.95 (2 x 3.3 m) | half-median 0.95-1.0. Lane centres 0.1325 / 0.2975 tile from the median line.",
+   "profile": "verge a<0.3625 | sidewalk 0.3625-0.45 (1.75 m) | carriageway 0.45-0.93 (3 x 3.2 m; lane edges 0.45/0.61/0.77/0.93, dashed lines 0.61/0.77; white edge line ~2 px at a 0.46-0.48) | half-median 0.93-1.0 (1.4 m). Lane centres 0.15 / 0.31 / 0.47 tile from the median line = game AV_LN; median curb 0.07 = AV_D0, outer curb 0.55 = AV_D1.",
    "LR": "Standing in the tile facing the partner edge P: L = counter-clockwise edge, R = clockwise edge (clockwise order NE->SE->SW->NW). Partner NE: L=NW, R=SE; SE: L=NE, R=SW; SW: L=SE, R=NW; NW: L=SW, R=NE.",
    "kinds": {
     "end_<P>_<L|R>": "half enters through edge L/R and ends; median stops, lanes open across P into the partner end tile (U-turn). Pair: end_<P>_<s> with the partner end tile entering from the same edge direction.",
@@ -474,6 +474,23 @@
    },
    "example_bend": "avenue along j (i=3 partner SE, i=4 partner NW) turning toward +i: (4,6)=corner_NW_R, (3,7)=corner_outer_E, (3,6)=half mask 7, (4,7)=half mask 11, then (i,6)=mask 14 / (i,7)=mask 11 for i>=5.",
    "note": "Avenue meets 2-lane roads: the street (12 m) profile is used on the outer edge; legacy road_* tiles are 10 m-era and do not match."
+  },
+  "avenue_taper": {
+   "tiers": [
+    "asphalt",
+    "concrete"
+   ],
+   "kinds": [
+    "street",
+    "dirt"
+   ],
+   "files": "roads/avenue_<tier>_taper_<kind>_<D>_<P>_<role>@2x.png",
+   "count": 64,
+   "metresPerTile": 20,
+   "naming": "D = edge toward the narrower road; P = this tile's partner (median) edge, perpendicular to D; role main = the half the narrow road continues from (road centred on this tile), side = its partner half (ends in grass at D). Pair: ..._<D>_<P>_main with ..._<D>_<opp P>_side.",
+   "rule": "Use on the LAST avenue cell pair before a narrower road. For an avenue half tile with partner bit pd: for an along bit D (D != pd, D != opp pd) with (m & D) and neighbour rw < 2 (street or 2-lane): role=main. For its partner tile (partner at opp pd): if the main tile's D neighbour is narrow and its own D neighbour is not a road, role=side. kind = 'dirt' when that narrow neighbour is rw 0 and tier dirt, else 'street' (street rw 1, and paved 2-lane, which already draws street_<tier> via the jn rule). Tier = the avenue's tier. Skip the avenueLanes overlay on taper tiles. For kind dirt, do NOT apply the jn paved-apron rule to the dirt tile beyond: road_dirt_<mask> joins directly.",
+   "geometry": "Pair across-coord c from the median line (+ toward main's outer edge; main tile c 0..1, side -1..0); t 0 at the avenue edge -> 1 at edge D; s = smoothstep((t-0.08)/0.84). Median line 0 -> 0.5 (main tile centre). Main outer curb 0.55 -> 0.8 (street) / 0.93 (dirt); side outer curb -0.55 -> 0.2 / 0.07. Median 0.07 half-width closes by s 0.45 (nose ~t 0.45), then double yellow. 3 lanes per direction until s 0.42 (t ~0.45), then 2 lanes; inner lane line slides from 1/3 to 1/2 of the carriageway. Lane DROP is the outer (curb) lane of one direction: the main half's direction if D == R(P_main) (i.e. the main half's traffic flows toward D), otherwise the side half's direction; merge arrows in that lane at t 0.18 and 0.40. Last 30% of the tile crossfades into the street/road_dirt art (dirt: markings end at t 0.75). Vehicles: outer lane (0.47 from median) merges into middle lane by t 0.45; at t=1 the 2 lanes per direction sit at the street lanes (+-0.075/+-0.225 from road centre, street) or a single lane each way (dirt, +-0.15).",
+   "LR": "Same as avenue_extras: R(P) = clockwise neighbour of P (NE->SE->SW->NW)."
   }
  },
  "assets": [
@@ -496,7 +513,7 @@
    "layer": "ground",
    "variantOf": "grass",
    "variant": "a",
-   "weight": 1.0,
+   "weight": 1,
    "features": [
     "noise",
     "mowing tone",
@@ -522,7 +539,7 @@
    "layer": "ground",
    "variantOf": "grass",
    "variant": "b",
-   "weight": 1.0,
+   "weight": 1,
    "features": [
     "noise",
     "mowing tone",
@@ -548,7 +565,7 @@
    "layer": "ground",
    "variantOf": "grass",
    "variant": "c",
-   "weight": 1.0,
+   "weight": 1,
    "features": [
     "noise",
     "mowing tone",
@@ -17721,7 +17738,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -17757,7 +17774,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -17792,7 +17809,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -17829,7 +17846,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -17864,7 +17881,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -17901,7 +17918,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -17936,7 +17953,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -17973,7 +17990,7 @@
     "approachTravelDir": "NE",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      11.2
     ],
     "uvFromTileCentre": [
@@ -18008,7 +18025,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      -22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      -0.35,
@@ -18043,7 +18060,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      -22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      -0.35,
@@ -18080,7 +18097,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      -22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      -0.35,
@@ -18115,7 +18132,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      -22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      -0.35,
@@ -18152,7 +18169,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      -22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      -0.35,
@@ -18187,7 +18204,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      -22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      -0.35,
@@ -18224,7 +18241,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      -22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      -0.35,
@@ -18257,7 +18274,7 @@
     "approachTravelDir": "SW",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      -11.2
     ],
     "uvFromTileCentre": [
@@ -18292,7 +18309,7 @@
     "approachTravelDir": "SW",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      -11.2
     ],
     "uvFromTileCentre": [
@@ -18329,7 +18346,7 @@
     "approachTravelDir": "SW",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      -11.2
     ],
     "uvFromTileCentre": [
@@ -18364,7 +18381,7 @@
     "approachTravelDir": "SW",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      -11.2
     ],
     "uvFromTileCentre": [
@@ -18401,7 +18418,7 @@
     "approachTravelDir": "SW",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      -11.2
     ],
     "uvFromTileCentre": [
@@ -18436,7 +18453,7 @@
     "approachTravelDir": "SW",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      -11.2
     ],
     "uvFromTileCentre": [
@@ -18473,7 +18490,7 @@
     "approachTravelDir": "SW",
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
-     0.0,
+     0,
      -11.2
     ],
     "uvFromTileCentre": [
@@ -18508,7 +18525,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -18544,7 +18561,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -18579,7 +18596,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -18616,7 +18633,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -18651,7 +18668,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -18688,7 +18705,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -18723,7 +18740,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -18760,7 +18777,7 @@
     "rule": "right-hand traffic: post on the right-hand corner before the intersection, centred on the sidewalk (0.30-0.40 band, at 0.35)",
     "screenOffsetGamePx": [
      22.4,
-     0.0
+     0
     ],
     "uvFromTileCentre": [
      0.35,
@@ -24358,7 +24375,13 @@
    },
    "shape": "t_no_nw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_8",
@@ -24474,7 +24497,13 @@
    },
    "shape": "t_no_sw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_12",
@@ -24533,7 +24562,13 @@
    },
    "shape": "t_no_se",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_14",
@@ -24563,7 +24598,13 @@
    },
    "shape": "t_no_ne",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_15",
@@ -24821,7 +24862,13 @@
    },
    "shape": "t_no_nw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_8",
@@ -24937,7 +24984,13 @@
    },
    "shape": "t_no_sw",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_12",
@@ -24996,7 +25049,13 @@
    },
    "shape": "t_no_se",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_14",
@@ -25026,7 +25085,13 @@
    },
    "shape": "t_no_ne",
    "category": "road",
-   "metresPerTile": 20
+   "metresPerTile": 20,
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_15",
@@ -25087,7 +25152,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NE_L",
@@ -25120,7 +25191,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_NE_R",
@@ -25150,7 +25227,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NE_R",
@@ -25183,7 +25266,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_NE",
@@ -25214,7 +25303,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_NE",
@@ -25243,7 +25338,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_NE",
@@ -25274,7 +25375,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SE_L",
@@ -25304,7 +25411,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SE_L",
@@ -25337,7 +25450,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SE_R",
@@ -25367,7 +25486,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SE_R",
@@ -25400,7 +25525,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_SE",
@@ -25431,7 +25562,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_SE",
@@ -25460,7 +25597,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_SE",
@@ -25491,7 +25634,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SW_L",
@@ -25521,7 +25670,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SW_L",
@@ -25554,7 +25709,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_SW_R",
@@ -25584,7 +25745,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_SW_R",
@@ -25617,7 +25784,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_SW",
@@ -25648,7 +25821,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_SW",
@@ -25677,7 +25856,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_SW",
@@ -25708,7 +25893,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_NW_L",
@@ -25738,7 +25929,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NW_L",
@@ -25771,7 +25968,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_end_NW_R",
@@ -25801,7 +26004,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_NW_R",
@@ -25834,7 +26043,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_tee_NW",
@@ -25865,7 +26080,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_gap_NW",
@@ -25894,7 +26115,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_cross_NW",
@@ -25925,7 +26152,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_N",
@@ -25953,7 +26186,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_E",
@@ -25981,7 +26220,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_S",
@@ -26009,7 +26254,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_asphalt_corner_outer_W",
@@ -26037,7 +26288,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NE_L",
@@ -26067,7 +26324,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NE_L",
@@ -26100,7 +26363,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NE_R",
@@ -26130,7 +26399,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NE_R",
@@ -26163,7 +26438,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_NE",
@@ -26194,7 +26475,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_NE",
@@ -26223,7 +26510,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_NE",
@@ -26254,7 +26547,13 @@
      "SW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SE_L",
@@ -26284,7 +26583,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SE_L",
@@ -26317,7 +26622,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SE_R",
@@ -26347,7 +26658,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SE_R",
@@ -26380,7 +26697,13 @@
      "SE",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_SE",
@@ -26411,7 +26734,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_SE",
@@ -26440,7 +26769,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_SE",
@@ -26471,7 +26806,13 @@
      "NW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SW_L",
@@ -26501,7 +26842,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SW_L",
@@ -26534,7 +26881,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_SW_R",
@@ -26564,7 +26917,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_SW_R",
@@ -26597,7 +26956,13 @@
      "SW",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_SW",
@@ -26628,7 +26993,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_SW",
@@ -26657,7 +27028,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_SW",
@@ -26688,7 +27065,13 @@
      "NE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NW_L",
@@ -26718,7 +27101,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NW_L",
@@ -26751,7 +27140,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_end_NW_R",
@@ -26781,7 +27176,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_NW_R",
@@ -26814,7 +27215,13 @@
      "NW",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_tee_NW",
@@ -26845,7 +27252,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_gap_NW",
@@ -26874,7 +27287,13 @@
      "NE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_cross_NW",
@@ -26905,7 +27324,13 @@
      "SE",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_N",
@@ -26933,7 +27358,13 @@
      "NW",
      "NE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_E",
@@ -26961,7 +27392,13 @@
      "NE",
      "SE"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_S",
@@ -26989,7 +27426,13 @@
      "SE",
      "SW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "avenue_concrete_corner_outer_W",
@@ -27017,7 +27460,13 @@
      "SW",
      "NW"
     ]
-   }
+   },
+   "laneOffsetTilesFromMedian": [
+    0.15,
+    0.31,
+    0.47
+   ],
+   "lanes": 3
   },
   {
    "name": "civic_garage",
@@ -35387,13 +35836,2349 @@
    "placeAt": "taillightOffsetPx",
    "style": "soft3d",
    "drawOrder": "underVehicle"
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NE_NW_main",
+   "file": "roads/avenue_asphalt_taper_street_NE_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_NE_SE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NE_SE_side",
+   "file": "roads/avenue_asphalt_taper_street_NE_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_NE_NW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NE_SE_main",
+   "file": "roads/avenue_asphalt_taper_street_NE_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_NE_NW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NE_NW_side",
+   "file": "roads/avenue_asphalt_taper_street_NE_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_NE_SE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SE_NE_main",
+   "file": "roads/avenue_asphalt_taper_street_SE_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_SE_SW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SE_SW_side",
+   "file": "roads/avenue_asphalt_taper_street_SE_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_SE_NE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SE_SW_main",
+   "file": "roads/avenue_asphalt_taper_street_SE_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_SE_NE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SE_NE_side",
+   "file": "roads/avenue_asphalt_taper_street_SE_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_SE_SW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SW_SE_main",
+   "file": "roads/avenue_asphalt_taper_street_SW_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_SW_NW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SW_NW_side",
+   "file": "roads/avenue_asphalt_taper_street_SW_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_SW_SE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SW_NW_main",
+   "file": "roads/avenue_asphalt_taper_street_SW_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_SW_SE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_SW_SE_side",
+   "file": "roads/avenue_asphalt_taper_street_SW_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_SW_NW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NW_SW_main",
+   "file": "roads/avenue_asphalt_taper_street_NW_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_NW_NE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NW_NE_side",
+   "file": "roads/avenue_asphalt_taper_street_NW_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_NW_SW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NW_NE_main",
+   "file": "roads/avenue_asphalt_taper_street_NW_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_street_NW_SW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_street_NW_SW_side",
+   "file": "roads/avenue_asphalt_taper_street_NW_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_street_NW_NE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NE_NW_main",
+   "file": "roads/avenue_asphalt_taper_dirt_NE_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_NE_SE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NE_SE_side",
+   "file": "roads/avenue_asphalt_taper_dirt_NE_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_NE_NW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NE_SE_main",
+   "file": "roads/avenue_asphalt_taper_dirt_NE_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_NE_NW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NE_NW_side",
+   "file": "roads/avenue_asphalt_taper_dirt_NE_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_NE_SE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SE_NE_main",
+   "file": "roads/avenue_asphalt_taper_dirt_SE_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_SE_SW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SE_SW_side",
+   "file": "roads/avenue_asphalt_taper_dirt_SE_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_SE_NE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SE_SW_main",
+   "file": "roads/avenue_asphalt_taper_dirt_SE_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_SE_NE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SE_NE_side",
+   "file": "roads/avenue_asphalt_taper_dirt_SE_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_SE_SW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SW_SE_main",
+   "file": "roads/avenue_asphalt_taper_dirt_SW_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_SW_NW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SW_NW_side",
+   "file": "roads/avenue_asphalt_taper_dirt_SW_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_SW_SE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SW_NW_main",
+   "file": "roads/avenue_asphalt_taper_dirt_SW_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_SW_SE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_SW_SE_side",
+   "file": "roads/avenue_asphalt_taper_dirt_SW_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_SW_NW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NW_SW_main",
+   "file": "roads/avenue_asphalt_taper_dirt_NW_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_NW_NE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NW_NE_side",
+   "file": "roads/avenue_asphalt_taper_dirt_NW_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_NW_SW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NW_NE_main",
+   "file": "roads/avenue_asphalt_taper_dirt_NW_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_asphalt_taper_dirt_NW_SW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_asphalt_taper_dirt_NW_SW_side",
+   "file": "roads/avenue_asphalt_taper_dirt_NW_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "asphalt",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_asphalt_taper_dirt_NW_NE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_street_NE_NW_main",
+   "file": "roads/avenue_concrete_taper_street_NE_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_NE_SE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_NE_SE_side",
+   "file": "roads/avenue_concrete_taper_street_NE_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_NE_NW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_NE_SE_main",
+   "file": "roads/avenue_concrete_taper_street_NE_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_NE_NW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_NE_NW_side",
+   "file": "roads/avenue_concrete_taper_street_NE_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_NE_SE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SE_NE_main",
+   "file": "roads/avenue_concrete_taper_street_SE_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_SE_SW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SE_SW_side",
+   "file": "roads/avenue_concrete_taper_street_SE_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_SE_NE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SE_SW_main",
+   "file": "roads/avenue_concrete_taper_street_SE_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_SE_NE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SE_NE_side",
+   "file": "roads/avenue_concrete_taper_street_SE_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_SE_SW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SW_SE_main",
+   "file": "roads/avenue_concrete_taper_street_SW_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_SW_NW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SW_NW_side",
+   "file": "roads/avenue_concrete_taper_street_SW_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_SW_SE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SW_NW_main",
+   "file": "roads/avenue_concrete_taper_street_SW_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_SW_SE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_SW_SE_side",
+   "file": "roads/avenue_concrete_taper_street_SW_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_SW_NW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_NW_SW_main",
+   "file": "roads/avenue_concrete_taper_street_NW_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_NW_NE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_NW_NE_side",
+   "file": "roads/avenue_concrete_taper_street_NW_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_NW_SW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_NW_NE_main",
+   "file": "roads/avenue_concrete_taper_street_NW_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_street_NW_SW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_street_NW_SW_side",
+   "file": "roads/avenue_concrete_taper_street_NW_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "street",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_street_NW_NE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 2
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NE_NW_main",
+   "file": "roads/avenue_concrete_taper_dirt_NE_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_NE_SE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NE_SE_side",
+   "file": "roads/avenue_concrete_taper_dirt_NE_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_NE_NW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NE_SE_main",
+   "file": "roads/avenue_concrete_taper_dirt_NE_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_NE_NW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SW",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NE_NW_side",
+   "file": "roads/avenue_concrete_taper_dirt_NE_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NE",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_NE_SE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SE_NE_main",
+   "file": "roads/avenue_concrete_taper_dirt_SE_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_SE_SW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SE_SW_side",
+   "file": "roads/avenue_concrete_taper_dirt_SE_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_SE_NE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SE_SW_main",
+   "file": "roads/avenue_concrete_taper_dirt_SE_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_SE_NE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "NW",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SE_NE_side",
+   "file": "roads/avenue_concrete_taper_dirt_SE_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SE",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_SE_SW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SW_SE_main",
+   "file": "roads/avenue_concrete_taper_dirt_SW_SE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_SW_NW_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SW_NW_side",
+   "file": "roads/avenue_concrete_taper_dirt_SW_NW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_SW_SE_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SW_NW_main",
+   "file": "roads/avenue_concrete_taper_dirt_SW_NW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "NW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_SW_SE_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SW",
+    "NE",
+    "NW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_SW_SE_side",
+   "file": "roads/avenue_concrete_taper_dirt_SW_SE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "SW",
+    "partner": "SE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_SW_NW_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NW_SW_main",
+   "file": "roads/avenue_concrete_taper_dirt_NW_SW_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_NW_NE_side",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NW_NE_side",
+   "file": "roads/avenue_concrete_taper_dirt_NW_NE_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_NW_SW_main",
+    "laneDrop": "main"
+   },
+   "connects": [
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NW_NE_main",
+   "file": "roads/avenue_concrete_taper_dirt_NW_NE_main@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "NE",
+    "role": "main",
+    "pairWith": "avenue_concrete_taper_dirt_NW_SW_side",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "NW",
+    "SE",
+    "NE"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
+  },
+  {
+   "name": "avenue_concrete_taper_dirt_NW_SW_side",
+   "file": "roads/avenue_concrete_taper_dirt_NW_SW_side@2x.png",
+   "size": [
+    128,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "ground",
+   "category": "road",
+   "metresPerTile": 20,
+   "avenueTile": {
+    "kind": "taper",
+    "tier": "concrete",
+    "narrow": "dirt",
+    "toward": "NW",
+    "partner": "SW",
+    "role": "side",
+    "pairWith": "avenue_concrete_taper_dirt_NW_NE_main",
+    "laneDrop": "side"
+   },
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "lanesIn": 3,
+   "lanesOut": 1
   }
  ],
- "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 \u2014 see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix \u2014 builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas.",
+ "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 — see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix — builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas. | v3-soft3d-n: avenue art realigned to game AV_D0 0.07 (median 1.4 m half, no gutter, lane centres 0.15/0.31/0.47 = AV_LN), white edge line ~2 px; 64 avenue_<tier>_taper_<street|dirt>_<D>_<P>_<main|side> tiles (see PROMOTION_avenue_taper.txt).",
  "parts": {
   "manifest": "parts/manifest.json",
   "count": 88
  },
- "revision": "v3-soft3d-l",
+ "revision": "v3-soft3d-n",
  "vehicleBodyNote": "Vehicle collision/body fields (rev v3-soft3d-l). Travel axis = the vehicle's facing direction on the iso grid. bodyFront/bodyRear: signed distance in TILES (1 tile = 20 m) along the travel axis from the sprite anchor (vehicle ground centre) to the front/rear bumper; front positive, rear negative. lengthTiles = bodyFront - bodyRear (true bumper-to-bumper length, measured from Blender geometry incl. lamps, cross-checked against rendered alpha). Bumper-to-bumper queue: centre distance between follower F and leader L = F.bodyFront - L.bodyRear + gap, i.e. place F anchor at L anchor - (F.bodyFront - L.bodyRear + gap) along the axis. travelAxisPx = screen offset in 2x px for +1 tile along travel (SE [64,32], SW [-64,32], NE [64,-32], NW [-64,-32]); divide by 2 for 1x screen px. headlightOffsetPx/taillightOffsetPx = bodyFront/bodyRear * travelAxisPx, in 2x px from the vehicle anchor: put the anchor of headlightGlow/taillightGlow (fx_*, blend add, layer night) there. Both fx glows are ground light: draw them UNDER the vehicle sprites (drawOrder 'underVehicle'). A taillight glow drawn over the body puts red light on the box/cab side and reads as a reversed vehicle. The sprite canvas is NOT centred on the body (anchor x != 0.5) - never space cars by canvas width."
 }

@@ -294,7 +294,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (wide(stem[0], stem[1])) return { k: 'L', stops: [], ph, cyc: 45, g0: 0.5, mode: 'auto' };
     return { k: 'S', stops: [stem[2]], ph: 0, cyc: 45, g0: 0.5, mode: 'auto' }; };
   const building = (i: number, j: number) => { for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) if (inb(i + a, j + b) && road[i + a][j + b] && rstage[i + a][j + b]) return true; return false; };
-  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3) { autoCtl.delete(k); return null; }
+  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3 || taperAt(i, j)) { autoCtl.delete(k); return null; } // a taper (avenue narrowing into a street) is a merge, not an intersection
     let auto = autoCtl.get(k); if (!auto || !building(i, j)) { const r = autoRule(i, j); if (r) { auto = r; autoCtl.set(k, r); } } // changes apply only once construction finishes
     const o = ixSet.get(k); if (!o || o.mode === 'auto') return auto ?? null;
     const ph = (i * 7 + j * 13) % 15, base = { ph, cyc: o.cyc || 45, g0: o.split === 'even' ? 0.5 : busyShare(i, j), mode: o.mode };
@@ -346,24 +346,17 @@ function diamond(g: Graphics, i: number, j: number) {
     g.stroke({ width: 1, color: 0xffffff, alpha: 0.16 }); ch.gr.addChild(g); ch.ground = true; };
   // road tile: tier art if City Art Studio has drawn it (road_<tier>_<mask>), else the asphalt art recoloured, plus procedural construction overlays
   const TIERN = ['', 'dirt', 'asphalt', 'concrete'];
-  /** Avenue half, 3 lanes each way: the straight art only paints 2 narrow lanes (0.3 tile), so widen the carriageway into the verge
-   *  (median curb d=0.07 .. curb d=0.55 of the tile, measured from the shared median edge; 9.6 m = 3 x 3.2 m lanes) and paint 2 dashed lane lines. */
-  const AV_D0 = 0.07, AV_D1 = 0.55, AV_LANE = (AV_D1 - AV_D0) / 3;
-  const avenueLanes = (i: number, j: number, x: number, y: number, tier: number) => {
-    const pd = rpd[i][j], [pa, pb] = BITV[pd], q = toScreen(i, j), e = toScreen(i + pa, j + pb), ex = e.x - q.x, ey = e.y - q.y; // toward the partner half (median side)
-    const [ua, ub] = rw[i][j] === 2 ? [1, 0] : [0, 1], u = toScreen(i + ua, j + ub), ux = u.x - q.x, uy = u.y - q.y; // along the avenue
-    const P = (s: number, d: number): [number, number] => [x + ux * s + ex * (0.5 - d), y + uy * s + ey * (0.5 - d)];
-    const quad = (s0: number, s1: number, d0: number, d1: number) => [...P(s0, d0), ...P(s1, d0), ...P(s1, d1), ...P(s0, d1)];
-    const conc = tier === 3, g = new Graphics();
-    g.poly(quad(-0.5, 0.5, AV_D0, AV_D1)).fill(conc ? 0xbab7af : 0x5a616f);       // carriageway
-    g.poly(quad(-0.5, 0.5, AV_D1, AV_D1 + 0.1)).fill(conc ? 0xd6d3cb : 0xc3c0b7); // sidewalk
-    g.poly(quad(-0.5, 0.5, AV_D1 - 0.012, AV_D1)).fill(conc ? 0xe2e0d8 : 0xcfcdc6); // curb
-    g.poly(quad(-0.5, 0.5, AV_D0, AV_D0 + 0.012)).fill(0xd8c060);                  // median edge line
-    for (const k of [1, 2]) { const d = AV_D0 + AV_LANE * k; for (let s = -0.5; s < 0.5; s += 0.25) g.poly(quad(s + 0.03, s + 0.155, d - 0.008, d + 0.008)).fill(conc ? 0x8f8b82 : 0xe8e8e2); }
-    (g as any).__avLanes = true; avPaint++; return g; };
-  let avPaint = 0; // avenue half tiles painted with 3-lane markings (tests)
-  /** lane centres of an avenue half, from the median edge (lane 0 beside the median) */
-  const AV_LN = [0, 1, 2].map(k => AV_D0 + AV_LANE * (k + 0.5));
+  /** Avenue lane centres (tiles from the shared median edge, lane 0 beside the median), from the road art manifest (City Art Studio avenue6) */
+  let avLN: number[] | undefined; const AV_LN = () => avLN ??= (artMeta('avenue_asphalt_14')?.laneOffsetTilesFromMedian as number[] | undefined) ?? [0.15, 0.31, 0.47];
+  /** Avenue -> narrower road taper (City Art Studio avenue_taper): the last avenue pair before a street / 2-lane road. Returns the art suffix or ''. */
+  const narrowAt = (x: number, y: number) => inb(x, y) && road[x][y] && rw[x][y] < 2;
+  const taperAt = (i: number, j: number): string => { const pd = rpd[i][j]; if (!pd || rw[i][j] < 2) return '';
+    const DN: Record<number, string> = { 1: 'NE', 2: 'SE', 4: 'SW', 8: 'NW' }, axisB = rw[i][j] === 2 ? [2, 8] : [1, 4], [qi, qj] = [i + BITV[pd][0], j + BITV[pd][1]];
+    const kindOf = (x: number, y: number) => rw[x][y] === 0 && rtier[x][y] === 1 ? 'dirt' : 'street';
+    for (const D of axisB) { const [di, dj] = BITV[D];
+      if (narrowAt(i + di, j + dj) && link(i, j, di, dj)) return `taper_${kindOf(i + di, j + dj)}_${DN[D]}_${DN[pd]}_main`;
+      if (inb(qi, qj) && rpd[qi][qj] === OPP[pd] && narrowAt(qi + di, qj + dj) && !(inb(i + di, j + dj) && road[i + di][j + dj])) return `taper_${kindOf(qi + di, qj + dj)}_${DN[D]}_${DN[pd]}_side`; }
+    return ''; };
   const drawRoadTile = (ch: Chunk, i: number, j: number, x: number, y: number, m: number, seed: number) => {
     const st = rstage[i][j], shownTier = st === 0 ? rtier[i][j] : rfrom[i][j], base = 'road_' + (m || (hasArt('road_0') ? 0 : 1));
     let wk = wKind(rw[i][j]), wname = ['road', 'street', 'avenue'][wk];
@@ -375,12 +368,12 @@ function diamond(g: Graphics, i: number, j: number) {
         const ex = m === (Lb | Rb) ? (pOut ? `gap_${DN[pd]}` : '') : m === (Lb | Rb | O) ? (pOut ? `cross_${DN[pd]}` : `tee_${DN[pd]}`) : m === Lb ? `end_${DN[pd]}_L` : m === Rb ? `end_${DN[pd]}_R` : m === (Lb | O) ? `corner_${DN[pd]}_L` : m === (Rb | O) ? `corner_${DN[pd]}_R` : null;
         if (ex !== null && shownTier && (ex === '' || hasArt(`avenue_${TIERN[shownTier]}_${ex}`))) { artM = ex === '' ? (m | pd) : ex; picked = true; }
       }
+      if (pd && shownTier) { const tp = taperAt(i, j); if (tp && hasArt(`avenue_${TIERN[shownTier]}_${tp}`)) { artM = tp; picked = true; } }
       if (pd && !picked) { artM = axis | pd; over = m & ~axis; const cs = ((m & axis) === axis ? 'side-street T' : m === 0 ? 'isolated half' : over ? 'end/corner with side street' : 'avenue end') + ' m=' + m + ' pd=' + pd; avCases.set(cs, (avCases.get(cs) ?? 0) + 1); } }
-    let jn = false; if (!wk && shownTier) for (const bb of [1, 2, 4, 8]) { const [di, dj] = BITV[bb]; if ((m & bb) && inb(i + di, j + dj) && rw[i + di][j + dj] >= 2) jn = true; } // 2-lane road meeting an avenue: 12 m street junction tile so it matches the avenue's outer-edge profile
+    let jn = false; if (!wk && shownTier) for (const bb of [1, 2, 4, 8]) { const [di, dj] = BITV[bb]; if ((m & bb) && inb(i + di, j + dj) && rw[i + di][j + dj] >= 2 && !(shownTier === 1 && taperAt(i + di, j + dj).startsWith('taper_dirt') && hasArt(`avenue_${TIERN[rtier[i + di][j + dj]]}_${taperAt(i + di, j + dj)}`))) jn = true; } // 2-lane road meeting an avenue: 12 m street junction tile so it matches the avenue's outer-edge profile
     let apron = 0; if (jn && hasArt(`street_${TIERN[shownTier]}_${m}`)) { wk = 1; wname = 'street'; } else if (jn && hasArt(`street_asphalt_${m}`)) { wk = 1; wname = 'street'; apron = 2; } // dirt road meeting an avenue: paved apron tile (no dirt street art)
     const artT = apron || shownTier;
     if (shownTier && wk && hasArt(`${wname}_${TIERN[artT]}_${artM}`)) { place(`${wname}_${TIERN[artT]}_${artM}`, x, y, ch.rd, seed);
-      if (wk === 2 && rpd[i][j] && !over && (artM === ((rw[i][j] === 2 ? 10 : 5) | rpd[i][j]) || String(artM).startsWith('gap_'))) ch.rd.addChild(avenueLanes(i, j, x, y, shownTier));
       if (over) { const g = new Graphics(), col = shownTier === 3 ? 0xa9a59b : 0x4a4b50; // stopgap intersection overlay: pave over the median/curb toward each side street
         for (const b of [1, 2, 4, 8]) if (over & b) { const [di, dj] = BITV[b], e = toScreen(i + di / 2, j + dj / 2), q = toScreen(i, j), ex = x + e.x - q.x, ey = y + e.y - q.y;
           g.moveTo(x, y).lineTo(ex, ey).stroke({ width: 13, color: col }); }
@@ -959,7 +952,7 @@ function diamond(g: Graphics, i: number, j: number) {
   { const prevHook = toolHook; toolHook = t => { prevHook?.(t); if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); }; }
   document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) location.href = location.pathname; };
   // ---- Budget panel (button + B) ----
-  Object.assign((window as any).__city, { avPaint: () => avPaint, rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
+  Object.assign((window as any).__city, { avLanes: () => AV_LN(), taperAt: (i: number, j: number) => taperAt(i, j), avenueOK: (i: number, j: number, a: number, b: number) => avenueOK(i, j, a, b), rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
   const budgetEl = document.getElementById('budget')!;
   const money = (v: number) => (v < 0 ? '−$' : '$') + Math.abs(Math.round(v)).toLocaleString();
   const renderBudget = () => {
@@ -1417,9 +1410,13 @@ function diamond(g: Graphics, i: number, j: number) {
             if (m?.taillightGlow && hasArt(m.taillightGlow)) { c.tg = place(m.taillightGlow, 0, 0, glowL) as Sprite; c.tg.blendMode = 'add'; (c.tg as any).__off = m.taillightOffsetPx; } }
           c.n = placeNight(c.key + '_' + dir, 0, 0, ob); if (c.n) { (c.n as any).__veh = true; (c.n as any).__light = true; c.n.scale.set(c.n.scale.x * VSCALE, c.n.scale.y * VSCALE); }
         }
-        const avd0 = rw[c.i][c.j] >= 2 ? rpd[c.i][c.j] : 0, avd = avd0 && ((BITV[avd0][0] !== 0) !== (c.i !== c.pi)) ? avd0 : 0; let lx: number, ly: number;
-        if (avd) { const [di, dj] = BITV[avd], e = toScreen(c.i + di, c.j + dj), q = toScreen(c.i, c.j), px = e.x - q.x, py = e.y - q.y, k = 0.5 - AV_LN[Math.min(c.ln ?? 0, 2)]; lx = px * k; ly = py * k; } // avenue half: 3 lanes each way, 0.10 / 0.215 / 0.33 tile from the shared median edge (lane 0 beside the median)
-        else { const lf = rw[c.i][c.j] ? (c.ln ? 1.5 : 0.5) : 1; lx = LANE[dir][0] * lf; ly = LANE[dir][1] * lf; } // 0.15 tile; streets 0.075 / 0.225
+        const offAt = (ti: number, tj: number): [number, number] => { // lateral lane offset as if the car were on tile (ti,tj)
+          const avd0 = rw[ti][tj] >= 2 ? rpd[ti][tj] : 0, avd = avd0 && ((BITV[avd0][0] !== 0) !== (c.i !== c.pi)) ? avd0 : 0;
+          if (avd) { const [di, dj] = BITV[avd], e = toScreen(ti + di, tj + dj), q = toScreen(ti, tj), k = 0.5 - AV_LN()[Math.min(c.ln ?? 0, 2)]; return [(e.x - q.x) * k, (e.y - q.y) * k]; } // avenue half: 3 lanes each way from the median edge (lane 0 beside the median)
+          const lf = rw[ti][tj] ? (c.ln ? 1.5 : 0.5) : 1; return [LANE[dir][0] * lf, LANE[dir][1] * lf]; }; // 2-lane 0.15 tile; streets 0.075 / 0.225
+        let [lx, ly] = offAt(c.i, c.j);
+        if ((rw[c.pi][c.pj] >= 2) !== (rw[c.i][c.j] >= 2)) { // avenue <-> narrower road (taper): slide between the two lane layouts; the outer avenue lane merges into the street's
+          const [ox, oy] = offAt(c.pi, c.pj), u = Math.min(1, Math.max(0, (c.t - 0.1) / 0.8)), sm = u * u * (3 - 2 * u); lx = ox + (lx - ox) * sm; ly = oy + (ly - oy) * sm; }
         const x = a.x + dx * c.t + lx, y = a.y + dy * c.t + ly;
         c.s.position.set(x, y); c.s.zIndex = y + 1; // depth: same key as buildings (screen y)
         if (c.n) { c.n.position.set(x, y); c.n.zIndex = y + 1.01; c.n.alpha = night; c.n.visible = vis && night > 0.02; } (c.s as Sprite).tint = curTint;

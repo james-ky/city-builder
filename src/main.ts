@@ -78,6 +78,20 @@ function diamond(g: Graphics, i: number, j: number) {
   let roadTier: RoadTier = 2, roadW = 0;
   const wKind = (v: number) => v >= 2 ? 2 : v;
   const rpd: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // avenue halves: explicit partner direction bit (NE=1 SE=2 SW=4 NW=8), 0 = none
+  // roundabouts (small 1-lane, 3x3): rab = origin key (min i * N + min j) + 1, 0 = none. Ring cells in counter-clockwise screen order (right-hand traffic).
+  const rab: number[][] = [...Array(N)].map(() => Array(N).fill(0));
+  const RAB_RING: [number, number][] = [[1, 0], [0, 0], [0, 1], [0, 2], [1, 2], [2, 2], [2, 1], [2, 0]];
+  const RAB_ARMS: Record<string, { c: [number, number]; out: [number, number] }> = { NE: { c: [1, 0], out: [1, -1] }, NW: { c: [0, 1], out: [-1, 1] }, SW: { c: [1, 2], out: [1, 3] }, SE: { c: [2, 1], out: [3, 1] } };
+  const rabO = (i: number, j: number): [number, number] => { const v = rab[i][j] - 1; return [(v / N) | 0, v % N]; };
+  const rabOff = (i: number, j: number): [number, number] => { const [a, b] = rabO(i, j); return [i - a, j - b]; };
+  const rabArmOf = (di: number, dj: number) => Object.keys(RAB_ARMS).find(k => RAB_ARMS[k].c[0] === di && RAB_ARMS[k].c[1] === dj);
+  const rabCentre = (i: number, j: number) => !!rab[i][j] && rabOff(i, j)[0] === 1 && rabOff(i, j)[1] === 1;
+  const rabArmAt = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N && !!rab[i][j] && !!rabArmOf(...rabOff(i, j));
+  /** (i,j)->(i+a,j+b) allowed by roundabout rules: one-way round the ring (counter-clockwise), in/out only at the 4 arm cells */
+  const rabOK = (i: number, j: number, a: number, b: number) => { const x = i + a, y = j + b; if (x < 0 || y < 0 || x >= N || y >= N) return true; const ra = rab[i][j], rb = rab[x][y]; if (!ra && !rb) return true;
+    if (ra && rb) { if (ra !== rb) return false; const [di, dj] = rabOff(i, j), k = RAB_RING.findIndex(([p, q]) => p === di && q === dj); if (k < 0) return false; const [ni, nj] = RAB_RING[(k + 1) % 8]; return rabOff(x, y)[0] === ni && rabOff(x, y)[1] === nj; }
+    if (ra) { const arm = rabArmOf(...rabOff(i, j)); return !!arm && RAB_ARMS[arm].out[0] === x - rabO(i, j)[0] && RAB_ARMS[arm].out[1] === y - rabO(i, j)[1]; }
+    const arm = rabArmOf(...rabOff(x, y)); return !!arm && RAB_ARMS[arm].out[0] === i - rabO(x, y)[0] && RAB_ARMS[arm].out[1] === j - rabO(x, y)[1]; };
   const BITV: Record<number, [number, number]> = { 1: [0, -1], 2: [1, 0], 4: [0, 1], 8: [-1, 0] }, BITOF = (a: number, b: number) => b < 0 ? 1 : a > 0 ? 2 : b > 0 ? 4 : 8, OPP: Record<number, number> = { 1: 4, 2: 8, 4: 1, 8: 2 };
   const avCases = new Map<string, number>(); // stopgap avenue shapes drawn as straight half + overlay
   const zone: string[][] = [...Array(N)].map(() => Array(N).fill(''));
@@ -221,20 +235,21 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   const clear = (c: Container) => c.removeChildren().forEach(o => o.destroy());
   const isRoad = (i: number, j: number) => inb(i, j) && road[i][j];
+  const isFront = (i: number, j: number) => isRoad(i, j) && !rab[i][j]; // buildings can't front a roundabout cell
   const FACE: [string, number, number][] = [['Auto', 0, 0], ['NE', 0, -1], ['SE', 1, 0], ['SW', 0, 1], ['NW', -1, 0]]; // facing -> offset to the front road tile
   const capOf = (i: number, j: number) => zden[i][j] || 3;
   /** the road side a building on (i,j) faces: locked facing if that side has a road, else on Auto the busiest adjacent road (stable NE,SE,SW,NW tie-break); 0 = no road on the front */
   /** frontage tie-break for Auto: how many zoned tiles in a row along that road (up to 4 each way) also front it (corner lots face the street their row lines, not always SE) */
-  const front = (i: number, j: number, f: number) => { const di = FACE[f][2] ? 1 : 0, dj = 1 - di; let n = 0; for (const s of [-1, 1]) for (let k = 1; k <= 4; k++) { const a = i + di * s * k, b = j + dj * s * k; if (!(inb(a, b) && zone[a][b] && isRoad(a + FACE[f][1], b + FACE[f][2]))) break; n++; } return n; };
-  const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isRoad(a, b)) continue; const v = (volRef ? volRef[a * N + b] : 0) + 1e-4 * front(i, j, f); if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
-  const faceFor = (i: number, j: number, want: number) => want && isRoad(i + FACE[want][1], j + FACE[want][2]) ? want : autoFace(i, j); // a locked facing with no road on that side falls back to the busiest adjacent road
+  const front = (i: number, j: number, f: number) => { const di = FACE[f][2] ? 1 : 0, dj = 1 - di; let n = 0; for (const s of [-1, 1]) for (let k = 1; k <= 4; k++) { const a = i + di * s * k, b = j + dj * s * k; if (!(inb(a, b) && zone[a][b] && isFront(a + FACE[f][1], b + FACE[f][2]))) break; n++; } return n; };
+  const autoFace = (i: number, j: number) => { let best = 0, bv = -1; for (let f = 1; f <= 4; f++) { const a = i + FACE[f][1], b = j + FACE[f][2]; if (!isFront(a, b)) continue; const v = (volRef ? volRef[a * N + b] : 0) + 1e-4 * front(i, j, f); if (v > bv + 1e-6) { bv = v; best = f; } } return best; };
+  const faceFor = (i: number, j: number, want: number) => want && isFront(i + FACE[want][1], j + FACE[want][2]) ? want : autoFace(i, j); // a locked facing with no road on that side falls back to the busiest adjacent road
   const facingOf = (i: number, j: number) => faceFor(i, j, zface[i][j]);
   /** a civic building faces the side of its footprint with the most road (SE on ties/none) */
   const civFace = (c: { i: number; j: number; s: number }) => { let best = 2, bn = 0; for (const d of [2, 1, 3, 4]) { let n = 0; for (let t = 0; t < c.s; t++) { const [a, b] = d === 1 ? [c.i + t, c.j - 1] : d === 2 ? [c.i + c.s, c.j + t] : d === 3 ? [c.i + t, c.j + c.s] : [c.i - 1, c.j + t]; if (isRoad(a, b)) n++; } if (n > bn) { bn = n; best = d; } } return best; };
   /** every building needs its own road: a lot counts if its front edge touches a road on its facing side */
-  const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isRoad(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
+  const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isFront(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
   /** road tile in front of the building's entrance (-1 none) */
-  const entranceOf = (i: number, j: number) => { if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isRoad(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
+  const entranceOf = (i: number, j: number) => { if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isFront(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
   const drawFace = (i: number, j: number) => { const l = lot[i][j]; if (l) return FACE.findIndex(x => x[0] === l.dir); return facingOf(i, j) || zface[i][j] || 2; };
   const DENN = ['', 'Light', 'Medium', 'Dense'];
   const CAPNAME: Record<string, string[]> = { R: ['', 'single-family homes', 'up to mid-rise apartments', 'up to towers'], C: ['', 'storefronts', 'main-street blocks & small offices', 'up to office towers'], I: ['', 'workshops', 'mid-size factories', 'heavy industry'] };
@@ -257,8 +272,8 @@ function diamond(g: Graphics, i: number, j: number) {
   const guessPartners = () => { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) rpd[i][j] = 0; // old saves: pair halves side by side (along-i avenues pair on j, along-j on i)
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const v = rw[i][j]; if (v < 2 || rpd[i][j]) continue; const [a, b] = v === 2 ? [0, 1] : [1, 0];
       if (inb(i + a, j + b) && rw[i + a][j + b] === v && !rpd[i + a][j + b]) { rpd[i][j] = BITOF(a, b); rpd[i + a][j + b] = OPP[BITOF(a, b)]; } } };
-  const link = (i: number, j: number, a: number, b: number) => isRoad(i + a, j + b) && !partner(i, j, a, b);
-  const drivable = (i: number, j: number) => inb(i, j) && road[i][j] && (rstage[i][j] === 0 || rfrom[i][j] > 0);
+  const link = (i: number, j: number, a: number, b: number) => isRoad(i + a, j + b) && !partner(i, j, a, b) && rabOK(i, j, a, b);
+  const drivable = (i: number, j: number) => inb(i, j) && road[i][j] && (rstage[i][j] === 0 || rfrom[i][j] > 0) && !rabCentre(i, j);
   const roadWorks: number[] = []; // tiles under construction (i*N+j)
   const startRoad = (i: number, j: number, t: RoadTier, w = 0, pd = 0) => { rw[i][j] = w; rpd[i][j] = w >= 2 ? pd : 0; const up = road[i][j] && rtier[i][j] > 0 && rstage[i][j] === 0; rfrom[i][j] = up ? rtier[i][j] : 0; rtier[i][j] = t; rstage[i][j] = up ? 3 : 1; rday[i][j] = 0; road[i][j] = true; roadWorks.push(i * N + j); };
   const tickRoads = () => { for (let k = roadWorks.length - 1; k >= 0; k--) { const i = (roadWorks[k] / N) | 0, j = roadWorks[k] - i * N;
@@ -294,7 +309,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (wide(stem[0], stem[1])) return { k: 'L', stops: [], ph, cyc: 45, g0: 0.5, mode: 'auto' };
     return { k: 'S', stops: [stem[2]], ph: 0, cyc: 45, g0: 0.5, mode: 'auto' }; };
   const building = (i: number, j: number) => { for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) if (inb(i + a, j + b) && road[i + a][j + b] && rstage[i + a][j + b]) return true; return false; };
-  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3 || taperAt(i, j)) { autoCtl.delete(k); return null; } // a taper (avenue narrowing into a street) is a merge, not an intersection
+  const classify = (i: number, j: number): Ctl | null => { const k = i * N + j, ap = APPR.filter(([a, b]) => link(i, j, a, b)); if (ap.length < 3 || taperAt(i, j) || rab[i][j]) { autoCtl.delete(k); return null; } // a taper (avenue narrowing into a street) is a merge, not an intersection
     let auto = autoCtl.get(k); if (!auto || !building(i, j)) { const r = autoRule(i, j); if (r) { auto = r; autoCtl.set(k, r); } } // changes apply only once construction finishes
     const o = ixSet.get(k); if (!o || o.mode === 'auto') return auto ?? null;
     const ph = (i * 7 + j * 13) % 15, base = { ph, cyc: o.cyc || 45, g0: o.split === 'even' ? 0.5 : busyShare(i, j), mode: o.mode };
@@ -358,6 +373,7 @@ function diamond(g: Graphics, i: number, j: number) {
       if (inb(qi, qj) && rpd[qi][qj] === OPP[pd] && narrowAt(qi + di, qj + dj) && !(inb(i + di, j + dj) && road[i + di][j + dj])) return `taper_${kindOf(qi + di, qj + dj)}_${DN[D]}_${DN[pd]}_side`; }
     return ''; };
   const drawRoadTile = (ch: Chunk, i: number, j: number, x: number, y: number, m: number, seed: number) => {
+    if (rab[i][j] && rstage[i][j] === 0) { const [di, dj] = rabOff(i, j), k = `roundabout_${TIERN[rtier[i][j]]}_${di}${dj}`; if (hasArt(k)) { place(k, x, y, ch.rd, seed); return; } } // roundabout piece: no mask / avenue / junction rules
     const st = rstage[i][j], shownTier = st === 0 ? rtier[i][j] : rfrom[i][j], base = 'road_' + (m || (hasArt('road_0') ? 0 : 1));
     let wk = wKind(rw[i][j]), wname = ['road', 'street', 'avenue'][wk];
     let artM: number | string = m, over = 0, picked = false; // avenue art is keyed by its straight-half shape: along-axis bits + the partner bit (median side); 15 = intersection
@@ -370,7 +386,7 @@ function diamond(g: Graphics, i: number, j: number) {
       }
       if (pd && shownTier) { const tp = taperAt(i, j); if (tp && hasArt(`avenue_${TIERN[shownTier]}_${tp}`)) { artM = tp; picked = true; } }
       if (pd && !picked) { artM = axis | pd; over = m & ~axis; const cs = ((m & axis) === axis ? 'side-street T' : m === 0 ? 'isolated half' : over ? 'end/corner with side street' : 'avenue end') + ' m=' + m + ' pd=' + pd; avCases.set(cs, (avCases.get(cs) ?? 0) + 1); } }
-    let jn = false; if (!wk && shownTier) for (const bb of [1, 2, 4, 8]) { const [di, dj] = BITV[bb]; if ((m & bb) && inb(i + di, j + dj) && rw[i + di][j + dj] >= 2 && !(shownTier === 1 && taperAt(i + di, j + dj).startsWith('taper_dirt') && hasArt(`avenue_${TIERN[rtier[i + di][j + dj]]}_${taperAt(i + di, j + dj)}`))) jn = true; } // 2-lane road meeting an avenue: 12 m street junction tile so it matches the avenue's outer-edge profile
+    let jn = false; if (!wk && shownTier) for (const bb of [1, 2, 4, 8]) { const [di, dj] = BITV[bb]; if ((m & bb) && inb(i + di, j + dj) && (rw[i + di][j + dj] >= 2 || rabArmAt(i + di, j + dj)) && !(shownTier === 1 && taperAt(i + di, j + dj).startsWith('taper_dirt') && hasArt(`avenue_${TIERN[rtier[i + di][j + dj]]}_${taperAt(i + di, j + dj)}`))) jn = true; } // 2-lane road meeting an avenue: 12 m street junction tile so it matches the avenue's outer-edge profile
     let apron = 0; if (jn && hasArt(`street_${TIERN[shownTier]}_${m}`)) { wk = 1; wname = 'street'; } else if (jn && hasArt(`street_asphalt_${m}`)) { wk = 1; wname = 'street'; apron = 2; } // dirt road meeting an avenue: paved apron tile (no dirt street art)
     const artT = apron || shownTier;
     if (shownTier && wk && hasArt(`${wname}_${TIERN[artT]}_${artM}`)) { place(`${wname}_${TIERN[artT]}_${artM}`, x, y, ch.rd, seed);
@@ -980,9 +996,9 @@ function diamond(g: Graphics, i: number, j: number) {
   document.getElementById('budgetBtn')!.onclick = e => { e.stopPropagation(); toggleBudget(); };
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'b' && !(e.target instanceof HTMLInputElement)) toggleBudget(); });
   // ---- agent-based trips (logic in src/trips.ts): the cars on screen are sampled real trips ----
-  const trips = new TripSim({ N, seed: city.seed ?? 1, leisure: () => civs.filter(c => PARKS[c.type.slice(5)]?.leisure && isPark(c.type)).map(c => ({ k: c.i * N + c.j, draw: PARKS[c.type.slice(5)].leisure! })), entrance: (i, j) => entranceOf(i, j), drivable: (i, j) => drivable(i, j), linked: (i, j, a, b) => !partner(i, j, a, b) && avenueOK(i, j, a, b),
-    tileSecs: (i, j) => TRIPS.tileMeters / (TRIPS.speedKmh[(rtier[i][j] || 2)] * ROAD_WIDTHS[wKind(rw[i][j])].speedMul / 3.6),
-    capacity: (i, j) => TRIPS.dailyCapacityPerLane * ROAD_WIDTHS[wKind(rw[i][j])].tileLanes * ROAD_TIERS[(rtier[i][j] || 2) as RoadTier].capacity,
+  const trips = new TripSim({ N, seed: city.seed ?? 1, leisure: () => civs.filter(c => PARKS[c.type.slice(5)]?.leisure && isPark(c.type)).map(c => ({ k: c.i * N + c.j, draw: PARKS[c.type.slice(5)].leisure! })), entrance: (i, j) => entranceOf(i, j), drivable: (i, j) => drivable(i, j), linked: (i, j, a, b) => !partner(i, j, a, b) && avenueOK(i, j, a, b) && rabOK(i, j, a, b),
+    tileSecs: (i, j) => rab[i][j] ? TRIPS.tileMeters * 0.7 / (25 / 3.6) : TRIPS.tileMeters / (TRIPS.speedKmh[(rtier[i][j] || 2)] * ROAD_WIDTHS[wKind(rw[i][j])].speedMul / 3.6),
+    capacity: (i, j) => TRIPS.dailyCapacityPerLane * (rab[i][j] ? 1 : ROAD_WIDTHS[wKind(rw[i][j])].tileLanes) * ROAD_TIERS[(rtier[i][j] || 2) as RoadTier].capacity,
     residents: (i, j) => zone[i][j] === 'R' && bld[i][j] ? resCap(i, j) : 0, jobs: (i, j) => (zone[i][j] === 'C' || zone[i][j] === 'I') && bld[i][j] ? CAP[zone[i][j]][bld[i][j]] : 0,
     shop: (i, j) => zone[i][j] === 'C' && bld[i][j] > 0,
     nearRoads: (i, j) => { const l = lot[i][j], ts = l ? lotTiles(l) : [[i, j]], out: number[] = []; for (const [a, b] of ts) for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) { const p = a + x, q = b + y; if ((x || y) && inb(p, q) && drivable(p, q) && !out.includes(p * N + q)) out.push(p * N + q); } return out; },
@@ -1270,7 +1286,7 @@ function diamond(g: Graphics, i: number, j: number) {
   /** body extent along travel from the sprite anchor, in tiles (manifest bodyFront / -bodyRear); falls back to a 4.8 m car */
   const bodyOf = (c: Car) => { if (c.bf === undefined) { const a = artMeta(c.key + '_d00') ?? artMeta(c.key + '_NE'); c.bf = a?.bodyFront ?? 0.12; c.br = -(a?.bodyRear ?? -0.12); } return c; };
   const STOP_GAP = 1.5 / 20; // ≈ 1.5 m between bumpers in a stopped queue
-  const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => drivable(a, b) && !partner(i, j, a - i, b - j));
+  const roadNbrs = (i: number, j: number) => ([[0, -1], [1, 0], [0, 1], [-1, 0]] as const).map(([a, b]) => [i + a, j + b]).filter(([a, b]) => drivable(a, b) && !partner(i, j, a - i, b - j) && rabOK(i, j, a - i, b - j));
   const activity = (i: number, j: number) => { let v = 0; for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if (inb(i + a, j + b) && bld[i + a][j + b]) v += CAP[zone[i + a][j + b]][bld[i + a][j + b]]; return v; };
   const roadList = () => { const r: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (drivable(i, j)) r.push([i, j]); return r; };
   const water: [number, number][] = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (terrain[i][j] === 'water' && shoreMask(i, j) === 0) water.push([i, j]);

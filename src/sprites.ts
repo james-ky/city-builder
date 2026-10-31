@@ -13,9 +13,12 @@ const meta = new Map<string, any>();           // asset name -> its manifest ent
 const ALIAS: Record<string, string> = { grid: 'grid_overlay', civic_school: 'school_elem', civic_highschool: 'school_high', civic_police: 'police', civic_fire: 'fire_station', civic_clinic: 'clinic', civic_hospital: 'hospital' };
 
 /** Loads assets/manifest.json (art set format: version/assets[]/autotile). Missing art falls back to code drawing. */
-export async function loadManifest() {
+export async function loadManifest() { // the base art set, then add-on sets merged after it (16-direction vehicles)
+  await loadOne('./assets/manifest.json'); await loadOne('./assets/vehicles/manifest_16dir.json');
+}
+async function loadOne(url: string) {
   let m: any;
-  try { m = await (await fetch('./assets/manifest.json')).json(); } catch { return; }
+  try { m = await (await fetch(url)).json(); } catch { return; }
   const defScale = m.displayScale ?? 1;
   await Promise.all((m.assets ?? []).map(async (a: any) => {
     try {

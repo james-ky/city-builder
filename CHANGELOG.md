@@ -1,5 +1,12 @@
 # Changelog
 
+## Roundabouts: realistic speed, no stacking, new 2-lane roundabout
+- Cars in a roundabout now move at a real speed along the curve (about half street speed), instead of covering each tile piece in the same time whatever its length. Short pieces near the entries used to make cars crawl and bunch up, and long arcs made them rush.
+- Cars in and around a roundabout keep a real gap to the car ahead in their path, whichever tile piece each is on, so they queue at the yield line instead of piling on top of each other (test: 11 overlaps → 0).
+- New 2-lane roundabout (5×5) in Roads, next to the traffic circle. Cars yield on entry; right turns and straight on use the outer lane, left turns and U-turns the inner lane. It costs 25 Street tiles. Save version 14 (older saves still load).
+- Its art is drawn by the game for now (ring, dashed lane line, yield lines, splitters, island) until City Art Studio tiles arrive.
+- New tests/roundabout2.cjs.
+
 ## Longer days, traffic on the game clock
 - A game day is 4× longer: 1 s of real time = 15 game minutes at 1× (96 s per day), 48 s at 2×, 32 s at 3×. Days, months and growth all run on this clock.
 - Cars now move on the game clock: they're 4× faster at 1× and speed up again at 2× and 3×. Small steps keep spacing, junctions and roundabouts exact. A cross-town drive takes about a game hour, so evening commutes are over by the small hours instead of lingering all night.

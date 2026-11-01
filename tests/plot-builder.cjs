@@ -32,7 +32,7 @@ const lock=await p.evaluate(([ci,cj])=>{const ps=__city.plots,d=ps.designs()[0];
 ok('face lock: a NE-locked lot cannot face the SW road; SW-locked can',!lock.ne&&lock.nw,JSON.stringify(lock));
 const sv=await p.evaluate(([ci,cj])=>{const C=__city,o=JSON.parse(JSON.stringify(C.serialize()));const pop=C.sim().pop;localStorage.removeItem('plotLib');C.applySave(o);const cv=C.plots.civ(ci,cj);
  const old=JSON.parse(JSON.stringify(o));old.version=12;delete old.plots;old.civs=old.civs.filter(c=>c.type!=='plot');C.applySave(old);const gone=!C.plots.civ(ci,cj);C.applySave(o);return {v:o.version,plots:o.plots.length,civ:!!cv&&cv.pid===o.civs.find(c=>c.type==='plot').pid,gone}},[ci,cj]);
-ok('save v13 stores designs + lot; round trip restores it; a v12 save loads with no custom lots',sv.v===13&&sv.plots>=1&&sv.civ&&sv.gone,JSON.stringify(sv));
+ok('save v13 stores designs + lot; round trip restores it; a v12 save loads with no custom lots',sv.v>=13&&sv.plots>=1&&sv.civ&&sv.gone,JSON.stringify(sv));
 const tray=await p.evaluate(()=>{document.querySelector('#uBar button[data-c="plots"]').click();return document.querySelectorAll('#uTray button').length});
 ok('Custom lots tray lists the builder plus saved designs',tray>=2,String(tray));
 await p.evaluate(([ci,cj])=>{document.querySelector('#uBar button[data-c="plots"]').click();const C=__city;C.centerOn(ci+0.5,cj+1);C.setZoom(4)},[ci,cj]);await p.waitForTimeout(1200);if(shotCity)await p.screenshot({path:shotCity});

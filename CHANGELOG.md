@@ -1,5 +1,12 @@
 # Changelog
 
+## 2-lane roundabout now fits 3×3, with City Art Studio art
+- The 2-lane roundabout uses the same 3×3 space as the traffic circle, with two lanes going round and a smaller island. It costs 9 Street tiles ×1.5.
+- Both approach lanes run all the way to the yield line, with no narrowing to one lane before the circle. The right lane (right turns and straight on) feeds the outer lane; the left lane (left turns and U-turns) feeds the inner lane. Cars choose their lane on the last stretch before the circle and give way to both lanes.
+- The art (27 tiles, night lights, building stages and an icon) and the lane paths come from City Art Studio's manifest (v3-soft3d-q). sync-art now copies roundabout2 files.
+- Saves stay at version 14. An early v14 save with a 5×5 2-lane roundabout loads as a 3×3 one on the same centre.
+- Fixed a roundabout jam: a car leaving an arm and a car entering it could each treat the other as the car in front and wait forever.
+
 ## Roundabouts: realistic speed, no stacking, new 2-lane roundabout
 - Cars in a roundabout now move at a real speed along the curve (about half street speed), instead of covering each tile piece in the same time whatever its length. Short pieces near the entries used to make cars crawl and bunch up, and long arcs made them rush.
 - Cars in and around a roundabout keep a real gap to the car ahead in their path, whichever tile piece each is on, so they queue at the yield line instead of piling on top of each other (test: 11 overlaps → 0).

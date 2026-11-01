@@ -1,7 +1,7 @@
 import { mountUI2 } from './ui2';
 import { mountTutorial } from './tutorial';
 import { TripSim, carsOf } from './trips';
-import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
+import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, DRIVERS, driverAge, ageBand, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience, Sfx } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { plotStats, drawPlot, newDesign, walkPiece, fencePiece, fits, partAt, PARTS, CELLS, type Design, type PartType, type PlotStats } from './plots';
@@ -66,7 +66,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const glowL = new Container(); // vehicle head/tail light pools: above the night shade, under every vehicle and building
   world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, glowL, objL, smokeL, cloudL, skyL, iconL);
   let lastNightTint = -1, curTint = 0xffffff;
-  type Car = { rl?: number; rlK?: number; rlRi?: number; sl?: number; slK?: number; rr?: number; s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; res2?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number; f?: any }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean; dwell?: number; dwellAt?: number; bf?: number; br?: number; hg?: Sprite; tg?: Sprite; ra?: number; rabGo?: number };
+  type Car = { rl?: number; rlK?: number; rlRi?: number; sl?: number; slK?: number; rr?: number; s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; res2?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number; f?: any; age?: number }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean; dwell?: number; dwellAt?: number; bf?: number; br?: number; hg?: Sprite; tg?: Sprite; ra?: number; rabGo?: number };
   const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const pk: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // private parking that grew on a C tile: 1 surface lot, 2 garage
@@ -1065,7 +1065,9 @@ function diamond(g: Graphics, i: number, j: number) {
       <h4>Taxes</h4>${(['R', 'C', 'I'] as const).map(z => `<label class="sl">${ZNAME[z]} <input type="range" min="0" max="20" step="1" value="${tax[z]}" data-tax="${z}"> <b>${tax[z]}%</b></label>`).join('')}
       <h4>Next month</h4><table>${rows(p.income, '+')}${rows(p.expense, '−')}<tr class="tot"><td>Net</td><td>${money(p.net)}</td></tr></table>
       ${types.length ? `<h4>Service funding</h4>${types.map(t => `<label class="sl">${SERV[t].name} <input type="range" min="0" max="100" step="10" value="${Math.round(funding[t] * 100)}" data-fund="${t}"> <b>${Math.round(funding[t] * 100)}%</b></label>`).join('')}` : ''}
-      <h4>Loan</h4>${sim.loan ? `<button id="bRepay">Repay ${money(sim.loan)}</button>` : `<button id="bLoan">Take a ${money(LOAN)} loan (1% interest per month)</button>`}`;
+      <h4>Loan</h4>${sim.loan ? `<button id="bRepay">Repay ${money(sim.loan)}</button>` : `<button id="bLoan">Take a ${money(LOAN)} loan (1% interest per month)</button>`}
+      <h4>History</h4><canvas id="histCv" width="410" height="150" style="width:100%;background:#151c27;border-radius:6px"></canvas><div style="font-size:11px;color:#8b98a8"><span style="color:#3ecf4a">■</span> income <span style="color:#e0605a">■</span> expenses <span style="color:#ffd23f">━</span> funds</div>`;
+    drawHist();
     budgetEl.querySelector('#bClose')!.addEventListener('click', () => budgetEl.style.display = 'none');
     budgetEl.querySelectorAll<HTMLInputElement>('input[data-tax]').forEach(el => el.onchange = () => { tax[el.dataset.tax!] = el.valueAsNumber; census(); updateStats(); renderBudget(); });
     budgetEl.querySelectorAll<HTMLInputElement>('input[data-tax]').forEach(el => el.oninput = () => { el.nextElementSibling!.textContent = el.value + '%'; });
@@ -1075,7 +1077,8 @@ function diamond(g: Graphics, i: number, j: number) {
   };
   budgetEl.addEventListener('pointerdown', e => e.stopPropagation());
   let tutBudget = false, tutSaved = false; // first-city checklist: has the player opened the budget / saved to a slot
-  const toggleBudget = () => { budgetEl.style.display = budgetEl.style.display === 'block' ? 'none' : 'block'; if (budgetEl.style.display === 'block') { renderBudget(); tutBudget = true; } };
+  const openBudget = () => { budgetEl.style.display = 'block'; renderBudget(); tutBudget = true; document.getElementById('dataPanel')!.style.display = 'none'; };
+  const toggleBudget = () => { budgetEl.style.display = budgetEl.style.display === 'block' ? 'none' : 'block'; if (budgetEl.style.display === 'block') { renderBudget(); tutBudget = true; document.getElementById('dataPanel')!.style.display = 'none'; document.getElementById('dataBtn')?.classList.remove('on'); } };
   document.getElementById('budgetBtn')!.onclick = e => { e.stopPropagation(); toggleBudget(); };
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'b' && !(e.target instanceof HTMLInputElement)) toggleBudget(); });
   // ---- agent-based trips (logic in src/trips.ts): the cars on screen are sampled real trips ----
@@ -1127,7 +1130,7 @@ function diamond(g: Graphics, i: number, j: number) {
    *  and the evening trip of the same person (and earlier errands) were all on the road together. */
   const tripRoom = (f: any, scale: number) => { let onF = 0, onH = 0; for (const c of cars) { const t = c.trip; if (!t) continue; if (t.f === f) onF++; if (f.kind !== 'freight' && t.kind !== 'freight' && t.home === f.home) onH++; }
     if (onF + 1 > Math.max(1, Math.ceil(carsOf(f) / scale - 1e-6))) return false;
-    if (f.kind !== 'freight') { const [hi, hj] = tileOf(f.home), res = trips.w.residents(hi, hj); if (onH + 1 > Math.max(1, Math.floor(res * (1 - TRIPS.kidsPerResident) / scale + 1e-6))) return false; } // kids don't drive
+    if (f.kind !== 'freight') { const [hi, hj] = tileOf(f.home), res = trips.w.residents(hi, hj); if (onH + 1 > Math.max(1, Math.floor(res * DRIVERS.drivingAgeShare / scale + 1e-6))) return false; } // only driving-age residents (16+) drive
     return true; };
   const spawnOne = (f: any, back: boolean, scale: number): boolean | null => { // null = no route (drop); false = no room yet (retry)
     if (!tripRoom(f, scale)) return false;
@@ -1135,7 +1138,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const [pi, pj] = tileOf(r[0]), [i, j] = tileOf(r[1]), key = f.kind === 'freight' ? freightVehicle(f.dest) : pickVehicle(pi, pj), big = /semi|bus|truck/.test(key);
     const nL = rw[i][j] ? ROAD_WIDTHS[wKind(rw[i][j])].lanesPerDir : 1; let ln = big ? 2 : Math.floor(Math.random() * 3); // 0 = inside/median lane … 2 = curb lane (clamped to the lanes the road has)
     if (!segFree(pi, pj, i, j, ln)) { const alt = big ? [] : [0, 1, 2].filter(x => x !== ln && x < nL && Math.min(x, nL - 1) !== Math.min(ln, nL - 1)); const f2 = alt.find(x => segFree(pi, pj, i, j, x)); if (f2 === undefined) return false; ln = f2; }
-    const c: Car = { s: new Graphics(), key, pi, pj, i, j, t: 0, sp: (big ? 0.9 : 1.2) + Math.random() * 0.6, dir: '', ln, route: r, ri: 1, trip: { kind: f.kind, home: f.home, dest: f.dest, back, scale, f } };
+    const c: Car = { s: new Graphics(), key, pi, pj, i, j, t: 0, sp: (big ? 0.9 : 1.2) + Math.random() * 0.6, dir: '', ln, route: r, ri: 1, trip: { kind: f.kind, home: f.home, dest: f.dest, back, scale, f, age: driverAge(f.kind) } };
     if (!hasArt(key + '_NE')) { const g = new Graphics().roundRect(-3.5, -2, 7, 4, 1.2).fill(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]); (g as any).__veh = true; chunkOf(pi, pj).ob.addChild(g); c.s = g; }
     cars.push(c); failed.spawned++; return true; };
   const drainPending = () => { let tries = 0; for (let x = 0; x < pending.length && cars.length < MAXCARS && tries < 60; ) { tries++; const q = pending[x];
@@ -1191,14 +1194,23 @@ function diamond(g: Graphics, i: number, j: number) {
     for (const c of cars) { const ty = /^veh_(.+)_[a-z]$/.exec(c.key)?.[1] ?? ''; if (ty in T) T[ty]++; P[c.bus ? 'Transit' : PK[c.trip?.kind ?? ''] ?? 'Other']++; if (!(c.dwell && c.dwell > 0) && ((c.stuck ?? 0) > 1.5 || (c.wait ?? 0) > 1.5)) stuck++; }
     const n = cars.length, NM: Record<string, string> = { sedan: 'Sedan', hatchback: 'Hatchback', pickup: 'Pickup', van: 'Van', taxi: 'Taxi', delivery_truck: 'Delivery truck', semi: 'Semi', bus: 'Bus' };
     let resN = 0, frN = 0; for (const c of cars) { if (c.bus || c.trip?.kind === 'freight') frN++; else if (c.trip) resN++; }
-    const sc = cars.find(c => c.trip)?.trip?.scale ?? 1;
-    return h('Vehicles on the road now (live)') + row('Total vehicles', `<span id="liveVehN">${fmt(n)}</span>`)
+    const sc = cars.find(c => c.trip)?.trip?.scale ?? 1, dv = driverStats();
+    const ages = h('Drivers by age (live)') + DRIVERS.bands.map((b, x) => dbar(b, dv.bands[x], dv.res, '#e8a15a', fmt(dv.bands[x]))).join('')
+      + row('Freight / service drivers', fmt(dv.pro), 'hired drivers, not residents')
+      + row('Under 16 or no driver', `<span id="liveVehBad" class="${dv.bad ? 'neg' : 'pos'}">${fmt(dv.bad)}</span>`, 'should always be 0')
+      + row('Resident cars per driving-age resident', `<span id="liveVehRatio">${dv.adults ? (dv.res * sc / dv.adults).toFixed(2) : '—'}</span>`, `${fmt(dv.res * sc)} real cars · ${fmt(dv.adults)} people 16+`);
+    return ages + h('Vehicles on the road now (live)') + row('Total vehicles', `<span id="liveVehN">${fmt(n)}</span>`)
       + `<div id="liveVehWho">` + row('Residents', `<span id="liveVehRes">${fmt(resN)}</span>`, `${fmt(trips.stats.residents)} people, one car each at most`) + row('Commuters from outside', `<span id="liveVehOut">0</span>`, 'none yet: residents fill every job')
       + row('Freight / service', `<span id="liveVehFr">${fmt(frN)}</span>`, 'trucks and buses, not residents') + (sc > 1 ? row('Each car shown stands for', fmt(sc) + ' real cars') : '') + `</div>` + row('Stuck or queued (not moving > 1.5 s)', fmt(stuck), n ? pc(stuck / n) : '')
       + '<div style="color:#93a3b8;font-size:12px;margin-top:4px">By type</div>' + Object.entries(T).map(([k, v]) => dbar(NM[k], v, n, '#9aa0a6', fmt(v))).join('')
       + '<div style="color:#93a3b8;font-size:12px;margin-top:4px">By purpose</div>' + Object.entries(P).filter(([k, v]) => v || !k.startsWith('Leisure') && k !== 'Other').map(([k, v]) => dbar(k, v, n, '#6d8bff', fmt(v))).join(''); };
-  const TABS = ['Budget', 'Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
-  let dataTab = 'Budget';
+  /** who is driving every vehicle on the road now: resident drivers by age band, hired drivers, and anything that shouldn't exist (no driver / under 16) */
+  const driverStats = () => { const bands = [0, 0, 0, 0]; let res = 0, pro = 0, bad = 0;
+    for (const c of cars) { if (c.bus) { pro++; continue; } const t = c.trip; if (!t || t.age === undefined || t.age < DRIVERS.minAge) { bad++; continue; } if (t.kind === 'freight') { pro++; continue; } res++; bands[ageBand(t.age)]++; }
+    return { bands, res, pro, bad, adults: trips.stats.residents * DRIVERS.drivingAgeShare }; };
+  (window as any).__drivers = driverStats;
+  const TABS = ['Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
+  let dataTab = 'Demand';
   dataP.innerHTML = `<div style="display:flex;align-items:center;padding:8px 10px;border-bottom:1px solid #2c3646"><img class="ic" src="./assets/ui/icons2/svg/cat_data.svg" alt=""> <b style="font-size:15px">City Data</b><span style="flex:1"></span><small style="color:#8b98a8;margin-right:8px">Shift+D</small><button id="dataX" title="Close" style="background:none;border:0;color:#cbd5e1;font-size:16px;cursor:pointer"><img class="ic" src="./assets/ui/icons2/svg/btn_close.svg" alt=""></button></div>
     <div id="dataTabs" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px">${TABS.map(t => `<button data-tab="${t}" style="background:#2b3442;color:#fff;border:1px solid #445;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">${t}</button>`).join('')}</div>
     <div id="dataBody" style="flex:1;overflow:auto;padding:4px 14px 14px"></div>`;
@@ -1224,10 +1236,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const fmn = Math.min(...hs.map(x => x.funds)), fmx = Math.max(...hs.map(x => x.funds)); ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2; ctx.beginPath(); hs.forEach((x, k) => { const px = 36 + (k + 0.4) * bw, py = 14 + (y0 - 28) * (1 - (fmx > fmn ? (x.funds - fmn) / (fmx - fmn) : 0.5)); if (k) ctx.lineTo(px, py); else ctx.moveTo(px, py); }); ctx.stroke(); ctx.lineWidth = 1; };
   const renderData = () => { if (dataP.style.display === 'none') return; const B = dataP.querySelector('#dataBody')!; dataP.querySelectorAll<HTMLElement>('[data-tab]').forEach(b => b.style.background = b.dataset.tab === dataTab ? '#3d6fd1' : '#2b3442');
     const st = trips.stats, pop = sim.pop; let html = '';
-    if (dataTab === 'Budget') { const p = projection(), inc = Object.entries(p.income), exp = Object.entries(p.expense);
-      html = h('This month (projected)') + inc.map(([k, v]) => row(k, dmoney(v))).join('') + row('<i>Total income</i>', dmoney(inc.reduce((a, [, v]) => a + v, 0))) + exp.map(([k, v]) => row(k, dmoney(-v))).join('') + row('<i>Total expenses</i>', dmoney(-exp.reduce((a, [, v]) => a + v, 0))) + row('Net', dmoney(p.net)) + row('Funds', dmoney(sim.funds), sim.loan ? `loan ${dmoney(sim.loan)}` : '')
-        + h('Monthly history (last 24 months)') + '<canvas id="histCv" width="410" height="150" style="width:100%;background:#151c27;border-radius:6px"></canvas><div style="font-size:11px;color:#8b98a8"><span style="color:#3ecf4a">■</span> income <span style="color:#e0605a">■</span> expenses <span style="color:#ffd23f">━</span> funds</div>'; }
-    else if (dataTab === 'Demand') { html = h('RCI demand') + sbar('Residential', sim.dR, '#3ecf4a') + sbar('Commercial', sim.dC, '#3b8cff') + sbar('Industrial', sim.dI, '#f2c230');
+    if (dataTab === 'Demand') { html = h('RCI demand') + sbar('Residential', sim.dR, '#3ecf4a') + sbar('Commercial', sim.dC, '#3b8cff') + sbar('Industrial', sim.dI, '#f2c230');
       for (const [z, n] of [['R', 'Residential'], ['C', 'Commercial'], ['I', 'Industrial']]) html += h(`Why — ${n}`) + why[z].map(([k, v]) => row(k, (v >= 0 ? '+' : '') + v.toFixed(2))).join('');
       html += '<p style="color:#8b98a8;font-size:12px">Terms add up before clamping to −1…+1. Growth also needs road access, power and water.</p>'; }
     else if (dataTab === 'Transportation') { const t = transportStats(), tot = t.car + t.bus + t.walk + t.other;
@@ -1253,8 +1262,8 @@ function diamond(g: Graphics, i: number, j: number) {
     else if (dataTab === 'Utilities') { html = h('Power') + dbar('Used / capacity', util.pUse, util.pCap, '#ffd23f', `${fmtPower(util.pUse)} / ${fmtPower(util.pCap)}`) + row('Demand (incl. unconnected)', fmtPower(util.pWant)) + row('Shortfall', util.pWant > util.pUse ? fmtPower(util.pWant - util.pUse) : 'none')
         + h('Water') + dbar('Used / capacity', util.wUse, util.wCap, '#3d8fe0', `${fmtWater(util.wUse)} / ${fmtWater(util.wCap)}`) + row('Demand (incl. unconnected)', fmtWater(util.wWant)) + row('Shortfall', util.wWant > util.wUse ? fmtWater(util.wWant - util.wUse) : 'none')
         + h('Not simulated') + row('Sewage / garbage', NT); }
-    B.innerHTML = html; if (dataTab === 'Budget') drawHist(); };
-  const setData = (v: boolean, tab?: string) => { if (tab) dataTab = tab; dataP.style.display = v ? 'flex' : 'none'; document.getElementById('dataBtn')?.classList.toggle('on', v); renderData(); };
+    B.innerHTML = html;  };
+  const setData = (v: boolean, tab?: string) => { if (tab === 'Budget') { openBudget(); return; } if (tab) dataTab = tab; if (v) budgetEl.style.display = 'none'; dataP.style.display = v ? 'flex' : 'none'; document.getElementById('dataBtn')?.classList.toggle('on', v); renderData(); };
   dataP.querySelector('#dataX')!.addEventListener('click', () => setData(false));
   dataP.querySelectorAll<HTMLElement>('[data-tab]').forEach(b => b.onclick = () => { dataTab = b.dataset.tab!; renderData(); });
   { const db = document.createElement('button'); db.id = 'dataBtn'; db.title = 'City Data (Shift+D)'; db.innerHTML = '<img class="ic" src="./assets/ui/icons2/svg/cat_data.svg" alt="">'; db.style.cssText = 'background:#2b3442;color:#fff;border:1px solid #445;border-radius:5px;padding:4px 8px;cursor:pointer;margin-left:4px'; db.onclick = () => setData(dataP.style.display === 'none'); document.getElementById('viewGrp')!.appendChild(db); }
@@ -1358,7 +1367,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   const inspectAt = (sx: number, sy: number) => { const wx = (sx - world.position.x) / zoom, wy = (sy - world.position.y) / zoom;
     let best: Car | null = null, bd = 9; for (const c of cars) if (c.s.visible && c.trip) { const d = Math.hypot(c.s.x - wx, c.s.y - 2 - wy); if (d < bd) { bd = d; best = c; } }
     if (!best) return inspect(tileAt(sx, sy)); const t = best.trip!, [hi, hj] = tileOf(t.home), [di, dj] = tileOf(t.dest), left = best.route!.slice(best.ri ?? 0);
-    info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/trip_car.svg" alt=""> <b>${best.key.replace(/_/g, ' ')}</b> — ${KNAME[t.kind]}${t.back ? ' (heading home)' : ''}<br>${t.back ? 'From' : 'Home'}: ${t.back ? placeName(t.dest) + ` (${di}, ${dj})` : `house at ${hi}, ${hj}`}<br>${t.back ? 'To: home at ' + hi + ', ' + hj : 'Going to: ' + placeName(t.dest) + ` (${di}, ${dj})`}<br>${left.length} road tiles left · about ${Math.max(1, Math.round(trips.minutes(left)))} min<br><small>Each car on screen stands for ~${Math.max(1, Math.round(t.scale))} real trips this hour</small>`;
+    info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/trip_car.svg" alt=""> <b>${best.key.replace(/^veh_|_[a-z]$/g, '').replace(/_/g, ' ').replace(/^./, x => x.toUpperCase())}</b> — ${KNAME[t.kind]}${t.back ? ' (heading home)' : ''}<br>${t.kind === 'freight' ? `<span id="carDriver">Driver: hired ${/semi/.test(best.key) ? 'freight' : 'delivery'} driver${t.age ? `, ${t.age}` : ''}</span>` : `<span id="carDriver">Driver: resident, age ${t.age ?? '?'}</span>${t.kind === 'school' ? ' · driving kids to school' : ''}`}<br>Trip: <span id="carPurpose">${({ work: 'work', school: 'school', errand: 'shopping', leisure: 'leisure', freight: 'freight' } as any)[t.kind] ?? t.kind}</span><br>${t.back ? 'From' : 'Home'}: ${t.back ? placeName(t.dest) + ` (${di}, ${dj})` : `house at ${hi}, ${hj}`}<br>${t.back ? 'To: home at ' + hi + ', ' + hj : 'Going to: ' + placeName(t.dest) + ` (${di}, ${dj})`}<br>${left.length} road tiles left · about ${Math.max(1, Math.round(trips.minutes(left)))} min<br><small>Each car on screen stands for ~${Math.max(1, Math.round(t.scale))} real trips this hour</small>`;
     showInfo(); return best; };
   const commuteHtml = (k: number) => { const fl = trips.homeFlows.get(k); if (!fl) return trips.access[k] < 0 ? '<br><img class="ic" src="./assets/ui/icons2/svg/status_no_road.svg" alt=""> No road access' : '<br><img class="ic" src="./assets/ui/icons2/svg/status_no_destinations.svg" alt=""> No jobs, schools or shops reachable by road';
     return '<br><b>Where residents go</b>' + fl.map(f => { const p = trips.pathOf(f), walk = trips.md(k, f.dest) <= TRIPS.walkTiles;

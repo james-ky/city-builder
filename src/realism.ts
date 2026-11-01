@@ -243,3 +243,25 @@ export const DEMOG = {
   eduDriftPerMonth: 0.02,
   eduNames: ['No diploma', 'High school', 'Some college', "Bachelor's+"],
 };
+
+// DRIVERS — who is behind the wheel (cars carry a modeled driver; people aren't individually aged).
+//   - US licensing age 16; NHTS 2017 shares of car trips by driver age: 16–24 ≈ 12 %, 25–44 ≈ 37 %, 45–64 ≈ 34 %, 65+ ≈ 17 %.
+//   - Commutes skew working-age; school runs are parents (≈ 28–55); errands/leisure include more seniors; freight/service are hired drivers.
+//   - Driving-age share of residents: everyone 16+ ≈ 1 − (under-16 ≈ 19.5 %) ≈ 0.8 (US Census 2020).
+export const DRIVERS = {
+  minAge: 16,
+  bands: ['16–24', '25–44', '45–64', '65+'] as const,
+  drivingAgeShare: 0.8,
+  // [min age, max age, weight] per trip purpose
+  ages: {
+    work:    [[18, 24, 0.13], [25, 44, 0.45], [45, 64, 0.38], [65, 72, 0.04]],
+    school:  [[25, 34, 0.25], [35, 44, 0.55], [45, 55, 0.2]],
+    errand:  [[16, 24, 0.1], [25, 44, 0.33], [45, 64, 0.32], [65, 88, 0.25]],
+    leisure: [[16, 24, 0.15], [25, 44, 0.4], [45, 64, 0.3], [65, 85, 0.15]],
+    freight: [[21, 24, 0.08], [25, 44, 0.46], [45, 64, 0.42], [65, 70, 0.04]],
+  } as Record<string, [number, number, number][]>,
+};
+/** a driver's age for a trip of this purpose (never under the licensing age) */
+export const driverAge = (kind: string, r = Math.random) => { const t = DRIVERS.ages[kind] ?? DRIVERS.ages.errand; let x = r() * t.reduce((a, b) => a + b[2], 0);
+  for (const [lo, hi, w] of t) { if ((x -= w) <= 0) return Math.max(DRIVERS.minAge, lo + Math.floor(r() * (hi - lo + 1))); } return 40; };
+export const ageBand = (a: number) => a < 25 ? 0 : a < 45 ? 1 : a < 65 ? 2 : 3;

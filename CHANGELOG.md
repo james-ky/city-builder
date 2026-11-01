@@ -1,5 +1,11 @@
 # Changelog
 
+## Sound effects
+- Building now makes small sounds: a gravelly thud for roads, a soft two-note chime for zoning, a knock and chime when a building, park, plot or traffic circle goes down, a quick tick for power lines, pipes and bus stops, a crunch for the bulldozer, and a low "nope" buzz when you can't afford something or a spot isn't allowed.
+- All sounds are made live by the game's own code (no sound files, nothing borrowed from other games). They're short and quiet so they sit under the music.
+- Turn them off or change their volume in Menu (☰) > Audio, effects & graphics, next to the ambience switch. The setting is remembered on this computer, and Reset puts it back to on.
+- New test: tests/sfx.cjs.
+
 ## First-city checklist
 - New players get a small "First city" checklist in the top-left: build a road, zone homes, zone shops and industry, build a power plant, get power to homes, build a water pump, get water to homes, grow to 50 residents, check the budget, and save.
 - Each step ticks itself off from what's actually in the city (nothing to click), and the next step shows a one-line hint. A bar shows progress, and it says "All done" at 10/10.

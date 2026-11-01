@@ -2,7 +2,7 @@ import { mountUI2 } from './ui2';
 import { mountTutorial } from './tutorial';
 import { TripSim, carsOf } from './trips';
 import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
-import { Playlist, Ambience } from './audio';
+import { Playlist, Ambience, Sfx } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { plotStats, drawPlot, newDesign, walkPiece, fencePiece, fits, partAt, PARTS, CELLS, type Design, type PartType, type PlotStats } from './plots';
 import { loadManifest, place, placeNight, hasArt, artMeta, artTex, facingName , autotile } from './sprites';
@@ -728,12 +728,13 @@ function diamond(g: Graphics, i: number, j: number) {
   const removeRab = (i: number, j: number) => { const [i0, j0] = rabO(i, j);
     for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) { const x = i0 + a, y = j0 + b; rab[x][y] = 0; road[x][y] = false; rw[x][y] = 0; rpd[x][y] = 0; rtier[x][y] = 0; rstage[x][y] = 0; rfrom[x][y] = 0; }
     markDirty(i0 - 1, j0 - 1, i0 + 3, j0 + 3); };
+  const sfx = new Sfx(); // build / bulldoze / error sounds (toggle + volume in the gear menu)
   const commit = () => {
-    if (tool === 'stop') { if (drag) toggleStop(drag.ci, drag.cj); drag = null; preview.clear(); return; }
-    if (tool === 'rab') { if (drag) placeRab(drag.ci, drag.cj); drag = null; preview.clear(); return; }
+    if (tool === 'stop') { if (drag) { toggleStop(drag.ci, drag.cj); sfx.play('line'); } drag = null; preview.clear(); return; }
+    if (tool === 'rab') { if (drag) sfx.play(placeRab(drag.ci, drag.cj) ? 'build' : 'error'); drag = null; preview.clear(); return; }
     if (tool === 'ix') { if (drag) { const o = ixSet.get(drag.ci * N + drag.cj), p = toScreen(drag.ci, drag.cj); if (ixBox.style.display === 'block' && ixBox.dataset.k === String(drag.ci * N + drag.cj) && o && (o.mode === 'twostop' || o.mode === 'yield')) setIx(drag.ci, drag.cj, { axis: 1 - o.axis }); ixBox.dataset.k = String(drag.ci * N + drag.cj); openIx(drag.ci, drag.cj, p.x * zoom + world.position.x, p.y * zoom + world.position.y); } drag = null; preview.clear(); return; } // clicking again flips which road stops
-    if (tool.startsWith('plot:')) { if (drag) placePlot(tool.slice(5), drag.ci, drag.cj); drag = null; preview.clear(); return; }
-    if (tool.startsWith('svc:')) { if (drag) plop(tool.slice(4), drag.ci, drag.cj); drag = null; preview.clear(); return; }
+    if (tool.startsWith('plot:')) { if (drag) sfx.play(placePlot(tool.slice(5), drag.ci, drag.cj) ? 'build' : 'error'); drag = null; preview.clear(); return; }
+    if (tool.startsWith('svc:')) { if (drag) sfx.play(plop(tool.slice(4), drag.ci, drag.cj) ? 'build' : 'error'); drag = null; preview.clear(); return; }
     const rtiles = tool === 'road' ? roadTiles(dragTiles()).filter(([i, j]) => valid(i, j)) : [], wAt = new Map(rtiles.map(([i, j, w]) => [i * N + j, w])), pdAt = new Map(rtiles.map(([i, j, , d]) => [i * N + j, d ?? 0]));
     const tiles = tool === 'road' ? rtiles.map(([i, j]) => [i, j] as [number, number]) : dragTiles().filter(([i, j]) => valid(i, j)), seen = new Set<Civ>();
     let cost = 0;
@@ -747,6 +748,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (['R', 'C', 'I'].includes(tool)) { const down = tiles.filter(([i, j]) => zone[i][j] === tool && Math.max(bld[i][j], consT[i][j]) > zoneDen).length;
       if (down && !confirmDown(down)) { drag = null; preview.clear(); return; } }
     if (!spend(cost)) { drag = null; preview.clear(); return; }
+    if (tiles.length) sfx.play(tool === 'road' ? 'road' : tool === 'bulldoze' ? 'bulldoze' : tool === 'pline' || tool === 'pipe' ? 'line' : 'zone');
     for (const [i, j] of tiles) {
       if (lot[i][j] && (tool === 'bulldoze' && !underground)) { removeLot(lot[i][j]!, true); continue; }
       if (lot[i][j] && (tool === 'road' || ['R', 'C', 'I'].includes(tool))) removeLot(lot[i][j]!);
@@ -831,7 +833,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const toast = (msg: string, html = false) => { if (html) toastEl.innerHTML = msg; else toastEl.textContent = msg; toastEl.style.opacity = '1'; clearTimeout(toastT); toastT = window.setTimeout(() => toastEl.style.opacity = '0', 2600); };
   const spend = (cost: number) => { // returns false (and explains) if the city can't afford it
     if (cost <= 0) return true;
-    if (sim.funds < cost) { toast(`Not enough funds: this costs $${cost.toLocaleString()}, you have $${Math.floor(sim.funds).toLocaleString()}` + (sim.loan ? '' : ' (a loan is available in the Budget panel, B)')); return false; }
+    if (sim.funds < cost) { sfx.play('error'); toast(`Not enough funds: this costs $${cost.toLocaleString()}, you have $${Math.floor(sim.funds).toLocaleString()}` + (sim.loan ? '' : ' (a loan is available in the Budget panel, B)')); return false; }
     sim.funds -= cost; sim.spent += cost; return true;
   };
   const projection = (): Report => {
@@ -986,6 +988,12 @@ function diamond(g: Graphics, i: number, j: number) {
   let musicOn = localStorage.getItem('music') !== 'off', ambOn = localStorage.getItem('ambience') === 'on', started = false;
   jazz.volume = vol.valueAsNumber = +(localStorage.getItem('volume') ?? 0.5);
   amb.volume = ambVol.valueAsNumber = +(localStorage.getItem('ambVolume') ?? 0.15);
+  const sfxBtn = document.getElementById('sfxBtn')!, sfxVol = document.getElementById('sfxVol') as HTMLInputElement;
+  sfx.on = localStorage.getItem('sfx') !== 'off'; sfx.volume = sfxVol.valueAsNumber = +(localStorage.getItem('sfxVolume') ?? 0.5);
+  const syncSfx = () => { sfxBtn.classList.toggle('on', sfx.on); sfxBtn.innerHTML = '<img class="ic" src="./assets/ui/icons2/svg/btn_sfx.svg" alt="">' + (sfx.on ? '' : ' Off'); };
+  sfxBtn.onclick = e => { e.stopPropagation(); sfx.on = !sfx.on; localStorage.setItem('sfx', sfx.on ? 'on' : 'off'); syncSfx(); sfx.armed = true; sfx.play('zone'); };
+  sfxVol.oninput = () => { sfx.setVolume(sfxVol.valueAsNumber); localStorage.setItem('sfxVolume', String(sfxVol.valueAsNumber)); };
+  sfxVol.onchange = () => sfx.play('zone'); syncSfx();
   jazz.onTrack = t => { credit.innerHTML = t ? `<img class="ic" src="./assets/ui/icons2/svg/btn_music.svg" alt=""> “${t.title}” — ${t.artist} · <a href="${t.url}" target="_blank" rel="noopener">${t.license}</a>` : '<img class="ic" src="./assets/ui/icons2/svg/btn_music.svg" alt=""> procedural jazz (fallback)'; };
   const syncMusic = () => {
     musicBtn.classList.toggle('on', musicOn); musicBtn.title = musicOn ? 'Music on (click to mute)' : 'Music off';
@@ -997,10 +1005,10 @@ function diamond(g: Graphics, i: number, j: number) {
   ambBtn.onclick = e => { e.stopPropagation(); ambOn = !ambOn; localStorage.setItem('ambience', ambOn ? 'on' : 'off'); started = true; syncMusic(); };
   vol.oninput = () => { jazz.setVolume(vol.valueAsNumber); localStorage.setItem('volume', String(vol.valueAsNumber)); };
   ambVol.oninput = () => { amb.setVolume(ambVol.valueAsNumber); localStorage.setItem('ambVolume', String(ambVol.valueAsNumber)); };
-  const firstGesture = () => { if (!started) { started = true; syncMusic(); } };
+  const firstGesture = () => { sfx.armed = true; if (!started) { started = true; syncMusic(); } };
   window.addEventListener('pointerdown', firstGesture); window.addEventListener('keydown', firstGesture);
   syncMusic();
-  (window as any).__jazz = jazz; (window as any).__amb = amb;
+  (window as any).__jazz = jazz; (window as any).__amb = amb; (window as any).__sfx = sfx;
   // ---- missing-utility icons + underground view ----
   let underground = false;
   const ugBtn = document.getElementById('ugBtn')!;
@@ -1451,7 +1459,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   document.getElementById('fxList')!.innerHTML = FX.map(k => `<label><input type="checkbox" data-k="${k}" ${fx[k] ? 'checked' : ''}> ${FXNAME[k]}</label>`).join('');
   menu.querySelectorAll<HTMLInputElement>('#fxList input').forEach(el => el.onchange = () => { fx[el.dataset.k!] = el.checked; localStorage.setItem('fx', JSON.stringify(fx)); setFxVisibility(); });
   { const rb = document.createElement('button'); rb.innerHTML = '<img class="ic" src="./assets/ui/icons2/svg/btn_reset.svg" alt=""> Reset'; rb.title = 'Reset view & settings'; rb.style.marginTop = '6px';
-    rb.onclick = () => { for (const k of ['fx', 'grid', 'zones', 'music', 'ambience', 'volume', 'ambVolume', 'autosave', 'gfxQuality']) localStorage.removeItem(k); location.reload(); }; menu.appendChild(rb); }
+    rb.onclick = () => { for (const k of ['fx', 'grid', 'zones', 'music', 'ambience', 'volume', 'ambVolume', 'sfx', 'sfxVolume', 'autosave', 'gfxQuality']) localStorage.removeItem(k); location.reload(); }; menu.appendChild(rb); }
   { const q = document.createElement('label'); q.style.cssText = 'display:block;margin-top:6px'; q.innerHTML = `Graphics quality <select id="gfxQ" title="Auto matches your screen's pixel density (max 2×). 1× is fastest."><option value="auto">Auto (${Math.min(2, window.devicePixelRatio || 1)}×)</option><option value="1">1×</option><option value="2">2×</option></select>`;
     menu.insertBefore(q, menu.lastElementChild); const sel = q.querySelector('select')!; sel.value = localStorage.getItem('gfxQuality') ?? 'auto';
     sel.onchange = () => { localStorage.setItem('gfxQuality', sel.value); app.renderer.resolution = gfxRes(); app.resize(); }; }

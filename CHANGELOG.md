@@ -1,5 +1,11 @@
 # Changelog
 
+## Vehicle count matches the people
+- A 50-person city could show 60+ vehicles. Cars take several game hours to drive across town, but new trips were spawned every hour regardless, so the same person's morning drive, evening drive and errands were on the road at once (one 5-person home had 11 cars out).
+- Now each trip flow can only have as many cars out as its people really drive, and a home can't have more cars out than adult residents. Same ~50-person city: peak 62 → 37.
+- City Data > Transportation splits live vehicles into Residents, Commuters from outside (none yet: residents fill every job) and Freight / service.
+- New tests/vehicle-count.cjs.
+
 ## Test reliability
 - tests/vehicles.cjs could check the wrong car when a background car finished its trip mid-test (the list shifted). It now follows the exact cars it spawned.
 - tests/ui-info.cjs checked that F left full screen after only 0.3 s; leaving full screen is asynchronous, so it now waits up to 4 s.

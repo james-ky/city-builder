@@ -65,7 +65,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const glowL = new Container(); // vehicle head/tail light pools: above the night shade, under every vehicle and building
   world.addChild(groundL, roadL, carL, zoneL, pollL, gridL, pipeL, nightG, glowL, objL, smokeL, cloudL, skyL, iconL);
   let lastNightTint = -1, curTint = 0xffffff;
-  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; res2?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean; dwell?: number; dwellAt?: number; bf?: number; br?: number; hg?: Sprite; tg?: Sprite; ra?: number; rabGo?: number };
+  type Car = { s: Sprite | Graphics; n?: Sprite; key: string; i: number; j: number; pi: number; pj: number; t: number; sp: number; dir: string; ln?: number; res2?: number; route?: number[]; ri?: number; trip?: { kind: string; home: number; dest: number; back: boolean; scale: number; f?: any }; nx?: [number, number]; res?: number; din?: string; dout?: string; wait?: number; stuck?: number; adv?: number; bus?: boolean; dwell?: number; dwellAt?: number; bf?: number; br?: number; hg?: Sprite; tg?: Sprite; ra?: number; rabGo?: number };
   const cars: Car[] = []; // vehicles live in objL (depth-sorted with buildings) and survive redraws
   const road: boolean[][] = [...Array(N)].map(() => Array(N).fill(false));
   const pk: number[][] = [...Array(N)].map(() => Array(N).fill(0)); // private parking that grew on a C tile: 1 surface lot, 2 garage
@@ -1081,12 +1081,20 @@ function diamond(g: Graphics, i: number, j: number) {
   let dailyCars = 0, dailyKey = -1, nRoad = 0;
   const carCap = () => { nRoad = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (road[i][j]) nRoad++; return Math.max(320, Math.min(1600, Math.round(nRoad * 0.9 + sim.pop / 60))); };
   const segFree = (pi: number, pj: number, i: number, j: number, ln: number, len = 0.45) => !cars.some(o => o.pi === pi && o.pj === pj && o.i === i && o.j === j && (!rw[i][j] || Math.min(o.ln ?? 0, ROAD_WIDTHS[wKind(rw[i][j])].lanesPerDir - 1) === Math.min(ln, ROAD_WIDTHS[wKind(rw[i][j])].lanesPerDir - 1)) && o.t < len);
+  /** one car per person at a time: cars on the road for a flow can't exceed the cars that flow really has (people × car share ÷ occupancy),
+   *  and a home can't have more cars out than adult residents. Cars take several game hours to drive, so without this the morning trip
+   *  and the evening trip of the same person (and earlier errands) were all on the road together. */
+  const tripRoom = (f: any, scale: number) => { let onF = 0, onH = 0; for (const c of cars) { const t = c.trip; if (!t) continue; if (t.f === f) onF++; if (f.kind !== 'freight' && t.kind !== 'freight' && t.home === f.home) onH++; }
+    if (onF + 1 > Math.max(1, Math.ceil(carsOf(f) / scale - 1e-6))) return false;
+    if (f.kind !== 'freight') { const [hi, hj] = tileOf(f.home), res = trips.w.residents(hi, hj); if (onH + 1 > Math.max(1, Math.floor(res * (1 - TRIPS.kidsPerResident) / scale + 1e-6))) return false; } // kids don't drive
+    return true; };
   const spawnOne = (f: any, back: boolean, scale: number): boolean | null => { // null = no route (drop); false = no room yet (retry)
+    if (!tripRoom(f, scale)) return false;
     const r = back ? trips.pathBack(f) : trips.pathOf(f); if (!r || r.length < 2) return null;
     const [pi, pj] = tileOf(r[0]), [i, j] = tileOf(r[1]), key = f.kind === 'freight' ? freightVehicle(f.dest) : pickVehicle(pi, pj), big = /semi|bus|truck/.test(key);
     const nL = rw[i][j] ? ROAD_WIDTHS[wKind(rw[i][j])].lanesPerDir : 1; let ln = big ? 2 : Math.floor(Math.random() * 3); // 0 = inside/median lane … 2 = curb lane (clamped to the lanes the road has)
     if (!segFree(pi, pj, i, j, ln)) { const alt = big ? [] : [0, 1, 2].filter(x => x !== ln && x < nL && Math.min(x, nL - 1) !== Math.min(ln, nL - 1)); const f2 = alt.find(x => segFree(pi, pj, i, j, x)); if (f2 === undefined) return false; ln = f2; }
-    const c: Car = { s: new Graphics(), key, pi, pj, i, j, t: 0, sp: (big ? 0.9 : 1.2) + Math.random() * 0.6, dir: '', ln, route: r, ri: 1, trip: { kind: f.kind, home: f.home, dest: f.dest, back, scale } };
+    const c: Car = { s: new Graphics(), key, pi, pj, i, j, t: 0, sp: (big ? 0.9 : 1.2) + Math.random() * 0.6, dir: '', ln, route: r, ri: 1, trip: { kind: f.kind, home: f.home, dest: f.dest, back, scale, f } };
     if (!hasArt(key + '_NE')) { const g = new Graphics().roundRect(-3.5, -2, 7, 4, 1.2).fill(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]); (g as any).__veh = true; chunkOf(pi, pj).ob.addChild(g); c.s = g; }
     cars.push(c); failed.spawned++; return true; };
   const drainPending = () => { let tries = 0; for (let x = 0; x < pending.length && cars.length < MAXCARS && tries < 60; ) { tries++; const q = pending[x];
@@ -1141,7 +1149,11 @@ function diamond(g: Graphics, i: number, j: number) {
     const PK: Record<string, string> = { work: 'Commute', school: 'School', errand: 'Shopping / errands', freight: 'Freight', leisure: 'Leisure (parks)' }; let stuck = 0;
     for (const c of cars) { const ty = /^veh_(.+)_[a-z]$/.exec(c.key)?.[1] ?? ''; if (ty in T) T[ty]++; P[c.bus ? 'Transit' : PK[c.trip?.kind ?? ''] ?? 'Other']++; if (!(c.dwell && c.dwell > 0) && ((c.stuck ?? 0) > 1.5 || (c.wait ?? 0) > 1.5)) stuck++; }
     const n = cars.length, NM: Record<string, string> = { sedan: 'Sedan', hatchback: 'Hatchback', pickup: 'Pickup', van: 'Van', taxi: 'Taxi', delivery_truck: 'Delivery truck', semi: 'Semi', bus: 'Bus' };
-    return h('Vehicles on the road now (live)') + row('Total vehicles', `<span id="liveVehN">${fmt(n)}</span>`) + row('Stuck or queued (not moving > 1.5 s)', fmt(stuck), n ? pc(stuck / n) : '')
+    let resN = 0, frN = 0; for (const c of cars) { if (c.bus || c.trip?.kind === 'freight') frN++; else if (c.trip) resN++; }
+    const sc = cars.find(c => c.trip)?.trip?.scale ?? 1;
+    return h('Vehicles on the road now (live)') + row('Total vehicles', `<span id="liveVehN">${fmt(n)}</span>`)
+      + `<div id="liveVehWho">` + row('Residents', `<span id="liveVehRes">${fmt(resN)}</span>`, `${fmt(trips.stats.residents)} people, one car each at most`) + row('Commuters from outside', `<span id="liveVehOut">0</span>`, 'none yet: residents fill every job')
+      + row('Freight / service', `<span id="liveVehFr">${fmt(frN)}</span>`, 'trucks and buses, not residents') + (sc > 1 ? row('Each car shown stands for', fmt(sc) + ' real cars') : '') + `</div>` + row('Stuck or queued (not moving > 1.5 s)', fmt(stuck), n ? pc(stuck / n) : '')
       + '<div style="color:#93a3b8;font-size:12px;margin-top:4px">By type</div>' + Object.entries(T).map(([k, v]) => dbar(NM[k], v, n, '#9aa0a6', fmt(v))).join('')
       + '<div style="color:#93a3b8;font-size:12px;margin-top:4px">By purpose</div>' + Object.entries(P).filter(([k, v]) => v || !k.startsWith('Leisure') && k !== 'Other').map(([k, v]) => dbar(k, v, n, '#6d8bff', fmt(v))).join(''); };
   const TABS = ['Budget', 'Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];

@@ -1,4 +1,5 @@
 import { mountUI2 } from './ui2';
+import { mountTutorial } from './tutorial';
 import { TripSim, carsOf } from './trips';
 import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience } from './audio';
@@ -1034,7 +1035,8 @@ function diamond(g: Graphics, i: number, j: number) {
     budgetEl.querySelector('#bRepay')?.addEventListener('click', () => { if (sim.funds < sim.loan) { toast('Not enough funds to repay the loan yet'); return; } sim.funds -= sim.loan; sim.loan = 0; updateStats(); renderBudget(); });
   };
   budgetEl.addEventListener('pointerdown', e => e.stopPropagation());
-  const toggleBudget = () => { budgetEl.style.display = budgetEl.style.display === 'block' ? 'none' : 'block'; if (budgetEl.style.display === 'block') renderBudget(); };
+  let tutBudget = false, tutSaved = false; // first-city checklist: has the player opened the budget / saved to a slot
+  const toggleBudget = () => { budgetEl.style.display = budgetEl.style.display === 'block' ? 'none' : 'block'; if (budgetEl.style.display === 'block') { renderBudget(); tutBudget = true; } };
   document.getElementById('budgetBtn')!.onclick = e => { e.stopPropagation(); toggleBudget(); };
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'b' && !(e.target instanceof HTMLInputElement)) toggleBudget(); });
   // ---- agent-based trips (logic in src/trips.ts): the cars on screen are sampled real trips ----
@@ -1135,7 +1137,7 @@ function diamond(g: Graphics, i: number, j: number) {
     tripsDirty = true; trips.volume.fill(0); if (o.traffic?.volume) { const u = new Uint16Array(unb64(o.traffic.volume).buffer); trips.volume.set(u.subarray(0, N * N)); }
     computeNear(); rebuildZ(); markAll(); census(); updateStats(); setSpeed(o.sim.speed ?? 1);
   };
-  const saveTo = async (slot: string, id: string) => { const o = serialize(), data = await compress(o); await putSave(metaFrom(o, slot, id, data)); return data; };
+  const saveTo = async (slot: string, id: string) => { const o = serialize(), data = await compress(o); await putSave(metaFrom(o, slot, id, data)); if (id.startsWith('slot:')) tutSaved = true; return data; };
   const slug = (t: string) => t.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'city';
   const autoId = () => `auto:${city.name}:${city.size}:${city.seed}`;
   let autosaveOn = localStorage.getItem('autosave') !== 'off';
@@ -1458,6 +1460,10 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   document.getElementById('fxBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
   setFxVisibility();
   mountUI2();
+  mountTutorial(() => { const any = (f: (i: number, j: number) => boolean) => { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (f(i, j)) return true; return false; };
+    return { road: any((i, j) => road[i][j]), R: any((i, j) => zone[i][j] === 'R'), CI: any((i, j) => zone[i][j] === 'C') && any((i, j) => zone[i][j] === 'I'),
+      plant: civs.some(c => SERV[c.type]?.kind === 'power'), poweredR: any((i, j) => zone[i][j] === 'R' && powered[i][j]), water: civs.some(c => SERV[c.type]?.kind === 'water'),
+      wateredR: any((i, j) => zone[i][j] === 'R' && watered[i][j]), pop: sim.pop, budget: tutBudget, saved: tutSaved }; });
   let clock = 0, windF = -1, chunkErr = false;
   let night = 0;
   function applyNight(n: number) { // function declaration: hoisted, because setFxVisibility can call it during init (day/night off) // objects are tinted to match the shading (per visible chunk, lazily); lights fade in additively

@@ -30,5 +30,6 @@ ok('no flow has more cars out than its people can drive',!bad.some(x=>x.over),JS
 ok('no home has more cars out than adult residents',!bad.some(x=>x.homeOver));ok('every non-bus car is a real trip',!bad.some(x=>x.noTrip));
 const night=Math.max(...[1,2,3,4].map(h=>hours[h]??0));ok('evening trips are done by the small hours (01-04)',night<=Math.max(3,peak.n*0.25),night+' vs peak '+peak.n);
 ok('peak vehicles stay below residents',peak.n<info.st.residents,peak.n+' vs '+Math.round(info.st.residents));
+ok('realistic drive times: peak cars on screen ≤ 25% of residents (was ~37% with hour-long drives)',peak.n<=Math.max(3,info.st.residents*0.25),peak.n+' vs '+Math.round(info.st.residents));
 ok('panel split adds up to the total',pn.res+pn.out+pn.fr===pn.tot&&pn.tot===pn.n,JSON.stringify(pn));
 ok('no page errors',!errs.length,errs.join(' | '));console.log(res.join('\n'));await b.close();process.exit(res.some(r=>r.startsWith('FAIL'))?1:0)})();

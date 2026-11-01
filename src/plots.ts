@@ -6,7 +6,7 @@ import { HOUSEHOLD_MIX } from './realism';
 
 export const CELLS = 4; // grid cells per tile (5 m)
 export type PartType = 'house' | 'shop' | 'factory' | 'parking' | 'driveway' | 'sidewalk' | 'tree' | 'fence';
-export type Part = { t: PartType; x: number; y: number; f?: number; v?: number }; // x along i (front = high x), y along j; f floors; v variant
+export type Part = { t: PartType; x: number; y: number; f?: number; v?: number; g?: boolean }; // v: fence style (0 picket, 1 chain-link, 2 hedge) / tree kind; g: gate // x along i (front = high x), y along j; f floors; v variant
 export type Design = { id: string; name: string; s: number; face: number; parts: Part[] }; // face 0 = auto, 1..4 = locked NE/SE/SW/NW
 export const PARTS: Record<PartType, { w: number; h: number; cost: number; name: string; tip: string; body?: boolean; floors?: [number, number] }> = {
   house:    { w: 2, h: 2, cost: 400, name: 'House / flats', tip: '10×10 m. 1–2 floors = one house; 3+ floors = flats (≈70 m² each)', body: true, floors: [1, 4] },
@@ -15,8 +15,8 @@ export const PARTS: Record<PartType, { w: number; h: number; cost: number; name:
   parking:  { w: 1, h: 1, cost: 20, name: 'Parking space', tip: 'One stall (5×5 m incl. aisle). Needs a driveway on the front edge' },
   driveway: { w: 1, h: 1, cost: 10, name: 'Driveway / entrance', tip: 'Paved entrance. Put one on the front edge so cars can reach the parking' },
   sidewalk: { w: 1, h: 1, cost: 8, name: 'Walkway', tip: 'Paved path' },
-  tree:     { w: 1, h: 1, cost: 15, name: 'Tree', tip: 'Landscaping' },
-  fence:    { w: 1, h: 1, cost: 5, name: 'Fence / hedge', tip: 'Low fence' },
+  tree:     { w: 1, h: 1, cost: 15, name: 'Tree', tip: 'Landscaping. Click a tree again for another kind (round, conifer, poplar, shrub)' },
+  fence:    { w: 1, h: 1, cost: 5, name: 'Fence / hedge', tip: 'Drag to run a fence; pieces join up. Click one again to cycle picket, gate, chain-link, gate, hedge, gate' },
 };
 export const footOf = (p: Part) => ({ w: PARTS[p.t].w, h: PARTS[p.t].h });
 export const fits = (d: Design, p: Part, ignore?: Part) => { const n = d.s * CELLS, { w, h } = footOf(p); if (p.x < 0 || p.y < 0 || p.x + w > n || p.y + h > n) return false;
@@ -52,39 +52,60 @@ export const plotStats = (d: Design): PlotStats => { const st: PlotStats = { hom
 const ROT: Record<number, number> = { 2: 0, 3: 1, 4: 2, 1: 3 };
 export const rotUV = (u: number, v: number, s: number, face: number): [number, number] => { let a = u, b = v; for (let k = 0; k < (ROT[face] ?? 0); k++) { const na = s - b, nb = a; a = na; b = nb; } return [a, b]; };
 const BODY_COL: Record<string, [number, number, number, number]> = { house: [0xf1e4c8, 0xd9c8a6, 0xb8553f, 0x8f3f2f], shop: [0xdfe7ee, 0xbccbd8, 0x8d99a6, 0x6f7a86], factory: [0xd4d0c6, 0xb4afa3, 0x8a8f96, 0x6c7178] }; // left wall, right wall, roof, roof edge
-export type Drawer = { toScreen: (i: number, j: number) => { x: number; y: number }; place: (key: string, x: number, y: number, layer: Container, seed?: number) => Sprite | Graphics; hasArt: (k: string) => boolean };
-/** draw a design at lot origin tile (i0,j0) facing `face` into `layer` (objects get zIndex by screen depth); `z0` offsets depth */
+export type Drawer = { toScreen: (i: number, j: number) => { x: number; y: number }; place: (key: string, x: number, y: number, layer: Container, seed?: number) => Sprite | Graphics; hasArt: (k: string) => boolean;
+  meta?: (k: string) => any; night?: (key: string, x: number, y: number, z: number) => void };
+export const DN = ['', 'NE', 'SE', 'SW', 'NW'];
+/** world edge bit (NE1 SE2 SW4 NW8) of a design-space step (du,dv) after rotating to `face` */
+const bitOf = (du: number, dv: number, face: number) => { const [a, b] = rotUV(du, dv, 0, face); return a > 0 ? 2 : a < 0 ? 8 : b > 0 ? 4 : 1; };
+export const maskOf = (d: Design, p: Part, face: number, same: (q: Part) => boolean) => { let m = 0; for (const [du, dv] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const q = partAt(d, p.x + du, p.y + dv); if (q && same(q)) m |= bitOf(du, dv, face); } return m; };
+const STRAIGHT = (m: number) => (m & 5) && !(m & 10) ? 5 : (m & 10) && !(m & 5) ? 10 : (m & 5) === 5 ? 5 : 10;
+/** sidewalk pieces: straight 5/10, corners 3/6/12/9, tees 7/11/13/14; 0- and 1-bit masks -> straight, cross 15 -> a tee */
+export const walkPiece = (m: number) => [3, 6, 12, 9, 5, 10, 7, 11, 13, 14].includes(m) ? m : m === 15 ? 7 : STRAIGHT(m);
+/** fence/hedge pieces: straight 5/10 and corners 3/6/12/9 only; tees/cross/ends fall back to the straight run through them */
+export const fencePiece = (m: number) => [3, 6, 12, 9, 5, 10].includes(m) ? m : STRAIGHT(m);
+export const FENCE_STYLES = ['fence_picket', 'fence_chainlink', 'hedge'];
+const LAWN_TINT = 0xb8cca4; // part_lawn renders bright under the high sun; pull it toward the terrain grass
+/** draw a design at lot origin tile (i0,j0) facing `face` into `layer` (children get zIndex by screen depth) */
 export const drawPlot = (D: Drawer, d: Design, i0: number, j0: number, face: number, layer: Container, opts: { grid?: boolean; ghost?: number } = {}) => {
   const s = d.s, n = s * CELLS, P = (u: number, v: number) => { const [a, b] = rotUV(u, v, s, face); return D.toScreen(i0 - 0.5 + a, j0 - 0.5 + b); };
   const quad = (u0: number, v0: number, u1: number, v1: number) => [P(u0, v0), P(u1, v0), P(u1, v1), P(u0, v1)].flatMap(p => [p.x, p.y]);
-  const ground = new Graphics(); ground.zIndex = -1e9; layer.addChild(ground); // flat parts under everything
-  ground.poly(quad(0, 0, s, s)).fill({ color: 0x6fb257, alpha: opts.grid ? 1 : 0.55 }); // lawn
-  if (opts.grid) { for (let k = 0; k <= n; k++) { const a = P(k / CELLS, 0), b = P(k / CELLS, s), c = P(0, k / CELLS), e = P(s, k / CELLS); ground.moveTo(a.x, a.y).lineTo(b.x, b.y).moveTo(c.x, c.y).lineTo(e.x, e.y); } ground.stroke({ width: 0.5, color: 0xffffff, alpha: 0.25 });
-    const f0 = P(s, 0), f1 = P(s, s); ground.moveTo(f0.x, f0.y).lineTo(f1.x, f1.y).stroke({ width: 2, color: 0xffd27a, alpha: 0.9 }); } // the front edge (road side)
-  const depth = (u: number, v: number) => P(u, v).y;
-  const sorted = [...d.parts].sort((a, b) => depth(a.x / CELLS + footOf(a).w / CELLS, a.y / CELLS + footOf(a).h / CELLS) - depth(b.x / CELLS + footOf(b).w / CELLS, b.y / CELLS + footOf(b).h / CELLS));
+  const dir = DN[face], art = (k: string) => D.hasArt(k);
+  const spr = (k: string, x: number, y: number, z: number) => { const o = D.place(k, x, y, layer); o.zIndex = z; if (D.meta?.(k)?.nightLitPx !== 0) D.night?.(k, x, y, z + 0.001); return o; }; // parts with empty overlays (nightLitPx 0) add no light sprite
+  const ground = new Graphics(); ground.zIndex = -1e9; layer.addChild(ground);
+  let gz = -1e8; const gspr = (k: string, x: number, y: number) => { const o = D.place(k, x, y, layer); o.zIndex = gz + y * 1e-3; return o; }; // flat parts: above the lawn, under every object
+  // lawn: part_lawn per cell (tinted), else a flat fill
+  const occupied = new Set(d.parts.filter(p => ['parking', 'driveway', 'sidewalk'].includes(p.t)).map(p => p.x + ',' + p.y));
+  if (art('part_lawn')) for (let x = 0; x < n; x++) for (let y = 0; y < n; y++) if (!occupied.has(x + ',' + y)) { const c = P((x + 0.5) / CELLS, (y + 0.5) / CELLS); const o = D.place('part_lawn', c.x, c.y, layer) as Sprite; o.zIndex = -2e8 + c.y * 1e-3; o.tint = LAWN_TINT; }
+  ground.poly(quad(0, 0, s, s)).fill({ color: art('part_lawn') ? 0x6aa651 : 0x6fb257, alpha: opts.grid || art('part_lawn') ? 1 : 0.55 }); // base under the cells (paving sprites are smaller than a cell)
+  const grid = new Graphics(); grid.zIndex = -5e7; layer.addChild(grid);
+  if (opts.grid) { for (let k = 0; k <= n; k++) { const a = P(k / CELLS, 0), b = P(k / CELLS, s), c = P(0, k / CELLS), e = P(s, k / CELLS); grid.moveTo(a.x, a.y).lineTo(b.x, b.y).moveTo(c.x, c.y).lineTo(e.x, e.y); } grid.stroke({ width: 0.5, color: 0xffffff, alpha: 0.25 });
+    const f0 = P(s, 0), f1 = P(s, s); grid.moveTo(f0.x, f0.y).lineTo(f1.x, f1.y).stroke({ width: 2, color: 0xffd27a, alpha: 0.9 }); }
+  const depth = (p: Part) => P(p.x / CELLS + footOf(p).w / CELLS, p.y / CELLS + footOf(p).h / CELLS).y;
+  const sorted = [...d.parts].sort((a, b) => depth(a) - depth(b));
+  const paved = (q: Part) => q.t === 'sidewalk' || q.t === 'driveway';
   for (const p of sorted) { const u0 = p.x / CELLS, v0 = p.y / CELLS, u1 = u0 + footOf(p).w / CELLS, v1 = v0 + footOf(p).h / CELLS, c = P((u0 + u1) / 2, (v0 + v1) / 2), z = Math.max(...[P(u0, v0), P(u1, v0), P(u1, v1), P(u0, v1)].map(q => q.y));
-    if (p.t === 'driveway' || p.t === 'sidewalk' || p.t === 'parking') { ground.poly(quad(u0, v0, u1, v1)).fill(p.t === 'sidewalk' ? 0xd6d2c6 : 0x6b707a);
-      if (p.t === 'parking') { const a = P(u0 + 0.02, v0 + 0.02), b = P(u0 + 0.02, v1 - 0.02); ground.moveTo(a.x, a.y).lineTo(b.x, b.y).stroke({ width: 0.6, color: 0xf4f4ee });
-        const keys = ['veh_sedan_a', 'veh_hatchback_b', 'veh_pickup_c', 'veh_sedan_c', 'veh_van_a', 'veh_hatchback_a'], key = keys[((p.x * 7 + p.y * 13) >>> 0) % keys.length];
-        const [fa, fb] = [rotUV(1, 0, 0, face)[0], rotUV(1, 0, 0, face)[1]]; const K = ((Math.round(Math.atan2(-fb, fa) / (Math.PI / 8)) % 16) + 16) % 16; // nose toward the front (along +u)
-        const nm = `${key}_d${String(K).padStart(2, '0')}`; if (D.hasArt(nm)) { const sp = D.place(nm, c.x, c.y, layer); sp.zIndex = c.y; (sp as any).__plotCar = true; } }
+    if (p.t === 'driveway' || p.t === 'sidewalk' || p.t === 'parking') {
+      const key = p.t === 'sidewalk' ? 'part_sidewalk_' + walkPiece(maskOf(d, p, face, paved)) : p.t === 'driveway' ? 'part_driveway_' + dir : 'part_parking_stall_' + dir;
+      if (art(key)) gspr(key, c.x, c.y); else ground.poly(quad(u0, v0, u1, v1)).fill(p.t === 'sidewalk' ? 0xd6d2c6 : 0x6b707a);
+      if (p.t === 'parking') { const keys = ['veh_sedan_a', 'veh_hatchback_b', 'veh_pickup_c', 'veh_sedan_c', 'veh_van_a', 'veh_hatchback_a'], vk = keys[((p.x * 7 + p.y * 13) >>> 0) % keys.length];
+        const [fa, fb] = rotUV(1, 0, 0, face), K = ((Math.round(Math.atan2(-fb, fa) / (Math.PI / 8)) % 16) + 16) % 16; // nose toward the front (along +u)
+        const nm = `${vk}_d${String(K).padStart(2, '0')}`; if (D.hasArt(nm)) { const sp = D.place(nm, c.x, c.y, layer); sp.zIndex = z; (sp as any).__plotCar = true; } }
       continue; }
-    if (p.t === 'tree') { const k = 'forest_' + 'abcd'[(p.x * 3 + p.y) % 4]; if (D.hasArt(k)) { const sp = D.place(k, c.x, c.y + 2, layer) as Sprite; sp.scale.set(sp.scale.x * 0.32); sp.zIndex = z; } else { const g = new Graphics().circle(c.x, c.y - 6, 4).fill(0x3d8a3a); g.zIndex = z; layer.addChild(g); } continue; }
-    if (p.t === 'fence') { const g = new Graphics(); const a = P(u0, v0), b = P(u1, v0), e = P(u1, v1); for (const [q, r] of [[a, b], [b, e]]) { g.moveTo(q.x, q.y - 3).lineTo(r.x, r.y - 3).stroke({ width: 1.2, color: 0xf2efe6 }); g.moveTo(q.x, q.y).lineTo(q.x, q.y - 3.5).stroke({ width: 0.8, color: 0xe2ded2 }); } g.zIndex = z; layer.addChild(g); continue; }
-    // building body: iso prism, 3.2 m per floor
-    const f = p.f ?? 1, H = f * 3.2 * 1.6, [wl, wr, rf, re] = BODY_COL[p.t], g = new Graphics(); g.zIndex = z;
+    if (p.t === 'tree') { const k = ['part_tree_a', 'part_tree_b', 'part_tree_c', 'part_shrub_a'][(p.v ?? (p.x * 3 + p.y)) % 4]; // real size (≈6–7 m trees for a 5 m cell)
+      if (art(k)) spr(k, c.x, c.y, z); else { const g = new Graphics().circle(c.x, c.y - 6, 4).fill(0x3d8a3a); g.zIndex = z; layer.addChild(g); } continue; }
+    if (p.t === 'fence') { const st = FENCE_STYLES[(p.v ?? 0) % 3], m = fencePiece(maskOf(d, p, face, q => q.t === 'fence')), key = p.g && (m === 5 || m === 10) ? `part_${st}_gate_${m}` : `part_${st}_${m}`; // along the cell centreline
+      if (art(key)) spr(key, c.x, c.y, z); else { const g = new Graphics(); const a = P(u0, (v0 + v1) / 2), b = P(u1, (v0 + v1) / 2); g.moveTo(a.x, a.y - 3).lineTo(b.x, b.y - 3).stroke({ width: 1.2, color: 0xf2efe6 }); g.zIndex = z; layer.addChild(g); } continue; }
+    // building body: whole-building art per floor count and facing
+    const f = p.f ?? 1, key = p.t === 'house' ? (f <= 2 ? `part_house_${f}f_${dir}` : `part_flats_${Math.min(f, 4)}f_${dir}`) : p.t === 'shop' ? `part_shop_${Math.min(f, 4)}f_${dir}` : `part_workshop_${Math.min(f, 2)}f_${dir}`;
+    if (art(key)) { const o = spr(key, c.x, c.y, z); if (opts.ghost) o.alpha = opts.ghost;
+      if (face === 1 || face === 4) { const mc = P(u1 + 0.125, (v0 + v1) / 2), mk = 'part_door_marker_' + dir; // door faces away from the camera: a subtle arrow/path out of the door so the front still reads
+        if (u1 + 0.125 <= s && !partAt(d, p.x + footOf(p).w, p.y + 1)) { if (art(mk)) { const o2 = gspr(mk, mc.x, mc.y) as Sprite; o2.alpha = opts.grid ? 0.9 : 0.55; (o2 as any).__doorMarker = true; } } else { (o as any).__doorPath = true; } }
+      continue; }
+    // fallback prism (no art): real storey height from the manifest (12.54 px @2x = 6.27 px per 3.2 m storey)
+    const fh = D.meta?.('part_house_1f_SE')?.floorHeightPx2x / 2 || 6.27, H = f * fh, [wl, wr, rf, re] = BODY_COL[p.t], g = new Graphics(); g.zIndex = z;
     const pts = [P(u0, v0), P(u1, v0), P(u1, v1), P(u0, v1)], top = pts.map(q => ({ x: q.x, y: q.y - H }));
-    // the two faces toward the viewer: the ones whose lower edge is lowest on screen
     const edges = [[0, 1], [1, 2], [2, 3], [3, 0]].map(([a, b]) => ({ a, b, y: (pts[a].y + pts[b].y) / 2 })).sort((x, y) => y.y - x.y).slice(0, 2);
-    for (const e of edges) { const A = pts[e.a], B = pts[e.b], left = (A.x + B.x) / 2 < c.x; g.poly([A.x, A.y, B.x, B.y, B.x, B.y - H, A.x, A.y - H]).fill(left ? wl : wr).stroke({ width: 0.5, color: 0x000000, alpha: 0.15 });
-      for (let fl = 0; fl < f; fl++) for (const t of [0.25, 0.5, 0.75]) { const x = A.x + (B.x - A.x) * t, y = A.y + (B.y - A.y) * t - fl * 3.2 * 1.6 - 3.4; g.rect(x - 0.9, y - 1.6, 1.8, 2).fill({ color: 0x3b4a5c, alpha: 0.85 }); } }
-    // front door on the face toward the front edge (+u)
-    const front = [pts[1], pts[2]], fy = (front[0].y + front[1].y) / 2; if (edges.some(e => (e.a === 1 && e.b === 2))) { const mx = (front[0].x + front[1].x) / 2, my = fy; g.rect(mx - 1.3, my - 4.2, 2.6, 4.2).fill(0x6b4a2f); } else { (g as any).__doorHidden = true; }
-    if (p.t === 'house' && f <= 2) { const ridge = [P((u0 + u1) / 2, v0), P((u0 + u1) / 2, v1)].map(q => ({ x: q.x, y: q.y - H - 5 })); g.poly([top[0].x, top[0].y, top[1].x, top[1].y, ridge[1].x, ridge[1].y, ridge[0].x, ridge[0].y]).fill(re); g.poly([top[3].x, top[3].y, top[2].x, top[2].y, ridge[1].x, ridge[1].y, ridge[0].x, ridge[0].y]).fill(rf); g.poly([top[1].x, top[1].y, top[2].x, top[2].y, ridge[1].x, ridge[1].y]).fill(wr); }
-    else { g.poly(top.flatMap(q => [q.x, q.y])).fill(rf).stroke({ width: 0.6, color: re }); }
-    if (p.t === 'shop') { const A = pts[1], B = pts[2]; g.poly([A.x, A.y - 4.6, B.x, B.y - 4.6, B.x, B.y - 6, A.x, A.y - 6]).fill(0x3b7fd1); } // awning sign band over the shop front
-    if (p.t === 'factory') { const q = top[2]; g.rect(q.x - 2, q.y - 9, 3, 9).fill(0x9a8f86); } // stack
-    if (opts.ghost) g.alpha = opts.ghost; layer.addChild(g); }
+    for (const e of edges) { const A = pts[e.a], B = pts[e.b], left = (A.x + B.x) / 2 < c.x; g.poly([A.x, A.y, B.x, B.y, B.x, B.y - H, A.x, A.y - H]).fill(left ? wl : wr); }
+    g.poly(top.flatMap(q => [q.x, q.y])).fill(rf).stroke({ width: 0.6, color: re }); if (opts.ghost) g.alpha = opts.ghost; layer.addChild(g); }
   return ground; };
 export const newDesign = (s = 1): Design => ({ id: 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36), name: 'Custom lot', s, face: 0, parts: [] });

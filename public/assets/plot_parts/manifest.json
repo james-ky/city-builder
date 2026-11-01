@@ -1,0 +1,3633 @@
+{
+ "version": 1,
+ "set": "plot_parts",
+ "artRevision": "plot-parts-v1",
+ "source": "City Art Studio; Blender pipeline 3d/plot/build_plot.py (helpers from 3d/v3 + 3d/lots, same camera and sun as 3d/parts)",
+ "baseTile": [
+  128,
+  64
+ ],
+ "resolution": "@2x (draw at scale 0.5)",
+ "metresPerTile": 20,
+ "cellMetres": 5,
+ "cellsPerTile": 4,
+ "cellPx2x": [
+  32,
+  16
+ ],
+ "scale": "real scale: 1 m = 0.5 model units; storey 3.2 m = 12.54 px at 2x (6.27 game px). PR #57 placeholder prisms use 1.6 game px per metre (5.12 px per storey); these sprites use the true projection (1.96 game px per metre), about 22% taller than the placeholders.",
+ "anchorRule": "anchor = ground point under the centre of the part footprint (sprite fractions; anchorPx in 2x px). PR #57 drawPlot: place(id, c.x, c.y) with c = P(footprint centre); depth as drawPlot (footprint far-front corner).",
+ "facing": "<dir> = world edge the door/front faces after plot rotation (drawPlot face 1 NE, 2 SE, 3 SW, 4 NW). Designs are authored front on +i (SE) and every body door is on the design front, so key = part_<kind>_<f>f_<DN[face]>. NE/NW doors face away from the camera and are hidden (as in the placeholder).",
+ "selection": {
+  "house": "f 1-2 -> part_house_<f>f_<dir>; f 3-4 -> part_flats_<f>f_<dir>. Flats are WHOLE buildings: PR #57 has one body part with p.f floors drawn as one prism",
+  "shop": "part_shop_<f>f_<dir>, whole building (shopfront ground floor + office storeys). part_shop_office_floor_<dir> is an optional stack piece",
+  "factory": "part_workshop_<f>f_<dir> (f 1-2)",
+  "parking": "part_parking_stall_<dir>, dir = plot face (stall front toward the plot front, like the placeholder car nose)",
+  "driveway": "part_driveway_<dir>, dir = plot face",
+  "sidewalk": "part_sidewalk_<mask> from the 4-bit mask of neighbouring sidewalk or driveway cells (NE1 SE2 SW4 NW8, world terms after rotation). Only straight/corner/tee exist: straight for 0/1-bit masks, a tee for 15",
+  "fence": "part_fence_picket_<mask> / part_fence_chainlink_<mask> / part_hedge_<mask> (straight 5,10; corners 3,6,12,9); gates part_*_gate_<5|10>. Runs along the cell centreline; the placeholder draws on two cell edges",
+  "tree": "part_tree_a|b|c (round, conifer, poplar), part_shrub_a",
+  "lawn": "part_lawn tiled under the lot (instead of the flat 0x6fb257 fill)"
+ },
+ "night": "every part has <id>_night@2x.png: additive light-only RGBA (as building/prop _night art and design doc section 6). Windows about 70% lit; shopfronts, signs, door and bay lamps always lit. Ground parts, plants, fences: empty overlays (nightLitPx 0). For occlusion, bake unlit parts as black (doc section 6).",
+ "parts": [
+  {
+   "id": "part_house_1f_NE",
+   "file": "buildings/part_house_1f_NE@2x.png",
+   "night": "buildings/part_house_1f_NE_night@2x.png",
+   "nightLitPx": 32,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39.0,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_house_1f_SE",
+   "file": "buildings/part_house_1f_SE@2x.png",
+   "night": "buildings/part_house_1f_SE_night@2x.png",
+   "nightLitPx": 106,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39.0,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_house_1f_SW",
+   "file": "buildings/part_house_1f_SW@2x.png",
+   "night": "buildings/part_house_1f_SW_night@2x.png",
+   "nightLitPx": 41,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39.0,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_house_1f_NW",
+   "file": "buildings/part_house_1f_NW@2x.png",
+   "night": "buildings/part_house_1f_NW_night@2x.png",
+   "nightLitPx": 33,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39.0,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_house_2f_NE",
+   "file": "buildings/part_house_2f_NE@2x.png",
+   "night": "buildings/part_house_2f_NE_night@2x.png",
+   "nightLitPx": 126,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39.0,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_house_2f_SE",
+   "file": "buildings/part_house_2f_SE@2x.png",
+   "night": "buildings/part_house_2f_SE_night@2x.png",
+   "nightLitPx": 166,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39.0,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_house_2f_SW",
+   "file": "buildings/part_house_2f_SW@2x.png",
+   "night": "buildings/part_house_2f_SW_night@2x.png",
+   "nightLitPx": 136,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39.0,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_house_2f_NW",
+   "file": "buildings/part_house_2f_NW@2x.png",
+   "night": "buildings/part_house_2f_NW_night@2x.png",
+   "nightLitPx": 154,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39.0,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_3f_NE",
+   "file": "buildings/part_flats_3f_NE@2x.png",
+   "night": "buildings/part_flats_3f_NE_night@2x.png",
+   "nightLitPx": 318,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37.0,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_3f_SE",
+   "file": "buildings/part_flats_3f_SE@2x.png",
+   "night": "buildings/part_flats_3f_SE_night@2x.png",
+   "nightLitPx": 376,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37.0,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_3f_SW",
+   "file": "buildings/part_flats_3f_SW@2x.png",
+   "night": "buildings/part_flats_3f_SW_night@2x.png",
+   "nightLitPx": 307,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37.0,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_3f_NW",
+   "file": "buildings/part_flats_3f_NW@2x.png",
+   "night": "buildings/part_flats_3f_NW_night@2x.png",
+   "nightLitPx": 412,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37.0,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_4f_NE",
+   "file": "buildings/part_flats_4f_NE@2x.png",
+   "night": "buildings/part_flats_4f_NE_night@2x.png",
+   "nightLitPx": 587,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37.0,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_4f_SE",
+   "file": "buildings/part_flats_4f_SE@2x.png",
+   "night": "buildings/part_flats_4f_SE_night@2x.png",
+   "nightLitPx": 665,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37.0,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_4f_SW",
+   "file": "buildings/part_flats_4f_SW@2x.png",
+   "night": "buildings/part_flats_4f_SW_night@2x.png",
+   "nightLitPx": 645,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37.0,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_flats_4f_NW",
+   "file": "buildings/part_flats_4f_NW@2x.png",
+   "night": "buildings/part_flats_4f_NW_night@2x.png",
+   "nightLitPx": 625,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37.0,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_1f_NE",
+   "file": "buildings/part_shop_1f_NE@2x.png",
+   "night": "buildings/part_shop_1f_NE_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41.0,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_1f_SE",
+   "file": "buildings/part_shop_1f_SE@2x.png",
+   "night": "buildings/part_shop_1f_SE_night@2x.png",
+   "nightLitPx": 169,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41.0,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_1f_SW",
+   "file": "buildings/part_shop_1f_SW@2x.png",
+   "night": "buildings/part_shop_1f_SW_night@2x.png",
+   "nightLitPx": 171,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41.0,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_1f_NW",
+   "file": "buildings/part_shop_1f_NW@2x.png",
+   "night": "buildings/part_shop_1f_NW_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41.0,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_2f_NE",
+   "file": "buildings/part_shop_2f_NE@2x.png",
+   "night": "buildings/part_shop_2f_NE_night@2x.png",
+   "nightLitPx": 452,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41.0,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7.0,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_2f_SE",
+   "file": "buildings/part_shop_2f_SE@2x.png",
+   "night": "buildings/part_shop_2f_SE_night@2x.png",
+   "nightLitPx": 579,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41.0,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7.0,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_2f_SW",
+   "file": "buildings/part_shop_2f_SW@2x.png",
+   "night": "buildings/part_shop_2f_SW_night@2x.png",
+   "nightLitPx": 420,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41.0,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7.0,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_2f_NW",
+   "file": "buildings/part_shop_2f_NW@2x.png",
+   "night": "buildings/part_shop_2f_NW_night@2x.png",
+   "nightLitPx": 338,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41.0,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7.0,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_3f_NE",
+   "file": "buildings/part_shop_3f_NE@2x.png",
+   "night": "buildings/part_shop_3f_NE_night@2x.png",
+   "nightLitPx": 685,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41.0,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_3f_SE",
+   "file": "buildings/part_shop_3f_SE@2x.png",
+   "night": "buildings/part_shop_3f_SE_night@2x.png",
+   "nightLitPx": 807,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41.0,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_3f_SW",
+   "file": "buildings/part_shop_3f_SW@2x.png",
+   "night": "buildings/part_shop_3f_SW_night@2x.png",
+   "nightLitPx": 750,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41.0,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_3f_NW",
+   "file": "buildings/part_shop_3f_NW@2x.png",
+   "night": "buildings/part_shop_3f_NW_night@2x.png",
+   "nightLitPx": 532,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41.0,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_4f_NE",
+   "file": "buildings/part_shop_4f_NE@2x.png",
+   "night": "buildings/part_shop_4f_NE_night@2x.png",
+   "nightLitPx": 823,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41.0,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_4f_SE",
+   "file": "buildings/part_shop_4f_SE@2x.png",
+   "night": "buildings/part_shop_4f_SE_night@2x.png",
+   "nightLitPx": 898,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41.0,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_4f_SW",
+   "file": "buildings/part_shop_4f_SW@2x.png",
+   "night": "buildings/part_shop_4f_SW_night@2x.png",
+   "nightLitPx": 990,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41.0,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_4f_NW",
+   "file": "buildings/part_shop_4f_NW@2x.png",
+   "night": "buildings/part_shop_4f_NW_night@2x.png",
+   "nightLitPx": 873,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41.0,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_office_floor_NE",
+   "file": "buildings/part_shop_office_floor_NE@2x.png",
+   "night": "buildings/part_shop_office_floor_NE_night@2x.png",
+   "nightLitPx": 97,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38.0,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_office_floor_SE",
+   "file": "buildings/part_shop_office_floor_SE@2x.png",
+   "night": "buildings/part_shop_office_floor_SE_night@2x.png",
+   "nightLitPx": 339,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38.0,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_office_floor_SW",
+   "file": "buildings/part_shop_office_floor_SW@2x.png",
+   "night": "buildings/part_shop_office_floor_SW_night@2x.png",
+   "nightLitPx": 386,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38.0,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_shop_office_floor_NW",
+   "file": "buildings/part_shop_office_floor_NW@2x.png",
+   "night": "buildings/part_shop_office_floor_NW_night@2x.png",
+   "nightLitPx": 339,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38.0,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_1f_NE",
+   "file": "buildings/part_workshop_1f_NE@2x.png",
+   "night": "buildings/part_workshop_1f_NE_night@2x.png",
+   "nightLitPx": 58,
+   "size": [
+    84,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "anchorPx": [
+    42.0,
+    43.9
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_1f_SE",
+   "file": "buildings/part_workshop_1f_SE@2x.png",
+   "night": "buildings/part_workshop_1f_SE_night@2x.png",
+   "nightLitPx": 53,
+   "size": [
+    74,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.658
+   ],
+   "anchorPx": [
+    37.0,
+    50.0
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_1f_SW",
+   "file": "buildings/part_workshop_1f_SW@2x.png",
+   "night": "buildings/part_workshop_1f_SW_night@2x.png",
+   "nightLitPx": 109,
+   "size": [
+    84,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "anchorPx": [
+    42.0,
+    43.9
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_1f_NW",
+   "file": "buildings/part_workshop_1f_NW@2x.png",
+   "night": "buildings/part_workshop_1f_NW_night@2x.png",
+   "nightLitPx": 147,
+   "size": [
+    74,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "anchorPx": [
+    37.0,
+    43.9
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_2f_NE",
+   "file": "buildings/part_workshop_2f_NE@2x.png",
+   "night": "buildings/part_workshop_2f_NE_night@2x.png",
+   "nightLitPx": 260,
+   "size": [
+    84,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "anchorPx": [
+    42.0,
+    56.5
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "facing": "NE",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_2f_SE",
+   "file": "buildings/part_workshop_2f_SE@2x.png",
+   "night": "buildings/part_workshop_2f_SE_night@2x.png",
+   "nightLitPx": 199,
+   "size": [
+    74,
+    90
+   ],
+   "anchor": [
+    0.5,
+    0.6951
+   ],
+   "anchorPx": [
+    37.0,
+    62.6
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "facing": "SE",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_2f_SW",
+   "file": "buildings/part_workshop_2f_SW@2x.png",
+   "night": "buildings/part_workshop_2f_SW_night@2x.png",
+   "nightLitPx": 199,
+   "size": [
+    84,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "anchorPx": [
+    42.0,
+    56.5
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "facing": "SW",
+   "layer": "object"
+  },
+  {
+   "id": "part_workshop_2f_NW",
+   "file": "buildings/part_workshop_2f_NW@2x.png",
+   "night": "buildings/part_workshop_2f_NW_night@2x.png",
+   "nightLitPx": 136,
+   "size": [
+    74,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "anchorPx": [
+    37.0,
+    56.5
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "facing": "NW",
+   "layer": "object"
+  },
+  {
+   "id": "part_parking_stall_NE",
+   "file": "ground/part_parking_stall_NE@2x.png",
+   "night": "ground/part_parking_stall_NE_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22.0,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "facing": "NE",
+   "frontEdge": "NE",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "id": "part_parking_stall_SE",
+   "file": "ground/part_parking_stall_SE@2x.png",
+   "night": "ground/part_parking_stall_SE_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22.0,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "facing": "SE",
+   "frontEdge": "SE",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "id": "part_parking_stall_SW",
+   "file": "ground/part_parking_stall_SW@2x.png",
+   "night": "ground/part_parking_stall_SW_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22.0,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "facing": "SW",
+   "frontEdge": "SW",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "id": "part_parking_stall_NW",
+   "file": "ground/part_parking_stall_NW@2x.png",
+   "night": "ground/part_parking_stall_NW_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22.0,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "facing": "NW",
+   "frontEdge": "NW",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "id": "part_driveway_NE",
+   "file": "ground/part_driveway_NE@2x.png",
+   "night": "ground/part_driveway_NE_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.462
+   ],
+   "anchorPx": [
+    22.0,
+    14.8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "facing": "NE",
+   "frontEdge": "NE",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "id": "part_driveway_SE",
+   "file": "ground/part_driveway_SE@2x.png",
+   "night": "ground/part_driveway_SE_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4498
+   ],
+   "anchorPx": [
+    22.0,
+    14.4
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "facing": "SE",
+   "frontEdge": "SE",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "id": "part_driveway_SW",
+   "file": "ground/part_driveway_SW@2x.png",
+   "night": "ground/part_driveway_SW_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4498
+   ],
+   "anchorPx": [
+    22.0,
+    14.4
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "facing": "SW",
+   "frontEdge": "SW",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "id": "part_driveway_NW",
+   "file": "ground/part_driveway_NW@2x.png",
+   "night": "ground/part_driveway_NW_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.462
+   ],
+   "anchorPx": [
+    22.0,
+    14.8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "facing": "NW",
+   "frontEdge": "NW",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "id": "part_lawn",
+   "file": "ground/part_lawn@2x.png",
+   "night": "ground/part_lawn_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4448
+   ],
+   "anchorPx": [
+    22.0,
+    14.2
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": null,
+   "note": "5x5 m lawn with mowing stripes; tile it as the lot base"
+  },
+  {
+   "id": "part_sidewalk_5",
+   "file": "ground/part_sidewalk_5@2x.png",
+   "night": "ground/part_sidewalk_5_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_10",
+   "file": "ground/part_sidewalk_10@2x.png",
+   "night": "ground/part_sidewalk_10_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_3",
+   "file": "ground/part_sidewalk_3@2x.png",
+   "night": "ground/part_sidewalk_3_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_6",
+   "file": "ground/part_sidewalk_6@2x.png",
+   "night": "ground/part_sidewalk_6_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.3997
+   ],
+   "anchorPx": [
+    19.0,
+    9.6
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_12",
+   "file": "ground/part_sidewalk_12@2x.png",
+   "night": "ground/part_sidewalk_12_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_9",
+   "file": "ground/part_sidewalk_9@2x.png",
+   "night": "ground/part_sidewalk_9_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.5223
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_7",
+   "file": "ground/part_sidewalk_7@2x.png",
+   "night": "ground/part_sidewalk_7_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 7,
+   "shape": "tee_no_NW",
+   "connects": [
+    "NE",
+    "SE",
+    "SW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_11",
+   "file": "ground/part_sidewalk_11@2x.png",
+   "night": "ground/part_sidewalk_11_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 11,
+   "shape": "tee_no_SW",
+   "connects": [
+    "NE",
+    "SE",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_13",
+   "file": "ground/part_sidewalk_13@2x.png",
+   "night": "ground/part_sidewalk_13_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 13,
+   "shape": "tee_no_SE",
+   "connects": [
+    "NE",
+    "SW",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_sidewalk_14",
+   "file": "ground/part_sidewalk_14@2x.png",
+   "night": "ground/part_sidewalk_14_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19.0,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 14,
+   "shape": "tee_no_NE",
+   "connects": [
+    "SE",
+    "SW",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "id": "part_hedge_5",
+   "file": "fences/part_hedge_5@2x.png",
+   "night": "fences/part_hedge_5_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_picket_5",
+   "file": "fences/part_fence_picket_5@2x.png",
+   "night": "fences/part_fence_picket_5_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15.0,
+    14.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_chainlink_5",
+   "file": "fences/part_fence_chainlink_5@2x.png",
+   "night": "fences/part_fence_chainlink_5_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_hedge_10",
+   "file": "fences/part_hedge_10@2x.png",
+   "night": "fences/part_hedge_10_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_picket_10",
+   "file": "fences/part_fence_picket_10@2x.png",
+   "night": "fences/part_fence_picket_10_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15.0,
+    14.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_chainlink_10",
+   "file": "fences/part_fence_chainlink_10@2x.png",
+   "night": "fences/part_fence_chainlink_10_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_hedge_3",
+   "file": "fences/part_hedge_3@2x.png",
+   "night": "fences/part_hedge_3_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_picket_3",
+   "file": "fences/part_fence_picket_3@2x.png",
+   "night": "fences/part_fence_picket_3_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15.0,
+    14.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_chainlink_3",
+   "file": "fences/part_fence_chainlink_3@2x.png",
+   "night": "fences/part_fence_chainlink_3_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_hedge_6",
+   "file": "fences/part_hedge_6@2x.png",
+   "night": "fences/part_hedge_6_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4836
+   ],
+   "anchorPx": [
+    17.0,
+    13.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_picket_6",
+   "file": "fences/part_fence_picket_6@2x.png",
+   "night": "fences/part_fence_picket_6_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.4403
+   ],
+   "anchorPx": [
+    15.0,
+    10.6
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_chainlink_6",
+   "file": "fences/part_fence_chainlink_6@2x.png",
+   "night": "fences/part_fence_chainlink_6_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5194
+   ],
+   "anchorPx": [
+    15.0,
+    13.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_hedge_12",
+   "file": "fences/part_hedge_12@2x.png",
+   "night": "fences/part_hedge_12_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_picket_12",
+   "file": "fences/part_fence_picket_12@2x.png",
+   "night": "fences/part_fence_picket_12_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15.0,
+    14.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_chainlink_12",
+   "file": "fences/part_fence_chainlink_12@2x.png",
+   "night": "fences/part_fence_chainlink_12_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_hedge_9",
+   "file": "fences/part_hedge_9@2x.png",
+   "night": "fences/part_hedge_9_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.6265
+   ],
+   "anchorPx": [
+    17.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_picket_9",
+   "file": "fences/part_fence_picket_9@2x.png",
+   "night": "fences/part_fence_picket_9_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.5853
+   ],
+   "anchorPx": [
+    15.0,
+    14.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_fence_chainlink_9",
+   "file": "fences/part_fence_chainlink_9@2x.png",
+   "night": "fences/part_fence_chainlink_9_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.6733
+   ],
+   "anchorPx": [
+    15.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "id": "part_hedge_gate_5",
+   "file": "fences/part_hedge_gate_5@2x.png",
+   "night": "fences/part_hedge_gate_5_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    32,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5581
+   ],
+   "anchorPx": [
+    16.0,
+    16.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "id": "part_fence_picket_gate_5",
+   "file": "fences/part_fence_picket_gate_5@2x.png",
+   "night": "fences/part_fence_picket_gate_5_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5259
+   ],
+   "anchorPx": [
+    15.0,
+    13.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "id": "part_fence_chainlink_gate_5",
+   "file": "fences/part_fence_chainlink_gate_5@2x.png",
+   "night": "fences/part_fence_chainlink_gate_5_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "id": "part_hedge_gate_10",
+   "file": "fences/part_hedge_gate_10@2x.png",
+   "night": "fences/part_hedge_gate_10_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    32,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5581
+   ],
+   "anchorPx": [
+    16.0,
+    16.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "id": "part_fence_picket_gate_10",
+   "file": "fences/part_fence_picket_gate_10@2x.png",
+   "night": "fences/part_fence_picket_gate_10_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5259
+   ],
+   "anchorPx": [
+    15.0,
+    13.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "id": "part_fence_chainlink_gate_10",
+   "file": "fences/part_fence_chainlink_gate_10@2x.png",
+   "night": "fences/part_fence_chainlink_gate_10_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15.0,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "id": "part_tree_a",
+   "file": "plants/part_tree_a@2x.png",
+   "night": "plants/part_tree_a_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    44
+   ],
+   "anchor": [
+    0.5,
+    0.7895
+   ],
+   "anchorPx": [
+    19.0,
+    34.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": "tree"
+  },
+  {
+   "id": "part_tree_b",
+   "file": "plants/part_tree_b@2x.png",
+   "night": "plants/part_tree_b_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.7854
+   ],
+   "anchorPx": [
+    17.0,
+    37.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": "tree"
+  },
+  {
+   "id": "part_tree_c",
+   "file": "plants/part_tree_c@2x.png",
+   "night": "plants/part_tree_c_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    28,
+    50
+   ],
+   "anchor": [
+    0.5,
+    0.8104
+   ],
+   "anchorPx": [
+    14.0,
+    40.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": "tree"
+  },
+  {
+   "id": "part_shrub_a",
+   "file": "plants/part_shrub_a@2x.png",
+   "night": "plants/part_shrub_a_night@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    20,
+    20
+   ],
+   "anchor": [
+    0.5,
+    0.5803
+   ],
+   "anchorPx": [
+    10.0,
+    11.6
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": null
+  },
+  {
+   "id": "part_door_marker_NE",
+   "file": "markers/part_door_marker_NE@2x.png",
+   "night": "markers/part_door_marker_NE_night@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16.0,
+    8.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "NE",
+   "facing": "NE",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  },
+  {
+   "id": "part_door_marker_SE",
+   "file": "markers/part_door_marker_SE@2x.png",
+   "night": "markers/part_door_marker_SE_night@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16.0,
+    8.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "SE",
+   "facing": "SE",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  },
+  {
+   "id": "part_door_marker_SW",
+   "file": "markers/part_door_marker_SW@2x.png",
+   "night": "markers/part_door_marker_SW_night@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16.0,
+    8.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "SW",
+   "facing": "SW",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  },
+  {
+   "id": "part_door_marker_NW",
+   "file": "markers/part_door_marker_NW@2x.png",
+   "night": "markers/part_door_marker_NW_night@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16.0,
+    8.0
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "NW",
+   "facing": "NW",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  }
+ ]
+}

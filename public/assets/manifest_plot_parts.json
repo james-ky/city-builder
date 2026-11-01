@@ -1,0 +1,4784 @@
+{
+ "version": 1,
+ "set": "plot_parts",
+ "artRevision": "plot-parts-v1",
+ "assets": [
+  {
+   "name": "part_house_1f_NE",
+   "file": "plot_parts/buildings/part_house_1f_NE@2x.png",
+   "nightLitPx": 32,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_1f_NE_night",
+   "file": "plot_parts/buildings/part_house_1f_NE_night@2x.png",
+   "nightOf": "part_house_1f_NE",
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_house_1f_SE",
+   "file": "plot_parts/buildings/part_house_1f_SE@2x.png",
+   "nightLitPx": 106,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_1f_SE_night",
+   "file": "plot_parts/buildings/part_house_1f_SE_night@2x.png",
+   "nightOf": "part_house_1f_SE",
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_house_1f_SW",
+   "file": "plot_parts/buildings/part_house_1f_SW@2x.png",
+   "nightLitPx": 41,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_1f_SW_night",
+   "file": "plot_parts/buildings/part_house_1f_SW_night@2x.png",
+   "nightOf": "part_house_1f_SW",
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_house_1f_NW",
+   "file": "plot_parts/buildings/part_house_1f_NW@2x.png",
+   "nightLitPx": 33,
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "anchorPx": [
+    39,
+    39.3
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 3.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_1f_NW_night",
+   "file": "plot_parts/buildings/part_house_1f_NW_night@2x.png",
+   "nightOf": "part_house_1f_NW",
+   "size": [
+    78,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6145
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_house_2f_NE",
+   "file": "plot_parts/buildings/part_house_2f_NE@2x.png",
+   "nightLitPx": 126,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_2f_NE_night",
+   "file": "plot_parts/buildings/part_house_2f_NE_night@2x.png",
+   "nightOf": "part_house_2f_NE",
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_house_2f_SE",
+   "file": "plot_parts/buildings/part_house_2f_SE@2x.png",
+   "nightLitPx": 166,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_2f_SE_night",
+   "file": "plot_parts/buildings/part_house_2f_SE_night@2x.png",
+   "nightOf": "part_house_2f_SE",
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_house_2f_SW",
+   "file": "plot_parts/buildings/part_house_2f_SW@2x.png",
+   "nightLitPx": 136,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_2f_SW_night",
+   "file": "plot_parts/buildings/part_house_2f_SW_night@2x.png",
+   "nightOf": "part_house_2f_SW",
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_house_2f_NW",
+   "file": "plot_parts/buildings/part_house_2f_NW@2x.png",
+   "nightLitPx": 154,
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "anchorPx": [
+    39,
+    51.9
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 6.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_house_2f_NW_night",
+   "file": "plot_parts/buildings/part_house_2f_NW_night@2x.png",
+   "nightOf": "part_house_2f_NW",
+   "size": [
+    78,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6825
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_3f_NE",
+   "file": "plot_parts/buildings/part_flats_3f_NE@2x.png",
+   "nightLitPx": 318,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_3f_NE_night",
+   "file": "plot_parts/buildings/part_flats_3f_NE_night@2x.png",
+   "nightOf": "part_flats_3f_NE",
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_3f_SE",
+   "file": "plot_parts/buildings/part_flats_3f_SE@2x.png",
+   "nightLitPx": 376,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_3f_SE_night",
+   "file": "plot_parts/buildings/part_flats_3f_SE_night@2x.png",
+   "nightOf": "part_flats_3f_SE",
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_3f_SW",
+   "file": "plot_parts/buildings/part_flats_3f_SW@2x.png",
+   "nightLitPx": 307,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_3f_SW_night",
+   "file": "plot_parts/buildings/part_flats_3f_SW_night@2x.png",
+   "nightOf": "part_flats_3f_SW",
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_3f_NW",
+   "file": "plot_parts/buildings/part_flats_3f_NW@2x.png",
+   "nightLitPx": 412,
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "anchorPx": [
+    37,
+    61.6
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 9.6,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_3f_NW_night",
+   "file": "plot_parts/buildings/part_flats_3f_NW_night@2x.png",
+   "nightOf": "part_flats_3f_NW",
+   "size": [
+    74,
+    86
+   ],
+   "anchor": [
+    0.5,
+    0.716
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_4f_NE",
+   "file": "plot_parts/buildings/part_flats_4f_NE@2x.png",
+   "nightLitPx": 587,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_4f_NE_night",
+   "file": "plot_parts/buildings/part_flats_4f_NE_night@2x.png",
+   "nightOf": "part_flats_4f_NE",
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_4f_SE",
+   "file": "plot_parts/buildings/part_flats_4f_SE@2x.png",
+   "nightLitPx": 665,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_4f_SE_night",
+   "file": "plot_parts/buildings/part_flats_4f_SE_night@2x.png",
+   "nightOf": "part_flats_4f_SE",
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_4f_SW",
+   "file": "plot_parts/buildings/part_flats_4f_SW@2x.png",
+   "nightLitPx": 645,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_4f_SW_night",
+   "file": "plot_parts/buildings/part_flats_4f_SW_night@2x.png",
+   "nightOf": "part_flats_4f_SW",
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_flats_4f_NW",
+   "file": "plot_parts/buildings/part_flats_4f_NW@2x.png",
+   "nightLitPx": 625,
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "anchorPx": [
+    37,
+    74.1
+   ],
+   "scale": 0.5,
+   "prType": "house",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.2,
+   "eaveHeightM": 12.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_flats_4f_NW_night",
+   "file": "plot_parts/buildings/part_flats_4f_NW_night@2x.png",
+   "nightOf": "part_flats_4f_NW",
+   "size": [
+    74,
+    98
+   ],
+   "anchor": [
+    0.5,
+    0.7564
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_1f_NE",
+   "file": "plot_parts/buildings/part_shop_1f_NE@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_1f_NE_night",
+   "file": "plot_parts/buildings/part_shop_1f_NE_night@2x.png",
+   "nightOf": "part_shop_1f_NE",
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_1f_SE",
+   "file": "plot_parts/buildings/part_shop_1f_SE@2x.png",
+   "nightLitPx": 169,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_1f_SE_night",
+   "file": "plot_parts/buildings/part_shop_1f_SE_night@2x.png",
+   "nightOf": "part_shop_1f_SE",
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_1f_SW",
+   "file": "plot_parts/buildings/part_shop_1f_SW@2x.png",
+   "nightLitPx": 171,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_1f_SW_night",
+   "file": "plot_parts/buildings/part_shop_1f_SW_night@2x.png",
+   "nightOf": "part_shop_1f_SW",
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_1f_NW",
+   "file": "plot_parts/buildings/part_shop_1f_NW@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "anchorPx": [
+    41,
+    38.8
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 3.8,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_1f_NW_night",
+   "file": "plot_parts/buildings/part_shop_1f_NW_night@2x.png",
+   "nightOf": "part_shop_1f_NW",
+   "size": [
+    82,
+    64
+   ],
+   "anchor": [
+    0.5,
+    0.6069
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_2f_NE",
+   "file": "plot_parts/buildings/part_shop_2f_NE@2x.png",
+   "nightLitPx": 452,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_2f_NE_night",
+   "file": "plot_parts/buildings/part_shop_2f_NE_night@2x.png",
+   "nightOf": "part_shop_2f_NE",
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_2f_SE",
+   "file": "plot_parts/buildings/part_shop_2f_SE@2x.png",
+   "nightLitPx": 579,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_2f_SE_night",
+   "file": "plot_parts/buildings/part_shop_2f_SE_night@2x.png",
+   "nightOf": "part_shop_2f_SE",
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_2f_SW",
+   "file": "plot_parts/buildings/part_shop_2f_SW@2x.png",
+   "nightLitPx": 420,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_2f_SW_night",
+   "file": "plot_parts/buildings/part_shop_2f_SW_night@2x.png",
+   "nightOf": "part_shop_2f_SW",
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_2f_NW",
+   "file": "plot_parts/buildings/part_shop_2f_NW@2x.png",
+   "nightLitPx": 338,
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "anchorPx": [
+    41,
+    51.4
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 7,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_2f_NW_night",
+   "file": "plot_parts/buildings/part_shop_2f_NW_night@2x.png",
+   "nightOf": "part_shop_2f_NW",
+   "size": [
+    82,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.6761
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_3f_NE",
+   "file": "plot_parts/buildings/part_shop_3f_NE@2x.png",
+   "nightLitPx": 685,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_3f_NE_night",
+   "file": "plot_parts/buildings/part_shop_3f_NE_night@2x.png",
+   "nightOf": "part_shop_3f_NE",
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_3f_SE",
+   "file": "plot_parts/buildings/part_shop_3f_SE@2x.png",
+   "nightLitPx": 807,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_3f_SE_night",
+   "file": "plot_parts/buildings/part_shop_3f_SE_night@2x.png",
+   "nightOf": "part_shop_3f_SE",
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_3f_SW",
+   "file": "plot_parts/buildings/part_shop_3f_SW@2x.png",
+   "nightLitPx": 750,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_3f_SW_night",
+   "file": "plot_parts/buildings/part_shop_3f_SW_night@2x.png",
+   "nightOf": "part_shop_3f_SW",
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_3f_NW",
+   "file": "plot_parts/buildings/part_shop_3f_NW@2x.png",
+   "nightLitPx": 532,
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "anchorPx": [
+    41,
+    63.9
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 3,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 10.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_3f_NW_night",
+   "file": "plot_parts/buildings/part_shop_3f_NW_night@2x.png",
+   "nightOf": "part_shop_3f_NW",
+   "size": [
+    82,
+    88
+   ],
+   "anchor": [
+    0.5,
+    0.7265
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_4f_NE",
+   "file": "plot_parts/buildings/part_shop_4f_NE@2x.png",
+   "nightLitPx": 823,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_4f_NE_night",
+   "file": "plot_parts/buildings/part_shop_4f_NE_night@2x.png",
+   "nightOf": "part_shop_4f_NE",
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_4f_SE",
+   "file": "plot_parts/buildings/part_shop_4f_SE@2x.png",
+   "nightLitPx": 898,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_4f_SE_night",
+   "file": "plot_parts/buildings/part_shop_4f_SE_night@2x.png",
+   "nightOf": "part_shop_4f_SE",
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_4f_SW",
+   "file": "plot_parts/buildings/part_shop_4f_SW@2x.png",
+   "nightLitPx": 990,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_4f_SW_night",
+   "file": "plot_parts/buildings/part_shop_4f_SW_night@2x.png",
+   "nightOf": "part_shop_4f_SW",
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_4f_NW",
+   "file": "plot_parts/buildings/part_shop_4f_NW@2x.png",
+   "nightLitPx": 873,
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "anchorPx": [
+    41,
+    76.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 4,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 3.8,
+   "eaveHeightM": 13.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_4f_NW_night",
+   "file": "plot_parts/buildings/part_shop_4f_NW_night@2x.png",
+   "nightOf": "part_shop_4f_NW",
+   "size": [
+    82,
+    100
+   ],
+   "anchor": [
+    0.5,
+    0.7648
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_office_floor_NE",
+   "file": "plot_parts/buildings/part_shop_office_floor_NE@2x.png",
+   "nightLitPx": 97,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_office_floor_NE_night",
+   "file": "plot_parts/buildings/part_shop_office_floor_NE_night@2x.png",
+   "nightOf": "part_shop_office_floor_NE",
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_office_floor_SE",
+   "file": "plot_parts/buildings/part_shop_office_floor_SE@2x.png",
+   "nightLitPx": 339,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_office_floor_SE_night",
+   "file": "plot_parts/buildings/part_shop_office_floor_SE_night@2x.png",
+   "nightOf": "part_shop_office_floor_SE",
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_office_floor_SW",
+   "file": "plot_parts/buildings/part_shop_office_floor_SW@2x.png",
+   "nightLitPx": 386,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_office_floor_SW_night",
+   "file": "plot_parts/buildings/part_shop_office_floor_SW_night@2x.png",
+   "nightOf": "part_shop_office_floor_SW",
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shop_office_floor_NW",
+   "file": "plot_parts/buildings/part_shop_office_floor_NW@2x.png",
+   "nightLitPx": 339,
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "anchorPx": [
+    38,
+    34.5
+   ],
+   "scale": 0.5,
+   "prType": "shop",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "stackPiece": true,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "stackOffsetPx2x": 12.54,
+   "stackRule": "optional: draw at the body anchor raised by 12.54 px (2x) per storey above the shop ground floor; its own roof slab is hidden by the next storey",
+   "doorEdge": null,
+   "layer": "object"
+  },
+  {
+   "name": "part_shop_office_floor_NW_night",
+   "file": "plot_parts/buildings/part_shop_office_floor_NW_night@2x.png",
+   "nightOf": "part_shop_office_floor_NW",
+   "size": [
+    76,
+    58
+   ],
+   "anchor": [
+    0.5,
+    0.5954
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_1f_NE",
+   "file": "plot_parts/buildings/part_workshop_1f_NE@2x.png",
+   "nightLitPx": 58,
+   "size": [
+    84,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "anchorPx": [
+    42,
+    43.9
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_1f_NE_night",
+   "file": "plot_parts/buildings/part_workshop_1f_NE_night@2x.png",
+   "nightOf": "part_workshop_1f_NE",
+   "size": [
+    84,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_1f_SE",
+   "file": "plot_parts/buildings/part_workshop_1f_SE@2x.png",
+   "nightLitPx": 53,
+   "size": [
+    74,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.658
+   ],
+   "anchorPx": [
+    37,
+    50
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_1f_SE_night",
+   "file": "plot_parts/buildings/part_workshop_1f_SE_night@2x.png",
+   "nightOf": "part_workshop_1f_SE",
+   "size": [
+    74,
+    76
+   ],
+   "anchor": [
+    0.5,
+    0.658
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_1f_SW",
+   "file": "plot_parts/buildings/part_workshop_1f_SW@2x.png",
+   "nightLitPx": 109,
+   "size": [
+    84,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "anchorPx": [
+    42,
+    43.9
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_1f_SW_night",
+   "file": "plot_parts/buildings/part_workshop_1f_SW_night@2x.png",
+   "nightOf": "part_workshop_1f_SW",
+   "size": [
+    84,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_1f_NW",
+   "file": "plot_parts/buildings/part_workshop_1f_NW@2x.png",
+   "nightLitPx": 147,
+   "size": [
+    74,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "anchorPx": [
+    37,
+    43.9
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 1,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 5.2,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_1f_NW_night",
+   "file": "plot_parts/buildings/part_workshop_1f_NW_night@2x.png",
+   "nightOf": "part_workshop_1f_NW",
+   "size": [
+    74,
+    68
+   ],
+   "anchor": [
+    0.5,
+    0.6462
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_2f_NE",
+   "file": "plot_parts/buildings/part_workshop_2f_NE@2x.png",
+   "nightLitPx": 260,
+   "size": [
+    84,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "anchorPx": [
+    42,
+    56.5
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NE",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_2f_NE_night",
+   "file": "plot_parts/buildings/part_workshop_2f_NE_night@2x.png",
+   "nightOf": "part_workshop_2f_NE",
+   "size": [
+    84,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_2f_SE",
+   "file": "plot_parts/buildings/part_workshop_2f_SE@2x.png",
+   "nightLitPx": 199,
+   "size": [
+    74,
+    90
+   ],
+   "anchor": [
+    0.5,
+    0.6951
+   ],
+   "anchorPx": [
+    37,
+    62.6
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SE",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_2f_SE_night",
+   "file": "plot_parts/buildings/part_workshop_2f_SE_night@2x.png",
+   "nightOf": "part_workshop_2f_SE",
+   "size": [
+    74,
+    90
+   ],
+   "anchor": [
+    0.5,
+    0.6951
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_2f_SW",
+   "file": "plot_parts/buildings/part_workshop_2f_SW@2x.png",
+   "nightLitPx": 199,
+   "size": [
+    84,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "anchorPx": [
+    42,
+    56.5
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "SW",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_2f_SW_night",
+   "file": "plot_parts/buildings/part_workshop_2f_SW_night@2x.png",
+   "nightOf": "part_workshop_2f_SW",
+   "size": [
+    84,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_workshop_2f_NW",
+   "file": "plot_parts/buildings/part_workshop_2f_NW@2x.png",
+   "nightLitPx": 136,
+   "size": [
+    74,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "anchorPx": [
+    37,
+    56.5
+   ],
+   "scale": 0.5,
+   "prType": "factory",
+   "footprintCells": [
+    2,
+    2
+   ],
+   "footprintM": [
+    10,
+    10
+   ],
+   "floors": 2,
+   "floorHeightM": 3.2,
+   "floorHeightPx2x": 12.54,
+   "groundFloorHeightM": 5.2,
+   "eaveHeightM": 8.4,
+   "stackOffsetPx2x": 0,
+   "wholeBuilding": true,
+   "doorEdge": "NW",
+   "layer": "object"
+  },
+  {
+   "name": "part_workshop_2f_NW_night",
+   "file": "plot_parts/buildings/part_workshop_2f_NW_night@2x.png",
+   "nightOf": "part_workshop_2f_NW",
+   "size": [
+    74,
+    80
+   ],
+   "anchor": [
+    0.5,
+    0.706
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_parking_stall_NE",
+   "file": "plot_parts/ground/part_parking_stall_NE@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "frontEdge": "NE",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "name": "part_parking_stall_NE_night",
+   "file": "plot_parts/ground/part_parking_stall_NE_night@2x.png",
+   "nightOf": "part_parking_stall_NE",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_parking_stall_SE",
+   "file": "plot_parts/ground/part_parking_stall_SE@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "frontEdge": "SE",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "name": "part_parking_stall_SE_night",
+   "file": "plot_parts/ground/part_parking_stall_SE_night@2x.png",
+   "nightOf": "part_parking_stall_SE",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_parking_stall_SW",
+   "file": "plot_parts/ground/part_parking_stall_SW@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "frontEdge": "SW",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "name": "part_parking_stall_SW_night",
+   "file": "plot_parts/ground/part_parking_stall_SW_night@2x.png",
+   "nightOf": "part_parking_stall_SW",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_parking_stall_NW",
+   "file": "plot_parts/ground/part_parking_stall_NW@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "anchorPx": [
+    22,
+    14.3
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "parking",
+   "frontEdge": "NW",
+   "note": "aisle/front toward frontEdge; side lines on the two edges perpendicular to it; wheel stop at the back; no car (place a traffic car on top)"
+  },
+  {
+   "name": "part_parking_stall_NW_night",
+   "file": "plot_parts/ground/part_parking_stall_NW_night@2x.png",
+   "nightOf": "part_parking_stall_NW",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4473
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_driveway_NE",
+   "file": "plot_parts/ground/part_driveway_NE@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.462
+   ],
+   "anchorPx": [
+    22,
+    14.8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "frontEdge": "NE",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "name": "part_driveway_NE_night",
+   "file": "plot_parts/ground/part_driveway_NE_night@2x.png",
+   "nightOf": "part_driveway_NE",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.462
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_driveway_SE",
+   "file": "plot_parts/ground/part_driveway_SE@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4498
+   ],
+   "anchorPx": [
+    22,
+    14.4
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "frontEdge": "SE",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "name": "part_driveway_SE_night",
+   "file": "plot_parts/ground/part_driveway_SE_night@2x.png",
+   "nightOf": "part_driveway_SE",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4498
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_driveway_SW",
+   "file": "plot_parts/ground/part_driveway_SW@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4498
+   ],
+   "anchorPx": [
+    22,
+    14.4
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "frontEdge": "SW",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "name": "part_driveway_SW_night",
+   "file": "plot_parts/ground/part_driveway_SW_night@2x.png",
+   "nightOf": "part_driveway_SW",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4498
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_driveway_NW",
+   "file": "plot_parts/ground/part_driveway_NW@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.462
+   ],
+   "anchorPx": [
+    22,
+    14.8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": "driveway",
+   "frontEdge": "NW",
+   "note": "curb cut on the frontEdge (road side)"
+  },
+  {
+   "name": "part_driveway_NW_night",
+   "file": "plot_parts/ground/part_driveway_NW_night@2x.png",
+   "nightOf": "part_driveway_NW",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.462
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_lawn",
+   "file": "plot_parts/ground/part_lawn@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4448
+   ],
+   "anchorPx": [
+    22,
+    14.2
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "prType": null,
+   "note": "5x5 m lawn with mowing stripes; tile it as the lot base"
+  },
+  {
+   "name": "part_lawn_night",
+   "file": "plot_parts/ground/part_lawn_night@2x.png",
+   "nightOf": "part_lawn",
+   "size": [
+    44,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.4448
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_5",
+   "file": "plot_parts/ground/part_sidewalk_5@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_5_night",
+   "file": "plot_parts/ground/part_sidewalk_5_night@2x.png",
+   "nightOf": "part_sidewalk_5",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_10",
+   "file": "plot_parts/ground/part_sidewalk_10@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_10_night",
+   "file": "plot_parts/ground/part_sidewalk_10_night@2x.png",
+   "nightOf": "part_sidewalk_10",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_3",
+   "file": "plot_parts/ground/part_sidewalk_3@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_3_night",
+   "file": "plot_parts/ground/part_sidewalk_3_night@2x.png",
+   "nightOf": "part_sidewalk_3",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_6",
+   "file": "plot_parts/ground/part_sidewalk_6@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.3997
+   ],
+   "anchorPx": [
+    19,
+    9.6
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_6_night",
+   "file": "plot_parts/ground/part_sidewalk_6_night@2x.png",
+   "nightOf": "part_sidewalk_6",
+   "size": [
+    38,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.3997
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_12",
+   "file": "plot_parts/ground/part_sidewalk_12@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_12_night",
+   "file": "plot_parts/ground/part_sidewalk_12_night@2x.png",
+   "nightOf": "part_sidewalk_12",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_9",
+   "file": "plot_parts/ground/part_sidewalk_9@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.5223
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_9_night",
+   "file": "plot_parts/ground/part_sidewalk_9_night@2x.png",
+   "nightOf": "part_sidewalk_9",
+   "size": [
+    38,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.5223
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_7",
+   "file": "plot_parts/ground/part_sidewalk_7@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 7,
+   "shape": "tee_no_NW",
+   "connects": [
+    "NE",
+    "SE",
+    "SW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_7_night",
+   "file": "plot_parts/ground/part_sidewalk_7_night@2x.png",
+   "nightOf": "part_sidewalk_7",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_11",
+   "file": "plot_parts/ground/part_sidewalk_11@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 11,
+   "shape": "tee_no_SW",
+   "connects": [
+    "NE",
+    "SE",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_11_night",
+   "file": "plot_parts/ground/part_sidewalk_11_night@2x.png",
+   "nightOf": "part_sidewalk_11",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_13",
+   "file": "plot_parts/ground/part_sidewalk_13@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 13,
+   "shape": "tee_no_SE",
+   "connects": [
+    "NE",
+    "SW",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_13_night",
+   "file": "plot_parts/ground/part_sidewalk_13_night@2x.png",
+   "nightOf": "part_sidewalk_13",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_sidewalk_14",
+   "file": "plot_parts/ground/part_sidewalk_14@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "anchorPx": [
+    19,
+    12.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": null,
+   "mask": 14,
+   "shape": "tee_no_NE",
+   "connects": [
+    "SE",
+    "SW",
+    "NW"
+   ],
+   "prType": "sidewalk"
+  },
+  {
+   "name": "part_sidewalk_14_night",
+   "file": "plot_parts/ground/part_sidewalk_14_night@2x.png",
+   "nightOf": "part_sidewalk_14",
+   "size": [
+    38,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4477
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_5",
+   "file": "plot_parts/fences/part_hedge_5@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_hedge_5_night",
+   "file": "plot_parts/fences/part_hedge_5_night@2x.png",
+   "nightOf": "part_hedge_5",
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_5",
+   "file": "plot_parts/fences/part_fence_picket_5@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15,
+    14
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_picket_5_night",
+   "file": "plot_parts/fences/part_fence_picket_5_night@2x.png",
+   "nightOf": "part_fence_picket_5",
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_5",
+   "file": "plot_parts/fences/part_fence_chainlink_5@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_chainlink_5_night",
+   "file": "plot_parts/fences/part_fence_chainlink_5_night@2x.png",
+   "nightOf": "part_fence_chainlink_5",
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_10",
+   "file": "plot_parts/fences/part_hedge_10@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_hedge_10_night",
+   "file": "plot_parts/fences/part_hedge_10_night@2x.png",
+   "nightOf": "part_hedge_10",
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_10",
+   "file": "plot_parts/fences/part_fence_picket_10@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15,
+    14
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_picket_10_night",
+   "file": "plot_parts/fences/part_fence_picket_10_night@2x.png",
+   "nightOf": "part_fence_picket_10",
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_10",
+   "file": "plot_parts/fences/part_fence_chainlink_10@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_chainlink_10_night",
+   "file": "plot_parts/fences/part_fence_chainlink_10_night@2x.png",
+   "nightOf": "part_fence_chainlink_10",
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_3",
+   "file": "plot_parts/fences/part_hedge_3@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_hedge_3_night",
+   "file": "plot_parts/fences/part_hedge_3_night@2x.png",
+   "nightOf": "part_hedge_3",
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_3",
+   "file": "plot_parts/fences/part_fence_picket_3@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15,
+    14
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_picket_3_night",
+   "file": "plot_parts/fences/part_fence_picket_3_night@2x.png",
+   "nightOf": "part_fence_picket_3",
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_3",
+   "file": "plot_parts/fences/part_fence_chainlink_3@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 3,
+   "shape": "corner_NE_SE",
+   "connects": [
+    "NE",
+    "SE"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_chainlink_3_night",
+   "file": "plot_parts/fences/part_fence_chainlink_3_night@2x.png",
+   "nightOf": "part_fence_chainlink_3",
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_6",
+   "file": "plot_parts/fences/part_hedge_6@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4836
+   ],
+   "anchorPx": [
+    17,
+    13.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_hedge_6_night",
+   "file": "plot_parts/fences/part_hedge_6_night@2x.png",
+   "nightOf": "part_hedge_6",
+   "size": [
+    34,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.4836
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_6",
+   "file": "plot_parts/fences/part_fence_picket_6@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.4403
+   ],
+   "anchorPx": [
+    15,
+    10.6
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_picket_6_night",
+   "file": "plot_parts/fences/part_fence_picket_6_night@2x.png",
+   "nightOf": "part_fence_picket_6",
+   "size": [
+    30,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.4403
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_6",
+   "file": "plot_parts/fences/part_fence_chainlink_6@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5194
+   ],
+   "anchorPx": [
+    15,
+    13.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 6,
+   "shape": "corner_SE_SW",
+   "connects": [
+    "SE",
+    "SW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_chainlink_6_night",
+   "file": "plot_parts/fences/part_fence_chainlink_6_night@2x.png",
+   "nightOf": "part_fence_chainlink_6",
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5194
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_12",
+   "file": "plot_parts/fences/part_hedge_12@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "anchorPx": [
+    17,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_hedge_12_night",
+   "file": "plot_parts/fences/part_hedge_12_night@2x.png",
+   "nightOf": "part_hedge_12",
+   "size": [
+    34,
+    32
+   ],
+   "anchor": [
+    0.5,
+    0.5482
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_12",
+   "file": "plot_parts/fences/part_fence_picket_12@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "anchorPx": [
+    15,
+    14
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_picket_12_night",
+   "file": "plot_parts/fences/part_fence_picket_12_night@2x.png",
+   "nightOf": "part_fence_picket_12",
+   "size": [
+    30,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.5017
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_12",
+   "file": "plot_parts/fences/part_fence_chainlink_12@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 12,
+   "shape": "corner_SW_NW",
+   "connects": [
+    "SW",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_chainlink_12_night",
+   "file": "plot_parts/fences/part_fence_chainlink_12_night@2x.png",
+   "nightOf": "part_fence_chainlink_12",
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_9",
+   "file": "plot_parts/fences/part_hedge_9@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.6265
+   ],
+   "anchorPx": [
+    17,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_hedge_9_night",
+   "file": "plot_parts/fences/part_hedge_9_night@2x.png",
+   "nightOf": "part_hedge_9",
+   "size": [
+    34,
+    28
+   ],
+   "anchor": [
+    0.5,
+    0.6265
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_9",
+   "file": "plot_parts/fences/part_fence_picket_9@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.5853
+   ],
+   "anchorPx": [
+    15,
+    14
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_picket_9_night",
+   "file": "plot_parts/fences/part_fence_picket_9_night@2x.png",
+   "nightOf": "part_fence_picket_9",
+   "size": [
+    30,
+    24
+   ],
+   "anchor": [
+    0.5,
+    0.5853
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_9",
+   "file": "plot_parts/fences/part_fence_chainlink_9@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.6733
+   ],
+   "anchorPx": [
+    15,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 9,
+   "shape": "corner_NW_NE",
+   "connects": [
+    "NE",
+    "NW"
+   ],
+   "prType": "fence"
+  },
+  {
+   "name": "part_fence_chainlink_9_night",
+   "file": "plot_parts/fences/part_fence_chainlink_9_night@2x.png",
+   "nightOf": "part_fence_chainlink_9",
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.6733
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_gate_5",
+   "file": "plot_parts/fences/part_hedge_gate_5@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    32,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5581
+   ],
+   "anchorPx": [
+    16,
+    16.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "name": "part_hedge_gate_5_night",
+   "file": "plot_parts/fences/part_hedge_gate_5_night@2x.png",
+   "nightOf": "part_hedge_gate_5",
+   "size": [
+    32,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5581
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_gate_5",
+   "file": "plot_parts/fences/part_fence_picket_gate_5@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5259
+   ],
+   "anchorPx": [
+    15,
+    13.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "name": "part_fence_picket_gate_5_night",
+   "file": "plot_parts/fences/part_fence_picket_gate_5_night@2x.png",
+   "nightOf": "part_fence_picket_gate_5",
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5259
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_gate_5",
+   "file": "plot_parts/fences/part_fence_chainlink_gate_5@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 5,
+   "shape": "straight_NE_SW",
+   "connects": [
+    "NE",
+    "SW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "name": "part_fence_chainlink_gate_5_night",
+   "file": "plot_parts/fences/part_fence_chainlink_gate_5_night@2x.png",
+   "nightOf": "part_fence_chainlink_gate_5",
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_hedge_gate_10",
+   "file": "plot_parts/fences/part_hedge_gate_10@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    32,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5581
+   ],
+   "anchorPx": [
+    16,
+    16.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "name": "part_hedge_gate_10_night",
+   "file": "plot_parts/fences/part_hedge_gate_10_night@2x.png",
+   "nightOf": "part_hedge_gate_10",
+   "size": [
+    32,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5581
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_picket_gate_10",
+   "file": "plot_parts/fences/part_fence_picket_gate_10@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5259
+   ],
+   "anchorPx": [
+    15,
+    13.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "name": "part_fence_picket_gate_10_night",
+   "file": "plot_parts/fences/part_fence_picket_gate_10_night@2x.png",
+   "nightOf": "part_fence_picket_gate_10",
+   "size": [
+    30,
+    26
+   ],
+   "anchor": [
+    0.5,
+    0.5259
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_fence_chainlink_gate_10",
+   "file": "plot_parts/fences/part_fence_chainlink_gate_10@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "anchorPx": [
+    15,
+    17.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "mask": 10,
+   "shape": "straight_NW_SE",
+   "connects": [
+    "SE",
+    "NW"
+   ],
+   "prType": "fence",
+   "gate": true
+  },
+  {
+   "name": "part_fence_chainlink_gate_10_night",
+   "file": "plot_parts/fences/part_fence_chainlink_gate_10_night@2x.png",
+   "nightOf": "part_fence_chainlink_gate_10",
+   "size": [
+    30,
+    30
+   ],
+   "anchor": [
+    0.5,
+    0.5835
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_tree_a",
+   "file": "plot_parts/plants/part_tree_a@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    38,
+    44
+   ],
+   "anchor": [
+    0.5,
+    0.7895
+   ],
+   "anchorPx": [
+    19,
+    34.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": "tree"
+  },
+  {
+   "name": "part_tree_a_night",
+   "file": "plot_parts/plants/part_tree_a_night@2x.png",
+   "nightOf": "part_tree_a",
+   "size": [
+    38,
+    44
+   ],
+   "anchor": [
+    0.5,
+    0.7895
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_tree_b",
+   "file": "plot_parts/plants/part_tree_b@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    34,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.7854
+   ],
+   "anchorPx": [
+    17,
+    37.7
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": "tree"
+  },
+  {
+   "name": "part_tree_b_night",
+   "file": "plot_parts/plants/part_tree_b_night@2x.png",
+   "nightOf": "part_tree_b",
+   "size": [
+    34,
+    48
+   ],
+   "anchor": [
+    0.5,
+    0.7854
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_tree_c",
+   "file": "plot_parts/plants/part_tree_c@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    28,
+    50
+   ],
+   "anchor": [
+    0.5,
+    0.8104
+   ],
+   "anchorPx": [
+    14,
+    40.5
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": "tree"
+  },
+  {
+   "name": "part_tree_c_night",
+   "file": "plot_parts/plants/part_tree_c_night@2x.png",
+   "nightOf": "part_tree_c",
+   "size": [
+    28,
+    50
+   ],
+   "anchor": [
+    0.5,
+    0.8104
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_shrub_a",
+   "file": "plot_parts/plants/part_shrub_a@2x.png",
+   "nightLitPx": 0,
+   "size": [
+    20,
+    20
+   ],
+   "anchor": [
+    0.5,
+    0.5803
+   ],
+   "anchorPx": [
+    10,
+    11.6
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "object",
+   "doorEdge": null,
+   "prType": null
+  },
+  {
+   "name": "part_shrub_a_night",
+   "file": "plot_parts/plants/part_shrub_a_night@2x.png",
+   "nightOf": "part_shrub_a",
+   "size": [
+    20,
+    20
+   ],
+   "anchor": [
+    0.5,
+    0.5803
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_door_marker_NE",
+   "file": "plot_parts/markers/part_door_marker_NE@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16,
+    8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "NE",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  },
+  {
+   "name": "part_door_marker_NE_night",
+   "file": "plot_parts/markers/part_door_marker_NE_night@2x.png",
+   "nightOf": "part_door_marker_NE",
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_door_marker_SE",
+   "file": "plot_parts/markers/part_door_marker_SE@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16,
+    8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "SE",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  },
+  {
+   "name": "part_door_marker_SE_night",
+   "file": "plot_parts/markers/part_door_marker_SE_night@2x.png",
+   "nightOf": "part_door_marker_SE",
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_door_marker_SW",
+   "file": "plot_parts/markers/part_door_marker_SW@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16,
+    8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "SW",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  },
+  {
+   "name": "part_door_marker_SW_night",
+   "file": "plot_parts/markers/part_door_marker_SW_night@2x.png",
+   "nightOf": "part_door_marker_SW",
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "scale": 0.5
+  },
+  {
+   "name": "part_door_marker_NW",
+   "file": "plot_parts/markers/part_door_marker_NW@2x.png",
+   "nightLitPx": 54,
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "anchorPx": [
+    16,
+    8
+   ],
+   "scale": 0.5,
+   "footprintCells": [
+    1,
+    1
+   ],
+   "footprintM": [
+    5,
+    5
+   ],
+   "floors": 0,
+   "floorHeightM": null,
+   "stackOffsetPx2x": 0,
+   "layer": "ground",
+   "doorEdge": "NW",
+   "editorOnly": true,
+   "note": "editor overlay: arrow out of the door toward doorEdge; not baked into lots"
+  },
+  {
+   "name": "part_door_marker_NW_night",
+   "file": "plot_parts/markers/part_door_marker_NW_night@2x.png",
+   "nightOf": "part_door_marker_NW",
+   "size": [
+    32,
+    16
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "scale": 0.5
+  }
+ ]
+}

@@ -16,7 +16,7 @@ const ALIAS: Record<string, string> = { grid: 'grid_overlay', civic_school: 'sch
 
 /** Loads assets/manifest.json (art set format: version/assets[]/autotile). Missing art falls back to code drawing. */
 export async function loadManifest() { // the base art set, then add-on sets merged after it (16-direction vehicles)
-  await loadOne('./assets/manifest.json'); await loadOne('./assets/vehicles/manifest_16dir.json');
+  await loadOne('./assets/manifest.json'); await loadOne('./assets/vehicles/manifest_16dir.json'); await loadOne('./assets/manifest_plot_parts.json');
 }
 async function loadOne(url: string) {
   let m: any;

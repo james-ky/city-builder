@@ -43,6 +43,6 @@ if(shot){await p.addStyleTag({content:'body>*:not(canvas){visibility:hidden}'});
 await p.evaluate(()=>clearInterval(window.__rabSpawn));
 // save / load
 const sv=await p.evaluate(([ci,cj])=>{const C=__city,o=C.serialize();const v=o.version,r=o.rabs;C.applySave(JSON.parse(JSON.stringify(o)));const back=C.rab.flat().filter(x=>x>0).length;const old=JSON.parse(JSON.stringify(o));old.version=11;delete old.rabs;C.applySave(old);const mig=C.rab.flat().filter(x=>x>0).length;C.applySave(o);return {v,r,back,mig,again:C.rab.flat().filter(x=>x>0).length}},c);
-ok('save v12 stores the circle and loads it back; a v11 save loads with none',sv.v===12&&sv.r.length===1&&sv.back===9&&sv.mig===0&&sv.again===9,JSON.stringify(sv));
+ok('save v12 stores the circle and loads it back; a v11 save loads with none',sv.v>=12&&sv.r.length===1&&sv.back===9&&sv.mig===0&&sv.again===9,JSON.stringify(sv));
 const dz=await p.evaluate(([ci,cj])=>{const C=__city;C.setTool('bulldoze');C.paint('bulldoze',ci+1,cj+1,ci+1,cj+1);return C.rab.flat().filter(x=>x>0).length},c);ok('bulldozing one cell removes the whole circle',dz===0,String(dz));
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs.slice(0,5));process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

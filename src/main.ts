@@ -977,6 +977,10 @@ function diamond(g: Graphics, i: number, j: number) {
   /** one game hour = HOUR_MS of real time at 1× (1 s per 15 game minutes, a 96 s day); 2× and 3× divide it. Traffic runs on the same clock:
    *  TRAFFIC_X traffic-seconds per real second at 1×, times the game speed, so a cross-town drive takes about a game hour at any speed. */
   const HOUR_MS = 4000, TRAFFIC_X = 4;
+  /** realistic drive time: a car you can watch takes ~DRIVE_X times longer (in game time) than the real drive would (a 20 m tile at 45 km/h is 1.6 s; on screen it
+   *  takes ~2.5 game min; full realism would be ~100× and cars would teleport). So each car on screen stands for DRIVE_X trips spread across the hour: the cars out at once match a town whose cross-town drive is ~12 game
+   *  minutes, not ~an hour. Routing congestion (BPR volume) still counts every trip, and the 1-car-per-driver limits divide by the same scale. */
+  const DRIVE_X = 5;
   const setSpeed = (n: number) => {
     sim.speed = n; clearInterval(timer);
     if (n > 0) timer = window.setInterval(tick, HOUR_MS / n);
@@ -1149,7 +1153,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const spawnTrips = () => { const hour = sim.day % 24; MAXCARS = carCap();
     const dk = trips.version ?? 0; if (dk !== dailyKey || !dailyCars) { dailyKey = dk; dailyCars = 0; for (let h = 0; h < 24; h++) dailyCars += trips.departures(h, 0, Math.random).total; }
     // demand-based: each car on screen stands for `scale` real cars, chosen so the daily total fits ~2.5 caps; the hourly count follows the time-of-day curve (rush hours)
-    const dep0 = trips.departures(hour, 0, Math.random), perCar = Math.max(1, dailyCars / (MAXCARS * 2.5)), want = Math.round(dep0.total / perCar);
+    const dep0 = trips.departures(hour, 0, Math.random), perCar = Math.max(DRIVE_X, dailyCars / (MAXCARS * 2.5)), wantF = dep0.total / perCar, want = Math.floor(wantF) + (Math.random() < wantF % 1 ? 1 : 0); // stochastic rounding: small towns still get their few cars
     if (want <= 0) return; const dep = trips.departures(hour, want, Math.random);
     for (const { f, back } of dep.trips) pending.push({ f, back, scale: perCar, h: sim.day });
     if (pending.length > MAXCARS * 2) pending.splice(0, pending.length - MAXCARS * 2);
@@ -1205,7 +1209,7 @@ function diamond(g: Graphics, i: number, j: number) {
     const ages = h('Drivers by age (live)') + DRIVERS.bands.map((b, x) => dbar(b, dv.bands[x], dv.res, '#e8a15a', fmt(dv.bands[x]))).join('')
       + row('Freight / service drivers', fmt(dv.pro), 'hired drivers, not residents')
       + row('Under 16 or no driver', `<span id="liveVehBad" class="${dv.bad ? 'neg' : 'pos'}">${fmt(dv.bad)}</span>`, 'should always be 0')
-      + row('Resident cars per driving-age resident', `<span id="liveVehRatio">${dv.adults ? (dv.res * sc / dv.adults).toFixed(2) : '—'}</span>`, `${fmt(dv.res * sc)} real cars · ${fmt(dv.adults)} people 16+`);
+      + row('Resident cars per driving-age resident', `<span id="liveVehRatio">${dv.adults ? (dv.res * sc / DRIVE_X / dv.adults).toFixed(2) : '—'}</span>`, `≈ ${fmt(dv.res * sc / DRIVE_X)} real cars out now · ${fmt(dv.adults)} people 16+`);
     return ages + h('Vehicles on the road now (live)') + row('Total vehicles', `<span id="liveVehN">${fmt(n)}</span>`)
       + `<div id="liveVehWho">` + row('Residents', `<span id="liveVehRes">${fmt(resN)}</span>`, `${fmt(trips.stats.residents)} people, one car each at most`) + row('Commuters from outside', `<span id="liveVehOut">0</span>`, 'none yet: residents fill every job')
       + row('Freight / service', `<span id="liveVehFr">${fmt(frN)}</span>`, 'trucks and buses, not residents') + (sc > 1 ? row('Each car shown stands for', fmt(sc) + ' real cars') : '') + `</div>` + row('Stuck or queued (not moving > 1.5 s)', fmt(stuck), n ? pc(stuck / n) : '')

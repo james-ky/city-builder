@@ -22,6 +22,7 @@ ok('every vehicle has a driver aged 16+',samples.every(s=>s.bad===0),JSON.string
 ok('resident cars never exceed driving-age residents',samples.every(s=>s.ratio<=1.0001),Math.max(...samples.map(s=>s.ratio)).toFixed(2));
 ok('no home has more cars than people 16+',samples.every(s=>!s.homeOver));
 ok('age bands add up to resident cars',samples.every(s=>s.bands.reduce((a,b)=>a+b,0)===s.res));
+ok('morning and evening rush both show up',[6,7,8].some(h=>byH[h]?.n>=3)&&[16,17,18,19].some(h=>byH[h]?.n>=3));ok('peak cars on screen ≤ 10% of residents (realistic drive times)',Math.max(...samples.map(s=>s.n))<=info.res*0.1,String(Math.max(...samples.map(s=>s.n))));
 ok('rush hour has traffic',Math.max(...samples.map(s=>s.n))>=5,String(Math.max(...samples.map(s=>s.n))));
 // panel
 await p.evaluate(()=>{__fx.setDay(Math.ceil(__city.sim().day/24)*24+7)});await p.waitForTimeout(2500);await p.evaluate(()=>__city.setSpeed(0));

@@ -18,7 +18,7 @@ await p.keyboard.press('Shift+D');vis=await p.evaluate(()=>getComputedStyle(docu
 await p.keyboard.press('Shift+D');
 // a few months of history
 const e0=await p.evaluate(()=>__city.sim().edu.slice());await p.evaluate(()=>{for(let k=0;k<12;k++)__city.monthly()});
-const want={Budget:/Total income[\s\S]*Net[\s\S]*Funds/,Demand:/Residential[\s\S]*Why — Residential[\s\S]*Jobs vs residents/,Transportation:/Car[\s\S]*Bus[\s\S]*Walk[\s\S]*Average commute[\s\S]*Failed commutes[\s\S]*Bus ridership[\s\S]*Freight trucks[\s\S]*Spaces in use/,Population:/Population[\s\S]*Households[\s\S]*Children[\s\S]*Adults[\s\S]*Seniors/,Education:/No diploma[\s\S]*Bachelor[\s\S]*school coverage/,Jobs:/Commercial jobs filled[\s\S]*Unemployment/,Utilities:/Power[\s\S]*Water/};
+const want={Demand:/Residential[\s\S]*Why — Residential[\s\S]*Jobs vs residents/,Transportation:/Car[\s\S]*Bus[\s\S]*Walk[\s\S]*Average commute[\s\S]*Failed commutes[\s\S]*Bus ridership[\s\S]*Freight trucks[\s\S]*Spaces in use/,Population:/Population[\s\S]*Households[\s\S]*Children[\s\S]*Adults[\s\S]*Seniors/,Education:/No diploma[\s\S]*Bachelor[\s\S]*school coverage/,Jobs:/Commercial jobs filled[\s\S]*Unemployment/,Utilities:/Power[\s\S]*Water/};
 for(const [t,re] of Object.entries(want)){await p.click(`[data-tab="${t}"]`);const tx=await p.evaluate(()=>__city.dataText());ok(`${t} tab shows its stats`,re.test(tx)&&!/NaN|undefined|Infinity/.test(tx),tx.replace(/\n+/g,' | ').slice(0,140))}
 const tr=await p.evaluate(()=>{__city.dataPanel(true,'Transportation');return __city.dataText()});ok('transport numbers are real (bus riders and trucks > 0)',/Bus ridership\s*[1-9]/.test(tr)&&/Freight trucks\s*[1-9]/.test(tr));
 const nt=await p.evaluate(()=>{__city.dataPanel(true,'Population');return __city.dataText()});ok('unsimulated stats say "not tracked yet"',/not tracked yet/.test(nt));
@@ -27,7 +27,7 @@ const e1=await p.evaluate(()=>({edu:__city.sim().edu,cov:__city.eduCoverage()}))
 const sv=await p.evaluate(()=>{const o=__city.serialize();return{v:o.version,edu:o.sim.edu,h:o.hist.length}});ok('save v11+ stores education and history',sv.v>=11&&sv.edu.length===4&&sv.h>=12,JSON.stringify(sv));
 const mg=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));delete o.sim.edu;delete o.hist;o.version=10;__city.applySave(o);return{edu:__city.sim().edu,h:__city.hist().length}});ok('pre-v11 saves migrate (default education, empty history)',mg.edu.length===4&&mg.h===0,JSON.stringify(mg));
 await p.evaluate(()=>{for(let k=0;k<12;k++)__city.monthly()});
-if(shots){await p.setViewportSize({width:1500,height:900});await p.evaluate(()=>__city.dataPanel(true,'Budget'));await p.waitForTimeout(600);const a=await p.locator('#dataPanel').screenshot({path:'/tmp/dp1.png'});
+if(shots){await p.setViewportSize({width:1500,height:900});await p.evaluate(()=>__city.dataPanel(true,'Demand'));await p.waitForTimeout(600);const a=await p.locator('#dataPanel').screenshot({path:'/tmp/dp1.png'});
  for(const t of ['Transportation','Education']){await p.evaluate(t=>__city.dataPanel(true,t),t);await p.waitForTimeout(400);await p.locator('#dataPanel').screenshot({path:'/tmp/dp_'+t+'.png'})}
  await p.evaluate(()=>__city.dataPanel(true,'Demand'));await p.waitForTimeout(600);await p.screenshot({path:'screenshots/data-panel-full.png'})}
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs);process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

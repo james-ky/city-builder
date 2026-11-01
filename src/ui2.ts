@@ -47,7 +47,7 @@ export function mountUI2() {
   const svcItems = (keys: string[]): Item[] => keys.filter(k => $(`#services button[data-t="svc:${k}"]`)).map(k => { const b = $(`#services button[data-t="svc:${k}"]`)!; return { label: b.title.split(':')[0], tip: b.title.split(':').slice(1).join(':').trim(), icon: imgOf(b), run: svc(k), on: toolOn('svc:' + k) }; });
   const utilKeys = Array.from(document.querySelectorAll<HTMLElement>('#services button[data-t^="svc:"]')).map(b => b.dataset.t!.slice(4)).filter(k => /coal|wind|pump|tower/.test(k));
   const dataTab = (t: string) => () => { const p = $('#dataPanel')!; if (p.style.display === 'none') click('#dataBtn'); click(`#dataTabs button[data-tab="${t}"]`); };
-  const TABS = ['Budget', 'Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
+  const TABS = ['Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
   // the Data panel's tab strip: icons only, name in the tooltip
   document.querySelectorAll<HTMLElement>('#dataTabs button[data-tab]').forEach(b => { const t = b.dataset.tab!; b.title = t; b.innerHTML = I('data_' + t.toLowerCase(), 'ic ic22'); });
   // road bar: icons only (prices stay in the tooltip; the hidden <small> keeps the game's live price updates working)
@@ -66,7 +66,7 @@ export function mountUI2() {
     { id: 'doze', icon: 'cat_bulldoze', name: 'Bulldoze', key: '6', direct: tool(6), on: toolOn('bulldoze') },
     { id: 'views', icon: 'cat_views', name: 'Views', groups: [[{ label: 'Grid', tip: '', key: 'G', icon: 'view_grid', run: () => click('#gridBtn'), on: isOn('#gridBtn') }, { label: 'Zone colours', tip: '', key: 'Z', icon: 'view_zone_colours', run: () => click('#zoneBtn'), on: isOn('#zoneBtn') }, { label: 'Underground', tip: 'Pipes', key: 'U', icon: 'view_underground', run: () => click('#ugBtn'), on: isOn('#ugBtn') }],
       Array.from(covSel.options).filter(o => o.value).map(o => ({ label: o.text, tip: 'Overlay. Click again to turn off.', icon: 'overlay_' + o.value, run: cov(o.value), on: () => covSel.value === o.value }))] },
-    { id: 'data', icon: 'cat_data', name: 'City data', key: '⇧D', groups: [TABS.map(t => ({ label: t, tip: '', icon: 'data_' + t.toLowerCase(), run: dataTab(t) }))] },
+    { id: 'data', icon: 'cat_data', name: 'City data', key: '⇧D', groups: [[{ label: 'Budget', tip: 'Taxes, funding, loan and history', key: 'B', icon: 'btn_budget', run: () => click('#budgetBtn') }, ...TABS.map(t => ({ label: t, tip: '', icon: 'data_' + t.toLowerCase(), run: dataTab(t) }))]] },
   ];
   const bar = document.createElement('div'); bar.id = 'uBar'; const tray = document.createElement('div'); tray.id = 'uTray';
   const tip = document.createElement('div'); tip.id = 'uTip'; document.body.append(bar, tray, tip);

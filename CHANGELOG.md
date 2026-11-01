@@ -5,6 +5,7 @@
 - Cars now move on the game clock: they're 4× faster at 1× and speed up again at 2× and 3×. Small steps keep spacing, junctions and roundabouts exact. A cross-town drive takes about a game hour, so evening commutes are over by the small hours instead of lingering all night.
 - Traffic lights, jam give-up times and bus stops run on the same traffic clock, so traffic is just as hard as before relative to the cars.
 - tests/vehicle-count.cjs checks nights are empty; avenue-taper samples a car at the old on-screen speed.
+
 ## Sound effects
 - Building now makes small sounds: a gravelly thud for roads, a soft two-note chime for zoning, a knock and chime when a building, park, plot or traffic circle goes down, a quick tick for power lines, pipes and bus stops, a crunch for the bulldozer, and a low "nope" buzz when you can't afford something or a spot isn't allowed.
 - All sounds are made live by the game's own code (no sound files, nothing borrowed from other games). They're short and quiet so they sit under the music.

@@ -1,5 +1,11 @@
 # Changelog
 
+## First-city checklist
+- New players get a small "First city" checklist in the top-left: build a road, zone homes, zone shops and industry, build a power plant, get power to homes, build a water pump, get water to homes, grow to 50 residents, check the budget, and save.
+- Each step ticks itself off from what's actually in the city (nothing to click), and the next step shows a one-line hint. A bar shows progress, and it says "All done" at 10/10.
+- Click its header to shrink it to a small pill; the X hides it for good (remembered on this computer). Reopen it from the menu (☰).
+- New test: tests/tutorial.cjs.
+
 ## Vehicle count matches the people
 - A 50-person city could show 60+ vehicles. Cars take several game hours to drive across town, but new trips were spawned every hour regardless, so the same person's morning drive, evening drive and errands were on the road at once (one 5-person home had 11 cars out).
 - Now each trip flow can only have as many cars out as its people really drive, and a home can't have more cars out than adult residents. Same ~50-person city: peak 62 → 37.

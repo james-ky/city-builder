@@ -88,7 +88,7 @@ export function mountUI2() {
   top.innerHTML = `<button id="uHelpBtn">${I('cat_help')}</button><button id="uMenuBtn">${I('cat_menu')}</button>`;
   const menu = document.createElement('div'); menu.id = 'uMenu'; document.body.appendChild(menu); menu.addEventListener('pointerdown', e => e.stopPropagation());
   const M: [string, string, string, () => void][] = [['btn_new_city', 'New city', '', () => click('#newBtn')], ['btn_save', 'Save / load', 'Ctrl+S', () => click('#saveBtn')], ['btn_budget', 'Budget', 'B', () => click('#budgetBtn')], ['cat_data', 'City data', '⇧D', () => click('#dataBtn')],
-    ['btn_music', 'Music on/off', '', () => click('#musicBtn')], ['btn_settings', 'Audio, effects & graphics', '', () => click('#fxBtn')], ['btn_fullscreen', 'Full screen', 'F', () => click('#fsBtn')], ['btn_keyboard', 'Keyboard shortcuts', '?', () => toggleHelp()]];
+    ['btn_music', 'Music on/off', '', () => click('#musicBtn')], ['btn_settings', 'Audio, effects & graphics', '', () => click('#fxBtn')], ['btn_fullscreen', 'Full screen', 'F', () => click('#fsBtn')], ['btn_keyboard', 'Keyboard shortcuts', '?', () => toggleHelp()], ['mark_ok', 'First-city checklist', '', () => (window as any).__tut?.setMode('open')]];
   for (const [ic, l, k, f] of M) { const b = document.createElement('button'); b.innerHTML = I(ic, 'ic ic28'); withTip(b, l, '', k); b.onclick = e => { e.stopPropagation(); menu.style.display = 'none'; tip.style.display = 'none'; f(); }; menu.appendChild(b); }
   $('#uMenuBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'grid' ? 'none' : 'grid'; };
   withTip($('#uMenuBtn')!, 'Menu', ''); withTip($('#uHelpBtn')!, 'Keyboard shortcuts', '', '?');

@@ -3,7 +3,7 @@ import { TripSim, carsOf } from './trips';
 import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
-import { plotStats, drawPlot, newDesign, fits, partAt, PARTS, CELLS, type Design, type PartType, type PlotStats } from './plots';
+import { plotStats, drawPlot, newDesign, walkPiece, fencePiece, fits, partAt, PARTS, CELLS, type Design, type PartType, type PlotStats } from './plots';
 import { loadManifest, place, placeNight, hasArt, artMeta, artTex, facingName , autotile } from './sprites';
 
 const TW = 64, TH = 32;
@@ -467,7 +467,7 @@ function diamond(g: Graphics, i: number, j: number) {
         P(key, x + off[0], y + off[1], seed, y + 0.6); PN(key, x + off[0], y + off[1], seed, y + 0.6); }
       const cv = civAt[i][j];
       if (cv && cv.type === 'plot') { const d = cv.pid ? designs.get(cv.pid) : undefined;
-        if (d && i === cv.i + cv.s - 1 && j === cv.j) { const g = new Container(); g.sortableChildren = true; g.zIndex = toScreen(cv.i + cv.s - 1, cv.j + cv.s - 1).y + 0.5; drawPlot({ toScreen, place, hasArt }, d, cv.i, cv.j, plotFace(cv), g); ch.ob.addChild(g); }
+        if (d && i === cv.i + cv.s - 1 && j === cv.j) { const g = new Container(); g.sortableChildren = true; g.zIndex = toScreen(cv.i + cv.s - 1, cv.j + cv.s - 1).y + 0.5; drawPlot({ toScreen, place, hasArt, meta: artMeta, night: (k, x, y) => { const l = placeNight(k, x, y, ch.ob); if (l) { l.zIndex = g.zIndex + 0.001; /* outside the plot container so the night tint doesn't dim the lights */ l.alpha = 0; l.visible = false; (l as any).__light = true; ch.lights.push(l); } } }, d, cv.i, cv.j, plotFace(cv), g); ch.ob.addChild(g); }
         return; }
       if (cv) {
         place('civic_lot', x, y, ch.zn, seed);
@@ -1270,13 +1270,14 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   const pSync = () => { pUI.querySelectorAll<HTMLElement>('[data-part]').forEach(b => b.classList.toggle('on', b.dataset.part === brush)); pUI.querySelectorAll<HTMLElement>('[data-sz]').forEach(b => b.classList.toggle('on', +b.dataset.sz! === pd.s)); pUI.querySelectorAll<HTMLElement>('[data-face]').forEach(b => b.classList.toggle('on', +b.dataset.face! === pd.face));
     (pUI.querySelector('#pFl') as HTMLElement).textContent = String(bFloors); nameIn.value = pd.name; pDraw(); };
   const pDraw = () => { for (const c of builderC.removeChildren()) c.destroy({ children: true }); const k = pScale(); builderC.scale.set(k); builderC.position.set(innerWidth / 2, innerHeight / 2 + 10 - (pd.s - 1) * 16 * k); builderC.sortableChildren = true;
-    drawPlot({ toScreen, place, hasArt }, pd, 0, 0, 2, builderC, { grid: true });
+    drawPlot({ toScreen, place, hasArt, meta: artMeta }, pd, 0, 0, 2, builderC, { grid: true });
     if (hover) { const t = brush === 'erase' ? null : brush, w = t ? PARTS[t].w : 1, h = t ? PARTS[t].h : 1, [x, y] = hover, ok = brush === 'erase' ? !!partAt(pd, x, y) : fits(pd, { t: brush as PartType, x, y }) || (!!PARTS[brush as PartType].body && partAt(pd, x, y)?.t === brush);
       const q = (u: number, v: number) => toScreen(-0.5 + u / CELLS, -0.5 + v / CELLS), g = new Graphics(); g.zIndex = 1e9; g.poly([q(x, y), q(x + w, y), q(x + w, y + h), q(x, y + h)].flatMap(p => [p.x, p.y])).fill({ color: ok ? 0xffffff : 0xff3030, alpha: 0.35 }).stroke({ width: 1 / k, color: ok ? 0xffffff : 0xff3030 }); builderC.addChild(g); }
     const st = plotStats(pd); (pUI.querySelector('#pStats') as HTMLElement).innerHTML = `<b>${pd.name}</b>${st.homes ? `<span>${st.homes} home${st.homes > 1 ? 's' : ''} · ${st.residents} residents</span>` : ''}<span>${st.jobsC + st.jobsI} jobs${st.jobsC ? ` (${st.jobsC} shop/office)` : ''}${st.jobsI ? ` (${st.jobsI} industry)` : ''}</span><span>${st.spaces} parking stall${st.spaces === 1 ? '' : 's'}</span><span>${fmtPower(st.kw)} · ${fmtWater(st.gpd)}</span><span>Cost $${st.cost}</span>${st.warnings.map(w => `<span class="w">${w}</span>`).join('')}`; };
   const pApply = (x: number, y: number) => { if (brush === 'erase') { const p = partAt(pd, x, y); if (p) pd.parts.splice(pd.parts.indexOf(p), 1); return; }
-    const ex = partAt(pd, x, y); if (ex && ex.t === brush && PARTS[brush].body) { ex.f = bFloors; return; } const p = { t: brush, x, y, ...(PARTS[brush].body ? { f: Math.min(bFloors, PARTS[brush].floors![1]) } : {}) }; if (fits(pd, p)) pd.parts.push(p); };
-  pUI.addEventListener('pointerdown', e => { if ((e.target as HTMLElement).closest('.pp')) return; e.stopPropagation(); const c = pLocal(e.clientX, e.clientY); painting = true; pApply(...c); pDraw(); });
+    const ex = partAt(pd, x, y); if (ex && ex.t === brush && PARTS[brush].body) { ex.f = bFloors; return; }
+    if (ex && ex.t === brush && !painting2) { if (brush === 'fence') { const k = ((ex.v ?? 0) * 2 + (ex.g ? 1 : 0) + 1) % 6; ex.v = k >> 1; ex.g = !!(k & 1); } else if (brush === 'tree') ex.v = ((ex.v ?? (ex.x * 3 + ex.y)) + 1) % 4; return; } /* click again: next fence style / gate, next tree kind */ const p = { t: brush, x, y, ...(PARTS[brush].body ? { f: Math.min(bFloors, PARTS[brush].floors![1]) } : {}) }; if (fits(pd, p)) pd.parts.push(p); };
+  let painting2 = false; pUI.addEventListener('pointerdown', e => { if ((e.target as HTMLElement).closest('.pp')) return; e.stopPropagation(); const c = pLocal(e.clientX, e.clientY); painting = true; painting2 = false; pApply(...c); painting2 = true; pDraw(); });
   pUI.addEventListener('pointermove', e => { if ((e.target as HTMLElement).closest('.pp')) { if (hover) { hover = null; pDraw(); } return; } const c = pLocal(e.clientX, e.clientY), n = pd.s * CELLS, inside = c[0] >= 0 && c[1] >= 0 && c[0] < n && c[1] < n; const nh = inside ? c : null;
     if (painting && nh && (brush === 'erase' || !PARTS[brush].body)) pApply(...nh); if (String(nh) !== String(hover) || painting) { hover = nh; pDraw(); } });
   addEventListener('pointerup', () => { painting = false; });
@@ -1290,7 +1291,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   addEventListener('resize', () => { if (builderC.visible) pDraw(); });
   (window as any).__plots = { items: () => [[{ label: 'Plot Builder', tip: 'Design your own lot from parts: buildings, parking, driveway, paths, trees and fences', icon: 'plot_builder', run: () => openBuilder(), on: () => builderC.visible }],
     [...designs.values()].map(d => { const st = plotStats(d); return { label: d.name, tip: `${d.s}×${d.s} · $${st.cost}${st.homes ? ` · ${st.residents} residents` : ''}${st.jobsC + st.jobsI ? ` · ${st.jobsC + st.jobsI} jobs` : ''} · ${st.spaces} parking<br>Click the city next to a road to place. Shift-click here to edit`, img: thumbOf(d), run: (ev?: MouseEvent) => ev?.shiftKey ? openBuilder(d) : setTool('plot:' + d.id), on: () => tool === 'plot:' + d.id }; })] };
-  Object.assign((window as any).__city, { plots: { designs: () => [...designs.values()], stats: (id: string) => designs.get(id) && plotStats(designs.get(id)!), open: (d?: Design) => openBuilder(d), close: closeBuilder, cur: () => pd, apply: (x: number, y: number, t: PartType | 'erase', f = 1) => { brush = t; bFloors = f; pApply(x, y); pDraw(); }, setSize: (n: number) => { pd.s = n; pDraw(); }, setFace: (f: number) => { pd.face = f; pSync(); }, save: () => saveDesign()?.id ?? null,
+  Object.assign((window as any).__city, { plots: { pieces: { walkPiece, fencePiece }, designs: () => [...designs.values()], stats: (id: string) => designs.get(id) && plotStats(designs.get(id)!), open: (d?: Design) => openBuilder(d), close: closeBuilder, cur: () => pd, apply: (x: number, y: number, t: PartType | 'erase', f = 1) => { brush = t; bFloors = f; pApply(x, y); pDraw(); }, setSize: (n: number) => { pd.s = n; pDraw(); }, setFace: (f: number) => { pd.face = f; pSync(); }, save: () => saveDesign()?.id ?? null,
     place: (id: string, i: number, j: number) => placePlot(id, i, j), can: (id: string, i: number, j: number) => canPlot(id, i, j), civ: (i: number, j: number) => civAt[i][j] && { ...civAt[i][j]!, face: plotFace(civAt[i][j]!) }, entrance: (i: number, j: number) => entranceOf(i, j), near: (i: number, j: number) => (trips as any).w?.nearRoads?.(i, j), tile: (i: number, j: number) => ({ res: (trips as any).w?.residents?.(i, j) }) } });
   Object.assign((window as any).__city, { lots: () => [...lots], syncLots: () => syncLots(), addLot: (l: Lot) => addLot(l), lotAt: (i: number, j: number) => lot[i][j], serialize, applySave, saveTo, listSaves });
   // info panel

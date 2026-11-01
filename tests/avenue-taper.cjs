@@ -12,11 +12,11 @@ ok('last avenue pair picks main + side taper tiles, the one before is plain',inf
 const files=await p.evaluate(async t=>{const out=[];for(const n of t){const r=await fetch('./assets/roads/avenue_asphalt_'+n+'@2x.png');out.push(r.ok)}return out},info.map(h=>h[2]));
 ok('taper art exists for both halves',files.every(Boolean),JSON.stringify(files));
 // NW-bound car on the street-continuing half drives from the street into the avenue (median on its left): lateral path is continuous
-const main=info.find(h=>/_main$/.test(h[2]));const tr=await p.evaluate(([ci,j])=>{const C=__city,N=C.N(),r=[];for(let i=ci-6;i<=ci+8;i++)r.push(i*N+j);C.spawnCar(r,'veh_sedan_a');const x=C.cars()[C.cars().length-1];x.ln=2;x.sp=1;return C.cars().length-1},[c[0],main[0]]);
+const main=info.find(h=>/_main$/.test(h[2]));const tr=await p.evaluate(([ci,j])=>{const C=__city,N=C.N(),r=[];for(let i=ci-6;i<=ci+8;i++)r.push(i*N+j);C.spawnCar(r,'veh_sedan_a');const x=C.cars()[C.cars().length-1];x.ln=2;x.sp=0.25;return C.cars().length-1},[c[0],main[0]]);
 const pts=[];for(let k=0;k<140;k++){await p.waitForTimeout(40);const q=await p.evaluate(n=>{const x=__city.cars()[n];return x?[x.s.x,x.s.y,x.i]:null},tr);if(!q)break;pts.push(q)}
 const a=await p.evaluate(([ci,cj])=>{const C=__city,s0=C.tileToScreen(ci,cj),s1=C.tileToScreen(ci+1,cj),z=C.zoom();const ux=(s1.x-s0.x)/z,uy=(s1.y-s0.y)/z,L=Math.hypot(ux,uy);return [-uy/L,ux/L]},c);
 const lat=pts.map(q=>q[0]*a[0]+q[1]*a[1]);let jump=0;for(let k=1;k<lat.length;k++)jump=Math.max(jump,Math.abs(lat[k]-lat[k-1]));
-ok('car slides between lane layouts (no sideways jump > 1.5 px per frame)',pts.length>20&&jump<1.5,'max '+jump.toFixed(2)+' n '+pts.length);
+ok('car slides between lane layouts (no sideways jump > 1.5 px per frame at 1×; sp 0.25 = the old on-screen speed)',pts.length>20&&jump<1.5,'max '+jump.toFixed(2)+' n '+pts.length);
 if(shot){await p.addStyleTag({content:'body>*:not(canvas){visibility:hidden}'});await p.evaluate(([ci,cj])=>{const C=__city,N=C.N();for(let s=0;s<8;s++)for(const [j,pd] of [[cj-1,0],[cj,0],[cj+1,0]]){} 
   const hs=[];for(let j=cj-2;j<=cj+2;j++)if(C.rw[ci][j]>=2)hs.push([j,C.rpd[ci][j]]);for(const [j,pd] of hs){const dir=pd===1?1:-1;for(let s=0;s<7;s++)for(let ln=0;ln<3;ln++){const r=[];for(let k=-10;k<=10;k++)r.push((ci-3+dir*k)*N+j);C.spawnCar(r.slice(s));C.cars()[C.cars().length-1].ln=ln}}
   // street traffic heading into the avenue

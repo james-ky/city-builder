@@ -14,7 +14,7 @@ await p.evaluate(([i,j])=>{const C=__city;C.paint('svc:tower',i-2,j-5,i-2,j-5);C
 s=await T();ok('power plant and water ticked',s.done.includes('plant')&&s.done.includes('water'),s.done.join());ok('power and water reach homes',s.done.includes('poweredR')&&s.done.includes('wateredR'),s.done.join());
 await p.evaluate(()=>__city.sim().pop=60);s=await T();ok('population goal ticks at 50',s.done.includes('pop'),s.done.join());
 await p.mouse.click(700,420);await p.keyboard.press('b');s=await T();ok('opening the budget ticks it',s.done.includes('budget'),s.done.join());await p.keyboard.press('b');
-await p.keyboard.press('Control+s');await p.waitForTimeout(3000);s=await T();ok('saving ticks it; all 10 done',s.done.includes('saved')&&s.done.length===10,s.done.join());
+await p.keyboard.press('Control+s');await p.waitForFunction(async()=>(await __city.listSaves()).some(s=>s.id.startsWith('slot:')),null,{timeout:20000}).catch(()=>{});await p.waitForTimeout(300);s=await T();ok('saving ticks it; all 10 done',s.done.includes('saved')&&s.done.length===10,s.done.join());
 ok('finished message shows',await p.evaluate(()=>/All done/.test(document.getElementById('uTut').innerText)));
 if(si>0){await p.evaluate(()=>{__tut.setMode('open')});await p.evaluate(([i,j])=>{__city.centerOn(i,j);__city.setZoom(1.3)},c);await p.waitForTimeout(1500);await p.screenshot({path:process.argv[si+1]})}
 await p.click('#uTut .hd');s=await T();const hh=await p.evaluate(()=>document.getElementById('uTut').offsetHeight);ok('clicking the header collapses it',s.mode==='min'&&hh<50,s.mode+' h='+hh);

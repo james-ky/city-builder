@@ -18,3 +18,5 @@ console.log('sync-art:',n,'file(s) updated, manifest',src.revision);
  const im=JSON.parse(fs.readFileSync(path.join(SRC,'ui','icons','manifest.json'))),ids=Object.entries(im.icons||{}).filter(([id,x])=>x.group==='plots'||id==='cat_plots').map(([id])=>id);
  for(const id of ids)for(const [s,e] of [['svg','svg'],['png48','png'],['png24','png']]){const a=path.join(SRC,'ui','icons',s,id+'.'+e);if(fs.existsSync(a))cp(a,path.join(DST,'ui','icons2',s,id+'.'+e))}
  console.log('sync-art: plot parts',pm.parts.length,'icons',ids.length,'-',k,'file(s) updated')}}
+// promoted end-game towers + 2x2/3x3 construction sets live in assets/buildings: copy them so the main manifest's entries load
+{const B=path.join(SRC,'buildings');let k=0;if(fs.existsSync(B))for(const f of fs.readdirSync(B))if(/^(bld_[RCMI]_[45]_|construction_(2x2|3x3))/.test(f)){const a=path.join(B,f),b=path.join(DST,'buildings',f);if(!fs.existsSync(b)||!fs.readFileSync(a).equals(fs.readFileSync(b))){fs.copyFileSync(a,b);k++}}console.log('sync-art: end-game buildings',k,'file(s) updated')}

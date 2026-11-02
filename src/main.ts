@@ -1,6 +1,7 @@
 import { mountUI2 } from './ui2';
 import { mountTutorial } from './tutorial';
 import { TripSim, carsOf } from './trips';
+import { MILESTONES, GATES, gateText, newlyEarned } from './milestones';
 import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATER_GPD, CIVIC, ECON, PARKS, PARK_EFFECT, TRANSIT, DEMOG, DRIVERS, driverAge, ageBand, fmtPower, fmtWater, ROAD_TIERS, ROAD_WIDTHS, roadBuild, roadUpkeep, type RoadTier } from './realism';
 import { Playlist, Ambience, Sfx } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
@@ -120,11 +121,19 @@ function diamond(g: Graphics, i: number, j: number) {
   const lotReady = (l: Lot) => lotTiles(l).every(([i, j]) => bld[i][j] >= 1 && !consT[i][j]);
   const lotKey = (l: Lot) => `r1_lot_1x${Math.max(l.wi, l.dj)}_${l.dir}_${l.v}`;
   const CONS_DAYS = 2; // days per construction stage (3 stages)
-  const isTall = (z: string, L: number) => L === 3 && (z === 'R' || z === 'C');
+  const isTall = (z: string, L: number) => L >= 3 && (z === 'R' || z === 'C');
+  // ---- end game: level 5 is one building on a 2x2 block of same-zone tiles; big[i][j] = anchor (top-left) key + 1 on all 4 tiles ----
+  const big: number[][] = [...Array(N)].map(() => Array(N).fill(0)); const bigSet = new Set<number>();
+  const bigOK = (k: number) => { const i0 = (k / N) | 0, j0 = k % N; for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) { const x = i0 + a, y = j0 + b; if (!(x < N && y < N) || big[x][y] !== k + 1 || (bld[x][y] !== 5 && consT[x][y] !== 5)) return false; } return true; };
+  const dissolveBig = (k: number) => { bigSet.delete(k); const i0 = (k / N) | 0, j0 = k % N; for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) { const x = i0 + a, y = j0 + b; if (x >= N || y >= N || big[x][y] !== k + 1) continue; big[x][y] = 0; if (bld[x][y] === 5) bld[x][y] = 4; if (consT[x][y] === 5) { consT[x][y] = 0; consD[x][y] = 0; } markDirty(x, y, x, y); } };
+  const bigAccess = (k: number) => { const i0 = (k / N) | 0, j0 = k % N; for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) if (hasAccess(i0 + a, j0 + b)) return true; return false; }; // one building: any tile's front road serves it
+  /** City Art Studio's 2x2 tower art for a level-5 block (3x3 variants are for a later footprint); placeholder if none loaded */
+  const TOWER2: Record<string, string[]> = { R: ['bld_R_5_a', 'bld_R_5_b', 'bld_R_4_a', 'bld_R_4_b', 'bld_R_4_c'], C: ['bld_C_4_a', 'bld_M_4_a'], I: ['bld_I_4_a'] };
+  const checkBig = () => { for (const k of [...bigSet]) if (!bigOK(k)) dissolveBig(k); };
   const inb = (i: number, j: number) => i >= 0 && j >= 0 && i < N && j < N;
   // ---- civic services (plopped buildings) ----
   type Kind = 'edu' | 'police' | 'fire' | 'health' | 'power' | 'water' | 'parking' | 'park' | 'transit' | 'plot';
-  const SERV: Record<string, { name: string; size: number; cost: number; radius: number; kind: Kind; util?: boolean; out?: number; needsWater?: boolean; key?: string; str?: number }> = {
+  const SERV: Record<string, { name: string; size: number; cost: number; radius: number; kind: Kind; util?: boolean; out?: number; needsWater?: boolean; nearWater?: boolean; key?: string; str?: number }> = {
     school: { name: 'Elementary School', size: 2, cost: 400, radius: 10, kind: 'edu' },
     highschool: { name: 'High School', size: 3, cost: 900, radius: 16, kind: 'edu' },
     police: { name: 'Police Station', size: 2, cost: 500, radius: 12, kind: 'police' },
@@ -139,6 +148,12 @@ function diamond(g: Graphics, i: number, j: number) {
     busdepot: { name: 'Bus Depot', size: 2, cost: TRANSIT.depotCost, radius: 0, kind: 'transit', key: 'civic_bus_depot' },
     plot: { name: 'Custom lot', size: 1, cost: 0, radius: 0, kind: 'plot' },
     tower: { name: 'Water Tower', size: 1, cost: 500, radius: 0, kind: 'water', util: true, out: CIVIC.tower.outGpd, key: 'util_tower' },
+    windfarm: { name: 'Wind Farm', size: 3, cost: 2400, radius: 0, kind: 'power', util: true, out: CIVIC.windfarm.outKw, key: 'util_windfarm' },
+    solar: { name: 'Solar Farm', size: 4, cost: 3200, radius: 0, kind: 'power', util: true, out: CIVIC.solar.outKw, key: 'util_solar' },
+    gas: { name: 'Combined-Cycle Gas Plant', size: 3, cost: 9000, radius: 0, kind: 'power', util: true, out: CIVIC.gas.outKw, key: 'util_gas' },
+    nuclear: { name: 'Nuclear Power Plant', size: 4, cost: 40000, radius: 0, kind: 'power', util: true, out: CIVIC.nuclear.outKw, key: 'util_nuclear' },
+    treatment: { name: 'Water Treatment Plant', size: 3, cost: 6000, radius: 0, kind: 'water', util: true, out: CIVIC.treatment.outGpd, nearWater: true, key: 'util_treatment' },
+    desal: { name: 'Desalination Plant', size: 3, cost: 12000, radius: 0, kind: 'water', util: true, out: CIVIC.desal.outGpd, needsWater: true, key: 'util_desal' },
   };
   for (const [k, P] of Object.entries(PARKS)) SERV['park_' + k] = { name: P.name, size: P.size, cost: P.cost, radius: PARK_EFFECT.radius[P.size], kind: 'park', str: PARK_EFFECT.strength[P.size] };
   const isPark = (t: string) => t.startsWith('park_');
@@ -149,7 +164,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const saveLib = () => { try { localStorage.setItem('plotLib', JSON.stringify([...designs.values()])); } catch { /* storage full */ } };
   const pstats = (c: Civ | undefined | null): PlotStats | null => { if (!c || c.type !== 'plot' || !c.pid) return null; const d = designs.get(c.pid); if (!d) return null; let st = statCache.get(d.id); if (!st) { st = plotStats(d); statCache.set(d.id, st); } return st; };
   const plotAt = (i: number, j: number) => { const c = civAt[i]?.[j]; return c && c.type === 'plot' && c.i === i && c.j === j ? pstats(c) : null; }; // stats live on the origin tile
-  const UPKEEP: Record<string, number> = { plot: 0, school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180, coal: 150, wind: 15, pump: 40, tower: 30, garage: PARKING.garage.upkeep, garage2: PARKING.garage2.upkeep, busdepot: TRANSIT.depotUpkeep, ...Object.fromEntries(Object.entries(PARKS).map(([k, P]) => ['park_' + k, P.upkeep])) }; // $/month at 100% funding
+  const UPKEEP: Record<string, number> = { plot: 0, school: 60, highschool: 120, police: 80, fire: 80, clinic: 40, hospital: 180, coal: 150, wind: 15, pump: 40, tower: 30, windfarm: 70, solar: 50, gas: 400, nuclear: 1500, treatment: 250, desal: 600, garage: PARKING.garage.upkeep, garage2: PARKING.garage2.upkeep, busdepot: TRANSIT.depotUpkeep, ...Object.fromEntries(Object.entries(PARKS).map(([k, P]) => ['park_' + k, P.upkeep])) }; // $/month at 100% funding
   const funding: Record<string, number> = Object.fromEntries(Object.keys(SERV).map(k => [k, 1])); // 0..1 per service type
   const civs: Civ[] = [];
   const civAt: (Civ | null)[][] = [...Array(N)].map(() => Array(N).fill(null));
@@ -205,12 +220,12 @@ function diamond(g: Graphics, i: number, j: number) {
   const pre = new Float64Array((N + 1) * (N + 1));
   const computeRisks = () => { // crime grows with density nearby (5x5 window via prefix sums), police coverage suppresses it; fire risk likewise
     const W = N + 1;
-    for (let i = 0; i < N; i++) { let row = 0; for (let j = 0; j < N; j++) { row += bld[i][j] ** 2; pre[(i + 1) * W + j + 1] = pre[i * W + j + 1] + row; } }
+    for (let i = 0; i < N; i++) { let row = 0; for (let j = 0; j < N; j++) { row += Math.min(3, bld[i][j]) ** 2 + Math.max(0, bld[i][j] - 3) * 3; pre[(i + 1) * W + j + 1] = pre[i * W + j + 1] + row; } }
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
       const a = Math.max(0, i - 2), b = Math.max(0, j - 2), c = Math.min(N, i + 3), d = Math.min(N, j + 3);
       const dens = pre[c * W + d] - pre[a * W + d] - pre[c * W + b] + pre[a * W + b];
       crime[i][j] = dens * 0.08 * (1 - 0.85 * cov.police[i][j]);
-      fireRisk[i][j] = bld[i][j] ? (zone[i][j] === 'I' ? 2 : 1) * bld[i][j] * (1 - 0.85 * cov.fire[i][j]) : 0;
+      fireRisk[i][j] = bld[i][j] ? (zone[i][j] === 'I' ? (bld[i][j] >= 4 ? 1 : 2) : 1) * Math.min(4, bld[i][j]) * (1 - 0.85 * cov.fire[i][j]) : 0;
     }
   };
   const resCap = (i: number, j: number): number => { const l = lot[i][j]; if (l && (l.i0 !== i || l.j0 !== j)) return 0; return resCap1(i, j); }; // a suburban lot is one house, whatever its size
@@ -272,10 +287,11 @@ function diamond(g: Graphics, i: number, j: number) {
   /** every building needs its own road: a lot counts if its front edge touches a road on its facing side */
   const hasAccess = (i: number, j: number): boolean => { const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) if (isFront(a + FACE[f][1], b + FACE[f][2])) return true; return false; } return facingOf(i, j) > 0; };
   /** road tile in front of the building's entrance (-1 none) */
-  const entranceOf = (i: number, j: number) => { const pc = civAt[i]?.[j]; if (pc && pc.type === 'plot') { const f = plotFace(pc); for (let t = 0; t < pc.s; t++) { const [a, b] = sideTile(pc, f, t); if (isFront(a, b)) return a * N + b; } return -1; } if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isFront(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
+  const entranceOf = (i: number, j: number): number => { const e = entranceOf1(i, j); if (e >= 0 || !big[i]?.[j]) return e; const k = big[i][j] - 1, i0 = (k / N) | 0, j0 = k % N; for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) { const x = entranceOf1(i0 + a, j0 + b); if (x >= 0) return x; } return -1; }; // a supertall uses any of its block's front doors
+  const entranceOf1 = (i: number, j: number) => { const pc = civAt[i]?.[j]; if (pc && pc.type === 'plot') { const f = plotFace(pc); for (let t = 0; t < pc.s; t++) { const [a, b] = sideTile(pc, f, t); if (isFront(a, b)) return a * N + b; } return -1; } if (!zone[i][j]) return -1; const l = lot[i][j]; if (l) { const f = FACE.findIndex(x => x[0] === l.dir); for (const [a, b] of lotTiles(l)) { const x = a + FACE[f][1], y = b + FACE[f][2]; if (isFront(x, y)) return x * N + y; } return -1; } const f = facingOf(i, j); return f ? (i + FACE[f][1]) * N + j + FACE[f][2] : -1; };
   const drawFace = (i: number, j: number) => { const l = lot[i][j]; if (l) return FACE.findIndex(x => x[0] === l.dir); return facingOf(i, j) || zface[i][j] || 2; };
   const DENN = ['', 'Light', 'Medium', 'Dense'];
-  const CAPNAME: Record<string, string[]> = { R: ['', 'single-family homes', 'up to mid-rise apartments', 'up to towers'], C: ['', 'storefronts', 'main-street blocks & small offices', 'up to office towers'], I: ['', 'workshops', 'mid-size factories', 'heavy industry'] };
+  const CAPNAME: Record<string, string[]> = { R: ['', 'single-family homes', 'up to mid-rise apartments', 'up to towers (high-rises with milestones)'], C: ['', 'storefronts', 'main-street blocks & small offices', 'up to office towers (skyscrapers with milestones)'], I: ['', 'workshops', 'mid-size factories', 'heavy industry (high-tech with milestones)'] };
   let zoneDen = 2, zoneFace = 0;
   /** (i,j)->(i+a,j+b) is a real road connection: the two halves of an avenue sit side by side but are not joined */
   const partner = (i: number, j: number, a: number, b: number) => { const d = rpd[i][j]; if (!(!!d && (a !== 0) !== (b !== 0) && BITOF(a, b) === d && inb(i + a, j + b) && road[i + a][j + b] && rpd[i + a][j + b] === OPP[d])) return false;
@@ -526,12 +542,14 @@ function diamond(g: Graphics, i: number, j: number) {
       } else if (zone[i][j]) {
         if (pk[i][j]) drawParking(ch, i, j, x, y, seed, pk[i][j]);
         else if (!bld[i][j] && !consT[i][j]) { const o = place('zone_' + zone[i][j], x, y, ch.zn, seed), d = zden[i][j] || 2; o.alpha = [1, 0.4, 0.75, 1][d]; if (d === 3) (o as any).tint = 0xb0b0b0; }
-        if (!hasAccess(i, j) && !lot[i][j]) { const my = bld[i][j] || consT[i][j] ? y - STATUS_H[Math.max(bld[i][j], consT[i][j])] - 14 : y - 2, g = new Graphics(); g.circle(x, my, 4).fill({ color: 0xff3030, alpha: 0.9 }).stroke({ width: 1.5, color: 0xffffff }); g.moveTo(x - 2.5, my).lineTo(x + 2.5, my).stroke({ width: 1.5, color: 0xffffff }); g.zIndex = y + 50; ch.ob.addChild(g); } // landlocked marker
+        if (!hasAccess(i, j) && !lot[i][j] && !(big[i][j] && bigAccess(big[i][j] - 1))) { const my = bld[i][j] || consT[i][j] ? y - STATUS_H[Math.max(bld[i][j], consT[i][j])] - 14 : y - 2, g = new Graphics(); g.circle(x, my, 4).fill({ color: 0xff3030, alpha: 0.9 }).stroke({ width: 1.5, color: 0xffffff }); g.moveTo(x - 2.5, my).lineTo(x + 2.5, my).stroke({ width: 1.5, color: 0xffffff }); g.zIndex = y + 50; ch.ob.addChild(g); } // landlocked marker
         const fdir = FACE[drawFace(i, j)][0], FN = (k: string) => facingName(k, seed, fdir); // 4-way art: <variant>_<facing>, unsuffixed if missing
         if (consT[i][j]) P(FN(`construction_1x1_${isTall(zone[i][j], consT[i][j]) ? 'tall_' : ''}stage${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))}`), x, y, seed, y);
         else if (lot[i][j] && lotReady(lot[i][j]!)) { const l = lot[i][j]!; // one sprite for the lot, drawn at its front-most (max i, max j) tile
           if (i === l.i0 + l.wi - 1 && j === l.j0 + l.dj - 1) { const o = toScreen(l.i0, l.j0), lx = o.x + (l.wi - l.dj) * 16, ly = o.y + (l.wi + l.dj - 2) * 8, k = lotKey(l);
             P(k, lx, ly, seed, y + i * 0.001); PN(k, lx, ly, seed, y + i * 0.001); ch.blds.push({ x, y, z: 'R', L: 1, seed }); } }
+        else if (bld[i][j] === 5 && big[i][j]) { const k0 = big[i][j] - 1, i0 = (k0 / N) | 0, j0 = k0 % N; // one 2x2 building, drawn at its front-most tile
+          if (i === i0 + 1 && j === j0 + 1) { const c = toScreen(i0 + 0.5, j0 + 0.5), sd = seedOf(i0, j0), arts = (TOWER2[zone[i][j]] ?? []).map(n => `${n}_${fdir}`).filter(hasArt), k = arts.length ? arts[sd % arts.length] : facingName(`bld_${zone[i][j]}_5_2x2`, sd, fdir); P(k, c.x, c.y, sd, y + 0.002); PN(k, c.x, c.y, sd, y + 0.002); ch.blds.push({ x: c.x, y: c.y, z: zone[i][j], L: 5, seed: sd }); } }
         else if (bld[i][j]) { const k = FN(`bld_${zone[i][j]}_${bld[i][j]}`); P(k, x, y, seed, y); PN(k, x, y, seed, y); ch.blds.push({ x, y, z: zone[i][j], L: bld[i][j], seed }); }
       }
       if (road[i][j] && pline[i][j]) { const pl = (a: number, b: number) => inb(a, b) && pline[a][b]; P('power_line_' + ((pl(i, j - 1) ? 1 : 0) | (pl(i + 1, j) ? 2 : 0) | (pl(i, j + 1) ? 4 : 0) | (pl(i - 1, j) ? 8 : 0)), x, y, seed, y); }
@@ -540,7 +558,7 @@ function diamond(g: Graphics, i: number, j: number) {
     });
     ch.dirty = false; ch.built = true; ch.iconDirty = true;
   };
-  const STATUS_H = [0, 34, 52, 86]; // bubble sits a few px above each density's roof
+  const STATUS_H = [0, 34, 52, 86, 120, 170]; // bubble sits a few px above each density's roof
   const drawChunkIcons = (ch: Chunk) => { clear(ch.ic); ch.iconDirty = false; const g = new Graphics(); ch.ic.addChild(g); const art = hasArt('status_no_power');
     chunkTiles(ch, (i, j) => { if (!(zone[i][j] && bld[i][j] && (!powered[i][j] || !watered[i][j]))) return; const lt = lot[i][j]; if (lt && (i !== lt.i0 + lt.wi - 1 || j !== lt.j0 + lt.dj - 1)) return;
       if (art) { const { x, y } = toScreen(i, j), yy = y - STATUS_H[bld[i][j]], two = !powered[i][j] && !watered[i][j];
@@ -682,9 +700,10 @@ function diamond(g: Graphics, i: number, j: number) {
   const ICON: Record<string, string> = { school: 'svc_school_elem', highschool: 'svc_school_high', police: 'svc_police', fire: 'svc_fire', clinic: 'svc_clinic', hospital: 'svc_hospital', garage: 'svc_garage', garage2: 'svc_garage_big', busdepot: 'svc_bus_depot' };
   svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util && v.kind !== 'park' && v.kind !== 'plot').map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}">${ICON[k] ? `<img class="ic" src="./assets/ui/icons2/svg/${ICON[k]}.svg" alt="">` : ''}${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
     + '<span class="sep">Parks</span><span id="parkGroup" style="display:inline-flex;flex-wrap:wrap;gap:3px;max-width:900px">' + Object.entries(PARKS).map(([k, P]) => `<button data-t="svc:park_${k}" title="${P.name}: ${P.size}x${P.size}, build $${P.cost}, upkeep $${P.upkeep}/month. Raises nearby home values${P.leisure ? '; draws leisure trips' : ''}. Doesn't need a road."><img class="ic" src="./assets/ui/icons2/svg/park_${k}.svg" alt=""> ${P.name} <small>${P.size}×${P.size} $${P.cost}</small></button>`).join('') + '</span>'
-    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, output ${v.kind === 'power' ? fmtPower(v.out!) : fmtWater(v.out!)}${v.needsWater ? ', its south-east side must be on water' : ''}"><img class="ic" src="./assets/ui/icons2/svg/${({ coal: 'svc_coal', wind: 'svc_wind', pump: 'svc_pump', tower: 'svc_water_tower' } as Record<string, string>)[k] ?? 'svc_' + k}.svg" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
+    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" data-util="1" title="${v.name}: ${v.size}x${v.size}, $${v.cost.toLocaleString()}, output ${v.kind === 'power' ? fmtPower(v.out!) : fmtWater(v.out!)}${v.needsWater ? ', its south-east side must be on water' : ''}${v.nearWater ? ', must touch water' : ''}${GATES[k] ? `. Milestone: ${gateText(k)}` : ''}"><img class="ic" src="./assets/ui/icons2/svg/${({ coal: 'svc_coal', wind: 'svc_wind', pump: 'svc_pump', tower: 'svc_water_tower' } as Record<string, string>)[k] ?? 'svc_' + k}.svg" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
     + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="traffic">Traffic volume</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option><option value="power">Powered</option><option value="water">Water served</option><option value="park">Parks (happiness)</option></select>';
-  svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => setTool((b as HTMLElement).dataset.t!));
+  svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => { const t = (b as HTMLElement).dataset.t!; if (t.startsWith('svc:') && !unlocked(t.slice(4))) { sfx.play('error'); toast(`Locked: needs ${gateText(t.slice(4))}`); return; } setTool(t); });
+  const refreshLocks = () => svcBar.querySelectorAll<HTMLElement>('button[data-util]').forEach(b => { b.dataset.locked = unlocked(b.dataset.t!.slice(4)) ? '' : '1'; b.style.opacity = b.dataset.locked ? '0.45' : ''; });
   setTool('select');
   window.addEventListener('keydown', e => { const k = +e.key; if (k >= 1 && k <= 8) setTool(tools[k-1][0]); if (e.key === 'Escape') { drag = null; preview.clear(); } });
 
@@ -709,8 +728,9 @@ function diamond(g: Graphics, i: number, j: number) {
   const seWater = (i0: number, j0: number, s: number) => { for (let k = 0; k < s; k++) if (!inb(i0 + s, j0 + k) || terrain[i0 + s][j0 + k] !== 'water') return false; return true; }; // pump intake faces SE
   const touchesWater = (i0: number, j0: number, s: number) => { const w = (i: number, j: number) => inb(i, j) && terrain[i][j] === 'water'; for (let k = 0; k < s; k++) if (w(i0 - 1, j0 + k) || w(i0 + s, j0 + k) || w(i0 + k, j0 - 1) || w(i0 + k, j0 + s)) return true; return false; };
   const canPlop = (t: string, hi: number, hj: number) => { const f = svcFoot(t, hi, hj), S = SERV[t];
-    return f.tiles.every(([i, j]) => tileFree(i, j) && !pline[i][j]) && (S.util || S.kind === 'park' ? true : touchesRoad(f.i0, f.j0, f.s)) && (!S.needsWater || seWater(f.i0, f.j0, f.s)); };
+    return f.tiles.every(([i, j]) => tileFree(i, j) && !pline[i][j]) && (S.util || S.kind === 'park' ? true : touchesRoad(f.i0, f.j0, f.s)) && (!S.needsWater || seWater(f.i0, f.j0, f.s)) && (!S.nearWater || touchesWater(f.i0, f.j0, f.s)); };
   const plop = (t: string, hi: number, hj: number) => {
+    if (!unlocked(t)) { toast(`Locked: needs ${gateText(t)}`); return false; }
     if (!canPlop(t, hi, hj)) return false; if (!spend(SERV[t].cost)) return false; tripsDirty = true; const f = svcFoot(t, hi, hj), c: Civ = { type: t, i: f.i0, j: f.j0, s: f.s }; if (isPark(t)) c.v = pickVariant(c);
     civs.push(c); for (const [i, j] of f.tiles) civAt[i][j] = c; markDirty(f.i0, f.j0, f.i0 + f.s, f.j0 + f.s); census(); updateStats(); return true;
   };
@@ -835,9 +855,14 @@ function diamond(g: Graphics, i: number, j: number) {
 
   // ---- simulation ----
   const ZNAME: Record<string, string> = { R: 'Residential', C: 'Commercial', I: 'Industrial' };
-  const DNAME = ['', 'Low density', 'Medium density', 'High density'];
+  const DNAME = ['', 'Low density', 'Medium density', 'High density', 'High-rise', 'Supertall (2×2)'];
   const CAP: Record<string, number[]> = { R: RESIDENTS.R, C: JOBS.C, I: JOBS.I }; // see src/realism.ts
-  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0, edu: [...DEMOG.eduNoSchools] as number[] };
+  const sim = { day: 0, speed: 1, pop: 0, jobsC: 0, jobsI: 0, dR: 0, dC: 0, dI: 0, spent: 0, funds: 20000, loan: 0, edu: [...DEMOG.eduNoSchools] as number[], ach: [] as string[], surplusStreak: 0, reliableStreak: 0, shortMonth: false };
+  // ---- milestones (src/milestones.ts): earned ids live in sim.ach (saved) ----
+  const unlocked = (k: string) => (GATES[k] ?? []).every(id => sim.ach.includes(id));
+  const mstate = () => ({ pop: sim.pop, surplusStreak: sim.surplusStreak, reliableStreak: sim.reliableStreak });
+  let onEarn = (_ids: string[]) => {};
+  const checkMilestones = () => { const ids = newlyEarned(new Set(sim.ach), mstate()); if (!ids.length) return; sim.ach.push(...ids); onEarn(ids); };
   const hist: { m: number; inc: number; exp: number; net: number; funds: number; pop: number }[] = []; // monthly history (saved)
   const why: Record<string, [string, number][]> = { R: [], C: [], I: [] }; // demand terms, for the data panel
   // ---- budget ----
@@ -886,6 +911,8 @@ function diamond(g: Graphics, i: number, j: number) {
   let onMonth = () => {}; let tripTick = () => {}; let tripPenalty = 0, parkPenalty = 0, jamPenalty = 0;
   const monthly = () => { jamPenalty = Math.min(0.25, failed.month / Math.max(20, failed.spawned) * 0.5); failed.last = failed.month; failed.month = 0; failed.spawned = 0;
     lastMonth = projection(); sim.funds += lastMonth.net;
+    sim.surplusStreak = lastMonth.net > 0 ? sim.surplusStreak + 1 : 0;
+    sim.reliableStreak = sim.pop >= 1000 && !sim.shortMonth && util.pWant > 0 ? sim.reliableStreak + 1 : 0; sim.shortMonth = false; checkMilestones();
     { const inc = Object.values(lastMonth.income).reduce((a, b) => a + b, 0), exp = Object.values(lastMonth.expense).reduce((a, b) => a + b, 0); hist.push({ m: Math.floor(sim.day / 30), inc, exp, net: lastMonth.net, funds: Math.round(sim.funds), pop: sim.pop }); if (hist.length > 120) hist.shift(); }
     { const c = eduCoverage(), tgt = DEMOG.eduNoSchools.map((v, k) => v + (DEMOG.eduUS[k] - v) * c); sim.edu = sim.edu.map((v, k) => v + (tgt[k] - v) * DEMOG.eduDriftPerMonth); }
     if (sim.funds < 0) toast(`<img class="ic" src="./assets/ui/icons2/svg/status_debt.svg" alt=""> The city is in debt ($${Math.floor(sim.funds).toLocaleString()}). Raise taxes, cut funding, or take a loan.`, true);
@@ -898,7 +925,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (const row of poll) row.fill(0);
     for (const c of civs) if (c.type === 'coal') { const ci = c.i + 1, cj = c.j + 1; for (let a = -7; a <= 7; a++) for (let b = -7; b <= 7; b++) { const d = Math.hypot(a, b); if (d <= 7 && inb(ci + a, cj + b)) poll[ci + a][cj + b] += 6 * (1 - d / 8); } }
     for (const k of zlist) { const i = (k / N) | 0, j = k - i * N; if (zone[i][j] !== 'I' || !bld[i][j]) continue;
-      const L = bld[i][j];
+      const L = bld[i][j]; if (L >= 4) continue; // high-tech industry: no smokestacks
       for (let a = -5; a <= 5; a++) for (let b = -5; b <= 5; b++) { const d = Math.hypot(a, b); if (d <= 5 && inb(i + a, j + b)) poll[i + a][j + b] += L * (1 - d / 6); }
     }
     for (const c of civs) if (isPark(c.type)) { const ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2, r = c.s + 2, q = PARK_EFFECT.pollutionPerTile * c.s * c.s; // trees soak up a little
@@ -932,9 +959,20 @@ function diamond(g: Graphics, i: number, j: number) {
     why.I = [['Export demand + local need vs industrial jobs', bI], [`Industrial tax ${tax.I}%`, (9 - tax.I) * 0.05]];
     perf.census = performance.now() - t0;
   };
+  const levelCap = (i: number, j: number) => { const c = capOf(i, j); return c < 3 ? c : 3 + (unlocked('level4') ? 1 : 0) + (unlocked('level5') ? 1 : 0); };
+  const nearStop = (i: number, j: number, r: number) => stops.some(k => Math.abs(((k / N) | 0) - i) + Math.abs(k % N - j) <= r);
+  const frontW = (i: number, j: number) => { const f = facingOf(i, j); if (!f) return -1; return wKind(rw[i + FACE[f][1]][j + FACE[f][2]]); }; // 0 2-lane · 1 street · 2 avenue
+  /** level 4 needs: Dense (or uncapped) zone, power + water, fire, police and health cover (+ a school for homes), and a Street/Avenue out front or a bus stop within 3 tiles */
+  const endOk = (i: number, j: number, z: string, front: boolean) => (zden[i][j] === 0 || zden[i][j] === 3) && powered[i][j] && watered[i][j] && cov.fire[i][j] > 0 && cov.police[i][j] > 0 && cov.health[i][j] > 0 && (z !== 'R' || cov.edu[i][j] > 0) && (!front || frontW(i, j) >= 1 || nearStop(i, j, 3));
+  /** level 5: a 2x2 block of finished level-4 tiles of one zone, its own road on at least one front, an Avenue front or a bus stop within 4 tiles, and (homes/offices) high land value: a park nearby, or strong health cover with clean air */
+  const findBlock = (i: number, j: number, z: string) => { if (!unlocked('level5')) return -1;
+    for (const [oa, ob] of [[0, 0], [-1, 0], [0, -1], [-1, -1]]) { const i0 = i + oa, j0 = j + ob; if (i0 < 0 || j0 < 0 || i0 + 1 >= N || j0 + 1 >= N) continue; let ok = true, wide = false, access = false, park = false;
+      for (let a = 0; a < 2 && ok; a++) for (let b = 0; b < 2; b++) { const x = i0 + a, y = j0 + b; if (zone[x][y] !== z || bld[x][y] !== 4 || consT[x][y] || big[x][y] || lot[x][y] || pk[x][y] || !endOk(x, y, z, false)) { ok = false; break; }
+        if (hasAccess(x, y)) access = true; if (frontW(x, y) >= 2 || nearStop(x, y, 4)) wide = true; if (cov.park[x][y] > 0 || (cov.health[x][y] > 0.5 && poll[x][y] < 1)) park = true; }
+      if (ok && access && wide && (z === 'I' || park)) return i0 * N + j0; } return -1; };
   const tick = () => {
     const t0 = performance.now();
-    lastTick = t0; sim.day++; tickRoads(); tripTick(); if (sim.day % 30 === 0) monthly();
+    lastTick = t0; sim.day++; tickRoads(); tripTick(); if (sim.day % 30 === 0) monthly(); checkBig();
     const d: Record<string, number> = { R: sim.dR, C: sim.dC, I: sim.dI };
     for (const k of zlist) { const i = (k / N) | 0, j = k - i * N;
       const z = zone[i][j]; if (!z || pk[i][j]) continue; // private parking holds the lot
@@ -945,12 +983,16 @@ function diamond(g: Graphics, i: number, j: number) {
         continue;
       }
       const L = bld[i][j];
-      if (!hasAccess(i, j)) { if (L && Math.random() < 0.01) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); } continue; } // no road on the front: never grows, landlocked buildings are abandoned over time
+      if (!(big[i][j] ? bigAccess(big[i][j] - 1) : hasAccess(i, j))) { if (L && Math.random() < 0.01) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); } continue; } // no road on the front: never grows, landlocked buildings are abandoned over time
       const dem = d[z] - Math.min(0.3, crime[i][j] * 0.05) // crime lowers desirability everywhere
         + (z === 'R' ? -Math.min(0.4, poll[i][j] * 0.04) + 0.15 * cov.edu[i][j] + 0.15 * cov.health[i][j] + PARK_EFFECT.desirability * cov.park[i][j] : 0); // pollution vs schools, health care & parks
       if (near[i][j] > 3) { if (L && Math.random() < 0.05) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); } continue; } // lost road access
-      if (dem > 0 && L < capOf(i, j)) {
-        const need = [0, 0, 0.15, 0.3][L + 1]; // higher density needs sustained strong demand
+      if (dem > 0 && L < levelCap(i, j)) {
+        const need = [0, 0, 0.15, 0.3, 0.4, 0.5][L + 1]; // higher density needs sustained strong demand
+        if (L + 1 >= 4) { // end game: high-rises need services + a wide road or transit; supertalls take a whole 2x2 block
+          if (dem > need && Math.random() < 0.02 * dem) { if (L + 1 === 4 && endOk(i, j, z, true)) { consT[i][j] = 4; consD[i][j] = 0; markDirty(i, j, i, j); }
+            else if (L + 1 === 5) { const k = findBlock(i, j, z); if (k >= 0) { const i0 = (k / N) | 0, j0 = k % N; bigSet.add(k); for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) { big[i0 + a][j0 + b] = k + 1; consT[i0 + a][j0 + b] = 5; consD[i0 + a][j0 + b] = 0; } markDirty(i0, j0, i0 + 1, j0 + 1); } } }
+          continue; }
         const utilOk = L + 1 < 2 || (powered[i][j] && watered[i][j]); // no power or water: stays low density
         const eduOk = utilOk && !(z === 'R' && L + 1 === 3 && cov.edu[i][j] <= 0); // high-density housing needs a school nearby
         if (eduOk && dem > need && Math.random() < (L === 0 ? 0.06 : 0.02) * dem) {
@@ -960,7 +1002,7 @@ function diamond(g: Graphics, i: number, j: number) {
           else { consT[i][j] = L + 1; consD[i][j] = 0; markDirty(i, j, i, j); } }
       } else if (L > 0 && dem < -0.5 && Math.random() < 0.02 * -dem) { if (lot[i][j]) removeLot(lot[i][j]!); bld[i][j]--; markDirty(i, j, i, j); }
     }
-    census(false); updateStats();
+    census(false); updateStats(); if (util.pUse < util.pWant - 0.5 || util.wUse < util.wWant - 0.5) sim.shortMonth = true; checkMilestones();
     const dt = performance.now() - t0; perf.tick = perf.tick * 0.9 + dt * 0.1; perf.tickMax = Math.max(perf.tickMax, dt); perf.n++;
   };
   // top HUD
@@ -1165,7 +1207,7 @@ function diamond(g: Graphics, i: number, j: number) {
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const k = i * N + j;
       fl[k] = (road[i][j] ? 1 : 0) | (pline[i][j] ? 2 : 0) | (pipe[i][j] ? 4 : 0); zn[k] = ZZ.indexOf(zone[i][j]); bl[k] = bld[i][j]; ct[k] = consT[i][j]; cd[k] = Math.min(255, consD[i][j]); tr[k] = TT.indexOf(terrain[i][j]); rt[k] = rtier[i][j]; rs[k] = rstage[i][j]; rd[k] = Math.min(255, rday[i][j]); rf[k] = rfrom[i][j]; ww[k] = rw[i][j]; pd[k] = rpd[i][j]; }
     return { format: SAVE_FORMAT, version: SAVE_VERSION, terrainVersion: TERRAIN_VERSION, savedAt: new Date().toISOString(), city, sim: { ...sim }, tax: { ...tax }, funding: { ...funding }, lastMonth,
-      stops: [...stops], rabs: [...new Set(rab.flat().filter(v => v > 0).map(v => v - 1))].filter(k => !rabS.has(k)), rabs2: [...rabS].filter(([, L]) => L === 2).map(([k]) => k), ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}), ...(c.pid ? { pid: c.pid, f: c.f ?? 0 } : {}) })), plots: [...designs.values()].filter(d => civs.some(c => c.pid === d.id)).map(d => JSON.parse(JSON.stringify(d))), lots: [...lots].map(l => ({ ...l })), hist: hist.slice(), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
+      towers: [...bigSet], stops: [...stops], rabs: [...new Set(rab.flat().filter(v => v > 0).map(v => v - 1))].filter(k => !rabS.has(k)), rabs2: [...rabS].filter(([, L]) => L === 2).map(([k]) => k), ix: [...ixSet].map(([k, o]) => [k, o.mode, o.axis, o.cyc, o.split]), civs: civs.map(c => ({ type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}), ...(c.pid ? { pid: c.pid, f: c.f ?? 0 } : {}) })), plots: [...designs.values()].filter(d => civs.some(c => c.pid === d.id)).map(d => JSON.parse(JSON.stringify(d))), lots: [...lots].map(l => ({ ...l })), hist: hist.slice(), cam: { x: camX, y: camY, zoom }, grids: { terrain: b64(tr), flags: b64(fl), zone: b64(zn), bld: b64(bl), consT: b64(ct), consD: b64(cd), rtier: b64(rt), rstage: b64(rs), rday: b64(rd), rfrom: b64(rf), rwidth: b64(ww), rpart: b64(pd), zden: b64(Uint8Array.from(zden.flat())), zface: b64(Uint8Array.from(zface.flat())), pk: b64(Uint8Array.from(pk.flat())) }, traffic: { volume: b64(new Uint8Array(new Uint16Array(trips.volume.map(v => Math.min(65535, v))).buffer)) } };
   };
   const applySave = (o: any) => {
     const g = (k: string) => unb64(o.grids[k]), fl = g('flags'), zn = g('zone'), bl = g('bld'), ct = g('consT'), cd = g('consD'), z0 = new Uint8Array(N * N), rt = o.grids.rtier ? g('rtier') : null, rs = o.grids.rstage ? g('rstage') : z0, rd = o.grids.rday ? g('rday') : z0, rf = o.grids.rfrom ? g('rfrom') : z0, ww = o.grids.rwidth ? g('rwidth') : z0, pkg = o.grids.pk ? g('pk') : null, pd = o.grids.rpart ? g('rpart') : null, zdg = o.grids.zden ? g('zden') : null, zfg = o.grids.zface ? g('zface') : null; roadWorks.length = 0;
@@ -1184,7 +1226,9 @@ function diamond(g: Graphics, i: number, j: number) {
     for (const d of o.plots ?? []) { designs.set(d.id, d); statCache.delete(d.id); } // pre-v13 saves: no custom lots
     civs.length = 0; for (const c of o.civs) { if (!SERV[c.type] || (c.type === 'plot' && !designs.has(c.pid))) continue; const v: Civ = { type: c.type, i: c.i, j: c.j, s: c.s, ...(c.v ? { v: c.v } : {}), ...(c.pid ? { pid: c.pid, f: c.f ?? 0 } : {}) }; civs.push(v); for (let a = 0; a < c.s; a++) for (let b = 0; b < c.s; b++) if (inb(c.i + a, c.j + b)) civAt[c.i + a][c.j + b] = v; }
     for (const r of lot) r.fill(null); lots.clear(); for (const l of o.lots ?? []) addLot({ ...l }); syncLots();
-    Object.assign(sim, o.sim); if (!Array.isArray(o.sim?.edu) || o.sim.edu.length !== 4) sim.edu = [...DEMOG.eduNoSchools]; // pre-v11: no education history yet
+    Object.assign(sim, o.sim); sim.ach = Array.isArray(o.sim?.ach) ? [...o.sim.ach] : []; sim.surplusStreak = o.sim?.surplusStreak ?? 0; sim.reliableStreak = o.sim?.reliableStreak ?? 0; sim.shortMonth = false; // pre-v15: no milestones yet (population ones are re-earned on the next day)
+    for (const r of big) r.fill(0); bigSet.clear(); for (const k of o.towers ?? []) { const i0 = (k / N) | 0, j0 = k % N; if (i0 + 1 >= N || j0 + 1 >= N) continue; bigSet.add(k); for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) big[i0 + a][j0 + b] = k + 1; } checkBig(); refreshLocks();
+    if (!Array.isArray(o.sim?.edu) || o.sim.edu.length !== 4) sim.edu = [...DEMOG.eduNoSchools]; // pre-v11: no education history yet
     hist.length = 0; for (const h of o.hist ?? []) hist.push(h); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
     if (o.cam) { camX = o.cam.x; camY = o.cam.y; zoom = clampZoom(o.cam.zoom); }
     tripsDirty = true; trips.volume.fill(0); if (o.traffic?.volume) { const u = new Uint16Array(unb64(o.traffic.volume).buffer); trips.volume.set(u.subarray(0, N * N)); }
@@ -1195,6 +1239,27 @@ function diamond(g: Graphics, i: number, j: number) {
   const autoId = () => `auto:${city.name}:${city.size}:${city.seed}`;
   let autosaveOn = localStorage.getItem('autosave') !== 'off';
   onMonth = () => { if (autosaveOn && Math.floor(sim.day / 30) % 3 === 0) saveTo('Autosave', autoId()).then(() => toastOk('Autosaved')).catch(() => {}); };
+  // ---- Milestones panel (☰ menu or M): icon grid, progress bars, unlock toasts ----
+  const msP = document.createElement('div'); msP.id = 'milestones';
+  msP.style.cssText = 'position:fixed;top:52px;right:10px;width:380px;display:none;background:rgba(16,22,30,.96);color:#e8eef6;border:1px solid #33404f;border-radius:12px;z-index:15;font:12px system-ui;padding:12px 14px;box-sizing:border-box';
+  msP.addEventListener('pointerdown', e => e.stopPropagation()); document.body.appendChild(msP);
+  const renderMs = () => { const st = mstate();
+    msP.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><img class="ic ic22" src="./assets/ui/icons2/svg/btn_milestones.svg" alt=""><b style="font-size:14px">Milestones</b><span style="margin-left:auto;color:#93a3b8">${sim.ach.length}/${MILESTONES.length}</span><button id="msClose" title="Close (Esc)" style="background:none;border:0;cursor:pointer;padding:2px">${IC('btn_close')}</button></div>`
+      + `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${MILESTONES.map(m => { const got = sim.ach.includes(m.id), p = Math.min(1, m.prog(st) / m.goal);
+        return `<div class="ms${got ? ' got' : ''}" data-ms="${m.id}" title="${m.name}: ${m.need}. Unlocks: ${m.unlocks}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px 6px;border-radius:10px;border:1px solid ${got ? '#4f8cff' : '#2c3a4b'};background:${got ? '#1d2c44' : '#161f2b'}">`
+          + `<img src="./assets/ui/icons2/svg/${m.icon}.svg" alt="" style="width:34px;height:34px;${got ? '' : 'filter:grayscale(1);opacity:.45'}">`
+          + (got ? '' : `<img src="./assets/ui/icons2/svg/ms_lock.svg" alt="" style="position:absolute;top:4px;right:4px;width:12px;height:12px">`)
+          + `<div style="width:80%;height:4px;background:#2a3544;border-radius:2px;overflow:hidden"><div style="width:${p * 100}%;height:100%;background:${got ? '#4f8cff' : '#7d8ea3'}"></div></div></div>`; }).join('')}</div>`;
+    msP.querySelector<HTMLElement>('#msClose')!.onclick = () => setMs(false); };
+  const setMs = (v: boolean) => { msP.style.display = v ? 'block' : 'none'; if (v) renderMs(); };
+  window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.ctrlKey && !e.metaKey && !(e.target instanceof HTMLInputElement)) setMs(msP.style.display === 'none'); if (e.key === 'Escape') setMs(false); });
+  const msToast = document.createElement('div'); msToast.id = 'msToast';
+  msToast.style.cssText = 'position:fixed;top:96px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 14px;background:rgba(16,22,30,.96);border:1px solid #4f8cff;border-radius:12px;color:#e8eef6;font:13px system-ui;z-index:30;opacity:0;transition:opacity .4s;pointer-events:none';
+  document.body.appendChild(msToast); let msT = 0;
+  onEarn = ids => { const m = MILESTONES.find(x => x.id === ids[ids.length - 1])!; msToast.innerHTML = `<img src="./assets/ui/icons2/svg/${m.icon}.svg" alt="" style="width:30px;height:30px"><div><b>${m.name}</b><br><span style="color:#93a3b8">${IC('ms_unlock')} ${m.unlocks}</span></div>`;
+    msToast.style.opacity = '1'; clearTimeout(msT); msT = window.setTimeout(() => msToast.style.opacity = '0', 5000); sfx.play('zone'); refreshLocks(); if (msP.style.display === 'block') renderMs(); };
+  refreshLocks();
+  (window as any).__ms = { hasArt: (k: string) => hasArt(k), toggle: () => setMs(msP.style.display === 'none'), open: () => setMs(true), list: () => [...sim.ach], grant: (id: string) => { if (!sim.ach.includes(id)) { sim.ach.push(id); onEarn([id]); } }, unlocked: (k: string) => unlocked(k), state: () => mstate(), big: () => [...bigSet], levelCap: (i: number, j: number) => levelCap(i, j), findBlock: (i: number, j: number) => findBlock(i, j, zone[i][j]) };
   // ---- City Data panel (button 📊 / Shift+D): every number here comes from the simulation; anything not simulated says so ----
   const dataP = document.createElement('div'); dataP.id = 'dataPanel';
   dataP.style.cssText = 'position:fixed;top:44px;right:8px;bottom:76px;width:440px;display:none;flex-direction:column;background:rgba(18,24,33,.96);color:#e6edf5;border:1px solid #3a4658;border-radius:10px;z-index:6;font:13px/1.45 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4)';

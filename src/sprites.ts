@@ -113,6 +113,11 @@ export function place(key: string, x: number, y: number, layer: Container, seed 
     if (t === 'wind') { g.moveTo(x, y + 2).lineTo(x, y - 44).stroke({ width: 3, color: 0xf2f2f2 }); for (let k = 0; k < 3; k++) { const a = -Math.PI / 2 + k * 2 * Math.PI / 3 + 0.3; g.moveTo(x, y - 44).lineTo(x + Math.cos(a) * 16, y - 44 + Math.sin(a) * 16).stroke({ width: 2.5, color: 0xffffff }); } g.circle(x, y - 44, 2.5).fill(0xcccccc); }
     else if (t === 'tower') { for (const d of [-7, 7]) g.moveTo(x + d, y + 3).lineTo(x + d * 0.5, y - 22).stroke({ width: 2, color: 0x777777 }); g.ellipse(x, y - 30, 12, 6).fill(0x5fa8e8); g.rect(x - 12, y - 30, 24, 10).fill(0x4a90d9); g.ellipse(x, y - 20, 12, 6).fill(0x3d7fc4); g.ellipse(x, y - 30, 12, 6).fill(0x8cc4f2); }
     else if (t === 'pump') { box(g, x, y, TW * 0.8, TH * 0.8, 16, 0x8fa8b8, 0x4a6f8a); g.circle(x + 12, y - 20, 6).fill(0x3d8fe0); g.rect(x - 20, y - 24, 6, 10).fill(0x5f7f95); }
+    else if (t === 'windfarm') { dia(2.6).fill(0x6fae55); for (const [dx, dy] of [[-28, 0], [0, -14], [28, 0], [0, 14]]) { const cx = x + dx, cy = y + dy; g.moveTo(cx, cy + 2).lineTo(cx, cy - 40).stroke({ width: 2.5, color: 0xf2f2f2 }); for (let k = 0; k < 3; k++) { const a = -Math.PI / 2 + k * 2 * Math.PI / 3 + 0.3 + dx * 0.02; g.moveTo(cx, cy - 40).lineTo(cx + Math.cos(a) * 14, cy - 40 + Math.sin(a) * 14).stroke({ width: 2, color: 0xffffff }); } } }
+    else if (t === 'solar') { dia(3.4).fill(0x8a9a6a); for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b += 2) { const cx = x + (a - b) * 16 * 0.5, cy = y + (a + b) * 8 * 0.5; g.poly([cx - 9, cy, cx, cy - 4.5, cx + 9, cy, cx, cy + 4.5]).fill(0x24406e).stroke({ width: 0.6, color: 0x9fb8d8 }); } }
+    else if (t === 'gas') { box(g, x, y, TW * 0.9, TH * 0.9, 22, 0xc8ccd0, 0x8e969e); box(g, x - 22, y + 4, 16, 8, 34, 0xd8dce0, 0xaab2ba); g.rect(x + 18, y - 70, 9, 52).fill(0xb0b6bc); g.rect(x + 18, y - 70, 9, 4).fill(0x4a6a8a); }
+    else if (t === 'nuclear') { box(g, x + 30, y, TW * 0.7, TH * 0.7, 20, 0xc9c6bf, 0x8f8b84); for (const [cx, cy] of [[-34, -6], [-6, 10]]) { g.poly([x + cx - 22, y + cy, x + cx - 14, y + cy - 70, x + cx + 14, y + cy - 70, x + cx + 22, y + cy]).fill(0xd9d6cf); g.ellipse(x + cx, y + cy - 70, 14, 5).fill(0xb8b4ac); g.ellipse(x + cx, y + cy, 22, 8).fill(0xc4c0b8); } g.ellipse(x + 34, y - 30, 14, 7).fill(0xe8e6e0); g.rect(x + 20, y - 30, 28, 12).fill(0xe0ded8); }
+    else if (t === 'treatment' || t === 'desal') { dia(2.6).fill(0xa7a59c); for (const [cx, cy] of [[-26, 0], [0, -13], [0, 13], [26, 0]]) { g.ellipse(x + cx, y + cy, 13, 6.5).fill(0x6b6f72); g.ellipse(x + cx, y + cy - 2, 11, 5.5).fill(t === 'desal' ? 0x4fa3c7 : 0x5c8f6a); } box(g, x, y - 2, 12, 6, t === 'desal' ? 24 : 14, 0xe0e0dc, 0x3d8fe0); }
     else if (t === 'coal') { box(g, x, y, TW * 1.2, TH * 1.2, 26, 0x8a7f78, 0x4e4844); for (const [cx, h] of [[-14, 40], [4, 48]]) { g.rect(x + cx, y - 26 - h, 8, h).fill(0x6e6560); g.rect(x + cx, y - 26 - h, 8, 4).fill(0xc0392b); } g.ellipse(x + 26, y - 4, 10, 5).fill(0x2a2522); }
   } else if (key === 'civic_lot') {
     dia().fill(0xa7a59c).stroke({ width: 1, color: 0x000000, alpha: 0.1 });
@@ -133,7 +138,14 @@ export function place(key: string, x: number, y: number, layer: Container, seed 
     for (let f = 0; f <= H; f += 8) g.moveTo(x - TW / 2 * k, y - f).lineTo(x, y + TH / 2 * k - f).lineTo(x + TW / 2 * k, y - f).stroke({ width: 1, color: 0xe0a030 });
     if (st === 3) g.moveTo(x + 10, y + 4).lineTo(x + 10, y - H - 18).lineTo(x - 14, y - H - 18).stroke({ width: 2, color: 0xf2b200 });
   } else if (key.startsWith('bld_')) {
-    const [, z, lv] = key.split('_'); const L = +lv;
+    const [, z, lv, fp] = key.split('_'); const L = +lv, two = fp === '2x2';
+    if (L >= 4) { // end-game placeholders: glass towers (R/C) or a low high-tech block (I); 2x2 = supertall on a whole block
+      const glass: Record<string, number> = { R: 0xb9c8d6, C: 0x7fb0dc, I: 0x9ad0c8 }, k = two ? 1.6 : 0.8, H = z === 'I' ? (two ? 46 : 34) : (two ? 190 : 120) * (0.85 + h01 * 0.3);
+      box(g, x, y, TW / 2 * k, TH / 2 * k, H, glass[z], shade(glass[z], 1.15));
+      for (let f = 6; f < H - 4; f += 6) g.moveTo(x - TW / 2 * k + 1, y - f).lineTo(x, y + TH / 2 * k - f).lineTo(x + TW / 2 * k - 1, y - f).stroke({ width: 0.8, color: 0x2a3a4a, alpha: 0.35 });
+      if (z !== 'I') { g.rect(x - 1, y - H - TH / 2 * k - 18, 2, 18).fill(0x555555); g.circle(x, y - H - TH / 2 * k - 18, 1.6).fill(0xff3030); }
+      else g.rect(x - 8, y - H - 5, 16, 5).fill(0x3d4d5a); // rooftop plant
+      return g; }
     const pal: Record<string, number[]> = { R: [0xe8d9b5, 0xd9a07a, 0xc9cfd6], C: [0x9fc3e8, 0x7aa7d9, 0x8fb0c8], I: [0xb9a57a, 0x9a8f80, 0x8c8a86] };
     const roofs: Record<string, number> = { R: 0xb5523b, C: 0x2f5f9e, I: 0x5c5650 };
     const base = pal[z][Math.floor(h01 * 3)], k = [0, 0.55, 0.68, 0.78][L], h = [0, 10, 26, 52][L] * (0.75 + h01 * 0.6);

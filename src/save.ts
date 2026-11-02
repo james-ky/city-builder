@@ -1,5 +1,5 @@
 // Save slots in IndexedDB, gzip-compressed (CompressionStream). The same bytes are the .city export file.
-export const SAVE_FORMAT = 'city-builder-save', SAVE_VERSION = 15 /* v15: milestones (sim.ach, streaks) + 2x2 supertall towers (towers: anchor keys), levels 4-5; v14: 2-lane roundabouts (rabs2: origin keys; early v14 rabs5 5x5s load as 3x3 2-lane); v12: roundabouts (rabs: origin keys); v13: custom lots (plots: designs, civ pid/f) */;
+export const SAVE_FORMAT = 'city-builder-save', SAVE_VERSION = 16 /* v16: per-building service radius (rr) + staff target (sf); v15: milestones (sim.ach, streaks) + 2x2 supertall towers (towers: anchor keys), levels 4-5; v14: 2-lane roundabouts (rabs2: origin keys; early v14 rabs5 5x5s load as 3x3 2-lane); v12: roundabouts (rabs: origin keys); v13: custom lots (plots: designs, civ pid/f) */;
 export type SaveMeta = { id: string; slot: string; city: string; size: number; day: number; pop: number; funds: number; ts: number; bytes: number };
 export type SaveRec = SaveMeta & { data: Blob };
 const DB = 'city-builder', STORE = 'saves';

@@ -58,7 +58,7 @@ export class Peds {
     const p: Ped = { id: ++this.idN, v, kind, age, home: opts.back ? t : o, dest: opts.back ? o : t, purpose, back: !!opts.back, via: opts.via, ...r, born: this.now, seg: 0, t: 0, sp: BASE_SP * SPEED[kind] * (0.9 + Math.random() * 0.2), wait: 0, ft: Math.random() * 8, ph: 0, K: 0, x: 0, y: 0, ti: -1, tj: -1, lead: opts.lead };
     if (opts.lead) { p.sp = opts.lead.sp; p.pts = p.pts.map(q => [q[0] + 0.07, q[1] - 0.07]); } // walks beside the grown-up
     this.list.push(p); this.spawned++; return p; }
-  private drop(x: number) { const p = this.list[x]; p.s?.destroy(); p.n?.destroy(); this.list.splice(x, 1); }
+  private drop(x: number) { const p = this.list[x]; if (p.s && !p.s.destroyed) p.s.destroy(); if (p.n && !p.n.destroyed) p.n.destroy(); this.list.splice(x, 1); }
   clear() { for (let x = this.list.length - 1; x >= 0; x--) this.drop(x); }
   /** advance every walker by `dt` seconds of traffic animation (0 while paused) and draw the visible ones */
   update(dt: number, tint: number, night: number, show: boolean) {
@@ -72,8 +72,9 @@ export class Peds {
       const a = p.pts[p.seg], b = p.pts[p.seg + 1], gi = a[0] + (b[0] - a[0]) * p.t, gj = a[1] + (b[1] - a[1]) * p.t, sc = this.d.toScreen(gi, gj);
       p.x = sc.x; p.y = sc.y; const ti = Math.round(gi), tj = Math.round(gj), L = this.d.layerAt(Math.max(0, Math.min(N - 1, ti)), Math.max(0, Math.min(N - 1, tj)));
       p.K = ((Math.round(Math.atan2(-(b[1] - a[1]), b[0] - a[0]) / (Math.PI / 8)) % 16) + 16) % 16; // (SE, NE) ground heading -> d00..d15
-      const vis = show && L.vis; if (!vis) { if (p.s) p.s.visible = false; if (p.n) p.n.visible = false; continue; }
+      const vis = show && L.vis; if (!vis) { if (p.s && !p.s.destroyed) p.s.visible = false; if (p.n && !p.n.destroyed) p.n.visible = false; continue; }
       const rows = this.tex.get(p.v)!, f = p.wait > 0 ? 8 : Math.floor(p.ft) % 8;
+      if (p.s?.destroyed || p.n?.destroyed) { if (!p.s!.destroyed) p.s!.destroy(); if (p.n && !p.n.destroyed) p.n.destroy(); p.s = p.n = undefined; } // its chunk was redrawn (children destroyed): make new sprites
       if (!p.s) { p.s = new Sprite(rows[p.K][f]); p.s.anchor.set(0.5, 0.75); const nr = this.ntex.get(p.v); if (nr) { p.n = new Sprite(nr[p.K][f]); p.n.anchor.set(0.5, 0.75); p.n.blendMode = 'add'; (p.n as any).__light = true; } (p.s as any).__ped = p.id; }
       if (p.s.parent !== L.ob) { L.ob.addChild(p.s); if (p.n) L.ob.addChild(p.n); }
       p.s.texture = rows[p.K][f]; p.s.position.set(p.x, p.y); p.s.zIndex = p.y + 0.5; p.s.tint = tint; p.s.visible = true;

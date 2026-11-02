@@ -28,9 +28,15 @@
 // Whole people only: each building holds a whole number of homes (units), and each home a whole number of people,
 // drawn from a real household-size mix (US Census ACS, rounded). Level 2 is a 4-storey mid-rise: ~65 % lot coverage
 // (260 m²) × 4 floors × 80 % net ≈ 830 m² ÷ ~70 m² per flat ≈ 12 flats. Level 3 is a ~15-storey tower with ~60 flats.
-export const RES_UNITS = [0, 1, 12, 60];
+export const RES_UNITS = [0, 1, 12, 60, 120, 140];
+// END GAME (levels 4-5, Dense zones only, unlocked by milestones):
+//   R4 high-rise: ~30 storeys x 260 m2 x 80 % net / 70 m2 per flat ~ 90-120 flats -> 120.
+//   R5 supertall (2x2 block, 4 tiles): ~60 storeys x ~1,000 m2 floor plate x 80 % net / 70 m2 ~ 560 flats -> 140 per tile.
+//   C4 office tower: ~45 storeys x 260 m2 x 85 % net / 23 m2 per job ~ 430 jobs. C5 skyscraper (2x2): ~80 storeys x ~1,000 m2 x 85 % / 23 ~ 2,950 -> ~740 per tile.
+//   I4 high-tech (R&D / clean manufacturing): 6 floors x 240 m2 x 85 % / 35 m2 per job ~ 35 jobs, no smokestack pollution.
+//   I5 tech campus (2x2): 8 floors x 240 m2 x 85 % / 30 m2 ~ 54 jobs per tile.
 /** share of homes with 1,2,3,4,5,6 people, by building type (house / mid-rise flat / tower flat) */
-export const HOUSEHOLD_MIX = [[], [0.18, 0.34, 0.18, 0.17, 0.08, 0.05], [0.38, 0.31, 0.15, 0.10, 0.04, 0.02], [0.45, 0.35, 0.11, 0.06, 0.02, 0.01]];
+export const HOUSEHOLD_MIX = [[], [0.18, 0.34, 0.18, 0.17, 0.08, 0.05], [0.38, 0.31, 0.15, 0.10, 0.04, 0.02], [0.45, 0.35, 0.11, 0.06, 0.02, 0.01], [0.47, 0.35, 0.10, 0.05, 0.02, 0.01], [0.48, 0.35, 0.10, 0.05, 0.01, 0.01]];
 const mixMean = (m: number[]) => m.reduce((t, p, k) => t + p * (k + 1), 0);
 /** average residents per tile (for budgets and docs); actual buildings use residentsOf() */
 export const RESIDENTS = { R: RES_UNITS.map((u, l) => l ? u * mixMean(HOUSEHOLD_MIX[l]) : 0) };   // ≈ 2.9 · 26 · 113
@@ -42,22 +48,22 @@ export const residentsOf = (level: number, seed: number, extraUnitShare = 0) => 
 
 /** Jobs per tile at density 1/2/3 (floor area ÷ sq ft per job). */
 export const JOBS: Record<'C' | 'I', number[]> = {
-  C: [0, 3000 / 500, 12000 / 250, 70000 / 250],                  // 6 · 48 · 280 (retail → offices)
-  I: [0, 3000 / 1000, 8000 / 700, 12000 / 500],                  // 3 · ~11 · 24
+  C: [0, 3000 / 500, 12000 / 250, 70000 / 250, 9945 / 23, 739],  // + C4 432 · C5 739/tile; 6 · 48 · 280 (retail → offices)
+  I: [0, 3000 / 1000, 8000 / 700, 12000 / 500, 35, 54],          // + I4 35 · I5 54/tile; 3 · ~11 · 24
 };
 
 /** Average electricity demand per tile, kW. */
 export const POWER_KW: Record<'R' | 'C' | 'I', number[]> = {
-  R: [0, 1.25, 12 * 0.9, 60 * 0.8 * 1.2],                        // 1.25 · 10.8 · ~58 (towers add 20 % for lifts/common areas)
-  C: [0, 3000 * 15 / 8760, 12000 * 15 / 8760, 70000 * 20 / 8760],// ~5 · ~21 · ~160
-  I: [0, 3000 * 7 / 8760, 8000 * 50 / 8760, 12000 * 95 / 8760],  // ~2.4 · ~46 · ~130
+  R: [0, 1.25, 12 * 0.9, 60 * 0.8 * 1.2, 120 * 0.8 * 1.25, 140 * 0.8 * 1.3], // + R4 120 · R5 ~146 kW (lifts, pumps)                        // 1.25 · 10.8 · ~58 (towers add 20 % for lifts/common areas)
+  C: [0, 3000 * 15 / 8760, 12000 * 15 / 8760, 70000 * 20 / 8760, 9945 * 10.76 * 20 / 8760, 739 * 23 * 10.76 * 22 / 8760], // + C4 ~245 kW · C5 ~460 kW/tile// ~5 · ~21 · ~160
+  I: [0, 3000 * 7 / 8760, 8000 * 50 / 8760, 12000 * 95 / 8760, 1224 * 10.76 * 60 / 8760, 1632 * 10.76 * 60 / 8760], // + high-tech ~60 kWh/sq ft/yr (labs, servers)  // ~2.4 · ~46 · ~130
 };
 
 /** Water demand per tile, gallons/day. */
 export const WATER_GPD: Record<'R' | 'C' | 'I', number[]> = {
-  R: [0, 300, 12 * 175, 60 * 150],                               // 300 · 2,100 · 9,000
-  C: [0, 3000 * 0.1, 12000 * 0.1, 70000 * 0.1],                  // 300 · 1,200 · 7,000
-  I: [0, 3000 * 0.05, 8000 * 0.5, 12000 * 1.0],                  // 150 · 4,000 · 12,000
+  R: [0, 300, 12 * 175, 60 * 150, 120 * 150, 140 * 150],                               // 300 · 2,100 · 9,000
+  C: [0, 3000 * 0.1, 12000 * 0.1, 70000 * 0.1, 9945 * 10.76 * 0.1, 739 * 23 * 10.76 * 0.1],                  // 300 · 1,200 · 7,000
+  I: [0, 3000 * 0.05, 8000 * 0.5, 12000 * 1.0, 1224 * 10.76 * 0.3, 1632 * 10.76 * 0.3],                  // 150 · 4,000 · 12,000
 };
 
 /** Civic buildings: what they draw (consumers) or produce (plants). */
@@ -71,7 +77,14 @@ export const CIVIC: Record<string, { kw?: number; gpd?: number; outKw?: number; 
   coal:       { outKw: 50000 },           // 50 MW small municipal coal plant
   wind:       { outKw: 1000 },            // 3 MW turbine × 35 % capacity factor
   pump:       { outGpd: 2_000_000 },      // 2 million gal/day surface-water intake + treatment
-  tower:      { outGpd: 500_000 },        // groundwater well + elevated storage tank
+  tower:      { outGpd: 500_000 },
+  // end-game utilities (unlocked by milestones), game-scale like coal above
+  windfarm:   { outKw: 4000 },            // 4 x 3 MW turbines x 35 % capacity factor (3x3 site)
+  solar:      { outKw: 2500 },            // ~10 MWp utility PV x 25 % (4x4 site; real land use is larger, game-scaled)
+  gas:        { outKw: 150000 },          // combined-cycle gas turbine block, ~60 % efficient, 150 MW
+  nuclear:    { outKw: 1000000 },         // one 1 GW pressurised-water reactor, ~93 % capacity factor
+  treatment:  { outGpd: 10_000_000 },     // 10 Mgal/day river/lake water treatment plant
+  desal:      { outGpd: 6_000_000 },      // 6 Mgal/day reverse-osmosis seawater desalination        // groundwater well + elevated storage tank
 };
 
 /** Labour market (drives zone demand). */

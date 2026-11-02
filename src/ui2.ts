@@ -5,7 +5,7 @@ const $ = (s: string) => document.querySelector<HTMLElement>(s);
 const click = (s: string) => $(s)?.click();
 const svc = (k: string) => () => click(`#services button[data-t="svc:${k}"]`);
 const tool = (n: number) => () => click(`#toolbar button:nth-child(${n})`);
-type Item = { label: string; tip: string; key?: string; icon?: string; img?: string; run: (ev?: MouseEvent) => void; on?: () => boolean };
+type Item = { label: string; tip: string; key?: string; icon?: string; img?: string; run: (ev?: MouseEvent) => void; on?: () => boolean; locked?: () => boolean };
 const I = (id: string, cls = 'ic') => `<img class="${cls}" src="./assets/ui/icons2/svg/${id}.svg" alt="">`;
 const CSS = `
 :root{--u-bg:rgba(16,22,30,.94);--u-line:#33404f;--u-acc:#4f8cff;--u-txt:#e8eef6;--u-dim:#93a3b8}
@@ -34,6 +34,7 @@ const CSS = `
 #uBar button{min-width:0;padding:7px 9px}#uTray button{padding:6px}#uTop button{padding:4px 6px}#uTop .ic{width:20px;height:20px}
 #roadTiers button,#zoneBar button{display:flex!important;align-items:center;gap:4px}#roadTiers small{display:none}#roadTiers>span{margin:0 2px!important;padding:0!important}
 #dataTabs button{padding:5px 7px!important}#speed .ic{width:16px;height:16px}
+#uTray button.lk{position:relative}#uTray button.lk>img{filter:grayscale(1);opacity:.4}#uTray button.lk::after{content:'';position:absolute;right:2px;bottom:2px;width:11px;height:11px;background:url(./assets/ui/icons2/svg/ms_lock.svg) center/contain no-repeat}
 #uBadge{position:fixed;left:12px;top:48px;z-index:9;font:11px system-ui;color:#ffd27a;background:#3a2a0a;border:1px solid #6b5220;border-radius:6px;padding:2px 8px}`;
 export function mountUI2() {
   if (new URLSearchParams(location.search).get('ui') === 'old') return;
@@ -44,8 +45,8 @@ export function mountUI2() {
   const toolOn = (t: string) => () => !!$(`#toolbar button[data-t="${t}"], #services button[data-t="${t}"]`)?.classList.contains('on');
   const imgOf = (b: HTMLElement) => b.querySelector('img')?.getAttribute('src')?.replace(/^.*\/svg\/(.+)\.svg$/, '$1');
   const parks: Item[] = Array.from(document.querySelectorAll<HTMLElement>('#parkGroup button')).map(b => ({ label: b.textContent!.trim(), tip: b.title, icon: imgOf(b), run: () => b.click(), on: () => b.classList.contains('on') }));
-  const svcItems = (keys: string[]): Item[] => keys.filter(k => $(`#services button[data-t="svc:${k}"]`)).map(k => { const b = $(`#services button[data-t="svc:${k}"]`)!; return { label: b.title.split(':')[0], tip: b.title.split(':').slice(1).join(':').trim(), icon: imgOf(b), run: svc(k), on: toolOn('svc:' + k) }; });
-  const utilKeys = Array.from(document.querySelectorAll<HTMLElement>('#services button[data-t^="svc:"]')).map(b => b.dataset.t!.slice(4)).filter(k => /coal|wind|pump|tower/.test(k));
+  const svcItems = (keys: string[]): Item[] => keys.filter(k => $(`#services button[data-t="svc:${k}"]`)).map(k => { const b = $(`#services button[data-t="svc:${k}"]`)!; return { label: b.title.split(':')[0], tip: b.title.split(':').slice(1).join(':').trim(), icon: imgOf(b), run: svc(k), on: toolOn('svc:' + k), locked: () => !!b.dataset.locked }; });
+  const utilKeys = Array.from(document.querySelectorAll<HTMLElement>('#services button[data-t^="svc:"]')).map(b => b.dataset.t!.slice(4)).filter(k => $(`#services button[data-t="svc:${k}"]`)?.dataset.util);
   const dataTab = (t: string) => () => { const p = $('#dataPanel')!; if (p.style.display === 'none') click('#dataBtn'); click(`#dataTabs button[data-tab="${t}"]`); };
   const TABS = ['Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
   // the Data panel's tab strip: icons only, name in the tooltip
@@ -76,7 +77,7 @@ export function mountUI2() {
     b.onmouseleave = () => tip.style.display = 'none'; };
   let open = '';
   const refresh = () => { bar.querySelectorAll<HTMLElement>('button').forEach(b => { const c = CATS.find(x => x.id === b.dataset.c)!; b.classList.toggle('on', open === c.id || !!c.on?.()); });
-    tray.querySelectorAll<HTMLElement>('button').forEach((b, k) => b.classList.toggle('on', !!(b as any).__it.on?.())); };
+    tray.querySelectorAll<HTMLElement>('button').forEach((b, k) => { b.classList.toggle('on', !!(b as any).__it.on?.()); b.classList.toggle('lk', !!(b as any).__it.locked?.()); }); };
   const openTray = (id: string) => { open = open === id ? '' : id; const c = CATS.find(x => x.id === id)!; tray.innerHTML = ''; tray.style.display = open ? 'flex' : 'none';
     (typeof c.groups === 'function' ? c.groups() : c.groups ?? []).forEach((items, gi) => { if (gi) { const sep = document.createElement('span'); sep.className = 'sep'; tray.appendChild(sep); }
       for (const it of items) { const b = document.createElement('button'); (b as any).__it = it; b.innerHTML = it.img ? `<img class="ic ic28" style="object-fit:contain" src="${it.img}" alt="">` : it.icon ? I(it.icon, 'ic ic28') : it.label; withTip(b, it.label, it.tip, it.key); b.onclick = ev => { it.run(ev); if (c.id === 'plots') { open = ''; openTray(c.id); } setTimeout(refresh, 30); }; tray.appendChild(b); } });
@@ -88,12 +89,12 @@ export function mountUI2() {
   top.innerHTML = `<button id="uHelpBtn">${I('cat_help')}</button><button id="uMenuBtn">${I('cat_menu')}</button>`;
   const menu = document.createElement('div'); menu.id = 'uMenu'; document.body.appendChild(menu); menu.addEventListener('pointerdown', e => e.stopPropagation());
   const M: [string, string, string, () => void][] = [['btn_new_city', 'New city', '', () => click('#newBtn')], ['btn_save', 'Save / load', 'Ctrl+S', () => click('#saveBtn')], ['btn_budget', 'Budget', 'B', () => click('#budgetBtn')], ['cat_data', 'City data', '⇧D', () => click('#dataBtn')],
-    ['btn_music', 'Music on/off', '', () => click('#musicBtn')], ['btn_settings', 'Audio, effects & graphics', '', () => click('#fxBtn')], ['btn_fullscreen', 'Full screen', 'F', () => click('#fsBtn')], ['btn_keyboard', 'Keyboard shortcuts', '?', () => toggleHelp()], ['mark_ok', 'First-city checklist', '', () => (window as any).__tut?.setMode('open')]];
+    ['btn_music', 'Music on/off', '', () => click('#musicBtn')], ['btn_settings', 'Audio, effects & graphics', '', () => click('#fxBtn')], ['btn_fullscreen', 'Full screen', 'F', () => click('#fsBtn')], ['btn_keyboard', 'Keyboard shortcuts', '?', () => toggleHelp()], ['btn_milestones', 'Milestones', 'M', () => (window as any).__ms?.toggle()], ['mark_ok', 'First-city checklist', '', () => (window as any).__tut?.setMode('open')]];
   for (const [ic, l, k, f] of M) { const b = document.createElement('button'); b.innerHTML = I(ic, 'ic ic28'); withTip(b, l, '', k); b.onclick = e => { e.stopPropagation(); menu.style.display = 'none'; tip.style.display = 'none'; f(); }; menu.appendChild(b); }
   $('#uMenuBtn')!.onclick = e => { e.stopPropagation(); menu.style.display = menu.style.display === 'grid' ? 'none' : 'grid'; };
   withTip($('#uMenuBtn')!, 'Menu', ''); withTip($('#uHelpBtn')!, 'Keyboard shortcuts', '', '?');
   const help = document.createElement('div'); help.id = 'uHelp'; document.body.appendChild(help);
-  help.innerHTML = '<h4>Keyboard shortcuts</h4>' + [['1', 'Select / pan'], ['2', 'Road'], ['3 4 5', 'Residential / Commercial / Industrial'], ['6', 'Bulldoze'], ['7', 'Power line'], ['8', 'Pipe'], ['R', 'Rotate zone facing'], ['Esc', 'Cancel / close panel'], ['Space', 'Pause / resume'], ['WASD / arrows', 'Pan'], ['Q E / wheel', 'Zoom'], ['G', 'Grid'], ['Z', 'Zone colours'], ['U', 'Underground'], ['B', 'Budget'], ['⇧D', 'City data'], ['F', 'Full screen'], ['Ctrl+S', 'Save'], ['?', 'This sheet']].map(([k, v]) => `<div><kbd>${k}</kbd> ${v}</div>`).join('');
+  help.innerHTML = '<h4>Keyboard shortcuts</h4>' + [['1', 'Select / pan'], ['2', 'Road'], ['3 4 5', 'Residential / Commercial / Industrial'], ['6', 'Bulldoze'], ['7', 'Power line'], ['8', 'Pipe'], ['R', 'Rotate zone facing'], ['Esc', 'Cancel / close panel'], ['Space', 'Pause / resume'], ['WASD / arrows', 'Pan'], ['Q E / wheel', 'Zoom'], ['G', 'Grid'], ['Z', 'Zone colours'], ['U', 'Underground'], ['B', 'Budget'], ['M', 'Milestones'], ['⇧D', 'City data'], ['F', 'Full screen'], ['Ctrl+S', 'Save'], ['?', 'This sheet']].map(([k, v]) => `<div><kbd>${k}</kbd> ${v}</div>`).join('');
   const toggleHelp = () => help.style.display = help.style.display === 'block' ? 'none' : 'block';
   $('#uHelpBtn')!.onclick = e => { e.stopPropagation(); toggleHelp(); };
   addEventListener('keydown', e => { if (e.key === '?' && !(e.target instanceof HTMLInputElement)) toggleHelp(); if (e.key === 'Escape') { help.style.display = 'none'; menu.style.display = 'none'; open = ''; tray.style.display = 'none'; refresh(); } });

@@ -149,11 +149,11 @@ function diamond(g: Graphics, i: number, j: number) {
     busdepot: { name: 'Bus Depot', size: 2, cost: TRANSIT.depotCost, radius: 0, kind: 'transit', key: 'civic_bus_depot' },
     plot: { name: 'Custom lot', size: 1, cost: 0, radius: 0, kind: 'plot' },
     tower: { name: 'Water Tower', size: 1, cost: 500, radius: 0, kind: 'water', util: true, out: CIVIC.tower.outGpd, key: 'util_tower' },
-    windfarm: { name: 'Wind Farm', size: 3, cost: 2400, radius: 0, kind: 'power', util: true, out: CIVIC.windfarm.outKw, key: 'util_windfarm' },
-    solar: { name: 'Solar Farm', size: 4, cost: 3200, radius: 0, kind: 'power', util: true, out: CIVIC.solar.outKw, key: 'util_solar' },
-    gas: { name: 'Combined-Cycle Gas Plant', size: 3, cost: 9000, radius: 0, kind: 'power', util: true, out: CIVIC.gas.outKw, key: 'util_gas' },
+    windfarm: { name: 'Wind Farm', size: 3, cost: 2400, radius: 0, kind: 'power', util: true, out: CIVIC.windfarm.outKw, key: 'util_windfarm' }, // drawn as 4 util_wind_b turbines when that art is loaded
+    solar: { name: 'Solar Farm', size: 3, cost: 3200, radius: 0, kind: 'power', util: true, out: CIVIC.solar.outKw, key: 'util_solar' },
+    gas: { name: 'Combined-Cycle Gas Plant', size: 3, cost: 9000, radius: 0, kind: 'power', util: true, out: CIVIC.gas.outKw, key: 'util_gas_cc' },
     nuclear: { name: 'Nuclear Power Plant', size: 4, cost: 40000, radius: 0, kind: 'power', util: true, out: CIVIC.nuclear.outKw, key: 'util_nuclear' },
-    treatment: { name: 'Water Treatment Plant', size: 3, cost: 6000, radius: 0, kind: 'water', util: true, out: CIVIC.treatment.outGpd, nearWater: true, key: 'util_treatment' },
+    treatment: { name: 'Water Treatment Plant', size: 3, cost: 6000, radius: 0, kind: 'water', util: true, out: CIVIC.treatment.outGpd, nearWater: true, key: 'util_water_treatment' },
     desal: { name: 'Desalination Plant', size: 3, cost: 12000, radius: 0, kind: 'water', util: true, out: CIVIC.desal.outGpd, needsWater: true, key: 'util_desal' },
   };
   for (const [k, P] of Object.entries(PARKS)) SERV['park_' + k] = { name: P.name, size: P.size, cost: P.cost, radius: PARK_EFFECT.radius[P.size], kind: 'park', str: PARK_EFFECT.strength[P.size] };
@@ -582,7 +582,8 @@ function diamond(g: Graphics, i: number, j: number) {
             for (let d = 0; d < 3; d++) g.rect(c.x - hw * 0.5 + d * hw * 0.22, c.y - 14 + d * 3, hw * 0.15, 9).fill(0x2d3540);
             g.poly([c.x - hw * 0.6, c.y - 18, c.x, c.y - hh * 0.6 - 18, c.x + hw * 0.6, c.y - 18, c.x, c.y + hh * 0.6 - 18]).fill(0xe0e4e8); g.circle(c.x, c.y - 26, 6).fill(0x2f6fd1); g.zIndex = y; ch.ob.addChild(g); return; }
           if (SERV[cv.type].kind === 'parking' && !hasArt(key)) { drawParking(ch, i, j, c.x, c.y, seed, 3, cv.s); return; }
-          const dk = cv.type === 'busdepot' ? facingName(key, seed, FACE[civFace(cv)][0]) : key, o = P(dk, c.x, c.y, seed, y); PN(dk, c.x, c.y, seed, y); if (cv.type === 'wind' && o instanceof Sprite) { (o as any).__ph = seed % 4; ch.winds.push(o); }
+          if (cv.type === 'windfarm' && hasArt('util_wind_b')) { for (const [a, b] of [[0, 0], [2, 0], [0, 2], [2, 2]]) { const q = toScreen(cv.i + a, cv.j + b); P('util_wind_b', q.x, q.y, seed, q.y); PN('util_wind_b', q.x, q.y, seed, q.y); } return; }
+          const fd = FACE[civFace(cv)][0], dk = cv.type === 'busdepot' ? facingName(key, seed, fd) : hasArt(`${key}_${fd}`) ? `${key}_${fd}` : key, o = P(dk, c.x, c.y, seed, y); PN(dk, c.x, c.y, seed, y); if (cv.type === 'wind' && o instanceof Sprite) { (o as any).__ph = seed % 4; ch.winds.push(o); }
         }
       } else if (pline[i][j] && !road[i][j]) {
         const pl = (a: number, b: number) => inb(a, b) && (pline[a][b] || (!!civAt[a][b] && SERV[civAt[a][b]!.type].kind === 'power'));
@@ -650,7 +651,7 @@ function diamond(g: Graphics, i: number, j: number) {
     if (ovDirty && (far || !lastOv || now - lastOv > 5000) && now - lastOv > 700) { lastOv = now; paintOverview(); }
     const t0 = now, showGrid = zoom > 0.3; visRoads = [];
     for (const ch of chunks) {
-      const v = !far && ch.x1 > vx0 && ch.x0 < vx1 && ch.y1 > vy0 && ch.y0 < vy1;
+      const v = !far && ch.x1 > vx0 && ch.x0 < vx1 && ch.y1 + 600 > vy0 && ch.y0 < vy1; // +600 game px: towers up to ~1192 px @2x rise above their chunk
       if (v) { ch.seen = now;
         if (performance.now() - t0 < 8 || !ch.ground) { if (!ch.ground) buildGround(ch); if (ch.dirty) drawChunk(ch); if (ch.iconDirty) drawChunkIcons(ch); }
         for (const r of ch.roads) visRoads.push(r);
@@ -759,7 +760,7 @@ function diamond(g: Graphics, i: number, j: number) {
   const ICON: Record<string, string> = { school: 'svc_school_elem', highschool: 'svc_school_high', police: 'svc_police', fire: 'svc_fire', clinic: 'svc_clinic', hospital: 'svc_hospital', garage: 'svc_garage', garage2: 'svc_garage_big', busdepot: 'svc_bus_depot' };
   svcBar.innerHTML = '<span>Services</span>' + Object.entries(SERV).filter(([, v]) => !v.util && v.kind !== 'park' && v.kind !== 'plot').map(([k, v]) => `<button data-t="svc:${k}" title="${v.name}: ${v.size}x${v.size}, $${v.cost}, radius ${v.radius}">${ICON[k] ? `<img class="ic" src="./assets/ui/icons2/svg/${ICON[k]}.svg" alt="">` : ''}${v.name.replace(' Station', '')} <small>$${v.cost}</small></button>`).join('')
     + '<span class="sep">Parks</span><span id="parkGroup" style="display:inline-flex;flex-wrap:wrap;gap:3px;max-width:900px">' + Object.entries(PARKS).map(([k, P]) => `<button data-t="svc:park_${k}" title="${P.name}: ${P.size}x${P.size}, build $${P.cost}, upkeep $${P.upkeep}/month. Raises nearby home values${P.leisure ? '; draws leisure trips' : ''}. Doesn't need a road."><img class="ic" src="./assets/ui/icons2/svg/park_${k}.svg" alt=""> ${P.name} <small>${P.size}×${P.size} $${P.cost}</small></button>`).join('') + '</span>'
-    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" data-util="1" title="${v.name}: ${v.size}x${v.size}, $${v.cost.toLocaleString()}, output ${v.kind === 'power' ? fmtPower(v.out!) : fmtWater(v.out!)}${v.needsWater ? ', its south-east side must be on water' : ''}${v.nearWater ? ', must touch water' : ''}${GATES[k] ? `. Milestone: ${gateText(k)}` : ''}"><img class="ic" src="./assets/ui/icons2/svg/${({ coal: 'svc_coal', wind: 'svc_wind', pump: 'svc_pump', tower: 'svc_water_tower' } as Record<string, string>)[k] ?? 'svc_' + k}.svg" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
+    + '<span class="sep">Utilities</span>' + Object.entries(SERV).filter(([, v]) => v.util).map(([k, v]) => `<button data-t="svc:${k}" data-util="1" title="${v.name}: ${v.size}x${v.size}, $${v.cost.toLocaleString()}, output ${v.kind === 'power' ? fmtPower(v.out!) : fmtWater(v.out!)}${v.needsWater ? ', its south-east side must be on water' : ''}${v.nearWater ? ', must touch water' : ''}${GATES[k] ? `. Milestone: ${gateText(k)}` : ''}"><img class="ic" src="./assets/ui/icons2/svg/${({ coal: 'svc_coal', wind: 'svc_wind', pump: 'svc_pump', tower: 'svc_water_tower', windfarm: 'util_wind_b', solar: 'util_solar', gas: 'util_gas_cc', nuclear: 'util_nuclear', treatment: 'util_water_treatment', desal: 'util_desal' } as Record<string, string>)[k] ?? 'svc_' + k}.svg" alt="">${v.name.replace(' Power Plant', '').replace('Water ', '').replace(' Turbine', '')} <small>$${v.cost}</small></button>`).join('')
     + '<select id="covSel" title="Coverage overlay"><option value="">Coverage: off</option><option value="edu">Education</option><option value="police">Police</option><option value="fire">Fire</option><option value="health">Health</option><option value="traffic">Traffic volume</option><option value="crime">Crime</option><option value="fireRisk">Fire risk</option><option value="power">Powered</option><option value="water">Water served</option><option value="park">Parks (happiness)</option></select>';
   svcBar.querySelectorAll('button[data-t]').forEach(b => (b as HTMLElement).onclick = () => { const t = (b as HTMLElement).dataset.t!; if (t.startsWith('svc:') && !unlocked(t.slice(4))) { sfx.play('error'); toast(`Locked: needs ${gateText(t.slice(4))}`); return; } setTool(t); });
   const refreshLocks = () => svcBar.querySelectorAll<HTMLElement>('button[data-util]').forEach(b => { b.dataset.locked = unlocked(b.dataset.t!.slice(4)) ? '' : '1'; b.style.opacity = b.dataset.locked ? '0.45' : ''; });
@@ -1311,7 +1312,7 @@ function diamond(g: Graphics, i: number, j: number) {
   msP.style.cssText = 'position:fixed;top:52px;right:10px;width:380px;display:none;background:rgba(16,22,30,.96);color:#e8eef6;border:1px solid #33404f;border-radius:12px;z-index:15;font:12px system-ui;padding:12px 14px;box-sizing:border-box';
   msP.addEventListener('pointerdown', e => e.stopPropagation()); document.body.appendChild(msP);
   const renderMs = () => { const st = mstate();
-    msP.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><img class="ic ic22" src="./assets/ui/icons2/svg/btn_milestones.svg" alt=""><b style="font-size:14px">Milestones</b><span style="margin-left:auto;color:#93a3b8">${sim.ach.length}/${MILESTONES.length}</span><button id="msClose" title="Close (Esc)" style="background:none;border:0;cursor:pointer;padding:2px">${IC('btn_close')}</button></div>`
+    msP.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><img class="ic ic22" src="./assets/ui/icons2/svg/milestone_trophy.svg" alt=""><b style="font-size:14px">Milestones</b><span style="margin-left:auto;color:#93a3b8">${sim.ach.length}/${MILESTONES.length}</span><button id="msClose" title="Close (Esc)" style="background:none;border:0;cursor:pointer;padding:2px">${IC('btn_close')}</button></div>`
       + `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${MILESTONES.map(m => { const got = sim.ach.includes(m.id), p = Math.min(1, m.prog(st) / m.goal);
         return `<div class="ms${got ? ' got' : ''}" data-ms="${m.id}" title="${m.name}: ${m.need}. Unlocks: ${m.unlocks}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px 6px;border-radius:10px;border:1px solid ${got ? '#4f8cff' : '#2c3a4b'};background:${got ? '#1d2c44' : '#161f2b'}">`
           + `<img src="./assets/ui/icons2/svg/${m.icon}.svg" alt="" style="width:34px;height:34px;${got ? '' : 'filter:grayscale(1);opacity:.45'}">`

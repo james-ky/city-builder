@@ -276,5 +276,308 @@
     41.81
    ]
   }
- ]
+ ],
+ "bikes": {
+  "revision": "bikes-1",
+  "frameSize": [
+   48,
+   48
+  ],
+  "anchorPx": [
+   24,
+   32
+  ],
+  "anchor": [
+   0.5,
+   0.6666666666666666
+  ],
+  "anchorNote": "ground under the bottom bracket = middle of the bike between the two tyre contact points; same for all frames/dirs",
+  "layout": "rows = d00..d15, columns f0..f7 pedal cycle (crank +45 deg per frame), f8 coast/idle (pedals level, wheels still); sheet 432x768 at 2x",
+  "frames": {
+   "pedal": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "coast": 8,
+   "count": 9
+  },
+  "fps": {
+   "pedal": 10,
+   "note": "one crank turn per 0.8 s; scale with speed, use f8 when coasting/stopped"
+  },
+  "bodyFront": 0.0788,
+  "bodyRear": -0.0788,
+  "lengthTiles": 0.1576,
+  "bodyNote": "tiles (20 m) from the anchor; kid bike is x0.70: use bodyFrontKid",
+  "bodyFrontKid": 0.0552,
+  "bodyRearKid": -0.0552,
+  "night": "bike_<id>_night@2x.png light-only overlay, blend add; includes the white headlight and red rear reflector pixels",
+  "variants": [
+   {
+    "id": "a",
+    "file": "people/bikes/bike_a@2x.png",
+    "night": "people/bikes/bike_a_night@2x.png",
+    "rider": "adult_a",
+    "bikeColour": "red"
+   },
+   {
+    "id": "b",
+    "file": "people/bikes/bike_b@2x.png",
+    "night": "people/bikes/bike_b_night@2x.png",
+    "rider": "adult_b",
+    "bikeColour": "teal"
+   },
+   {
+    "id": "c",
+    "file": "people/bikes/bike_c@2x.png",
+    "night": "people/bikes/bike_c_night@2x.png",
+    "rider": "adult_c",
+    "bikeColour": "charcoal"
+   },
+   {
+    "id": "d",
+    "file": "people/bikes/bike_d@2x.png",
+    "night": "people/bikes/bike_d_night@2x.png",
+    "rider": "adult_d",
+    "bikeColour": "yellow"
+   },
+   {
+    "id": "e",
+    "file": "people/bikes/bike_e@2x.png",
+    "night": "people/bikes/bike_e_night@2x.png",
+    "rider": "adult_g",
+    "bikeColour": "blue"
+   },
+   {
+    "id": "f",
+    "file": "people/bikes/bike_f@2x.png",
+    "night": "people/bikes/bike_f_night@2x.png",
+    "rider": "adult_h",
+    "bikeColour": "green"
+   },
+   {
+    "id": "kid",
+    "file": "people/bikes/bike_kid@2x.png",
+    "night": "people/bikes/bike_kid_night@2x.png",
+    "rider": "kid_a",
+    "bikeColour": "pink"
+   }
+  ],
+  "directions": [
+   {
+    "row": 0,
+    "dir": "d00",
+    "headingDeg": 0.0,
+    "travelAxisPx": [
+     64.0,
+     32.0
+    ],
+    "frontOffsetPx": [
+     5.04,
+     2.52
+    ]
+   },
+   {
+    "row": 1,
+    "dir": "d01",
+    "headingDeg": 22.5,
+    "travelAxisPx": [
+     83.62,
+     17.318
+    ],
+    "frontOffsetPx": [
+     6.59,
+     1.36
+    ]
+   },
+   {
+    "row": 2,
+    "dir": "d02",
+    "headingDeg": 45.0,
+    "travelAxisPx": [
+     90.51,
+     0.0
+    ],
+    "frontOffsetPx": [
+     7.13,
+     0.0
+    ]
+   },
+   {
+    "row": 3,
+    "dir": "d03",
+    "headingDeg": 67.5,
+    "travelAxisPx": [
+     83.62,
+     -17.318
+    ],
+    "frontOffsetPx": [
+     6.59,
+     -1.36
+    ]
+   },
+   {
+    "row": 4,
+    "dir": "d04",
+    "headingDeg": 90.0,
+    "travelAxisPx": [
+     64.0,
+     -32.0
+    ],
+    "frontOffsetPx": [
+     5.04,
+     -2.52
+    ]
+   },
+   {
+    "row": 5,
+    "dir": "d05",
+    "headingDeg": 112.5,
+    "travelAxisPx": [
+     34.637,
+     -41.81
+    ],
+    "frontOffsetPx": [
+     2.73,
+     -3.29
+    ]
+   },
+   {
+    "row": 6,
+    "dir": "d06",
+    "headingDeg": 135.0,
+    "travelAxisPx": [
+     0.0,
+     -45.255
+    ],
+    "frontOffsetPx": [
+     0.0,
+     -3.57
+    ]
+   },
+   {
+    "row": 7,
+    "dir": "d07",
+    "headingDeg": 157.5,
+    "travelAxisPx": [
+     -34.637,
+     -41.81
+    ],
+    "frontOffsetPx": [
+     -2.73,
+     -3.29
+    ]
+   },
+   {
+    "row": 8,
+    "dir": "d08",
+    "headingDeg": 180.0,
+    "travelAxisPx": [
+     -64.0,
+     -32.0
+    ],
+    "frontOffsetPx": [
+     -5.04,
+     -2.52
+    ]
+   },
+   {
+    "row": 9,
+    "dir": "d09",
+    "headingDeg": 202.5,
+    "travelAxisPx": [
+     -83.62,
+     -17.318
+    ],
+    "frontOffsetPx": [
+     -6.59,
+     -1.36
+    ]
+   },
+   {
+    "row": 10,
+    "dir": "d10",
+    "headingDeg": 225.0,
+    "travelAxisPx": [
+     -90.51,
+     -0.0
+    ],
+    "frontOffsetPx": [
+     -7.13,
+     -0.0
+    ]
+   },
+   {
+    "row": 11,
+    "dir": "d11",
+    "headingDeg": 247.5,
+    "travelAxisPx": [
+     -83.62,
+     17.318
+    ],
+    "frontOffsetPx": [
+     -6.59,
+     1.36
+    ]
+   },
+   {
+    "row": 12,
+    "dir": "d12",
+    "headingDeg": 270.0,
+    "travelAxisPx": [
+     -64.0,
+     32.0
+    ],
+    "frontOffsetPx": [
+     -5.04,
+     2.52
+    ]
+   },
+   {
+    "row": 13,
+    "dir": "d13",
+    "headingDeg": 292.5,
+    "travelAxisPx": [
+     -34.637,
+     41.81
+    ],
+    "frontOffsetPx": [
+     -2.73,
+     3.29
+    ]
+   },
+   {
+    "row": 14,
+    "dir": "d14",
+    "headingDeg": 315.0,
+    "travelAxisPx": [
+     -0.0,
+     45.255
+    ],
+    "frontOffsetPx": [
+     -0.0,
+     3.57
+    ]
+   },
+   {
+    "row": 15,
+    "dir": "d15",
+    "headingDeg": 337.5,
+    "travelAxisPx": [
+     34.637,
+     41.81
+    ],
+    "frontOffsetPx": [
+     2.73,
+     3.29
+    ]
+   }
+  ]
+ }
 }

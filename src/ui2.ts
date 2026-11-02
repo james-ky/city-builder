@@ -48,7 +48,7 @@ export function mountUI2() {
   const svcItems = (keys: string[]): Item[] => keys.filter(k => $(`#services button[data-t="svc:${k}"]`)).map(k => { const b = $(`#services button[data-t="svc:${k}"]`)!; return { label: b.title.split(':')[0], tip: b.title.split(':').slice(1).join(':').trim(), icon: imgOf(b), run: svc(k), on: toolOn('svc:' + k), locked: () => !!b.dataset.locked }; });
   const utilKeys = Array.from(document.querySelectorAll<HTMLElement>('#services button[data-t^="svc:"]')).map(b => b.dataset.t!.slice(4)).filter(k => $(`#services button[data-t="svc:${k}"]`)?.dataset.util);
   const dataTab = (t: string) => () => { const p = $('#dataPanel')!; if (p.style.display === 'none') click('#dataBtn'); click(`#dataTabs button[data-tab="${t}"]`); };
-  const TABS = ['Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities'];
+  const TABS = ['Demand', 'Transportation', 'Population', 'Education', 'Jobs', 'Utilities', 'Services'];
   // the Data panel's tab strip: icons only, name in the tooltip
   document.querySelectorAll<HTMLElement>('#dataTabs button[data-tab]').forEach(b => { const t = b.dataset.tab!; b.title = t; b.innerHTML = I('data_' + t.toLowerCase(), 'ic ic22'); });
   // road bar: icons only (prices stay in the tooltip; the hidden <small> keeps the game's live price updates working)

@@ -1,5 +1,11 @@
 # Changelog
 
+## Warning before losing unsaved progress
+- If you close or reload the tab after at least a game day of play since your last save, the browser now asks "Leave site?" first, so a city isn't lost by accident.
+- Saving with Ctrl+S, the Save button, exporting a .city file, or an autosave all count as saved. A brand-new empty city never asks.
+- New city and Load already ask you to confirm, so they don't ask twice.
+- New test: tests/unsaved-warning.cjs.
+
 ## 2-lane roundabout now fits 3×3, with City Art Studio art
 - The 2-lane roundabout uses the same 3×3 space as the traffic circle, with two lanes going round and a smaller island. It costs 9 Street tiles ×1.5.
 - Both approach lanes run all the way to the yield line, with no narrowing to one lane before the circle. The right lane (right turns and straight on) feeds the outer lane; the left lane (left turns and U-turns) feeds the inner lane. Cars choose their lane on the last stretch before the circle and give way to both lanes.

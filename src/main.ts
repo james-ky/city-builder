@@ -1167,7 +1167,7 @@ function diamond(g: Graphics, i: number, j: number) {
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'u') setUnderground(!underground); });
   setUnderground(false);
   { const prevHook = toolHook; toolHook = t => { prevHook?.(t); if (t === 'pipe') setUnderground(true); else if (t !== 'bulldoze' && t !== 'select' && underground) setUnderground(false); }; }
-  document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) location.href = location.pathname; };
+  document.getElementById('newBtn')!.onclick = e => { e.stopPropagation(); if (confirm('Start a new city? Unsaved progress in this one will be lost.')) leaving = true, location.href = location.pathname; };
   // ---- Budget panel (button + B) ----
   Object.assign((window as any).__city, { carG: () => cars.map(c => { const g = gPos(c, c.t); return { rg: !!rabGround(c, c.t), id: ((c as any).__id ??= ++carIdN), sp: c.sp, st: c.stuck ?? 0, x: g[0], y: g[1], k: rab[c.i][c.j] || rab[c.pi][c.pj], rl: c.rl, ln: c.ln, route: c.route, ri: c.ri, i: c.i, j: c.j, pi: c.pi, pj: c.pj, t: c.t, on: !!rab[c.i][c.j] && !!rab[c.pi][c.pj] }; }), rab, rabS, placeRab: (i: number, j: number, S = 3) => placeRab(i, j, S), rabOK: (i: number, j: number, a: number, b: number) => rabOK(i, j, a, b), avLanes: () => AV_LN(), taperAt: (i: number, j: number) => taperAt(i, j), avenueOK: (i: number, j: number, a: number, b: number) => avenueOK(i, j, a, b), rpd, avCases: () => Object.fromEntries(avCases), tax, funding, monthly, pline, pipe, powered, watered, util, setUnderground, budget: () => ({ funds: sim.funds, loan: sim.loan, lastMonth, projection: projection() }) });
   const budgetEl = document.getElementById('budget')!;
@@ -1301,9 +1301,13 @@ function diamond(g: Graphics, i: number, j: number) {
     hist.length = 0; for (const h of o.hist ?? []) hist.push(h); Object.assign(tax, o.tax); Object.assign(funding, o.funding); lastMonth = o.lastMonth ?? null;
     if (o.cam) { camX = o.cam.x; camY = o.cam.y; zoom = clampZoom(o.cam.zoom); }
     tripsDirty = true; trips.volume.fill(0); if (o.traffic?.volume) { const u = new Uint16Array(unb64(o.traffic.volume).buffer); trips.volume.set(u.subarray(0, N * N)); }
-    computeNear(); rebuildZ(); markAll(); census(); updateStats(); setSpeed(o.sim.speed ?? 1);
+    computeNear(); rebuildZ(); markAll(); census(); updateStats(); setSpeed(o.sim.speed ?? 1); savedDay = sim.day;
   };
-  const saveTo = async (slot: string, id: string) => { const o = serialize(), data = await compress(o); await putSave(metaFrom(o, slot, id, data)); if (id.startsWith('slot:')) tutSaved = true; return data; };
+  // Warn before closing the tab if there's at least a game day of play since the last save (manual, Ctrl+S, export or autosave).
+  let savedDay = sim.day, leaving = false; // leaving: the player already confirmed (New city / Load)
+  const unsaved = () => (sim.pop > 0 || sim.spent > 0) && sim.day - savedDay >= 1;
+  window.addEventListener('beforeunload', e => { if (!leaving && unsaved()) { e.preventDefault(); e.returnValue = ''; } });
+  const saveTo = async (slot: string, id: string) => { const o = serialize(), data = await compress(o); await putSave(metaFrom(o, slot, id, data)); savedDay = o.sim?.day ?? sim.day; if (id.startsWith('slot:')) tutSaved = true; return data; };
   const slug = (t: string) => t.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'city';
   const autoId = () => `auto:${city.name}:${city.size}:${city.seed}`;
   let autosaveOn = localStorage.getItem('autosave') !== 'off';
@@ -1439,12 +1443,12 @@ function diamond(g: Graphics, i: number, j: number) {
     saveEl.querySelector('#sClose')!.addEventListener('click', () => saveEl.style.display = 'none');
     (saveEl.querySelector('#sAuto') as HTMLInputElement).onchange = e => { autosaveOn = (e.target as HTMLInputElement).checked; localStorage.setItem('autosave', autosaveOn ? 'on' : 'off'); };
     saveEl.querySelector('#sSave')!.addEventListener('click', async () => { const slot = (saveEl.querySelector('#sName') as HTMLInputElement).value.trim() || city.name; await saveTo(slot, 'slot:' + slot); toastOk(`Saved “${slot}”`); renderSaves(); });
-    saveEl.querySelector('#sExp')!.addEventListener('click', async () => { download(await compress(serialize()), slug(city.name) + '.city'); });
+    saveEl.querySelector('#sExp')!.addEventListener('click', async () => { download(await compress(serialize()), slug(city.name) + '.city'); savedDay = sim.day; });
     (saveEl.querySelector('#sImp') as HTMLInputElement).onchange = async e => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return;
       try { const o = await readFile(f), data = await compress(o), id = 'import:' + Date.now(); await putSave(metaFrom(o, 'Imported ' + new Date().toLocaleDateString(), id, data)); toastOk(`Imported “${o.city.name}”`); renderSaves(); }
       catch (err) { toast('Could not import: ' + (err as Error).message); } };
     saveEl.querySelectorAll<HTMLElement>('.slot').forEach(row => row.querySelectorAll<HTMLElement>('button[data-a]').forEach(b => b.onclick = async () => { const id = row.dataset.id!, a = b.dataset.a;
-      if (a === 'load') { if (!confirm('Load this city? Unsaved progress here will be lost.')) return; sessionStorage.setItem('loadId', id); location.href = location.pathname; }
+      if (a === 'load') { if (!confirm('Load this city? Unsaved progress here will be lost.')) return; leaving = true; sessionStorage.setItem('loadId', id); location.href = location.pathname; }
       else if (a === 'exp') { const r = await getSave(id); if (r) download(r.data, slug(r.city) + '.city'); }
       else if (a === 'del') { if (confirm('Delete this save?')) { await deleteSave(id); renderSaves(); } } }));
   };
@@ -1509,7 +1513,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
     [...designs.values()].map(d => { const st = plotStats(d); return { label: d.name, tip: `${d.s}×${d.s} · $${st.cost}${st.homes ? ` · ${st.residents} residents` : ''}${st.jobsC + st.jobsI ? ` · ${st.jobsC + st.jobsI} jobs` : ''} · ${st.spaces} parking<br>Click the city next to a road to place. Shift-click here to edit`, img: thumbOf(d), run: (ev?: MouseEvent) => ev?.shiftKey ? openBuilder(d) : setTool('plot:' + d.id), on: () => tool === 'plot:' + d.id }; })] };
   Object.assign((window as any).__city, { plots: { pieces: { walkPiece, fencePiece }, designs: () => [...designs.values()], stats: (id: string) => designs.get(id) && plotStats(designs.get(id)!), open: (d?: Design) => openBuilder(d), close: closeBuilder, cur: () => pd, apply: (x: number, y: number, t: PartType | 'erase', f = 1) => { brush = t; bFloors = f; pApply(x, y); pDraw(); }, setSize: (n: number) => { pd.s = n; pDraw(); }, setFace: (f: number) => { pd.face = f; pSync(); }, save: () => saveDesign()?.id ?? null,
     place: (id: string, i: number, j: number) => placePlot(id, i, j), can: (id: string, i: number, j: number) => canPlot(id, i, j), civ: (i: number, j: number) => civAt[i][j] && { ...civAt[i][j]!, face: plotFace(civAt[i][j]!) }, entrance: (i: number, j: number) => entranceOf(i, j), near: (i: number, j: number) => (trips as any).w?.nearRoads?.(i, j), tile: (i: number, j: number) => ({ res: (trips as any).w?.residents?.(i, j) }) } });
-  Object.assign((window as any).__city, { lots: () => [...lots], syncLots: () => syncLots(), addLot: (l: Lot) => addLot(l), lotAt: (i: number, j: number) => lot[i][j], serialize, applySave, saveTo, listSaves });
+  Object.assign((window as any).__city, { lots: () => [...lots], syncLots: () => syncLots(), addLot: (l: Lot) => addLot(l), lotAt: (i: number, j: number) => lot[i][j], serialize, applySave, saveTo, listSaves, unsaved });
   // info panel
   const info = document.getElementById('info')!;
   const KNAME: Record<string, string> = { work: 'commuting to work', school: 'school run', errand: 'shopping / errand', leisure: 'going to the park', freight: 'freight delivery' };

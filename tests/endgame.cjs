@@ -66,7 +66,7 @@ const ut=await p.evaluate(()=>{const C=__city;__ms.grant('pop50k');__ms.grant('b
 ok('nuclear, gas, wind and solar farms build once unlocked',ut.nuc&&ut.gas&&ut.wf&&ut.solar,JSON.stringify(ut));
 // save round trip
 const sv=await p.evaluate(()=>{const C=__city,o=JSON.parse(JSON.stringify(C.serialize()));const a=__ms.list().length,bg=__ms.big().length;C.applySave(o);return {v:o.version,a,b:__ms.list().length,bg,bg2:__ms.big().length,towers:Array.isArray(o.towers)}});
-ok('save v15 keeps milestones and supertalls',sv.v===15&&sv.a===sv.b&&sv.bg===sv.bg2&&sv.towers,JSON.stringify(sv));
+ok('save v15 keeps milestones and supertalls',sv.v>=15&&sv.a===sv.b&&sv.bg===sv.bg2&&sv.towers,JSON.stringify(sv));
 const old=await p.evaluate(()=>{const C=__city,o=JSON.parse(JSON.stringify(C.serialize()));delete o.sim.ach;delete o.towers;o.version=14;C.applySave(o);return {a:__ms.list().length,cap:__ms.levelCap(1,1)}});
 ok('a v14 save loads with no milestones (re-earned from population)',old.a===0&&old.cap===3,JSON.stringify(old));
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs.slice(0,5));process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

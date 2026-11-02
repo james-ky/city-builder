@@ -1,5 +1,23 @@
 # Changelog
 
+## Walking residents
+- Residents now walk on the sidewalks (City Art Studio people sprites, 16 directions, night versions): short walks to nearby shops, jobs, school and parks, walks to bus stops, and the walk from a parked car to the door.
+- Kids mostly walk to school with a grown-up, seniors walk slower, and fewer people walk at night (none from 11 PM to 5 AM).
+- Walkers keep to the sidewalk, cross at junctions and wait for cars. Click a walker to see their age, home and destination. City Data > Transportation shows how many are walking.
+- New test: tests/pedestrians.cjs.
+
+## City services: staff, caseloads and crime that responds to police
+- Police, fire, hospitals, clinics and schools now have staff (officers, firefighters, doctors and nurses, teachers) sized to the people they cover, filled from the city's own workers. Hospitals have patients and schools have students.
+- Each service building's info panel has two sliders: coverage radius (50–150 %) and staff (auto, or set your own). A wider radius costs more and stretches the service thinner; too few staff lowers its quality.
+- Crime is now counted as incidents per 1,000 people a month and depends on density, jobs, education and land value. Police coverage brings it down over the following months rather than instantly.
+- New Services tab in City Data. Save version 16; older saves load with automatic staff and normal radius.
+
+## End game: milestones, high-rises and bigger utilities
+- Eight milestones (population 500, 1k, 5k, 20k and 50k, budget surplus streaks, and a year with no power or water shortage), shown in the Milestones panel (M) with progress bars and a pop-up when earned.
+- Level 4 high-rises grow in dense zones once a city has the services, roads or bus stops they need. Level 5 supertalls take a 2×2 block of finished high-rises.
+- Milestones unlock Wind farm, Solar farm, Combined-cycle gas, Nuclear, Water treatment and Desalination, with City Art Studio art.
+- Save version 15 (older saves load with no milestones). New test: tests/endgame.cjs.
+
 ## Warning before losing unsaved progress
 - If you close or reload the tab after at least a game day of play since your last save, the browser now asks "Leave site?" first, so a city isn't lost by accident.
 - Saving with Ctrl+S, the Save button, exporting a .city file, or an autosave all count as saved. A brand-new empty city never asks.

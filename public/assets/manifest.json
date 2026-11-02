@@ -1,6 +1,6 @@
 {
  "version": 1,
- "artRevision": "v3-soft3d-r",
+ "artRevision": "v3-soft3d-s",
  "displayScale": 0.5,
  "baseTile": [
   64,
@@ -52323,13 +52323,2494 @@
    "description": "campus: HQ, labs, sky bridge, solar car park",
    "nightOf": "bld_I_4_b_NW",
    "blend": "add"
+  },
+  {
+   "name": "util_gas_cc_NE",
+   "file": "buildings/utility/util_gas_cc_NE@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_gas_cc",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NE"
+  },
+  {
+   "name": "util_gas_cc_NE_night",
+   "file": "buildings/utility/util_gas_cc_NE_night@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_gas_cc",
+   "nightOf": "util_gas_cc_NE",
+   "blend": "add"
+  },
+  {
+   "name": "util_gas_cc_SE",
+   "file": "buildings/utility/util_gas_cc_SE@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_gas_cc",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SE"
+  },
+  {
+   "name": "util_gas_cc_SE_night",
+   "file": "buildings/utility/util_gas_cc_SE_night@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_gas_cc",
+   "nightOf": "util_gas_cc_SE",
+   "blend": "add"
+  },
+  {
+   "name": "util_gas_cc_SW",
+   "file": "buildings/utility/util_gas_cc_SW@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_gas_cc",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SW"
+  },
+  {
+   "name": "util_gas_cc_SW_night",
+   "file": "buildings/utility/util_gas_cc_SW_night@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_gas_cc",
+   "nightOf": "util_gas_cc_SW",
+   "blend": "add"
+  },
+  {
+   "name": "util_gas_cc_NW",
+   "file": "buildings/utility/util_gas_cc_NW@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_gas_cc",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NW"
+  },
+  {
+   "name": "util_gas_cc_NW_night",
+   "file": "buildings/utility/util_gas_cc_NW_night@2x.png",
+   "size": [
+    384,
+    480
+   ],
+   "anchor": [
+    0.5,
+    0.8
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "combined-cycle gas plant: 2 gas turbines + HRSG stacks + steam hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_gas_cc",
+   "nightOf": "util_gas_cc_NW",
+   "blend": "add"
+  },
+  {
+   "name": "util_nuclear_NE",
+   "file": "buildings/utility/util_nuclear_NE@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NE",
+   "facingOf": "util_nuclear",
+   "constructionSet": "construction_util_4x4_stage{1,2,3}_NE"
+  },
+  {
+   "name": "util_nuclear_NE_night",
+   "file": "buildings/utility/util_nuclear_NE_night@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NE",
+   "facingOf": "util_nuclear",
+   "nightOf": "util_nuclear_NE",
+   "blend": "add"
+  },
+  {
+   "name": "util_nuclear_SE",
+   "file": "buildings/utility/util_nuclear_SE@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SE",
+   "facingOf": "util_nuclear",
+   "constructionSet": "construction_util_4x4_stage{1,2,3}_SE"
+  },
+  {
+   "name": "util_nuclear_SE_night",
+   "file": "buildings/utility/util_nuclear_SE_night@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SE",
+   "facingOf": "util_nuclear",
+   "nightOf": "util_nuclear_SE",
+   "blend": "add"
+  },
+  {
+   "name": "util_nuclear_SW",
+   "file": "buildings/utility/util_nuclear_SW@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SW",
+   "facingOf": "util_nuclear",
+   "constructionSet": "construction_util_4x4_stage{1,2,3}_SW"
+  },
+  {
+   "name": "util_nuclear_SW_night",
+   "file": "buildings/utility/util_nuclear_SW_night@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SW",
+   "facingOf": "util_nuclear",
+   "nightOf": "util_nuclear_SW",
+   "blend": "add"
+  },
+  {
+   "name": "util_nuclear_NW",
+   "file": "buildings/utility/util_nuclear_NW@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NW",
+   "facingOf": "util_nuclear",
+   "constructionSet": "construction_util_4x4_stage{1,2,3}_NW"
+  },
+  {
+   "name": "util_nuclear_NW_night",
+   "file": "buildings/utility/util_nuclear_NW_night@2x.png",
+   "size": [
+    512,
+    688
+   ],
+   "anchor": [
+    0.5,
+    0.814
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "nuclear plant: 2 cooling towers, domed reactor, turbine hall",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NW",
+   "facingOf": "util_nuclear",
+   "nightOf": "util_nuclear_NW",
+   "blend": "add"
+  },
+  {
+   "name": "util_wind_b",
+   "file": "buildings/utility/util_wind_b@2x.png",
+   "size": [
+    128,
+    352
+   ],
+   "anchor": [
+    0.5,
+    0.9091
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "modern 3-blade wind turbine (frame 0)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "constructionSet": "construction_1x1_tall_stage{1,2,3}"
+  },
+  {
+   "name": "util_wind_b_night",
+   "file": "buildings/utility/util_wind_b_night@2x.png",
+   "size": [
+    128,
+    352
+   ],
+   "anchor": [
+    0.5,
+    0.9091
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "modern 3-blade wind turbine (frame 0)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "nightOf": "util_wind_b",
+   "blend": "add"
+  },
+  {
+   "name": "util_wind_b_f0",
+   "file": "buildings/utility/util_wind_b_f0@2x.png",
+   "size": [
+    128,
+    352
+   ],
+   "anchor": [
+    0.5,
+    0.9091
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "wind turbine blade frame 0 (30 deg steps, loop f0-f3)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "animFrame": 0,
+   "animOf": "util_wind_b",
+   "animFps": 6,
+   "constructionSet": "construction_1x1_tall_stage{1,2,3}"
+  },
+  {
+   "name": "util_wind_b_f1",
+   "file": "buildings/utility/util_wind_b_f1@2x.png",
+   "size": [
+    128,
+    352
+   ],
+   "anchor": [
+    0.5,
+    0.9091
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "wind turbine blade frame 1 (30 deg steps, loop f0-f3)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "animFrame": 1,
+   "animOf": "util_wind_b",
+   "animFps": 6,
+   "constructionSet": "construction_1x1_tall_stage{1,2,3}"
+  },
+  {
+   "name": "util_wind_b_f2",
+   "file": "buildings/utility/util_wind_b_f2@2x.png",
+   "size": [
+    128,
+    352
+   ],
+   "anchor": [
+    0.5,
+    0.9091
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "wind turbine blade frame 2 (30 deg steps, loop f0-f3)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "animFrame": 2,
+   "animOf": "util_wind_b",
+   "animFps": 6,
+   "constructionSet": "construction_1x1_tall_stage{1,2,3}"
+  },
+  {
+   "name": "util_wind_b_f3",
+   "file": "buildings/utility/util_wind_b_f3@2x.png",
+   "size": [
+    128,
+    352
+   ],
+   "anchor": [
+    0.5,
+    0.9091
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "wind turbine blade frame 3 (30 deg steps, loop f0-f3)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "animFrame": 3,
+   "animOf": "util_wind_b",
+   "animFps": 6,
+   "constructionSet": "construction_1x1_tall_stage{1,2,3}"
+  },
+  {
+   "name": "util_solar",
+   "file": "buildings/utility/util_solar@2x.png",
+   "size": [
+    384,
+    248
+   ],
+   "anchor": [
+    0.5,
+    0.6129
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "solar farm: tilted panel rows + inverter huts",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SE"
+  },
+  {
+   "name": "util_solar_night",
+   "file": "buildings/utility/util_solar_night@2x.png",
+   "size": [
+    384,
+    248
+   ],
+   "anchor": [
+    0.5,
+    0.6129
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "solar farm: tilted panel rows + inverter huts",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "nightOf": "util_solar",
+   "blend": "add"
+  },
+  {
+   "name": "util_watertower",
+   "file": "buildings/utility/util_watertower@2x.png",
+   "size": [
+    128,
+    288
+   ],
+   "anchor": [
+    0.5,
+    0.8889
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "elevated water tower (spherical tank)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "constructionSet": "construction_1x1_tall_stage{1,2,3}"
+  },
+  {
+   "name": "util_watertower_night",
+   "file": "buildings/utility/util_watertower_night@2x.png",
+   "size": [
+    128,
+    288
+   ],
+   "anchor": [
+    0.5,
+    0.8889
+   ],
+   "footprint": [
+    1,
+    1
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "elevated water tower (spherical tank)",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     0
+    ],
+    "equivalent": "toScreen(i0+0.0, j0+0.0)",
+    "depthKey": "i0+j0+0"
+   },
+   "nightOf": "util_watertower",
+   "blend": "add"
+  },
+  {
+   "name": "util_water_treatment_NE",
+   "file": "buildings/utility/util_water_treatment_NE@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_water_treatment",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NE"
+  },
+  {
+   "name": "util_water_treatment_NE_night",
+   "file": "buildings/utility/util_water_treatment_NE_night@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_water_treatment",
+   "nightOf": "util_water_treatment_NE",
+   "blend": "add"
+  },
+  {
+   "name": "util_water_treatment_SE",
+   "file": "buildings/utility/util_water_treatment_SE@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_water_treatment",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SE"
+  },
+  {
+   "name": "util_water_treatment_SE_night",
+   "file": "buildings/utility/util_water_treatment_SE_night@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_water_treatment",
+   "nightOf": "util_water_treatment_SE",
+   "blend": "add"
+  },
+  {
+   "name": "util_water_treatment_SW",
+   "file": "buildings/utility/util_water_treatment_SW@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_water_treatment",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SW"
+  },
+  {
+   "name": "util_water_treatment_SW_night",
+   "file": "buildings/utility/util_water_treatment_SW_night@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_water_treatment",
+   "nightOf": "util_water_treatment_SW",
+   "blend": "add"
+  },
+  {
+   "name": "util_water_treatment_NW",
+   "file": "buildings/utility/util_water_treatment_NW@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_water_treatment",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NW"
+  },
+  {
+   "name": "util_water_treatment_NW_night",
+   "file": "buildings/utility/util_water_treatment_NW_night@2x.png",
+   "size": [
+    384,
+    328
+   ],
+   "anchor": [
+    0.5,
+    0.7073
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "water treatment: clarifier rounds, filter beds, lab building",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_water_treatment",
+   "nightOf": "util_water_treatment_NW",
+   "blend": "add"
+  },
+  {
+   "name": "util_desal_NE",
+   "file": "buildings/utility/util_desal_NE@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_desal",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NE"
+  },
+  {
+   "name": "util_desal_NE_night",
+   "file": "buildings/utility/util_desal_NE_night@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_desal",
+   "nightOf": "util_desal_NE",
+   "blend": "add"
+  },
+  {
+   "name": "util_desal_SE",
+   "file": "buildings/utility/util_desal_SE@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_desal",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SE"
+  },
+  {
+   "name": "util_desal_SE_night",
+   "file": "buildings/utility/util_desal_SE_night@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_desal",
+   "nightOf": "util_desal_SE",
+   "blend": "add"
+  },
+  {
+   "name": "util_desal_SW",
+   "file": "buildings/utility/util_desal_SW@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_desal",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SW"
+  },
+  {
+   "name": "util_desal_SW_night",
+   "file": "buildings/utility/util_desal_SW_night@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_desal",
+   "nightOf": "util_desal_SW",
+   "blend": "add"
+  },
+  {
+   "name": "util_desal_NW",
+   "file": "buildings/utility/util_desal_NW@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_desal",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NW"
+  },
+  {
+   "name": "util_desal_NW_night",
+   "file": "buildings/utility/util_desal_NW_night@2x.png",
+   "size": [
+    384,
+    344
+   ],
+   "anchor": [
+    0.5,
+    0.7209
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "desalination: RO halls, intake tanks, pipe racks",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_desal",
+   "nightOf": "util_desal_NW",
+   "blend": "add"
+  },
+  {
+   "name": "util_sewage_NE",
+   "file": "buildings/utility/util_sewage_NE@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_sewage",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NE"
+  },
+  {
+   "name": "util_sewage_NE_night",
+   "file": "buildings/utility/util_sewage_NE_night@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "util_sewage",
+   "nightOf": "util_sewage_NE",
+   "blend": "add"
+  },
+  {
+   "name": "util_sewage_SE",
+   "file": "buildings/utility/util_sewage_SE@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_sewage",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SE"
+  },
+  {
+   "name": "util_sewage_SE_night",
+   "file": "buildings/utility/util_sewage_SE_night@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "util_sewage",
+   "nightOf": "util_sewage_SE",
+   "blend": "add"
+  },
+  {
+   "name": "util_sewage_SW",
+   "file": "buildings/utility/util_sewage_SW@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_sewage",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_SW"
+  },
+  {
+   "name": "util_sewage_SW_night",
+   "file": "buildings/utility/util_sewage_SW_night@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "util_sewage",
+   "nightOf": "util_sewage_SW",
+   "blend": "add"
+  },
+  {
+   "name": "util_sewage_NW",
+   "file": "buildings/utility/util_sewage_NW@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_sewage",
+   "constructionSet": "construction_util_3x3_stage{1,2,3}_NW"
+  },
+  {
+   "name": "util_sewage_NW_night",
+   "file": "buildings/utility/util_sewage_NW_night@2x.png",
+   "size": [
+    384,
+    312
+   ],
+   "anchor": [
+    0.5,
+    0.6923
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "night",
+   "category": "utility",
+   "style": "soft3d",
+   "description": "sewage treatment: aeration basins, digester eggs, round clarifiers",
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "util_sewage",
+   "nightOf": "util_sewage_NW",
+   "blend": "add"
+  },
+  {
+   "name": "construction_util_3x3_stage1_NE",
+   "file": "buildings/construction_util_3x3_stage1_NE@2x.png",
+   "size": [
+    384,
+    360
+   ],
+   "anchor": [
+    0.5,
+    0.7333
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "construction_util_3x3_stage1",
+   "stage": 1,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage1_SE",
+   "file": "buildings/construction_util_3x3_stage1_SE@2x.png",
+   "size": [
+    384,
+    360
+   ],
+   "anchor": [
+    0.5,
+    0.7333
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "construction_util_3x3_stage1",
+   "stage": 1,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage1_SW",
+   "file": "buildings/construction_util_3x3_stage1_SW@2x.png",
+   "size": [
+    384,
+    360
+   ],
+   "anchor": [
+    0.5,
+    0.7333
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "construction_util_3x3_stage1",
+   "stage": 1,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage1_NW",
+   "file": "buildings/construction_util_3x3_stage1_NW@2x.png",
+   "size": [
+    384,
+    360
+   ],
+   "anchor": [
+    0.5,
+    0.7333
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "construction_util_3x3_stage1",
+   "stage": 1,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage2_NE",
+   "file": "buildings/construction_util_3x3_stage2_NE@2x.png",
+   "size": [
+    384,
+    392
+   ],
+   "anchor": [
+    0.5,
+    0.7551
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "construction_util_3x3_stage2",
+   "stage": 2,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage2_SE",
+   "file": "buildings/construction_util_3x3_stage2_SE@2x.png",
+   "size": [
+    384,
+    392
+   ],
+   "anchor": [
+    0.5,
+    0.7551
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "construction_util_3x3_stage2",
+   "stage": 2,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage2_SW",
+   "file": "buildings/construction_util_3x3_stage2_SW@2x.png",
+   "size": [
+    384,
+    392
+   ],
+   "anchor": [
+    0.5,
+    0.7551
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "construction_util_3x3_stage2",
+   "stage": 2,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage2_NW",
+   "file": "buildings/construction_util_3x3_stage2_NW@2x.png",
+   "size": [
+    384,
+    392
+   ],
+   "anchor": [
+    0.5,
+    0.7551
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "construction_util_3x3_stage2",
+   "stage": 2,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage3_NE",
+   "file": "buildings/construction_util_3x3_stage3_NE@2x.png",
+   "size": [
+    384,
+    416
+   ],
+   "anchor": [
+    0.5,
+    0.7692
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NE",
+   "facingOf": "construction_util_3x3_stage3",
+   "stage": 3,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage3_SE",
+   "file": "buildings/construction_util_3x3_stage3_SE@2x.png",
+   "size": [
+    384,
+    416
+   ],
+   "anchor": [
+    0.5,
+    0.7692
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SE",
+   "facingOf": "construction_util_3x3_stage3",
+   "stage": 3,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage3_SW",
+   "file": "buildings/construction_util_3x3_stage3_SW@2x.png",
+   "size": [
+    384,
+    416
+   ],
+   "anchor": [
+    0.5,
+    0.7692
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "SW",
+   "facingOf": "construction_util_3x3_stage3",
+   "stage": 3,
+   "tall": false
+  },
+  {
+   "name": "construction_util_3x3_stage3_NW",
+   "file": "buildings/construction_util_3x3_stage3_NW@2x.png",
+   "size": [
+    384,
+    416
+   ],
+   "anchor": [
+    0.5,
+    0.7692
+   ],
+   "footprint": [
+    3,
+    3
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     32
+    ],
+    "equivalent": "toScreen(i0+1.0, j0+1.0)",
+    "depthKey": "i0+j0+2"
+   },
+   "facing": "NW",
+   "facingOf": "construction_util_3x3_stage3",
+   "stage": 3,
+   "tall": false
+  },
+  {
+   "name": "construction_util_4x4_stage1_NE",
+   "file": "buildings/construction_util_4x4_stage1_NE@2x.png",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NE",
+   "facingOf": "construction_util_4x4_stage1",
+   "stage": 1,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage1_SE",
+   "file": "buildings/construction_util_4x4_stage1_SE@2x.png",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SE",
+   "facingOf": "construction_util_4x4_stage1",
+   "stage": 1,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage1_SW",
+   "file": "buildings/construction_util_4x4_stage1_SW@2x.png",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SW",
+   "facingOf": "construction_util_4x4_stage1",
+   "stage": 1,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage1_NW",
+   "file": "buildings/construction_util_4x4_stage1_NW@2x.png",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NW",
+   "facingOf": "construction_util_4x4_stage1",
+   "stage": 1,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage2_NE",
+   "file": "buildings/construction_util_4x4_stage2_NE@2x.png",
+   "size": [
+    512,
+    592
+   ],
+   "anchor": [
+    0.5,
+    0.7838
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NE",
+   "facingOf": "construction_util_4x4_stage2",
+   "stage": 2,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage2_SE",
+   "file": "buildings/construction_util_4x4_stage2_SE@2x.png",
+   "size": [
+    512,
+    592
+   ],
+   "anchor": [
+    0.5,
+    0.7838
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SE",
+   "facingOf": "construction_util_4x4_stage2",
+   "stage": 2,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage2_SW",
+   "file": "buildings/construction_util_4x4_stage2_SW@2x.png",
+   "size": [
+    512,
+    592
+   ],
+   "anchor": [
+    0.5,
+    0.7838
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SW",
+   "facingOf": "construction_util_4x4_stage2",
+   "stage": 2,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage2_NW",
+   "file": "buildings/construction_util_4x4_stage2_NW@2x.png",
+   "size": [
+    512,
+    592
+   ],
+   "anchor": [
+    0.5,
+    0.7838
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NW",
+   "facingOf": "construction_util_4x4_stage2",
+   "stage": 2,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage3_NE",
+   "file": "buildings/construction_util_4x4_stage3_NE@2x.png",
+   "size": [
+    512,
+    672
+   ],
+   "anchor": [
+    0.5,
+    0.8095
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NE",
+   "facingOf": "construction_util_4x4_stage3",
+   "stage": 3,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage3_SE",
+   "file": "buildings/construction_util_4x4_stage3_SE@2x.png",
+   "size": [
+    512,
+    672
+   ],
+   "anchor": [
+    0.5,
+    0.8095
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SE",
+   "facingOf": "construction_util_4x4_stage3",
+   "stage": 3,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage3_SW",
+   "file": "buildings/construction_util_4x4_stage3_SW@2x.png",
+   "size": [
+    512,
+    672
+   ],
+   "anchor": [
+    0.5,
+    0.8095
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "SW",
+   "facingOf": "construction_util_4x4_stage3",
+   "stage": 3,
+   "tall": true
+  },
+  {
+   "name": "construction_util_4x4_stage3_NW",
+   "file": "buildings/construction_util_4x4_stage3_NW@2x.png",
+   "size": [
+    512,
+    672
+   ],
+   "anchor": [
+    0.5,
+    0.8095
+   ],
+   "footprint": [
+    4,
+    4
+   ],
+   "scale": 0.5,
+   "layer": "object",
+   "category": "construction",
+   "style": "soft3d",
+   "description": null,
+   "placement": {
+    "tile": "(i0, j0) = footprint tile with smallest i and j",
+    "screenOffsetGamePx": [
+     0,
+     48
+    ],
+    "equivalent": "toScreen(i0+1.5, j0+1.5)",
+    "depthKey": "i0+j0+3"
+   },
+   "facing": "NW",
+   "facingOf": "construction_util_4x4_stage3",
+   "stage": 3,
+   "tall": true
   }
  ],
- "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 — see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix — builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas. | v3-soft3d-n: avenue art realigned to game AV_D0 0.07 (median 1.4 m half, no gutter, lane centres 0.15/0.31/0.47 = AV_LN), white edge line ~2 px; 64 avenue_<tier>_taper_<street|dirt>_<D>_<P>_<main|side> tiles (see PROMOTION_avenue_taper.txt). | v3-soft3d-o: artRevision synced with revision (it had been left at v3-soft3d-h). 27 roundabout_<tier>_<di><dj> pieces (3x3 single-lane roundabout, dirt/asphalt/concrete; see autotile.roundabout and PROMOTION_roundabout.txt). | v3-soft3d-p: roundabout _night overlays (27, additive), roundabout_stage_* construction pieces (36), dirt NE-arm yield sign added (smaller, nearer the ring); UI icon road_roundabout (assets/ui/icons). See PROMOTION_roundabout.txt. | v3-soft3d-q (2026-11-01): roundabout2, a 2-lane modern roundabout in a 3x3 footprint: 27 tiles + 27 _night + 36 construction stages, autotile.roundabout2 (radii + lane paths), UI icon road_roundabout2. | v3-soft3d-r (2026-11-01): end-game towers: 13 buildings (bld_R_4_a-c mid-rise 2x2, bld_R_5_a-c high-rise 2x2/3x3, bld_C_4_a-c offices/skyscrapers, bld_M_4_a-b mixed-use, bld_I_4_a-b high-tech campus) x 4 facings + _night, and construction_2x2_stage1-3, construction_2x2_tall_stage1-3, construction_3x3_tall_stage1-3 x 4 facings. Anchor = footprint-diamond centre. See PROMOTION_endgame_towers.txt.",
+ "changes": "v2-polish-cars: parked vehicles inside police, fire_station, hospital and r1 lots (b/c variants) redrawn with the road-vehicle sprite geometry at 0.72 scale; lights off; no size/anchor changes. | v3-roads: added road_dirt_0..15, road_concrete_0..15, road_stage_{surveyed,graded,gravel,surfacing}_0..15 (overlays), prop_cone, prop_barrier_NE/NW(+night), work_truck_{grader,dump,paver,mixer}_{NE,NW,SE,SW}(+night). Staged only (not applied): road_asphalt_0..15 and 22 building/lot files with parked cars shrunk to PARKED_SCALE 0.48 — see /workspace/city-art/staging. | v3-soft3d: 69 top-level building sprites (+night overlays) replaced with soft-3D Blender renders (same names/sizes/anchors); road_asphalt_0..15 added; parked cars in police + r1 lots composited from the actual traffic sprites at 0.48 scale. Backup: /workspace/city-art/backup_2d_2026-10-29. | v3-soft3d-b: all traffic vehicles and work trucks re-rendered in soft 3D at real size (sedan 4.7 m = 0.47 tile; game vehicle scale 0.47); anchors = vehicle ground centre. | v3-soft3d-c: street_{asphalt,concrete}_0..15 and avenue_{asphalt,concrete}_0..15 added. | v3-soft3d-d: 20 m per tile for roads+vehicles: streets 4x3.0 m, avenue halves 2x3.3 m + median, all vehicles re-rendered (sedan 4.7 m = 0.235 tile), parked-car composites redone. | v3-soft3d-e: avenue extra tiles (end/corner/corner_outer/tee/gap/cross) for asphalt and concrete. | v3-soft3d-f: lots, house_lowdensity_1x1, civic and utility sprites re-rendered in soft 3D (same names/sizes/anchors); parked cars are the 3D traffic models at 20 m per tile inside the scenes; parking art added (civic_garage, civic_garage2, parking_garage, parking_lot, icon_parking). | v3-soft3d-g: parts library (assets/parts/, parts/manifest.json). | v3-soft3d-h: 25 park/recreation lots (assets/buildings/parks/, + night overlays with lamp glow). | v3-soft3d-i: 4-way facing variants <name>_{NE,SE,SW,NW} for 27 zone buildings (+night) and 6 construction stages; model rotated in scene (camera/sun fixed), front faces named road side; canvases/anchors identical to base; unsuffixed files unchanged (= SE facing). | v3-soft3d-j: night-light fix — builders guarantee >=1 lit light (warm wall lamps, always on, camera-visible) on every model side so all facings glow on both visible sides; 15 blank facing overlays + blank base bld_I_2_c_night fixed; 92 files re-rendered (see PROMOTION_nightfix.txt). Doors unchanged. | v3-soft3d-k: civic_bus_depot (2x2, 256x208, anchor as civic_garage2; garage hall with 4 service bays, office, service canopy, 5 parked veh_bus_a at traffic scale) in 4 facings + unsuffixed (= _SE), all with night overlays; prop_bus_stop_{NE,SE,SW,NW} (+_night), soft-3D shelter + sign, dir = bus travel direction (stop-sign convention), 64x48 canvas. | v3-soft3d-n: avenue art realigned to game AV_D0 0.07 (median 1.4 m half, no gutter, lane centres 0.15/0.31/0.47 = AV_LN), white edge line ~2 px; 64 avenue_<tier>_taper_<street|dirt>_<D>_<P>_<main|side> tiles (see PROMOTION_avenue_taper.txt). | v3-soft3d-o: artRevision synced with revision (it had been left at v3-soft3d-h). 27 roundabout_<tier>_<di><dj> pieces (3x3 single-lane roundabout, dirt/asphalt/concrete; see autotile.roundabout and PROMOTION_roundabout.txt). | v3-soft3d-p: roundabout _night overlays (27, additive), roundabout_stage_* construction pieces (36), dirt NE-arm yield sign added (smaller, nearer the ring); UI icon road_roundabout (assets/ui/icons). See PROMOTION_roundabout.txt. | v3-soft3d-q (2026-11-01): roundabout2, a 2-lane modern roundabout in a 3x3 footprint: 27 tiles + 27 _night + 36 construction stages, autotile.roundabout2 (radii + lane paths), UI icon road_roundabout2. | v3-soft3d-r (2026-11-01): end-game towers: 13 buildings (bld_R_4_a-c mid-rise 2x2, bld_R_5_a-c high-rise 2x2/3x3, bld_C_4_a-c offices/skyscrapers, bld_M_4_a-b mixed-use, bld_I_4_a-b high-tech campus) x 4 facings + _night, and construction_2x2_stage1-3, construction_2x2_tall_stage1-3, construction_3x3_tall_stage1-3 x 4 facings. Anchor = footprint-diamond centre. See PROMOTION_endgame_towers.txt. | v3-soft3d-s (2026-11-01): end-game utilities: util_gas_cc, util_nuclear (4x4), util_water_treatment, util_desal, util_sewage (4 facings each), util_solar, util_watertower, util_wind_b (+blade frames f0-f3), all with _night; construction_util_3x3/4x4_stage1-3 x 4 facings. 28 UI icons (13 end-game buildings, 8 utilities, 7 milestones). See PROMOTION_endgame_util_icons.txt.",
  "parts": {
   "manifest": "parts/manifest.json",
   "count": 88
  },
- "revision": "v3-soft3d-r",
+ "revision": "v3-soft3d-s",
  "vehicleBodyNote": "Vehicle collision/body fields (rev v3-soft3d-l). Travel axis = the vehicle's facing direction on the iso grid. bodyFront/bodyRear: signed distance in TILES (1 tile = 20 m) along the travel axis from the sprite anchor (vehicle ground centre) to the front/rear bumper; front positive, rear negative. lengthTiles = bodyFront - bodyRear (true bumper-to-bumper length, measured from Blender geometry incl. lamps, cross-checked against rendered alpha). Bumper-to-bumper queue: centre distance between follower F and leader L = F.bodyFront - L.bodyRear + gap, i.e. place F anchor at L anchor - (F.bodyFront - L.bodyRear + gap) along the axis. travelAxisPx = screen offset in 2x px for +1 tile along travel (SE [64,32], SW [-64,32], NE [64,-32], NW [-64,-32]); divide by 2 for 1x screen px. headlightOffsetPx/taillightOffsetPx = bodyFront/bodyRear * travelAxisPx, in 2x px from the vehicle anchor: put the anchor of headlightGlow/taillightGlow (fx_*, blend add, layer night) there. Both fx glows are ground light: draw them UNDER the vehicle sprites (drawOrder 'underVehicle'). A taillight glow drawn over the body puts red light on the box/cab side and reads as a reversed vehicle. The sprite canvas is NOT centred on the body (anchor x != 0.5) - never space cars by canvas width."
 }

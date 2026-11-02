@@ -27,7 +27,7 @@ await p.evaluate(()=>__city.fastForward(120));const nl=await p.evaluate(()=>__ci
 // save/load with lots
 const rt=await p.evaluate(async()=>{const o=__city.serialize();const n=o.lots.length;__city.applySave(JSON.parse(JSON.stringify(o)));return [n,__city.lots().length]});ok('save/load keeps lots',rt[0]===rt[1],rt.join('->'));
 // Ctrl+S
-await p.keyboard.press('Control+s');await p.waitForTimeout(1500);const sv=await p.evaluate(async()=>(await __city.listSaves()).map(s=>s.id));ok('Ctrl+S saves',sv.some(x=>x.startsWith('slot:')),sv.join(','));
+await p.keyboard.press('Control+s');await p.waitForFunction(async()=>(await __city.listSaves()).some(s=>s.id.startsWith('slot:')),null,{timeout:20000}).catch(()=>{});const sv=await p.evaluate(async()=>(await __city.listSaves()).map(s=>s.id));ok('Ctrl+S saves',sv.some(x=>x.startsWith('slot:')),sv.join(','));
 // lot-to-square upgrade: run long with services and see lots get replaced by bigger buildings
 await p.evaluate(([i,j])=>{__city.plop('school',i+2,j-2);__city.plop('police',i-2,j+2);__city.plop('clinic',i+2,j+2)},[ci,cj]);
 await p.evaluate(()=>__city.fastForward(1500));const up=await p.evaluate(()=>{let hi=0;const z=__city.zone,bl=__city.bld;for(let i=0;i<__city.N();i++)for(let j=0;j<__city.N();j++)if(z[i][j]==='R'&&bl[i][j]>=2&&!__city.lotAt(i,j))hi++;return [hi,__city.lots().length]});const dbg=await p.evaluate(()=>({pop:__city.sim().pop,dR:__city.sim().dR,u:__city.util}));ok('lots upgrade to square buildings',up[0]>0,JSON.stringify(dbg)+' '+'R level2+ non-lot tiles '+up[0]+', lots '+up[1]);

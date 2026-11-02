@@ -20,3 +20,10 @@ console.log('sync-art:',n,'file(s) updated, manifest',src.revision);
  console.log('sync-art: plot parts',pm.parts.length,'icons',ids.length,'-',k,'file(s) updated')}}
 // promoted end-game towers + 2x2/3x3 construction sets live in assets/buildings: copy them so the main manifest's entries load
 {const B=path.join(SRC,'buildings');let k=0;if(fs.existsSync(B))for(const f of fs.readdirSync(B))if(/^(bld_[RCMI]_[45]_|construction_(2x2|3x3))/.test(f)){const a=path.join(B,f),b=path.join(DST,'buildings',f);if(!fs.existsSync(b)||!fs.readFileSync(a).equals(fs.readFileSync(b))){fs.copyFileSync(a,b);k++}}console.log('sync-art: end-game buildings',k,'file(s) updated')}
+// end-game utilities + icons: promoted copies if present, else City Art Studio's staging sets (staging/endgame_utilities, staging/endgame_icons)
+{const ST=path.join(SRC,'..','staging');let k=0;const cp=(a,b)=>{fs.mkdirSync(path.dirname(b),{recursive:true});if(!fs.existsSync(b)||!fs.readFileSync(a).equals(fs.readFileSync(b))){fs.copyFileSync(a,b);k++}};
+ const um=path.join(ST,'endgame_utilities','manifest.json');if(fs.existsSync(um)){const m=JSON.parse(fs.readFileSync(um)),mp=path.join(DST,'manifest.json'),cur=JSON.parse(fs.readFileSync(mp)),have=new Set(cur.assets.map(x=>x.name));let add=0;
+  for(const x of m.assets){const f=path.basename(x.file),prom=path.join(SRC,x.file),stg=path.join(ST,'endgame_utilities',f),src=fs.existsSync(prom)?prom:stg;if(!fs.existsSync(src))continue;cp(src,path.join(DST,x.file));if(!have.has(x.name)){const {night,...r}=x;cur.assets.push(r);add++}}
+  if(add){fs.writeFileSync(mp,JSON.stringify(cur,null,1));k++}}
+ for(const s of ['svg','png48','png24']){const d=path.join(ST,'endgame_icons',s);if(fs.existsSync(d))for(const f of fs.readdirSync(d)){const prom=path.join(SRC,'ui','icons',s,f);cp(fs.existsSync(prom)?prom:path.join(d,f),path.join(DST,'ui','icons2',s,f))}}
+ console.log('sync-art: end-game utilities/icons',k,'change(s)')}

@@ -27,3 +27,5 @@ console.log('sync-art:',n,'file(s) updated, manifest',src.revision);
   if(add){fs.writeFileSync(mp,JSON.stringify(cur,null,1));k++}}
  for(const s of ['svg','png48','png24']){const d=path.join(ST,'endgame_icons',s);if(fs.existsSync(d))for(const f of fs.readdirSync(d)){const prom=path.join(SRC,'ui','icons',s,f);cp(fs.existsSync(prom)?prom:path.join(d,f),path.join(DST,'ui','icons2',s,f))}}
  console.log('sync-art: end-game utilities/icons',k,'change(s)')}
+// Walking people (own manifest): assets/people -> public/assets/people (sheets + night overlays + manifest.json)
+{const P=path.join(SRC,'people');if(fs.existsSync(P)){let k=0;fs.mkdirSync(path.join(DST,'people'),{recursive:true});for(const f of fs.readdirSync(P)){const a=path.join(P,f),b=path.join(DST,'people',f);if(fs.statSync(a).isFile()&&(!fs.existsSync(b)||!fs.readFileSync(a).equals(fs.readFileSync(b)))){fs.copyFileSync(a,b);k++}}console.log('sync-art: people -',k,'file(s) updated')}}

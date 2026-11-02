@@ -6,6 +6,7 @@ import { PARKING, TRIPS, RESIDENTS, residentsOf, RES_UNITS, JOBS, POWER_KW, WATE
 import { SVC, localEdu, inpatientRate, healthEduFactor, crimeRate, type SvcStat } from './services';
 import { Playlist, Ambience, Sfx } from './audio';
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
+import { Peds, type PedKind, type Ped } from './peds';
 import { plotStats, drawPlot, newDesign, walkPiece, fencePiece, fits, partAt, PARTS, CELLS, type Design, type PartType, type PlotStats } from './plots';
 import { loadManifest, place, placeNight, hasArt, artMeta, artTex, facingName , autotile } from './sprites';
 
@@ -1385,6 +1386,7 @@ function diamond(g: Graphics, i: number, j: number) {
       html += '<p style="color:#8b98a8;font-size:12px">Terms add up before clamping to −1…+1. Growth also needs road access, power and water.</p>'; }
     else if (dataTab === 'Transportation') { const t = transportStats(), tot = t.car + t.bus + t.walk + t.other;
       html = h('Trips by mode (people/day, one way)') + dbar('<img class="ic" src="./assets/ui/icons2/svg/trip_car.svg" alt=""> Car', t.car, tot, '#9aa0a6', `${fmt(t.car)} · ${pc(tot ? t.car / tot : 0)}`) + dbar('<img class="ic" src="./assets/ui/icons2/svg/trip_bus.svg" alt=""> Bus', t.bus, tot, '#2f6fd1', `${fmt(t.bus)} · ${pc(tot ? t.bus / tot : 0)}`) + dbar('<img class="ic" src="./assets/ui/icons2/svg/trip_walk.svg" alt=""> Walk (≤ 400 m)', t.walk, tot, '#3ecf4a', `${fmt(t.walk)} · ${pc(tot ? t.walk / tot : 0)}`) + dbar('Other (school bus, carpool, bike)', t.other, tot, '#8b98a8', `${fmt(t.other)} · ${pc(tot ? t.other / tot : 0)}`)
+        + h('Walking now (live)') + row('People on the sidewalks', `<span id="liveWalkN">${fmt(peds.list.length)}</span>`, peds.scale > 1.5 ? `each stands for ~${fmt(peds.scale)} walks` : '') + Object.entries(peds.list.reduce((a, q) => (a[q.via === 'bus' ? 'to / from the bus' : q.via === 'car' ? 'from a parked car' : q.purpose] = (a[q.via === 'bus' ? 'to / from the bus' : q.via === 'car' ? 'from a parked car' : q.purpose] ?? 0) + 1, a), {} as Record<string, number>)).map(([k, v]) => dbar(k, v, peds.list.length, '#3ecf4a', fmt(v))).join('') + row('Walkers shown since you opened the city', fmt(peds.spawned))
         + h('Commuting') + row('Average commute (driving to work)', t.avg ? t.avg.toFixed(1) + ' min' : '—') + row('Failed commutes last month', fmt(failed.last), `${fmt(failed.total)} total`) + row('Demand penalty from jams', pc(jamPenalty))
         + row('Trips by purpose', Object.entries(t.kinds).map(([k, v]) => `${k} ${fmt(v)}`).join(' · ') || '—')
         + liveVeh()
@@ -1517,6 +1519,10 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   window.addEventListener('keydown', e => { if (e.key === 'Escape') hideInfo(); });
   { const prev = toolHook; toolHook = t => { prev?.(t); document.getElementById('info')!.style.display = 'none'; }; }
   const inspectAt = (sx: number, sy: number) => { const wx = (sx - world.position.x) / zoom, wy = (sy - world.position.y) / zoom;
+    const pd = peds.at(wx, wy, 6); if (pd) { const [hi, hj] = tileOf(pd.home), [di, dj] = tileOf(pd.dest), who = pd.kind === 'kid' ? 'Child' : pd.kind === 'senior' ? 'Senior' : pd.kind === 'stroller' ? 'Parent with a stroller' : pd.kind === 'dogwalker' ? 'Dog walker' : 'Resident';
+      const to = pd.via === 'bus' ? 'bus stop' : placeName(pd.dest) + ` (${di}, ${dj})`;
+      info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/trip_walk.svg" alt=""> <b>${who} walking</b>${pd.via === 'car' ? ' from a parked car' : pd.via === 'bus' ? ' to the bus' : ''}<br><span id="pedAge">Age: ${pd.age}</span>${pd.lead ? ' · with a grown-up' : pd.via && pd.via.startsWith('walking') ? ' · ' + pd.via : ''}<br>Trip: <span id="pedPurpose">${pd.purpose}</span><br>${pd.back ? `From: ${pd.via === 'bus' ? 'bus stop' : placeName(pd.dest) + ` (${di}, ${dj})`}<br>To: home at ${hi}, ${hj}` : `Home: house at ${hi}, ${hj}<br>Going to: ${to}`}<br><small>Each walker shown stands for ~${Math.max(1, Math.round(peds.scale))} real walks</small>`;
+      showInfo(); return pd as any; }
     let best: Car | null = null, bd = 9; for (const c of cars) if (c.s.visible && c.trip) { const d = Math.hypot(c.s.x - wx, c.s.y - 2 - wy); if (d < bd) { bd = d; best = c; } }
     if (!best) return inspect(tileAt(sx, sy)); const t = best.trip!, [hi, hj] = tileOf(t.home), [di, dj] = tileOf(t.dest), left = best.route!.slice(best.ri ?? 0);
     info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/trip_car.svg" alt=""> <b>${best.key.replace(/^veh_|_[a-z]$/g, '').replace(/_/g, ' ').replace(/^./, x => x.toUpperCase())}</b> — ${KNAME[t.kind]}${t.back ? ' (heading home)' : ''}<br>${t.kind === 'freight' ? `<span id="carDriver">Driver: hired ${/semi/.test(best.key) ? 'freight' : 'delivery'} driver${t.age ? `, ${t.age}` : ''}</span>` : `<span id="carDriver">Driver: resident, age ${t.age ?? '?'}</span>${t.kind === 'school' ? ' · driving kids to school' : ''}`}<br>Trip: <span id="carPurpose">${({ work: 'work', school: 'school', errand: 'shopping', leisure: 'leisure', freight: 'freight' } as any)[t.kind] ?? t.kind}</span><br>${t.back ? 'From' : 'Home'}: ${t.back ? placeName(t.dest) + ` (${di}, ${dj})` : `house at ${hi}, ${hj}`}<br>${t.back ? 'To: home at ' + hi + ', ' + hj : 'Going to: ' + placeName(t.dest) + ` (${di}, ${dj})`}<br>${left.length} road tiles left · about ${Math.max(1, Math.round(trips.minutes(left)))} min<br><small>Each car on screen stands for ~${Math.max(1, Math.round(t.scale))} real trips this hour</small>`;
@@ -1687,6 +1693,33 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
     for (const [o, ox, oy, ohx, ohy, org] of others) { if (o === c || (!meRg && !org) || ohx * hx + ohy * hy < 0) continue; /* both on plain road halves (normal lane spacing applies) or oncoming (the other half of an arm) */ const d0 = (ox - p0[0]) * hx + (oy - p0[1]) * hy; if (d0 <= 0.01) continue; const dx = ox - p1[0], dy = oy - p1[1], al = dx * hx + dy * hy, lat = Math.abs(dx * hy - dy * hx);
       if (lat < 0.11 && al < c.bf! + o.br! + STOP_GAP) return false; }
     return true; };
+  // ---- walking residents (sidewalks): short walk trips from the trip model, bus-stop walks, and the walk from a parked car ----
+  const peds = new Peds({ N, road: (i, j) => inb(i, j) && road[i][j] && !rab[i][j] && !rstage[i][j], toScreen: (i, j) => toScreen(i, j), layerAt: (i, j) => chunkOf(i, j), cars: () => cars });
+  peds.load();
+  const roadNear = (k: number) => { const a = trips.access[k]; if (a >= 0) return a; const [i, j] = tileOf(k), c = civAt[i]?.[j], i0 = c ? c.i : i, j0 = c ? c.j : j, s = c ? c.s : 1; // parks and civic lots: any road along the footprint
+    for (let x = -1; x <= s; x++) for (let y = -1; y <= s; y++) if ((x < 0 || y < 0 || x >= s || y >= s) && inb(i0 + x, j0 + y) && road[i0 + x][j0 + y] && !rab[i0 + x][j0 + y]) return (i0 + x) * N + j0 + y; return -1; };
+  let walkKey = -1, walkFlows: any[] = [], walkDay = 0; const walkLive = { walk: 0, bus: 0, car: 0 };
+  const PURP: Record<string, string> = { work: 'work', school: 'school', errand: 'shopping', leisure: 'park' };
+  const spawnWalk = (f: any, back: boolean, via?: 'bus' | 'car', from?: number): Ped | null => { const kind0 = f.kind as string; let kind: PedKind = 'adult';
+    const r = Math.random(); if (kind0 === 'school') kind = 'kid'; else if (kind0 !== 'work') kind = r < 0.22 ? 'senior' : kind0 === 'leisure' && r < 0.4 ? 'dogwalker' : r < 0.32 ? 'stroller' : 'adult';
+    let o = f.home, t = f.dest; if (via === 'bus') { let b = -1, bd = 99; for (const s of stops) { const d = trips.md(f.home, s); if (d < bd) { bd = d; b = s; } } if (b < 0 || bd > 10) return null; t = b; }
+    if (via === 'car' && from !== undefined) { o = from; } const ra = via === 'car' ? from! : roadNear(o), rb = via === 'bus' ? t : roadNear(t); if (ra < 0 || rb < 0) return null;
+    const lead = kind === 'kid' && Math.random() < 0.7 ? peds.spawn(back ? t : o, back ? rb : ra, back ? o : t, back ? ra : rb, PURP[kind0] ?? kind0, 'adult', Peds.ageFor('adult', 'school'), { back: false, via: 'walking a child to school' }) : null; // younger kids walk with a grown-up
+    const p = back ? peds.spawn(t, rb, o, ra, PURP[kind0] ?? kind0, kind, Peds.ageFor(kind, kind0), { back: true, via, lead: lead ?? undefined }) : peds.spawn(o, ra, t, rb, PURP[kind0] ?? kind0, kind, Peds.ageFor(kind, kind0), { via, lead: lead ?? undefined });
+    if (lead) { lead.home = f.home; lead.dest = f.dest; lead.back = back; } if (p && via === 'car') { p.home = f.home; p.dest = f.dest; }
+    if (p) walkLive[via ?? 'walk']++; return p; };
+  /** each game hour: walk trips leave on the same time-of-day curves as drives; none 23:00–05:00 */
+  const spawnWalks = () => { const hour = sim.day % 24; peds.speed = Math.max(1, sim.speed); if (!peds.ready || hour < 5 || hour >= 22) return;
+    if (walkKey !== trips.version) { walkKey = trips.version; walkFlows = trips.flows.filter(f => f.kind !== 'freight' && trips.md(f.home, f.dest) <= TRIPS.walkTiles);
+      walkDay = 0; for (const f of trips.flows) if (f.kind !== 'freight') { const n = trips.md(f.home, f.dest) <= TRIPS.walkTiles ? f.people : f.people * (f.bus ?? 0); walkDay += n * 2; } }
+    const cand: [any, boolean, 'bus' | undefined, number][] = []; let tot = 0;
+    for (const f of trips.flows) { if (f.kind === 'freight') continue; const o = TRIPS.out[f.kind][hour] ?? 0, b = TRIPS.back[f.kind][hour] ?? 0; if (!(o + b)) continue;
+      const walk = trips.md(f.home, f.dest) <= TRIPS.walkTiles, w = walk ? f.people * (o + b) : f.people * (f.bus ?? 0) * (o + b); if (w <= 0) continue; cand.push([f, Math.random() * (o + b) >= o, walk ? undefined : 'bus', w]); tot += w; }
+    peds.scale = Math.max(1, walkDay / (peds.max * 3)); const wantF = Math.min(30, tot / peds.scale); let want = Math.floor(wantF) + (Math.random() < wantF % 1 ? 1 : 0);
+    while (want-- > 0 && cand.length) { let x = Math.random() * tot, c = cand[0]; for (const q of cand) { if (x < q[3]) { c = q; break; } x -= q[3]; } spawnWalk(c[0], c[1], c[2]); } };
+  /** a driver who parked walks the last stretch to the door (only for cars that arrived, a share of them so walkers stay in proportion) */
+  const parkWalk = (c: Car) => { const t = c.trip; if (!t || c.bus || t.kind === 'freight' || Math.random() > 0.5) return; const h = sim.day % 24; if (h < 5 || h >= 23) return; const end = c.i * N + c.j, goal = t.back ? t.home : t.dest; if (trips.md(end, goal) > 8) return;
+    const p = spawnWalk({ kind: t.kind === 'school' ? 'errand' : t.kind, home: t.home, dest: t.dest }, false, 'car', end); if (p) { p.dest = goal; p.home = t.home; p.back = !!t.back; p.age = t.age ?? p.age; if (p.kind === 'kid') p.kind = 'adult'; } };
   const dropCar = (k: number) => { const c = cars[k]; c.s.destroy(); c.n?.destroy(); c.hg?.destroy(); c.tg?.destroy(); cars.splice(k, 1); };
   /** body extent along travel from the sprite anchor, in tiles (manifest bodyFront / -bodyRear); falls back to a 4.8 m car */
   const bodyOf = (c: Car) => { if (c.bf === undefined) { const a = artMeta(c.key + '_d00') ?? artMeta(c.key + '_NE'); c.bf = a?.bodyFront ?? 0.12; c.br = -(a?.bodyRear ?? -0.12); } return c; };
@@ -1763,7 +1796,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
       if (p.life > p.max || !fx.smoke) { p.s.destroy(); smoke.splice(k, 1); continue; }
       p.s.x += p.vx * dt; p.s.y += p.vy * dt; p.s.scale.set(0.12 + p.life * 0.12); p.s.alpha = 0.5 * (1 - p.life / p.max); }
     if (fx.cars) {
-      if (sim.day !== lastTripHour) { lastTripHour = sim.day; if (fx.cars) spawnTrips(); }
+      if (sim.day !== lastTripHour) { lastTripHour = sim.day; if (fx.cars) { spawnTrips(); spawnWalks(); } }
       if (fx.cars && pending.length) drainPending();
     }
     for (const ch of chunks) if (ch.vis) for (const t of ch.trucks) { const w = t.__truck, f = Math.sin(clock * 1.3 + w.ph), d = Math.cos(clock * 1.3 + w.ph) >= 0 ? 0 : 1; t.x = w.x + f * w.vx; t.y = w.y + f * w.vy; if (d !== w.d) { w.d = d; if (t instanceof Sprite) { const tx = artTex(w.keys[d]); if (tx) t.texture = tx; } else t.scale.x = d ? -1 : 1; } }
@@ -1819,7 +1852,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
         if (inRab && nt > c.t) { const os = rabNear.get(rab[c.i][c.j] || rab[c.pi][c.pj]) ?? []; if (!rabRoom(c, c.t, nt, os)) { const half = c.t + (nt - c.t) * 0.4; nt = rabRoom(c, c.t, half, os) ? half : c.t; } }
         c.t = Math.max(c.t, nt); if (ix >= 0) l[ix] = c.t; }
       if (c.t >= 1) { if (c.bus && !c.nx && c.route && (c.ri ?? 0) + 1 >= c.route.length) c.ri = 0; // buses keep looping
-        const nx = c.nx ?? routeNext(c); if (!nx) { dropCar(k); continue; } // arrived: the driver parks and walks in
+        const nx = c.nx ?? routeNext(c); if (!nx) { parkWalk(c); dropCar(k); continue; } // arrived: the driver parks and walks in
         if (!c.bus && rab[nx[0]][nx[1]] && !rab[c.i][c.j] && rabL(nx[0], nx[1]) === 2 && rw[c.i][c.j] && ROAD_WIDTHS[wKind(rw[c.i][c.j])].lanesPerDir >= 2) { const [a0, b0] = rabO(nx[0], nx[1]), want = rabLane({ ...c, ri: (c.ri ?? 0) + 1 } as Car, a0, b0, 2) ? 0 : 1; c.ln = want; c.rlK = undefined; } // 2-lane roundabout: pick the approach lane by exit (left lane -> inner, right lane -> outer) on the last stretch before the yield line
         const nk = segK(c.i, c.j, nx[0], nx[1], c.ln), nl = lane.get(nk); if (!roomAt(nk, c, 0)) { c.t = 1; } else {
         const ol = lane.get(ck); if (ol) { const ix = ol.indexOf(c.t); if (ix >= 0) ol.splice(ix, 1); } if (nl) nl.push(0); else lane.set(nk, [0]); const oc = laneC.get(ck); if (oc) { const q = oc.indexOf(c); if (q >= 0) oc.splice(q, 1); } const ncl = laneC.get(nk); if (ncl) ncl.push(c); else laneC.set(nk, [c]);
@@ -1859,6 +1892,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
       c.s.visible = vis;
     }
     }
+    peds.speed = Math.max(1, sim.speed); peds.now = sim.day + frac; peds.update(fx.cars && sim.speed ? dt * Math.max(1, sim.speed) : 0, curTint, night, fx.cars); if (!fx.cars && peds.list.length) peds.clear(); // walkers: whole city simulated, only visible chunks drawn
   });
   let frames = 0, cpuAcc = 0, tF = 0; app.ticker.add(() => { frames++; tF = performance.now(); }, undefined, 1000); // highest priority: start of frame work
   app.ticker.add(() => { cpuAcc += performance.now() - tF; }, undefined, -1000); // after Pixi has rendered: JS + scene submission time per frame
@@ -1876,7 +1910,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   };
   const measure = async (ms = 5000) => { const f0 = frames, t0 = performance.now(); perf.tickMax = 0; cpuAcc = 0; await new Promise(r => setTimeout(r, ms)); const cpu = Math.round(cpuAcc / Math.max(1, frames - f0) * 10) / 10; return { cpuFrameMs: cpu, fps: Math.round((frames - f0) * 1000 / (performance.now() - t0) * 10) / 10, tickAvgMs: Math.round(perf.tick * 10) / 10, tickMaxMs: Math.round(perf.tickMax * 10) / 10, censusMs: Math.round(perf.census * 10) / 10, visibleChunks: chunks.filter(c => c.vis).length, cars: cars.length, smoke: smoke.length }; };
   Object.assign((window as any).__city, { layers: { groundL, gridL, roadL, zoneL, objL, smokeL, cloudL, nightG, iconL, skyL, pipeL }, genDense, measure, perf, chunks: () => chunks.length, far: () => far, pan: (dx: number, dy: number) => { camX += dx; camY += dy; } });
-  (window as any).__fx = { fx, cars, smoke, setDay: (d: number) => { sim.day = d; lastTick = performance.now(); } };
+  (window as any).__peds = peds; (window as any).__fx = { fx, cars, smoke, setDay: (d: number) => { sim.day = d; lastTick = performance.now(); } };
   app.ticker.add(t => {
     const sp = 600 * (t.deltaMS / 1000) / zoom;
     if (keys.has('a') || keys.has('arrowleft')) camX -= sp;

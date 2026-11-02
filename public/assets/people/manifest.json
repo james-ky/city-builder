@@ -1,0 +1,280 @@
+{
+ "revision": "people-1",
+ "date": "2026-11-01",
+ "resolution": "2x",
+ "displayScale": 0.5,
+ "frameSize": [
+  32,
+  32
+ ],
+ "anchorPx": [
+  16,
+  24
+ ],
+ "anchor": [
+  0.5,
+  0.75
+ ],
+ "anchorNote": "ground point between the feet; identical for every frame, direction and variant",
+ "layout": "one sheet per variant: rows = directions d00..d15 (top to bottom), columns = frames f0..f8 (left to right); sheet size 288x512 at 2x",
+ "frames": {
+  "walk": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "idle": 8,
+  "count": 9
+ },
+ "fps": {
+  "walk": 10,
+  "note": "10 fps at a walk speed of ~0.06 tiles/s (true 1.4 m/s at 20 m/tile is 0.07 tiles/s); scale fps with speed"
+ },
+ "convention": "same as vehicles/manifest_16dir.json: dK heading K*22.5 deg, d00 = SE, K counter-clockwise (d04=NE, d08=NW, d12=SW). For 8 directions use even rows only.",
+ "scaleNote": "people are drawn at 1.75x true size (adult ~13 px tall at 2x, ~1/2 a sedan's screen length) so they read at 0.5 display scale",
+ "night": "optional overlay ped_<id>_night@2x.png, same layout; light-only, blend add on top of the darkened day sprite (lifts light collars/shoulder bands, shirts, shoes)",
+ "shadow": "soft contact shadow baked in, cast to bottom-right",
+ "variants": [
+  {
+   "id": "adult_a",
+   "file": "people/ped_adult_a@2x.png",
+   "night": "people/ped_adult_a_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "adult_b",
+   "file": "people/ped_adult_b@2x.png",
+   "night": "people/ped_adult_b_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "adult_c",
+   "file": "people/ped_adult_c@2x.png",
+   "night": "people/ped_adult_c_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "adult_d",
+   "file": "people/ped_adult_d@2x.png",
+   "night": "people/ped_adult_d_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "adult_e",
+   "file": "people/ped_adult_e@2x.png",
+   "night": "people/ped_adult_e_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "adult_f",
+   "file": "people/ped_adult_f@2x.png",
+   "night": "people/ped_adult_f_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "adult_g",
+   "file": "people/ped_adult_g@2x.png",
+   "night": "people/ped_adult_g_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "adult_h",
+   "file": "people/ped_adult_h@2x.png",
+   "night": "people/ped_adult_h_night@2x.png",
+   "kind": "adult"
+  },
+  {
+   "id": "dogwalker",
+   "file": "people/ped_dogwalker@2x.png",
+   "night": "people/ped_dogwalker_night@2x.png",
+   "kind": "dogwalker"
+  },
+  {
+   "id": "kid_a",
+   "file": "people/ped_kid_a@2x.png",
+   "night": "people/ped_kid_a_night@2x.png",
+   "kind": "kid"
+  },
+  {
+   "id": "kid_b",
+   "file": "people/ped_kid_b@2x.png",
+   "night": "people/ped_kid_b_night@2x.png",
+   "kind": "kid"
+  },
+  {
+   "id": "kid_c",
+   "file": "people/ped_kid_c@2x.png",
+   "night": "people/ped_kid_c_night@2x.png",
+   "kind": "kid"
+  },
+  {
+   "id": "senior_a",
+   "file": "people/ped_senior_a@2x.png",
+   "night": "people/ped_senior_a_night@2x.png",
+   "kind": "senior"
+  },
+  {
+   "id": "senior_b",
+   "file": "people/ped_senior_b@2x.png",
+   "night": "people/ped_senior_b_night@2x.png",
+   "kind": "senior"
+  },
+  {
+   "id": "stroller",
+   "file": "people/ped_stroller@2x.png",
+   "night": "people/ped_stroller_night@2x.png",
+   "kind": "stroller"
+  }
+ ],
+ "directions": [
+  {
+   "row": 0,
+   "dir": "d00",
+   "headingDeg": 0.0,
+   "travelAxisPx": [
+    64.0,
+    32.0
+   ]
+  },
+  {
+   "row": 1,
+   "dir": "d01",
+   "headingDeg": 22.5,
+   "travelAxisPx": [
+    83.62,
+    17.318
+   ]
+  },
+  {
+   "row": 2,
+   "dir": "d02",
+   "headingDeg": 45.0,
+   "travelAxisPx": [
+    90.51,
+    0.0
+   ]
+  },
+  {
+   "row": 3,
+   "dir": "d03",
+   "headingDeg": 67.5,
+   "travelAxisPx": [
+    83.62,
+    -17.318
+   ]
+  },
+  {
+   "row": 4,
+   "dir": "d04",
+   "headingDeg": 90.0,
+   "travelAxisPx": [
+    64.0,
+    -32.0
+   ]
+  },
+  {
+   "row": 5,
+   "dir": "d05",
+   "headingDeg": 112.5,
+   "travelAxisPx": [
+    34.637,
+    -41.81
+   ]
+  },
+  {
+   "row": 6,
+   "dir": "d06",
+   "headingDeg": 135.0,
+   "travelAxisPx": [
+    0.0,
+    -45.255
+   ]
+  },
+  {
+   "row": 7,
+   "dir": "d07",
+   "headingDeg": 157.5,
+   "travelAxisPx": [
+    -34.637,
+    -41.81
+   ]
+  },
+  {
+   "row": 8,
+   "dir": "d08",
+   "headingDeg": 180.0,
+   "travelAxisPx": [
+    -64.0,
+    -32.0
+   ]
+  },
+  {
+   "row": 9,
+   "dir": "d09",
+   "headingDeg": 202.5,
+   "travelAxisPx": [
+    -83.62,
+    -17.318
+   ]
+  },
+  {
+   "row": 10,
+   "dir": "d10",
+   "headingDeg": 225.0,
+   "travelAxisPx": [
+    -90.51,
+    -0.0
+   ]
+  },
+  {
+   "row": 11,
+   "dir": "d11",
+   "headingDeg": 247.5,
+   "travelAxisPx": [
+    -83.62,
+    17.318
+   ]
+  },
+  {
+   "row": 12,
+   "dir": "d12",
+   "headingDeg": 270.0,
+   "travelAxisPx": [
+    -64.0,
+    32.0
+   ]
+  },
+  {
+   "row": 13,
+   "dir": "d13",
+   "headingDeg": 292.5,
+   "travelAxisPx": [
+    -34.637,
+    41.81
+   ]
+  },
+  {
+   "row": 14,
+   "dir": "d14",
+   "headingDeg": 315.0,
+   "travelAxisPx": [
+    -0.0,
+    45.255
+   ]
+  },
+  {
+   "row": 15,
+   "dir": "d15",
+   "headingDeg": 337.5,
+   "travelAxisPx": [
+    34.637,
+    41.81
+   ]
+  }
+ ]
+}

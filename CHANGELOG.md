@@ -1,5 +1,11 @@
 # Changelog
 
+## Coverage ring for service buildings
+- Click a police station, fire station, clinic, hospital or school and its coverage area is outlined on the map in that service's colour, with the building's footprint marked.
+- Dragging the coverage radius slider grows or shrinks the ring (and the "tiles" figure) as you drag, so you can see which streets it will reach before you let go. Letting go applies the new radius as before.
+- The ring goes away when you close the panel (X or Esc) or click something else. The info panel also keeps its close button after a slider change (it used to disappear).
+- New test: tests/coverage-ring.cjs.
+
 ## Walking residents
 - Residents now walk on the sidewalks (City Art Studio people sprites, 16 directions, night versions): short walks to nearby shops, jobs, school and parks, walks to bus stops, and the walk from a parked car to the door.
 - Kids mostly walk to school with a grown-up, seniors walk slower, and fewer people walk at night (none from 11 PM to 5 AM).

@@ -1,0 +1,47 @@
+name: Unreal Win64 package
+
+on:
+  push:
+    branches: [main, 'unreal/**']
+    paths: ['unreal/**', '.github/workflows/unreal-win64.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: unreal-win64-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: [self-hosted, Windows, unreal]
+    timeout-minutes: 180
+    env:
+      UE_ROOT: ${{ vars.UE_ROOT || 'C:\Program Files\Epic Games\UE_5.7' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          clean: false   # keep Intermediate/ between runs so rebuilds are fast
+
+      - name: Package Win64 Development
+        shell: pwsh
+        run: |
+          $uat = Join-Path $env:UE_ROOT 'Engine\Build\BatchFiles\RunUAT.bat'
+          if (-not (Test-Path $uat)) { throw "Unreal not found at $env:UE_ROOT. Install UE 5.7 or set the UE_ROOT repo variable." }
+          $project = Join-Path $env:GITHUB_WORKSPACE 'unreal\CityBuilder.uproject'
+          $out = Join-Path $env:GITHUB_WORKSPACE 'unreal\Packaged'
+          if (Test-Path $out) { Remove-Item $out -Recurse -Force }
+          & $uat BuildCookRun -project="$project" -noP4 -utf8output -platform=Win64 -clientconfig=Development `
+            -build -cook -stage -pak -iostore -prereqs -archive -archivedirectory="$out" -unattended
+          if ($LASTEXITCODE -ne 0) { throw "BuildCookRun failed with exit code $LASTEXITCODE" }
+
+      - name: Zip
+        shell: pwsh
+        run: |
+          $src = Join-Path $env:GITHUB_WORKSPACE 'unreal\Packaged\Windows'
+          if (-not (Test-Path $src)) { $src = Join-Path $env:GITHUB_WORKSPACE 'unreal\Packaged' }
+          Compress-Archive -Path "$src\*" -DestinationPath "$env:GITHUB_WORKSPACE\CityBuilder-Win64.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CityBuilder-Win64
+          path: CityBuilder-Win64.zip
+          retention-days: 14

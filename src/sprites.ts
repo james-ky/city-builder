@@ -2,7 +2,17 @@ import { Assets, Graphics, Sprite, Texture, Container } from 'pixi.js';
 export const TW = 64, TH = 32;
 
 type Art = { tex: Texture; anchor: [number, number]; scale: number };
-const art = new Map<string, Art>();          // asset name -> texture
+const art = new Map<string, Art>();
+const artSources = new Set<any>();
+let mipsOn = true;
+/** Mipmaps blur art that is drawn at more than half its source size (trilinear blends in the half-size level),
+ * so they are only used when zoomed far out. WebGL2: caps each texture's mip chain at level 0 when off. */
+export function setArtMips(renderer: any, on: boolean) {
+  if (on === mipsOn) return; const gl: WebGL2RenderingContext | undefined = renderer?.gl, ts = renderer?.texture;
+  if (!gl || !ts?.getGlSource || typeof (gl as any).TEXTURE_MAX_LEVEL !== 'number') return; mipsOn = on;
+  for (const src of artSources) { if (src.destroyed) continue; const g = ts.getGlSource(src); ts.bindSource(src, 0); gl.texParameteri(g.target, gl.TEXTURE_MAX_LEVEL, on ? Math.max(0, src.mipLevelCount - 1) : 0); }
+}
+export const artMips = () => mipsOn;          // asset name -> texture
 const keyed = new Map<string, string>();     // lookup key (road_3, shore_16) -> asset name
 const weights = new Map<string, number>(); // variant name -> pick weight (default 1)
 const variants = new Map<string, string[]>(); // grass -> [grass_a, grass_b, ...]
@@ -25,7 +35,7 @@ async function loadOne(url: string) {
   await Promise.all((m.assets ?? []).map(async (a: any) => {
     try {
       const tex: Texture = await Assets.load('./assets/' + a.file);
-      tex.source.autoGenerateMipmaps = true; tex.source.updateMipmaps?.(); // mipmaps: clean, non-grainy art when zoomed out
+      tex.source.autoGenerateMipmaps = true; tex.source.updateMipmaps?.(); artSources.add(tex.source); // mipmaps: clean, non-grainy art when zoomed far out (see setArtMips)
       // Pixi already treats '@2x' files as resolution 2; size the sprite to manifest size * scale regardless
       const want = (a.size?.[0] ?? tex.source.pixelWidth) * (a.scale ?? defScale);
       art.set(a.name, { tex, anchor: a.anchor ?? [0.5, 0.5], scale: want / tex.width });

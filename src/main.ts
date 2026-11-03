@@ -1518,7 +1518,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
   const info = document.getElementById('info')!;
   const KNAME: Record<string, string> = { work: 'commuting to work', school: 'school run', errand: 'shopping / errand', leisure: 'going to the park', freight: 'freight delivery' };
   const placeName = (k: number) => { const [i, j] = tileOf(k), c = civAt[i][j]; return c ? SERV[c.type].name : zone[i][j] ? `${ZNAME[zone[i][j]]} ${DNAME[bld[i][j]] ?? ''} building` : 'road'; };
-  const hideInfo = () => { info.style.display = 'none'; };
+  const hideInfo = () => { info.style.display = 'none'; drawRing(null); };
   const showInfo = () => { if (!info.querySelector('.infoX')) info.insertAdjacentHTML('afterbegin', '<button class="infoX" title="Close (Esc)" style="float:right;margin:-4px -6px 0 10px;background:#2b3442;color:#fff;border:1px solid #556;border-radius:5px;cursor:pointer;padding:0 6px"><img class="ic" src="./assets/ui/icons2/svg/btn_close.svg" alt=""></button>'); info.querySelector<HTMLElement>('.infoX')!.onclick = hideInfo; info.style.display = 'block'; };
   window.addEventListener('keydown', e => { if (e.key === 'Escape') hideInfo(); });
   { const prev = toolHook; toolHook = t => { prev?.(t); document.getElementById('info')!.style.display = 'none'; }; }
@@ -1551,10 +1551,22 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
       + `<label class="sl" title="Coverage radius: wider = more area, but slower response and more vehicle upkeep">${SIC('overlay_' + ({ police: 'police', fire: 'fire', hospital: 'health', clinic: 'health', school: 'edu', highschool: 'edu' } as any)[k], 'Coverage radius')} <input id="svcRR" type="range" min="50" max="150" step="10" value="${Math.round((c.rr ?? 1) * 100)}"> <b>${r} tiles</b></label>`
       + `<label class="sl" title="Staff target (0 = auto: hire what the caseload needs). Limited by building size and the city workforce">${SIC('stat_jobs', 'Staff')} <input id="svcSF" type="range" min="0" max="${svcMax(c)}" step="1" value="${c.sf ?? 0}"> <b>${c.sf == null ? 'auto ' + want : want}</b></label>`
       + `<div class="svcrow">${SIC('stat_funds', 'Upkeep per month (building + wages)')} $${sn0(svcUpkeep(c))}/mo${svcTot.fill < 1 ? ` · ${SIC('status_warning', 'Not enough workers in the city to fill every public job')} ${Math.round(svcTot.fill * 100)}% hired` : ''}</div><small>Tile ${c.i}, ${c.j}</small>`; };
+  // coverage ring: while a service building's panel is open, outline the area it covers on the map (live while dragging the radius slider)
+  const ringG = new Graphics(); ringG.zIndex = 1e8; world.addChild(ringG); let ringCiv: Civ | null = null, ringR = 0;
+  const svcR = (c: Civ, rr = c.rr ?? 1) => SERV[c.type].radius * funding[c.type] * rr;
+  const drawRing = (c: Civ | null, r = c ? svcR(c) : 0) => { ringG.clear(); ringCiv = c; ringR = c ? r : 0; ringG.visible = !!c; if (!c || r < 0.5) return;
+    const S = SERV[c.type], ci = c.i + (c.s - 1) / 2, cj = c.j + (c.s - 1) / 2, col = COVCOL[S.kind] ?? 0xffffff, pts: number[] = [];
+    for (let a = 0; a < 72; a++) { const t = a / 72 * Math.PI * 2, q = toScreen(ci + r * Math.cos(t), cj + r * Math.sin(t)); pts.push(q.x, q.y); }
+    const o = toScreen(ci, cj), h = toScreen(c.i - 0.5, c.j - 0.5), w = toScreen(c.i + c.s - 0.5, c.j - 0.5), e = toScreen(c.i + c.s - 0.5, c.j + c.s - 0.5), n = toScreen(c.i - 0.5, c.j + c.s - 0.5);
+    ringG.poly(pts).fill({ color: col, alpha: 0.12 }).stroke({ width: 4, color: 0x10151c, alpha: 0.5 });
+    ringG.poly(pts).stroke({ width: 2.5, color: col, alpha: 0.95 });
+    ringG.poly([h.x, h.y, w.x, w.y, e.x, e.y, n.x, n.y]).stroke({ width: 2, color: col, alpha: 0.95 }); ringG.circle(o.x, o.y, 2.5).fill({ color: col, alpha: 0.95 }); };
+  Object.assign((window as any).__city, { svcRing: () => ({ on: ringG.visible && !!ringCiv, type: ringCiv?.type ?? null, i: ringCiv?.i ?? -1, j: ringCiv?.j ?? -1, r: ringR, w: ringG.visible ? ringG.getLocalBounds().width : 0 }) });
   const wireSvcSliders = (c: Civ) => { const rr = document.getElementById('svcRR') as HTMLInputElement | null, sf = document.getElementById('svcSF') as HTMLInputElement | null;
-    const redo = () => { computeCoverage(); computeRisks(); drawCoverage(); renderBudget(); info.innerHTML = serviceHtml(c); wireSvcSliders(c); };
-    if (rr) rr.onchange = () => { c.rr = rr.valueAsNumber / 100; redo(); }; if (sf) sf.onchange = () => { const v = sf.valueAsNumber; if (v <= 0) delete c.sf; else c.sf = v; redo(); }; };
+    const redo = () => { computeCoverage(); computeRisks(); drawCoverage(); renderBudget(); info.innerHTML = serviceHtml(c); showInfo(); wireSvcSliders(c); drawRing(c); };
+    if (rr) { rr.oninput = () => { const r = svcR(c, rr.valueAsNumber / 100), lb = rr.nextElementSibling as HTMLElement | null; if (lb) lb.textContent = `${Math.round(r)} tiles`; drawRing(c, r); }; rr.onchange = () => { c.rr = rr.valueAsNumber / 100; redo(); }; } if (sf) sf.onchange = () => { const v = sf.valueAsNumber; if (v <= 0) delete c.sf; else c.sf = v; redo(); }; };
   const inspect = ({ i, j }: { i: number; j: number }) => {
+    drawRing(null);
     if (inb(i, j) && consT[i][j]) { info.innerHTML = `<b>${ZNAME[zone[i][j]]} — under construction</b><br>Building: ${DNAME[consT[i][j]]}<br>Stage ${Math.min(3, 1 + Math.floor(consD[i][j] / CONS_DAYS))} of 3<br><small>Tile ${i}, ${j}</small>`; showInfo(); return; }
     const pct = (v: number) => Math.round(v * 100) + '%';
     if (inb(i, j) && stops.includes(i * N + j)) { const k = i * N + j, r = trips.riders.get(k) ?? 0, n = stops.indexOf(k) + 1;
@@ -1566,7 +1578,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
         info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/cat_parks.svg" alt=""> <b>${P.name}</b><br>Size ${P.size}×${P.size} · Build $${P.cost} · Upkeep $${P.upkeep}/month<br>Raises home values up to ${Math.round(S.str! * PARK_EFFECT.desirability * 100)}% demand boost within ${S.radius} tiles (fades with distance)<br>Homes nearby: <b>${homes}</b> · Cleans a little pollution${P.leisure ? '<br>Draws leisure trips from nearby homes' : ''}${vs.length > 1 ? `<br><button id="parkReroll" style="margin-top:4px"><img class="ic" src="./assets/ui/icons2/svg/btn_reroll.svg" alt=""> Different look (${vs.length} variants)</button>` : ''}<br><small>Tile ${c.i}, ${c.j}</small>`;
         showInfo(); const rb = document.getElementById('parkReroll'); if (rb) rb.onclick = () => rerollPark(c); return; }
       if (S.kind === 'parking') { const k = c.i * N + c.j; info.innerHTML = `<img class="ic" src="./assets/ui/icons2/svg/svc_garage.svg" alt=""> <b>${S.name}</b><br>Size ${S.size}×${S.size} · ${(PARKING as any)[c.type].spaces} spaces · Cost $${S.cost} · Upkeep $${UPKEEP[c.type]}/month${parkInfo(k)}<br>Fee income: ~$${Math.round(garageFees(k))}/month<br><small>Drivers park here for nearby offices, shops and hospitals, then walk</small>`; showInfo(); return; }
-      if (SVC_GROUP[c.type]) { info.innerHTML = serviceHtml(c); showInfo(); wireSvcSliders(c); return; }
+      if (SVC_GROUP[c.type]) { info.innerHTML = serviceHtml(c); showInfo(); wireSvcSliders(c); drawRing(c); return; }
       let served = 0; for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) if (zone[a][b] === 'R' && bld[a][b] && Math.hypot(a - ci, b - cj) <= S.radius) served += resCap(a, b);
       info.innerHTML = S.util ? `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost} · Upkeep $${UPKEEP[c.type]}/month<br>Output: <b>${S.kind === 'power' ? fmtPower(S.out!) : fmtWater(S.out!)}</b> ${S.kind === 'power' ? '<img class="ic" src="./assets/ui/icons2/svg/stat_power.svg" alt="">' : '<img class="ic" src="./assets/ui/icons2/svg/stat_water.svg" alt="">'}<br>City ${S.kind === 'power' ? `power: ${fmtPower(util.pUse)} / ${fmtPower(util.pCap)} (demand ${fmtPower(util.pWant)})` : `water: ${fmtWater(util.wUse)} / ${fmtWater(util.wCap)} (demand ${fmtWater(util.wWant)})`}<br>` : `<b>${S.name}</b><br>Size ${S.size}×${S.size} · Cost $${S.cost}<br>Coverage radius: ${S.radius} tiles<br>Residents covered: <b>${Math.round(served)}</b><br>Power ${powered[i][j] ? '<img class="ic" src="./assets/ui/icons2/svg/mark_ok.svg" alt="">' : '<img class="ic" src="./assets/ui/icons2/svg/mark_no.svg" alt="">'} · Water ${watered[i][j] ? '<img class="ic" src="./assets/ui/icons2/svg/mark_ok.svg" alt="">' : '<img class="ic" src="./assets/ui/icons2/svg/mark_no.svg" alt="">'}<br><small>Tile ${c.i}, ${c.j}</small>`; showInfo(); return; }
     if (inb(i, j) && pk[i][j]) { info.innerHTML = `<b>${pk[i][j] === 1 ? 'Private parking lot' : 'Private parking garage'}</b>${parkInfo(i * N + j)}<br><small>Grew here because drivers nearby couldn't find spaces · Tile ${i}, ${j}</small>`; showInfo(); return; }
@@ -1768,6 +1780,7 @@ body.plotting #uBar,body.plotting #uTray,body.plotting #roadTiers,body.plotting 
     if (ch.la !== lastNightTint) { ch.la = lastNightTint; for (const l of ch.lights) { l.alpha = Math.max(0, lastNightTint); l.visible = l.alpha > 0.02; } } } };
   app.ticker.add(t => {
     const dt = t.deltaMS / 1000; clock += dt;
+    if (ringCiv && (info.style.display === 'none' || !civs.includes(ringCiv))) drawRing(null); // panel closed or building bulldozed
     // day/night: one full cycle every 24 game-days, smoothed between ticks
     const frac = sim.speed ? Math.min(1, (performance.now() - lastTick) * sim.speed / HOUR_MS) : 0;
     const hour = (((sim.day + frac) % 24) + 24) % 24;

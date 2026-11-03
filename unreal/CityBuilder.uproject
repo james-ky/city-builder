@@ -1,0 +1,14 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.7",
+	"Category": "",
+	"Description": "City Builder - Unreal test town",
+	"Modules": [
+		{
+			"Name": "CityBuilder",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"TargetPlatforms": [ "Windows" ]
+}

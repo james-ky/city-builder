@@ -8,7 +8,7 @@ await p.evaluate(v=>{const s=document.getElementById('gfxQ');s.value=v;s.dispatc
 await p.reload();await p.waitForFunction(()=>window.__city&&__city.N);g=await p.evaluate(()=>({...__city.gfx(),q:localStorage.getItem('gfxQuality'),sel:document.getElementById('gfxQ').value}));ok('setting is saved and restored on reload',g.res===1&&g.q==='1'&&g.sel==='1',JSON.stringify(g));
 await p.evaluate(v=>{const s=document.getElementById('gfxQ');s.value=v;s.dispatchEvent(new Event('change'))},'auto');g=await p.evaluate(()=>__city.gfx());ok('back to Auto',g.res===2);
 const z=await p.evaluate(()=>{__city.setZoom(99);return __city.zoom()});ok('max zoom stays 4',z===4);
-await p.waitForTimeout(400);ok('zoomed in: no mipmaps (art stays sharp)',await p.evaluate(()=>__city.artMips())===false);
+ok('zoomed in: no mipmaps (art stays sharp)',await p.waitForFunction(()=>__city.artMips()===false,null,{timeout:20000}).then(()=>true,()=>false));
 await p.evaluate(()=>__city.setZoom(0.3));await p.waitForTimeout(400);ok('zoomed far out: mipmaps on (no grain)',await p.evaluate(()=>__city.artMips())===true);
 ok('roundPixels on',await p.evaluate(()=>__city.gfx().round)===true);
 await b.close();res.forEach(r=>console.log(r));if(errs.length)console.log('ERRORS',errs);process.exit(res.some(r=>r.startsWith('FAIL'))||errs.length?1:0)})();

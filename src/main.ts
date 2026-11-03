@@ -887,7 +887,7 @@ function diamond(g: Graphics, i: number, j: number) {
   let camX = center.x, camY = center.y;
   const keys = new Set<string>();
   const apply = () => {
-    world.scale.set(zoom); setArtMips(app.renderer, zoom * app.renderer.resolution < 1); // mipmaps only when art is under half its 2x source size
+    world.scale.set(zoom); setArtMips(app.renderer, zoom * app.renderer.resolution); // mipmaps only where a texture is drawn under half its source size
     world.position.set(app.screen.width / 2 - camX * zoom, app.screen.height / 2 - camY * zoom);
   };
   const minZoom = Math.min(0.2, Math.min(window.innerWidth / (N * TW), window.innerHeight / (N * TH)) * 0.9);

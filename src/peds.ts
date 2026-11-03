@@ -2,6 +2,7 @@
 // home -> nearby shop / job / school / park / bus stop (walk trips from the trip model), or parked car -> destination.
 // They keep to one sidewalk, cross at junctions (waiting for cars to clear), are fewer at night and gone in the small hours.
 // The sim runs for the whole city; only drawing is culled by the camera.
+import { registerArtSource } from './sprites';
 import { Assets, Rectangle, Sprite, Texture, Container } from 'pixi.js';
 import { TRIPS } from './realism';
 
@@ -22,9 +23,9 @@ const ri = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1))
 export class Peds {
   list: Ped[] = []; max = 160; scale = 1; spawned = 0; walkTrips = 0; private idN = 0; private tex = new Map<string, Texture[][]>(); private ntex = new Map<string, Texture[][]>(); ready = false; speed = 1; now = 0; maxHours = 4;
   constructor(private d: Deps) {}
-  async load() { let m: any; try { m = await (await fetch('./assets/people/manifest.json')).json(); } catch { return; }
+  async load() { const lowDpi = (window.devicePixelRatio || 1) < 1.5; let m: any; try { m = await (await fetch('./assets/people/manifest.json')).json(); } catch { return; }
     await Promise.all(m.variants.map(async (v: any) => { for (const [file, map] of [[v.file, this.tex], [v.night, this.ntex]] as [string, Map<string, Texture[][]>][]) { if (!file) continue;
-      try { const t: Texture = await Assets.load('./assets/' + file), src = t.source; src.style.magFilter = 'nearest'; src.style.update?.(); /* tiny pixel figures: keep edges hard when zoomed in */ const fw = src.width / 9, fh = src.height / 16, rows: Texture[][] = [];
+      try { const t: Texture = await Assets.load('./assets/' + (lowDpi ? file.replace('@4x', '@2x') : file)), src = t.source; src.autoGenerateMipmaps = true; src.updateMipmaps?.(); registerArtSource(src); /* 4x sheets (2x on 1x screens, a quarter of the memory); mipmaps when far out */ const fw = src.width / 9, fh = src.height / 16, rows: Texture[][] = [];
         for (let r = 0; r < 16; r++) { const row: Texture[] = []; for (let c = 0; c < 9; c++) row.push(new Texture({ source: src, frame: new Rectangle(c * fw, r * fh, fw, fh) })); rows.push(row); } map.set(v.id, rows); } catch { /* no art: that variant is skipped */ } } }));
     this.ready = this.tex.size > 0; }
   /** walk along road tiles: BFS on the road network from a to b, at most `lim` steps */

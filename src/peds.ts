@@ -24,7 +24,7 @@ export class Peds {
   constructor(private d: Deps) {}
   async load() { let m: any; try { m = await (await fetch('./assets/people/manifest.json')).json(); } catch { return; }
     await Promise.all(m.variants.map(async (v: any) => { for (const [file, map] of [[v.file, this.tex], [v.night, this.ntex]] as [string, Map<string, Texture[][]>][]) { if (!file) continue;
-      try { const t: Texture = await Assets.load('./assets/' + file), src = t.source, fw = src.width / 9, fh = src.height / 16, rows: Texture[][] = [];
+      try { const t: Texture = await Assets.load('./assets/' + file), src = t.source; src.style.magFilter = 'nearest'; src.style.update?.(); /* tiny pixel figures: keep edges hard when zoomed in */ const fw = src.width / 9, fh = src.height / 16, rows: Texture[][] = [];
         for (let r = 0; r < 16; r++) { const row: Texture[] = []; for (let c = 0; c < 9; c++) row.push(new Texture({ source: src, frame: new Rectangle(c * fw, r * fh, fw, fh) })); rows.push(row); } map.set(v.id, rows); } catch { /* no art: that variant is skipped */ } } }));
     this.ready = this.tex.size > 0; }
   /** walk along road tiles: BFS on the road network from a to b, at most `lim` steps */

@@ -27,7 +27,7 @@ const gs=await p.evaluate(()=>{const T=__city.trips(),N=__city.N();const g=__cit
 ok('garage fills with drivers and trips end there',gs.occ>0&&gs.n>0&&gs.ends,JSON.stringify(gs));ok('garage earns fees',gs.income>0,'$'+gs.income.toFixed(1)+'/mo');
 const txt=await p.evaluate(([ci,cj])=>{const g=__city.civs.find(x=>x.type==='garage2');const s=__city.tileToScreen(g.i,g.j);__city.setZoom(1);__city.centerOn(g.i,g.j);return null},c);
 await p.waitForTimeout(300);const info=await p.evaluate(()=>{const g=__city.civs.find(x=>x.type==='garage2');const s=__city.tileToScreen(g.i,g.j);__city.inspectAt(s.x,s.y);return document.getElementById('info').innerText});
-ok('garage shows occupancy readout',/Occupancy/.test(info)&&/spaces at peak/.test(info),info.replace(/\n/g,' | '));
+ok('garage shows occupancy readout',/Spaces used \d+ \/ 260/.test(info)&&/turned away/.test(info),info.replace(/\n/g,' | '));
 if(process.env.SHOT){await p.evaluate(([ci,cj])=>{__city.setZoom(2);__city.centerOn(ci+2,cj);__fx.setDay(24*40+8)},c);await p.waitForTimeout(1500);const g=await p.evaluate(()=>{const g=__city.civs.find(x=>x.type==='garage2');const s=__city.tileToScreen(g.i,g.j);__city.inspectAt(s.x,s.y)});await p.waitForTimeout(300);await p.screenshot({path:'screenshots/parking.png'})}
 const sv=await p.evaluate(()=>{const o=JSON.parse(JSON.stringify(__city.serialize()));let n0=0;for(const r of __city.pk)for(const v of r)n0+=!!v;__city.applySave(o);let n1=0;for(const r of __city.pk)for(const v of r)n1+=!!v;delete o.grids.pk;o.version=5;__city.applySave(o);let n2=0;for(const r of __city.pk)for(const v of r)n2+=!!v;return [o.version,n0,n1,n2]});
 ok('save v6 keeps private parking; v5 loads',sv[1]>0&&sv[1]===sv[2]&&sv[3]===0,JSON.stringify(sv));

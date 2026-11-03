@@ -22,7 +22,7 @@ jobs:
           clean: false   # keep Intermediate/ between runs so rebuilds are fast
 
       - name: Package Win64 Development
-        shell: pwsh
+        shell: powershell
         run: |
           $uat = Join-Path $env:UE_ROOT 'Engine\Build\BatchFiles\RunUAT.bat'
           if (-not (Test-Path $uat)) { throw "Unreal not found at $env:UE_ROOT. Install UE 5.7 or set the UE_ROOT repo variable." }
@@ -34,7 +34,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "BuildCookRun failed with exit code $LASTEXITCODE" }
 
       - name: Zip
-        shell: pwsh
+        shell: powershell
         run: |
           $src = Join-Path $env:GITHUB_WORKSPACE 'unreal\Packaged\Windows'
           if (-not (Test-Path $src)) { $src = Join-Path $env:GITHUB_WORKSPACE 'unreal\Packaged' }

@@ -38,11 +38,11 @@ export class TripSim {
   homeFlows = new Map<number, Flow[]>();
   volume: Float32Array; // vehicles/day per tile (smoothed)
   private volSamples = 0; private volCursor = 0;
-  occ: Float32Array; spaces: Float32Array; unmet: Float32Array; parkKind: Uint8Array; // peak cars parked / capacity per tile; unmet demand at destinations
+  occ: Float32Array; spaces: Float32Array; unmet: Float32Array; turned: Float32Array; parkKind: Uint8Array; // peak cars parked / capacity per tile; unmet demand at destinations
   stats = { parkedCars: 0, unparkedCars: 0, lostShoppers: 0, residents: 0, workers: 0, employed: 0, noJobReachable: 0, jobless: 0, kids: 0, schooled: 0, noSchoolReachable: 0, trucks: 0, busRiders: 0, assignMs: 0, routes: 0, cacheHits: 0, routeMs: 0 };
   riders = new Map<number, number>(); // stop tile -> boardings + alightings per day
   private cache = new Map<number, number[] | null>(); version = 0;
-  constructor(w: World) { this.w = w; this.N = w.N; const n = w.N * w.N; this.access = new Int32Array(n).fill(-1); this.comp = new Int32Array(n).fill(-1); this.volume = new Float32Array(n); this.occ = new Float32Array(n); this.spaces = new Float32Array(n); this.unmet = new Float32Array(n); this.parkKind = new Uint8Array(n); }
+  constructor(w: World) { this.w = w; this.N = w.N; const n = w.N * w.N; this.access = new Int32Array(n).fill(-1); this.comp = new Int32Array(n).fill(-1); this.volume = new Float32Array(n); this.occ = new Float32Array(n); this.spaces = new Float32Array(n); this.unmet = new Float32Array(n); this.turned = new Float32Array(n); this.parkKind = new Uint8Array(n); }
 
   /** recompute access, components and everybody's destinations (call monthly or after road edits) */
   assign(month = 0) {
@@ -111,17 +111,17 @@ export class TripSim {
   end(f: Flow) { return this.access[f.park ?? f.dest]; }
   /** give every car trip to a parking-short destination a space within walking distance; shoppers who can't park go elsewhere/home */
   private parkAll() { const { N, w } = this, n = N * N, st = this.stats; st.parkedCars = st.unparkedCars = st.lostShoppers = 0;
-    this.occ.fill(0); this.unmet.fill(0); for (let k = 0; k < n; k++) this.spaces[k] = w.parkSpaces((k / N) | 0, k % N);
+    this.occ.fill(0); this.unmet.fill(0); this.turned.fill(0); for (let k = 0; k < n; k++) this.spaces[k] = w.parkSpaces((k / N) | 0, k % N);
     const order = this.flows.filter(f => f.kind !== 'school' && f.kind !== 'freight' && this.md(f.home, f.dest) > TRIPS.walkTiles && w.needsParking((f.dest / N) | 0, f.dest % N));
     order.sort((a, b) => (a.kind === 'work' ? 0 : 1) - (b.kind === 'work' ? 0 : 1)); // commuters arrive first and take the close spaces
     for (const f of order) { const cars = carsOf(f), need = f.kind === 'work' ? cars : cars * PARKING.shopperStay; let left = need;
-      const di = (f.dest / N) | 0, dj = f.dest % N;
+      const di = (f.dest / N) | 0, dj = f.dest % N; let full = -1; // closest parking within reach that was already full
       for (let r = 0; r <= PARKING.maxWalkTiles && left > 1e-3; r++) for (let a = -r; a <= r && left > 1e-3; a++) for (const b of r - Math.abs(a) ? [r - Math.abs(a), -(r - Math.abs(a))] : [0]) {
-        const i = di + a, j = dj + b; if (i < 0 || j < 0 || i >= N || j >= N) continue; const k = i * N + j, free = this.spaces[k] - this.occ[k]; if (free <= 1e-3 || this.access[k] < 0) continue;
+        const i = di + a, j = dj + b; if (i < 0 || j < 0 || i >= N || j >= N) continue; const k = i * N + j, free = this.spaces[k] - this.occ[k]; if (free <= 1e-3 || this.access[k] < 0) { if (full < 0 && this.spaces[k] >= 10 && this.access[k] >= 0) full = k; continue; }
         const take = Math.min(free, left); this.occ[k] += take; left -= take; if (f.park === undefined || r < (f.walk ?? 99)) { f.park = k; f.walk = r; }
         if (r > PARKING.walkTiles) f.extraMin = PARKING.circleMinutes; if (left <= 1e-3) break; }
       st.parkedCars += need - left;
-      if (left > 1e-3) { this.unmet[f.dest] += left; st.unparkedCars += left;
+      if (left > 1e-3) { this.unmet[f.dest] += left; st.unparkedCars += left; if (full >= 0) this.turned[full] += left;
         if (f.kind === 'errand') { const lost = f.people * (left / need); f.people -= lost; st.lostShoppers += lost; } else f.extraMin = PARKING.circleMinutes * 2; } } }
   /** seconds to drive across a tile right now (free flow × BPR congestion) */
   tileCost(k: number) { const N = this.N, i = (k / N) | 0, j = k - i * N, vc = this.volume[k] / Math.max(1, this.w.capacity(i, j)); return this.w.tileSecs(i, j) * (1 + 0.15 * vc ** 4); }
